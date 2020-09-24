@@ -18,7 +18,7 @@ const items = [
 const SideBar = ({ isOpen, handleChange }) => {
   return (
     <Drawer open={isOpen} onClose={handleChange}>
-      <Grid container spacing={2} justify="space-evenly">
+      <Grid container justify="space-evenly">
         <Grid item xs={12}>
           <Typography variant="h4">Welcome!</Typography>
         </Grid>

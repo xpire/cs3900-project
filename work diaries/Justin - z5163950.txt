@@ -1,0 +1,2 @@
+Week 1
+Created a team with George, Even, Ian and Song. Researched the project ideas, and was interested in the investment simulator and the realestate projects. To make a better decision, I researched visualisation libraries for the investment simulator, as that would be a vital part of our solution. I found notable packages, such as react-vis, chartjs and apex. I ran some experiments locally.

@@ -1,0 +1,2 @@
+Week 1
+Team formed with Scrum master decided. Consecutive meetings also caused the decision of Investment simulator picked as the project. Personally, I have researched into UI components in Reactjs to use for visualization as well as backend stock APIs and databases to use for the project. Some effort is also spent on redux and Mobx for frontend state management. General architecture are also discussed, backend will be connected via python. 

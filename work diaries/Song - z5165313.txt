@@ -1,0 +1,6 @@
+Week 1:
+Formed a team for the project and discussed pros and cons of each project.
+Settled on Investment Simulator since everyone was interested in it, and we had some cool ideas for implemention/extensions.
+Did research on stock trading, and the features that existing applications had.
+
+Week 2:

@@ -1,1 +1,18 @@
 Week 1
+
+Formed group and decided roles. Discussed and decided on candidate projects, eventually settled on InvestmentSimulator project. Deconstructed and analysed base requirements of the project. We also discussed and decided on the rough technology stack for the project. I helped look into availability of stock data on the internet.
+
+
+Week 2
+
+We had a meeting to decide possible extensions to add on to the base specifications for novelty marks. At this point, it is undecided what extensions we are settling on, we need to do this preferably early next week. 
+
+I started working on the user stories for the Project Proposal. The user stories have acceptance criteria, user points and priorities. I also worked on the Background section of the proposal.
+
+We also had a meeting to 
+
+Group To Do:
+- Settle on extensions
+- Add in extension user stories
+- Work on storyboards for proposal
+- Work on system architecture for proposal

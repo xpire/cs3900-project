@@ -1,0 +1,16 @@
+Week 1
+- formed group and decided roles and rough technology stack for the project
+- created Jira accounts
+- discussed and decided on candidate projects (InvestmentSimulator and OnlinePropertySales)
+- after further research, we settled on InvestmentSimulator project
+- looked into various sources of API for stock data, and found finnhub.io to be the best
+- plan for next week: to research existing systems to gain ideas for new features, UI and extension
+
+Week 2
+- joined the team on GitHub
+- suggested (and group agreed) to have scrum "meeting" everyday, i.e. everyone posts their answer to three questions: 
+  "what have you done yesterday?", "do you have any blockers?", and "what are you doing today?"
+- researched existing systems, studied about basic stock trading
+- came up with extension ideas: gamifying the app (e.g. achievements, levelling up, and unlocking features as you level up)
+- as a group, we refined and decided on the gamification idea
+- plan for next week: finish user stories, sprint planning, set up a table for weekly retrospectives

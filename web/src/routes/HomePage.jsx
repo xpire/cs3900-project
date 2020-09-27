@@ -1,7 +1,7 @@
 import React from "react";
 import { Typography, Card } from "@material-ui/core";
 
-import Page from "../components/Page/Page";
+import Page from "../components/page/Page";
 
 const Home = () => {
   return (

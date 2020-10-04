@@ -16,3 +16,14 @@ Group To Do:
 - Add in extension user stories
 - Work on storyboards for proposal
 - Work on system architecture for proposal
+
+
+Week 3
+
+This week we worked on and finished the Project Proposal, my role in particular was to research about existing trading simulators, and also work on forming user stories for our project. We decided on a final set of extensions that we converted to their own user stories, we decided that we can cut any number of them if time constraints become an issue. Through many meetings and refinements, we finished the user stories and their corresponding epics, allocating story points and priority ranks to each of them. 
+
+We transferred all user stories to JIRA so that they can be allocated to sprints later. I condensed my research into paragraphs in the project proposal, outlining the strengths and weaknesses of various trading simulator platforms. I also worked on other sections in the proposal.
+
+Group To Do:
+- Set up project development environment on personal desktop (get up and running)
+- Start sprint 1

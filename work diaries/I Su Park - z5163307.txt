@@ -20,6 +20,7 @@ Week 3
 - all of the above plans have been completed
 - for user stories, I worked on refining those written by George, added more stories (especially those for extensions)
 and broke apart those that were too big in size
+- I detailed the AC for the user stories, especially the mathematical formulas
 - I got together with my team in my garage, and worked on further refining the proposal (background research, sprint dates
   user stories, and proofreading other parts done by my group mates)
 - I planned and created the first sprint with Even (Pei Yu)

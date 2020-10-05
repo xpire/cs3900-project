@@ -1,2 +1,21 @@
 Week 1
-Created a team with George, Even, Ian and Song. Researched the project ideas, and was interested in the investment simulator and the realestate projects. To make a better decision, I researched visualisation libraries for the investment simulator, as that would be a vital part of our solution. I found notable packages, such as react-vis, chartjs and apex. I ran some experiments locally.
+
+Created a team with George, Even, Ian and Song. Researched the project ideas, and was interested in the investment simulator and the realestate projects. 
+To make a better decision, I researched visualisation libraries for the investment simulator, as that would be a vital part of our solution. 
+I found notable packages, such as react-vis, chartjs and apex, and also ran some experiments with these packages locally.
+
+Week 2
+
+This week we discussed novel features and extensions that would distinguish our group from others doing investment simulator. 
+We were looking at Gamifying the stock trading experience to both engage interested individuals and also create a familiar environment to reduce the percieved high skill barrier for entry.
+I started the User flow diagrams by creating a figma account and project, and shared it with my fellow team members.
+I also bootstrapped our website with basic react features like react-router and material-ui web toolkit, as well as an initial implementation of authentication through firebase, to ascertain whether it was viable for our final product. 
+It was successful and really easy to use. I will do more research to see if it will work with a locally hosted API backend.
+
+Week 3
+
+This week was spent mostly on the wireframes. I worked together with song to create the overall design of the page, and the UI components on each individual page. Next we began creating storyboards which helped to solidify our design of our system and point out noticeable flaws with our user stories and designs. For example, because of our extension to implement short positions, our design for the portfolio page went through many iterations to include features for shorts. Ultimately, we finished the storyboards and help write up the Proposal. 
+
+Wee 4
+
+Start implementation.

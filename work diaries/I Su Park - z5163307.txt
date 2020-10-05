@@ -14,3 +14,22 @@ Week 2
 - came up with extension ideas: gamifying the app (e.g. achievements, levelling up, and unlocking features as you level up)
 - as a group, we refined and decided on the gamification idea
 - plan for next week: finish user stories, sprint planning, set up a table for weekly retrospectives
+
+Week 3
+- planned last week: finish user stories, sprint planning, set up a table for weekly retrospectives
+- all of the above plans have been completed
+- for user stories, I worked on refining those written by George, added more stories (especially those for extensions)
+and broke apart those that were too big in size
+- I got together with my team in my garage, and worked on further refining the proposal (background research, sprint dates
+  user stories, and proofreading other parts done by my group mates)
+- I planned and created the first sprint with Even (Pei Yu)
+- problem 1: there were issues with images in our proposal document becoming pixelated when converted to PDF, we tried
+several options by searching for help online, and we ended up improving the result a little by using Adobe cloud converter
+along with various MS Word settings
+- problem 2: the lecturer disapproved demoing at 5:30am, so we had to search for data source that provides market data for
+stocks that are traded at our demo time. After 4 hours of scavenging for such APIs (and preferably free/cheap), I found
+'twelvedata' (https://twelvedata.com/) that provides ASX market data with 25 USD/month plan. I emailed the customer support
+and managed to get a student discount, down to 20 USD/month.
+- plan for next week: I aim to implement websocket for streaming real-time market data from our backend to the frontend,
+and help Even with setting up a MySQL database
+ 

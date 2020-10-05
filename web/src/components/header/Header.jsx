@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   AppBar,
   Toolbar,
@@ -11,13 +11,14 @@ import {
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import styled from "styled-components";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 
 import app from "../../utils/firebase";
 import { AuthContext } from "../../utils/authentication";
+import { locationToRoutes } from "../../utils/routes";
 
 const HeaderButton = styled(Button)`
-  color: white;
+  // color: white;
 `;
 
 const HeaderTitle = styled(Typography)`
@@ -25,13 +26,25 @@ const HeaderTitle = styled(Typography)`
 `;
 
 const HeaderIcon = styled(IconButton)`
-  margin-right: 20px;
+  // margin-right: 20px;
   color: white;
 `;
 
 const MyHeader = ({ toggleMenu, handleChange }) => {
   const trigger = useScrollTrigger({ target: window }); // disable Slide for now
   const { user } = useContext(AuthContext);
+  let location = useLocation();
+  const [headerTitle, setHeaderTitle] = useState("Investment Simulator");
+
+  const getTitle = (loc) => {
+    if (loc in locationToRoutes) {
+      return locationToRoutes[loc];
+    } else {
+      return "Home";
+    }
+  };
+
+  useEffect(() => setHeaderTitle(getTitle(location.pathname)), [location]);
   let history = useHistory();
 
   const handleLogout = () => {
@@ -50,12 +63,24 @@ const MyHeader = ({ toggleMenu, handleChange }) => {
           <HeaderIcon edge="start" onClick={toggleMenu}>
             <MenuIcon />
           </HeaderIcon>
-          <HeaderTitle>Investment Simulator</HeaderTitle>
+          <HeaderTitle variant="h4">{headerTitle}</HeaderTitle>
           <Switch onChange={handleChange} color="secondary"></Switch>
           {user ? (
-            <HeaderButton onClick={handleLogout}>logout</HeaderButton>
+            <HeaderButton
+              variant="contained"
+              color="secondary"
+              onClick={handleLogout}
+            >
+              logout
+            </HeaderButton>
           ) : (
-            <HeaderButton onClick={handleLogin}>login</HeaderButton>
+            <HeaderButton
+              variant="contained"
+              color="secondary"
+              onClick={handleLogin}
+            >
+              login
+            </HeaderButton>
           )}
         </Toolbar>
       </AppBar>

@@ -1,30 +1,52 @@
 import React from "react";
 import app from "./firebase";
-import {
-  // Backdrop,
-  CircularProgress,
-} from "@material-ui/core";
-
+import { Typography, CircularProgress } from "@material-ui/core";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuthState } from "react-firebase-hooks/auth";
-// import { useCollectionData } from "react-firebase-hooks/firestore";
+
+import { CenteredMotionDiv } from "../components/common/styled";
 
 const auth = app.auth();
-// const firestore = app.firestore();
 
 export const AuthContext = React.createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, loading] = useAuthState(auth);
-  if (loading) {
-    return <CircularProgress color="primary" />; //Backdrop causes annoying dark flash
-  }
+  React.useEffect(() => {
+    console.log("mount");
+  }, []);
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <div>
+      <AnimatePresence exitBeforeEnter>
+        {loading && (
+          <CenteredMotionDiv
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ ease: "easeOut" }}
+            key="validation"
+          >
+            <Typography variant="h2">Validating your Session...</Typography>
+            <CircularProgress color="primary" size={50} />
+          </CenteredMotionDiv>
+        )}
+        {!loading && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ease: "easeOut" }}
+            key="application"
+          >
+            <AuthContext.Provider
+              value={{
+                user,
+              }}
+            >
+              {children}
+            </AuthContext.Provider>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };

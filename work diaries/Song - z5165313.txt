@@ -11,4 +11,11 @@ Continuing to research how the stock market works, and features investors want.
     e.g. pre/after market trading, limit orders, brokerage fees, short selling etc.
 
 Week 3:
-Worked on wireframes and storyboards.
+Finished wireframes with Justin, 20 in total.
+Also worked with Justin to finish all storyboards for the proposal (11 in total).
+Reviewed all user stories and acceptance criterias with Ian. Some modifications and clarifications were made regarding limit orders
+and after market trading
+Work in Ian's garage with team to finalise propasal and submit.
+    Issue close to submission: images in word became badly compressed when converting to PDF.
+    'Solved' using Adobe converter, and also updating all images to more suitable resolution.
+Will be working on setting up an environment and begin implementing features for Sprint 1.

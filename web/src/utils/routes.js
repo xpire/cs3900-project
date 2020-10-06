@@ -73,7 +73,7 @@ export const Routes = [
   },
   {
     text: "Stock",
-    path: "/stock",
+    path: "/stock/:symbol",
     component: StockDetailsPage,
     icon: <StockDetailsIcon />,
     isPublic: false,
@@ -164,6 +164,6 @@ export const Routes = [
 ];
 
 export const locationToRoutes = Routes.reduce(
-  (acc, cur) => ({ ...acc, [cur.path]: cur.text }),
+  (acc, cur) => ({ ...acc, [cur.path.match(/^\/[^\/]*/)]: cur.text }),
   {}
 );

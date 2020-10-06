@@ -7,15 +7,17 @@ import {
   Switch,
   useScrollTrigger,
   Slide,
+  Grid,
+  Link as MaterialLink,
 } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import styled from "styled-components";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory, useLocation, Link } from "react-router-dom";
 
 import app from "../../utils/firebase";
 import { AuthContext } from "../../utils/authentication";
-import { locationToRoutes } from "../../utils/routes";
+import { locationToRoutes, Routes } from "../../utils/routes";
 
 const HeaderButton = styled(Button)`
   // color: white;
@@ -25,11 +27,11 @@ const HeaderTitle = styled(Typography)`
   flex-grow: 1;
 `;
 
-const HeaderIcon = styled(IconButton)`
-  // margin-right: 20px;
+const StyledMenu = styled(MenuIcon)({ color: "white" });
+
+const StyledLink = styled(Button)`
   color: white;
 `;
-
 const MyHeader = ({ toggleMenu, handleChange }) => {
   const trigger = useScrollTrigger({ target: window }); // disable Slide for now
   const { user } = useContext(AuthContext);
@@ -37,10 +39,11 @@ const MyHeader = ({ toggleMenu, handleChange }) => {
   const [headerTitle, setHeaderTitle] = useState("Investment Simulator");
 
   const getTitle = (loc) => {
-    if (loc in locationToRoutes) {
-      return locationToRoutes[loc];
+    const majorLocation = loc.match(/^\/[^\/]*/)[0];
+    if (majorLocation in locationToRoutes) {
+      return locationToRoutes[majorLocation];
     } else {
-      return "Home";
+      return "Xecute";
     }
   };
 
@@ -60,11 +63,23 @@ const MyHeader = ({ toggleMenu, handleChange }) => {
     <Slide appear={false} direction="down" in={!trigger}>
       <AppBar position="sticky">
         <Toolbar>
-          <HeaderIcon edge="start" onClick={toggleMenu}>
-            <MenuIcon />
-          </HeaderIcon>
+          <IconButton edge="start" onClick={toggleMenu}>
+            <StyledMenu />
+          </IconButton>
           <HeaderTitle variant="h4">{headerTitle}</HeaderTitle>
-          <Switch onChange={handleChange} color="secondary"></Switch>
+          {/* <Grid container direction="row" justify="flex-end" spacing={2}>
+            {Routes.filter(
+              ({ isPublic, isShown }) =>
+                isShown && (user ? !isPublic : isPublic)
+            ).map(({ text, path }) => (
+              <Grid item>
+                <StyledLink component={Link} to={path} variant="outlined">
+                  {text}
+                </StyledLink>
+              </Grid>
+            ))}
+          </Grid> */}
+          <Switch onChange={handleChange} color="secondary" />
           {user ? (
             <HeaderButton
               variant="contained"

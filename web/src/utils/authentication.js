@@ -12,9 +12,7 @@ export const AuthContext = React.createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, loading] = useAuthState(auth);
-  React.useEffect(() => {
-    console.log("mount");
-  }, []);
+
   return (
     <div>
       <AnimatePresence exitBeforeEnter>

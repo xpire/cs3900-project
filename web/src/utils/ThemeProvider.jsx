@@ -45,32 +45,21 @@ const MyThemeProvider = ({ children, darkMode }) => {
   const darkTheme = createMuiTheme({
     ...commonTheme,
     palette: {
-      // primary: {
-      //   main: grey[700],
-      // },
-      // secondary: {
-      //   main: purple[500],
-      // },
+      primary: {
+        main: "#424242",
+      },
       type: "dark",
     },
   });
 
   const lightTheme = createMuiTheme({
-    palette: {
-      // primary: {
-      //   main: "#CAA8F5",
-      //   light: "#9A50B9",
-      //   dark: "#462255",
-      // },
-      // secondary: {
-      //   main: lightGreen[500],
-      // },
-    },
+    ...commonTheme,
+    palette: {},
   });
   // structure: https://material-ui.com/customization/default-theme/#default-theme
 
   return (
-    <ThemeProvider theme={!prefersDarkMode ? lightTheme : darkTheme}>
+    <ThemeProvider theme={prefersDarkMode ? darkTheme : lightTheme}>
       <CssBaseline />
       {children}
     </ThemeProvider>

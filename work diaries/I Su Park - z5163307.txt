@@ -33,4 +33,9 @@ stocks that are traded at our demo time. After 4 hours of scavenging for such AP
 and managed to get a student discount, down to 20 USD/month.
 - plan for next week: I aim to implement websocket for streaming real-time market data from our backend to the frontend,
 and help Even with setting up a MySQL database
+
+
+Week 4
+- everyone got too busy for a meeting so I spent some time and tried to delegate tasks to each member, and they accepted the tasks
+- tried to break down user stories to subtasks so that we can work in parallel better and also keep track of our progress better
  

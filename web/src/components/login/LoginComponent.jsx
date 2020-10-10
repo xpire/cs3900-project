@@ -1,15 +1,11 @@
 import React from "react";
 import { TextField, Grid, Button } from "@material-ui/core";
 
-const Login = ({ buttonText, submitHandler }) => {
+const Login = ({ buttonText, submitHandler, repeat }) => {
   return (
     <form noValidate onSubmit={submitHandler}>
       <Grid container spacing={2}>
-        <Grid
-          item
-          xs={12}
-          // sm={6}
-        >
+        <Grid item xs={12}>
           <TextField
             name="email"
             variant="outlined"
@@ -21,11 +17,7 @@ const Login = ({ buttonText, submitHandler }) => {
             autoFocus
           />
         </Grid>
-        <Grid
-          item
-          xs={12}
-          // sm={6}
-        >
+        <Grid item xs={12}>
           <TextField
             variant="outlined"
             required
@@ -36,11 +28,20 @@ const Login = ({ buttonText, submitHandler }) => {
             type="password"
           />
         </Grid>
-        <Grid
-          item
-          xs={12}
-          // sm={6}
-        >
+        {repeat && (
+          <Grid item xs={12}>
+            <TextField
+              variant="outlined"
+              required
+              fullWidth
+              id="repeatPassword"
+              name="repeatPassword"
+              label="repeat password"
+              type="password"
+            />
+          </Grid>
+        )}
+        <Grid item xs={12}>
           <Button type="submit" fullWidth variant="contained" color="primary">
             {buttonText}
           </Button>

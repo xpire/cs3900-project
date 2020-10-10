@@ -6,12 +6,11 @@ import { CenteredCard, CardHeading } from "../components/common/styled";
 import app from "../utils/firebase";
 import Page from "../components/page/Page";
 import Login from "../components/login/LoginComponent";
-import Alert from "../components/common/Alert";
+import Alert, { useAlert } from "../components/common/Alert";
 
 const LoginPage = () => {
   let history = useHistory();
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertDetails, setAlertDetails] = useState({});
+  const [showAlert, alertDetails, createAlert, closeAlert] = useAlert();
 
   const SignIn = async (event) => {
     event.preventDefault();
@@ -20,16 +19,14 @@ const LoginPage = () => {
       await app.auth().signInWithEmailAndPassword(email.value, password.value);
       history.push("/home");
     } catch (error) {
-      console.log({ error });
-      setShowAlert(true);
-      setAlertDetails(error);
+      createAlert(error);
     }
   };
   return (
     <Page>
       <CenteredCard>
         <CardHeading variant="h3">Sign In</CardHeading>
-        <Login buttonText="login" submitHandler={SignIn} />
+        <Login buttonText="login" submitHandler={SignIn} repeat={false} />
         <MaterialLink to="/signup" component={Link} color="inherit">
           {"Don't have an account? Sign up"}
         </MaterialLink>
@@ -38,7 +35,7 @@ const LoginPage = () => {
         title={alertDetails.code}
         text={alertDetails.message}
         open={showAlert}
-        handleClose={() => setShowAlert(false)}
+        handleClose={closeAlert}
         isError={true}
       />
     </Page>

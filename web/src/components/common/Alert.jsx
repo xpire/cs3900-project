@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Button,
   Dialog,
@@ -25,3 +25,17 @@ const Alert = ({ title, text, open, handleClose, isError }) => {
   );
 };
 export default Alert;
+
+export const useAlert = () => {
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertDetails, setAlertDetails] = useState({});
+
+  const createAlert = (e) => {
+    setAlertDetails(e);
+    setShowAlert(true);
+  };
+
+  const closeAlert = () => setShowAlert(false);
+
+  return [showAlert, alertDetails, createAlert, closeAlert];
+};

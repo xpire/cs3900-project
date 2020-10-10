@@ -1,24 +1,34 @@
 import React, { useState } from "react";
 import {
-  Typography,
   Card,
   TextField,
   Button,
-  ButtonGroup,
   Grid,
   Slider,
-  CardActions,
+  Input,
+  InputAdornment,
 } from "@material-ui/core";
+import TradingIcon from "@material-ui/icons/LocalAtm";
 import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
-import { AuthContext } from "../utils/authentication";
 import Page from "../components/page/Page";
-import { CenteredCard } from "../components/common/styled";
 
 const Trading = () => {
   const [tradeType, setTradeType] = useState("buy");
   const [purchaseBy, setPurchaseBy] = useState("quantity");
   const [orderType, setOrderType] = useState("market");
   const [sliderValue, setSliderValue] = useState(20);
+
+  const handleInputChange = (event) => {
+    setSliderValue(event.target.value === "" ? "" : Number(event.target.value));
+  };
+
+  const handleBlur = () => {
+    if (sliderValue < 0) {
+      setSliderValue(0);
+    } else if (sliderValue > 100) {
+      setSliderValue(100);
+    }
+  };
 
   const valuetext = (t) => `t`;
   return (
@@ -38,13 +48,15 @@ const Trading = () => {
             <TextField variant="outlined" label="Symbol" />{" "}
           </Grid>
           <Grid item xs={3}>
-            Order Type:
+            Trade Type:
           </Grid>
           <Grid item xs={9}>
             <ToggleButtonGroup
               value={tradeType}
               exclusive
-              onChange={(event, newValue) => setTradeType(newValue)}
+              onChange={(_event, newValue) =>
+                newValue !== null && setTradeType(newValue)
+              }
             >
               <ToggleButton value="buy">Buy</ToggleButton>
               <ToggleButton value="sell">Sell</ToggleButton>
@@ -63,7 +75,9 @@ const Trading = () => {
             <ToggleButtonGroup
               value={purchaseBy}
               exclusive
-              onChange={(event, newValue) => setPurchaseBy(newValue)}
+              onChange={(_event, newValue) =>
+                newValue !== null && setPurchaseBy(newValue)
+              }
             >
               <ToggleButton value="quantity">Quantity</ToggleButton>
               <ToggleButton value="value">Value</ToggleButton>
@@ -72,32 +86,56 @@ const Trading = () => {
           <Grid item xs={3}>
             number:
           </Grid>
-          <Grid item xs={9}>
-            <Slider
-              value={sliderValue}
-              onChange={(event, newValue) => setSliderValue(newValue)}
-              getAriaValueText={valuetext}
-              aria-labelledby="discrete-slider"
-              valueLabelDisplay="auto"
-              step={1}
-              // marks
-              valueLabelDisplay="on"
-              min={0}
-              max={110}
-              style={{ marginTop: "20px" }}
-            />
+          <Grid item container direction="row" xs={9}>
+            <Grid item xs={7} sm={10}>
+              <Slider
+                // defaultValue={sliderValue}
+                value={sliderValue}
+                onChange={(_event, newValue) => setSliderValue(newValue)}
+                getAriaValueText={valuetext}
+                aria-labelledby="discrete-slider"
+                step={1}
+                // marks
+                valueLabelDisplay="on"
+                min={0}
+                max={110}
+                style={{ marginTop: "20px" }}
+              />
+            </Grid>
+            <Grid item xs={5} sm={2}>
+              <Input
+                value={sliderValue}
+                // margin="dense"
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                disableUnderline={true}
+                startAdornment={
+                  <InputAdornment position="start">
+                    <TradingIcon />
+                  </InputAdornment>
+                }
+                inputProps={{
+                  step: 1,
+                  min: 0,
+                  max: 100,
+                  type: "number",
+                }}
+              />
+            </Grid>
           </Grid>
           <Grid item xs={12}>
             TODO: Portfolio Allocation
           </Grid>
           <Grid item xs={3}>
-            Price:
+            Order Type:
           </Grid>
           <Grid item xs={9}>
             <ToggleButtonGroup
               value={orderType}
               exclusive
-              onChange={(event, newValue) => setOrderType(newValue)}
+              onChange={(_event, newValue) =>
+                newValue !== null && setOrderType(newValue)
+              }
             >
               <ToggleButton value="market">Market</ToggleButton>
               <ToggleButton value="limit">Limit</ToggleButton>

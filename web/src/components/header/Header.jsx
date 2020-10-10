@@ -7,17 +7,20 @@ import {
   Switch,
   useScrollTrigger,
   Slide,
-  Grid,
-  Link as MaterialLink,
+  // Link as MaterialLink,
 } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import styled from "styled-components";
-import { useHistory, useLocation, Link } from "react-router-dom";
+import {
+  useHistory,
+  useLocation,
+  // Link
+} from "react-router-dom";
 
 import app from "../../utils/firebase";
 import { AuthContext } from "../../utils/authentication";
-import { locationToRoutes, Routes } from "../../utils/routes";
+import { locationToRoutes } from "../../utils/routes";
 
 const HeaderButton = styled(Button)`
   // color: white;
@@ -29,17 +32,17 @@ const HeaderTitle = styled(Typography)`
 
 const StyledMenu = styled(MenuIcon)({ color: "white" });
 
-const StyledLink = styled(Button)`
-  color: white;
-`;
-const MyHeader = ({ toggleMenu, handleChange }) => {
+// const StyledLink = styled(Button)`
+//   color: white;
+// `;
+const MyHeader = ({ toggleMenu }) => {
   const trigger = useScrollTrigger({ target: window }); // disable Slide for now
   const { user } = useContext(AuthContext);
   let location = useLocation();
   const [headerTitle, setHeaderTitle] = useState("Investment Simulator");
 
   const getTitle = (loc) => {
-    const majorLocation = loc.match(/^\/[^\/]*/)[0];
+    const majorLocation = loc.match(/^\/[^/]*/)[0];
     if (majorLocation in locationToRoutes) {
       return locationToRoutes[majorLocation];
     } else {
@@ -61,7 +64,7 @@ const MyHeader = ({ toggleMenu, handleChange }) => {
 
   return (
     <Slide appear={false} direction="down" in={!trigger}>
-      <AppBar position="sticky">
+      <AppBar position="sticky" color="secondary">
         <Toolbar>
           <IconButton edge="start" onClick={toggleMenu}>
             <StyledMenu />
@@ -79,11 +82,11 @@ const MyHeader = ({ toggleMenu, handleChange }) => {
               </Grid>
             ))}
           </Grid> */}
-          <Switch onChange={handleChange} color="secondary" />
+          {/* <Switch onChange={handleChange} color="primary" /> */}
           {user ? (
             <HeaderButton
               variant="contained"
-              color="secondary"
+              color="primary"
               onClick={handleLogout}
             >
               logout
@@ -91,7 +94,7 @@ const MyHeader = ({ toggleMenu, handleChange }) => {
           ) : (
             <HeaderButton
               variant="contained"
-              color="secondary"
+              color="primary"
               onClick={handleLogin}
             >
               login

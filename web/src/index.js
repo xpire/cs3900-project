@@ -6,14 +6,17 @@ import * as serviceWorker from "./serviceWorker";
 import { BrowserRouter as Router } from "react-router-dom";
 
 import { AuthProvider } from "./utils/authentication";
+import ThemeProvider from "./utils/ThemeProvider";
 
 ReactDOM.render(
   <React.StrictMode>
-    <AuthProvider>
-      <Router>
-        <App />
-      </Router>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <App />
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );

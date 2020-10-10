@@ -1,4 +1,10 @@
-import { Card, Typography, styled as materialStyled } from "@material-ui/core";
+import React from "react";
+import {
+  Card,
+  Typography,
+  styled as materialStyled,
+  useTheme,
+} from "@material-ui/core";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 
@@ -21,9 +27,25 @@ export const CenteredMotionDiv = styled(motion.div)`
   flex-direction: column;
 `;
 
-export const ColoredText = materialStyled(Typography)({
+const StyledColoredText = materialStyled(Typography)({
   color: (props) => props.color,
 });
+
+export const ColoredText = ({ children, color, ...restProps }) => {
+  const theme = useTheme();
+  const green = { dark: "#c1ff7a", light: "#689f38" };
+  const red = { dark: "#ff669a", light: "#f50057" };
+  return (
+    <StyledColoredText
+      color={
+        color === "green" ? green[theme.palette.type] : red[theme.palette.type]
+      }
+      {...restProps}
+    >
+      {children}
+    </StyledColoredText>
+  );
+};
 
 // export const StandardCard = materialStyled(Card)({
 

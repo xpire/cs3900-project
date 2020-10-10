@@ -12,8 +12,7 @@ import ForgotPasswordIcon from "@material-ui/icons/VpnKey";
 import DashboardPage from "../routes/DashboardPage";
 import DashboardIcon from "@material-ui/icons/Dashboard";
 import TradingPage from "../routes/TradingPage";
-import TradingIcon from "@material-ui/icons/LocalAtm";
-// import TradeIcon2 from "@material-ui/icons/MonetizationOn";
+import TradingIcon from "@material-ui/icons/MonetizationOn";
 import PortfolioPage from "../routes/PortfolioPage";
 import PortfolioIcon from "@material-ui/icons/TrackChanges";
 import WatchlistPage from "../routes/WatchlistPage";
@@ -164,6 +163,6 @@ export const Routes = [
 ];
 
 export const locationToRoutes = Routes.reduce(
-  (acc, cur) => ({ ...acc, [cur.path.match(/^\/[^\/]*/)]: cur.text }),
+  (acc, cur) => ({ ...acc, [cur.path.match(/^\/[^/]*/)]: cur.text }),
   {}
 );

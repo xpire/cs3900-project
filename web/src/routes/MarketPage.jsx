@@ -1,12 +1,13 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Typography, Card, Grid } from "@material-ui/core";
 
-import { AuthContext } from "../utils/authentication";
 import Page from "../components/page/Page";
 import StockCard from "../components/common/StockCard";
 
+import * as data from "../utils/stocksList.json"; //TODO: make this an API call
+
 const Market = () => {
-  const { user } = useContext(AuthContext);
+  const stockData = data.data.slice(0, 30);
   return (
     <Page>
       <div style={{ padding: "12px" }}>
@@ -23,17 +24,19 @@ const Market = () => {
             </Card>
           </Grid>
           <Grid item xs={12}>
-            <Typography>Your search returned 20 results.</Typography>
+            <Typography>
+              Your search returned {stockData.length} results.
+            </Typography>
           </Grid>
-          {[...Array(20).keys()].map((e) => {
+          {stockData.map(({ symbol, type }, index) => {
             return (
               <Grid item md={4} sm={6} xs={12}>
                 <StockCard
-                  name="AAPL"
-                  category="Technology"
+                  name={symbol}
+                  category={type}
                   price="$25,333"
-                  delta={e % 2 === 0 ? 25 : -10}
-                  key={e}
+                  delta={index % 2 === 0 ? 25 : -10}
+                  key={symbol}
                 />
               </Grid>
             );

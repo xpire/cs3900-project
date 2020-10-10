@@ -5,9 +5,9 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 // import purple from "@material-ui/core/colors/purple";
 // import grey from "@material-ui/core/colors/grey";
 
-const MyThemeProvider = ({ children, darkMode }) => {
-  const prefersDarkMode =
-    useMediaQuery("(prefers-color-scheme: dark)") || darkMode;
+const MyThemeProvider = ({ children }) => {
+  const prefersDarkMode = true;
+  // useMediaQuery("(prefers-color-scheme: dark)") || darkMode;
   const elements = [
     "MuiAppBar",
     "MuiBackdrop",
@@ -45,8 +45,11 @@ const MyThemeProvider = ({ children, darkMode }) => {
   const darkTheme = createMuiTheme({
     ...commonTheme,
     palette: {
-      primary: {
+      secondary: {
         main: "#424242",
+      },
+      primary: {
+        main: "#2196f3",
       },
       type: "dark",
     },
@@ -54,7 +57,15 @@ const MyThemeProvider = ({ children, darkMode }) => {
 
   const lightTheme = createMuiTheme({
     ...commonTheme,
-    palette: {},
+    palette: {
+      secondary: {
+        main: "#2196f3",
+      },
+      primary: {
+        main: "#1769aa",
+      },
+      type: "light",
+    },
   });
   // structure: https://material-ui.com/customization/default-theme/#default-theme
 

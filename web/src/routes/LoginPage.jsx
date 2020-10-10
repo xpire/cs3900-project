@@ -1,15 +1,12 @@
 import React, { useState } from "react";
 import { Link as MaterialLink } from "@material-ui/core";
-import { Link } from "react-router-dom";
-import { isEmpty } from "lodash";
+import { Link, useHistory } from "react-router-dom";
 
 import { CenteredCard, CardHeading } from "../components/common/styled";
 import app from "../utils/firebase";
 import Page from "../components/page/Page";
 import Login from "../components/login/LoginComponent";
 import Alert from "../components/common/Alert";
-
-import { useHistory } from "react-router-dom";
 
 const LoginPage = () => {
   let history = useHistory();

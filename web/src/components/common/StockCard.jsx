@@ -30,13 +30,13 @@ const StockCard = ({ name, category, price, delta }) => {
             alignItems="flex-start"
           >
             <Grid item>
-              <Typography variant="h3">{name}</Typography>
+              <Typography variant="h4">{name}</Typography>
               <Chip size="small" label={category} />
             </Grid>
             <Grid item>
               <ColoredText
                 color={delta > 0 ? "green" : "red"}
-                variant="h2"
+                variant="h3"
                 align="right"
               >
                 {delta > 0 && "+"}
@@ -46,7 +46,7 @@ const StockCard = ({ name, category, price, delta }) => {
             <Grid item xs={12}>
               <ColoredText
                 color={delta > 0 ? "green" : "red"}
-                variant="h3"
+                variant="h4"
                 align="right"
               >
                 {price}

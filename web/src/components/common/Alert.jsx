@@ -17,7 +17,7 @@ const Alert = ({ title, text, open, handleClose, isError }) => {
           <DialogContentText>{text}</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>confirm</Button>
+          <Button onClick={handleClose}>OK</Button>
           {!isError && <Button onClick={handleClose}>cancel</Button>}
         </DialogActions>
       </Dialog>

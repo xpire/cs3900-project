@@ -1,25 +1,24 @@
 import React, { useState } from "react";
-import { Switch, useLocation } from "react-router-dom";
+import { Switch, useLocation, useHistory } from "react-router-dom";
+import { CssBaseline } from "@material-ui/core";
 // import Hidden from "@material-ui/core/Hidden";
 
-import ThemeProvider from "./utils/ThemeProvider";
 import Header from "./components/header/Header";
 import Drawer from "./components/sidebar/SideBar";
 import PrivateRoute from "./utils/PrivateRoute";
 import { Routes } from "./utils/routes";
+import ScrollToTop from "./utils/scrollToTop";
 
 function App() {
   const location = useLocation();
-
-  const [darkMode, setDarkMode] = useState(false);
-  const toggleDarkMode = () => setDarkMode(!darkMode);
+  const history = useHistory();
 
   const [isOpen, setOpen] = useState(false);
   const toggleDrawer = () => setOpen(!isOpen);
 
   return (
-    <ThemeProvider darkMode={darkMode}>
-      <Header toggleMenu={toggleDrawer} handleChange={toggleDarkMode} />
+    <ScrollToTop history={history}>
+      <Header toggleMenu={toggleDrawer} />
       <Drawer isOpen={isOpen} handleChange={toggleDrawer} variant="temporary" />
       <Switch location={location} key={location.key}>
         {Routes.map(({ exact, path, isPublic, component }) => (
@@ -32,7 +31,7 @@ function App() {
           />
         ))}
       </Switch>
-    </ThemeProvider>
+    </ScrollToTop>
   );
 }
 

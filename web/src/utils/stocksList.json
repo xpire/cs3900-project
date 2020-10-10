@@ -1,0 +1,789 @@
+{
+  "data": [
+    {
+      "symbol": "AAPL",
+      "name": "Apple Inc",
+      "currency": "USD",
+      "exchange": "NASDAQ",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "TSLA",
+      "name": "Tesla Inc",
+      "currency": "USD",
+      "exchange": "NASDAQ",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "AAYYY",
+      "name": "Australian Agricultural Co Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "ACNNF",
+      "name": "AusCann Group Holdings Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "ADNOF",
+      "name": "Ariadne Australia Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "ADPXF",
+      "name": "Audio Pixels Holdings Ltd",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "ADPXY",
+      "name": "Audio Pixels Holdings Ltd",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "AETLF",
+      "name": "Aeris Environmental Ltd",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "AFTPF",
+      "name": "Afterpay Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "AFTPY",
+      "name": "AFTERPAY LTD.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "AGLDF",
+      "name": "Austral Gold Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "AGLXY",
+      "name": "AGL Energy Ltd",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "AGREF",
+      "name": "Argonaut Resources NL",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "AINSF",
+      "name": "Ainsworth Game Technology Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "AJLGF",
+      "name": "AJ Lucas Group Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "ALKEF",
+      "name": "Alkane Resources Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "ALMFF",
+      "name": "Altium Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "ALSYY",
+      "name": "ALS Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "ALTAF",
+      "name": "Altura Mining Ltd",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "AMDHF",
+      "name": "CardieX Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "AMLYY",
+      "name": "AMP Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "ANSLY",
+      "name": "Ansell Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "ANZBY",
+      "name": "Australia \u0026 New Zealand Banking Group Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "AOGC",
+      "name": "Australian Oil \u0026 Gas Corp.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "APGLF",
+      "name": "Austpac Resources NL",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "ARAFF",
+      "name": "Arafura Resources NL",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "ARDLF",
+      "name": "Ardent Leisure Group",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "ARLUF",
+      "name": "Aristocrat Leisure Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "ARPC",
+      "name": "Arem Pacific Corp.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "ARRRF",
+      "name": "Ardea Res Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "ARTTF",
+      "name": "Artemis Resources Ltd West Perth WA",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "ASAGF",
+      "name": "Australian Agricultural Co Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "ASXFF",
+      "name": "ASX, Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "ASXFY",
+      "name": "ASX, Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "ATHJF",
+      "name": "Antisense Therapeutics Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "ATHJY",
+      "name": "Antisense Therapeutics Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "AURM",
+      "name": "Aurum, Inc.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "AUTYF",
+      "name": "AUSTRALIAN UNITY OFFICE FD",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "AUVGF",
+      "name": "Australian Vintage Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "AVXAF",
+      "name": "Tali Digital Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "AWCMY",
+      "name": "Alumina Limited",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "AYSI",
+      "name": "Alloy Steel International, Inc.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "AZNNY",
+      "name": "Aurizon Holdings Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "AZRTF",
+      "name": "Australian Pacific Coal Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BAKPF",
+      "name": "Global Vanadium Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BENGF",
+      "name": "Sky \u0026 Space Global Ltd",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BEPTF",
+      "name": "Beach Energy Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BHPLF",
+      "name": "BHP Group Limited",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BIRNF",
+      "name": "BC Iron Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BITRF",
+      "name": "Biotron Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BKHRF",
+      "name": "Blackham Resources Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BKLRF",
+      "name": "Berkeley Energy Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BKQNF",
+      "name": "Bank of Queensland Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BLMMF",
+      "name": "Blackmores Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BLSFF",
+      "name": "Bluescope Steel, Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BLSFY",
+      "name": "Bluescope Steel, Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "BNIGF",
+      "name": "Beroni Group Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BNNLF",
+      "name": "Bannerman Resources, Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BNOEF",
+      "name": "Bionomics Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BTGHF",
+      "name": "BIGTINCAN HLDGS LTD.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BUNNF",
+      "name": "BWP TR.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Unit"
+    },
+    {
+      "symbol": "BVILF",
+      "name": "Breville Group Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BWXXF",
+      "name": "BWX Limited",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BXBLY",
+      "name": "Brambles, Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "BXRBF",
+      "name": "Bendigo \u0026 Adelaide Bank Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "BYOGF",
+      "name": "Bounty Oil \u0026 Gas NL",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CAHPF",
+      "name": "Evolution Mining Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CALZF",
+      "name": "Polynovo Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CAULF",
+      "name": "Cauldron Energy Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CAZGF",
+      "name": "Catapult Group International Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CBAUF",
+      "name": "Commonwealth Bank of Australia",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CBBHF",
+      "name": "Cobalt Blue Hldgs.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CBDEF",
+      "name": "BlueNRGY Group Limited",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CCLAF",
+      "name": "Coca-Cola Amatil Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CCLAY",
+      "name": "Coca-Cola Amatil Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "CEFLF",
+      "name": "Ceramic Fuel Cells, Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CEOPF",
+      "name": "CNPR Group",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CFIGF",
+      "name": "Challenger Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CGMLF",
+      "name": "Chalice Gold Mines Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CHEOY",
+      "name": "CochLear Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "CHPRF",
+      "name": "Champion Iron, Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CKDXF",
+      "name": "Opthea Limited",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CLEGF",
+      "name": "Coles Group Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CLEGY",
+      "name": "Coles Group Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "CLHSF",
+      "name": "Collection House Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CLVLF",
+      "name": "Clinuvel Pharmaceuticals Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CLVLY",
+      "name": "Clinuvel Pharmaceuticals Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "CMSQY",
+      "name": "Computershare Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "CMWAY",
+      "name": "Commonwealth Bank of Australia",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "American Depositary Receipt"
+    },
+    {
+      "symbol": "CMXHF",
+      "name": "CSL Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CNGGF",
+      "name": "Cann Group Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CNPTF",
+      "name": "Central Petroleum Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CNRAF",
+      "name": "VICINITY CENTRES",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "CNTUF",
+      "name": "Centuria Office",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "OTHER_SECURITY_TYPE"
+    },
+    {
+      "symbol": "COLDF",
+      "name": "Cardno Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "COMRF",
+      "name": "Comet Ridge Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "COPHF",
+      "name": "Creso Pharma Ltd",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    },
+    {
+      "symbol": "COPJF",
+      "name": "Cooper Energy, Ltd.",
+      "currency": "USD",
+      "exchange": "OTC",
+      "country": "United States",
+      "type": "Common Stock"
+    }
+  ],
+  "status": "ok"
+}

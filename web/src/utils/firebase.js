@@ -13,3 +13,10 @@ const app = firebase.initializeApp({
 
 export default app;
 // thanks https://www.wrappixel.com/react-firebase-authentication/
+
+export const actionCodeSettings = {
+  url: `http://localhost:${
+    process.env.NODE_ENV === "development" ? 3000 : 5000
+  }/home`,
+  handleCodeInApp: true,
+};

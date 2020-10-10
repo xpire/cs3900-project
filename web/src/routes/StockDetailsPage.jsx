@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Typography,
-  Card,
   Chip,
   Grid,
   Table,
@@ -16,7 +15,11 @@ import { Link } from "react-router-dom";
 
 // import { AuthContext } from "../utils/authentication";
 import Page from "../components/page/Page";
-import { ColoredText, CenteredCard } from "../components/common/styled";
+import {
+  ColoredText,
+  CenteredCard,
+  StandardCard,
+} from "../components/common/styled";
 import Candlestick from "../components/graph/Candlestick";
 // import ApexCandlestick from "../components/graph/ApexCandlestick";
 
@@ -70,17 +73,17 @@ const StockDetails = (props) => {
       {listData.includes(stockCode) ? (
         <Grid container direction="row" alignItems="stretch">
           <Grid item md={3} sm={5} xs={12}>
-            <Card style={{ margin: "10px", padding: "10px" }}>
+            <StandardCard>
               <Typography variant="h1">{stockCode}</Typography>
               <Typography variant="h4">{myStockData.name}</Typography>
               <Chip label={myStockData.type} />
               <ColoredText color="green" variant="h2">
                 +20%
               </ColoredText>
-            </Card>
+            </StandardCard>
           </Grid>
           <Grid item md={9} sm={7} xs={12}>
-            <Card style={{ margin: "10px" }}>
+            <StandardCard>
               <div // fix scrolling body in chrome
                 onMouseEnter={() => {
                   document.addEventListener("wheel", preventDefault, {
@@ -94,10 +97,10 @@ const StockDetails = (props) => {
                 {/* <ApexCandlestick data={parsedApexData} /> */}
                 <Candlestick data={currentData} type="hybrid" />
               </div>
-            </Card>
+            </StandardCard>
           </Grid>
           <Grid item xs={12}>
-            <Card style={{ margin: "10px", padding: "10px" }}>
+            <StandardCard>
               <Typography variant="h3">Hello guys</Typography>
               <TableContainer>
                 <Table>
@@ -125,7 +128,7 @@ const StockDetails = (props) => {
                   </TableBody>
                 </Table>
               </TableContainer>
-            </Card>
+            </StandardCard>
           </Grid>
         </Grid>
       ) : (

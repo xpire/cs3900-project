@@ -21,6 +21,7 @@ import {
 import app from "../../utils/firebase";
 import { AuthContext } from "../../utils/authentication";
 import { locationToRoutes } from "../../utils/routes";
+import Logo from "../../ecksdeeLogo.png.svg";
 
 const HeaderButton = styled(Button)`
   // color: white;
@@ -67,7 +68,8 @@ const MyHeader = ({ toggleMenu }) => {
       <AppBar position="sticky" color="secondary">
         <Toolbar>
           <IconButton edge="start" onClick={toggleMenu}>
-            <StyledMenu />
+            {/* <StyledMenu /> */}
+            <img src={Logo} alt="Execute the Deal Logo" height="40px" />
           </IconButton>
           <HeaderTitle variant="h4">{headerTitle}</HeaderTitle>
           {/* <Grid container direction="row" justify="flex-end" spacing={2}>

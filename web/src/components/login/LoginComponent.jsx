@@ -1,22 +1,24 @@
 import React from "react";
 import { TextField, Grid, Button } from "@material-ui/core";
 
-const Login = ({ buttonText, submitHandler, repeat }) => {
+const Login = ({ buttonText, submitHandler, repeat = false, email = true }) => {
   return (
     <form noValidate onSubmit={submitHandler}>
       <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <TextField
-            name="email"
-            variant="outlined"
-            required
-            fullWidth
-            id="email"
-            label="Email Address"
-            type="email"
-            autoFocus
-          />
-        </Grid>
+        {email && (
+          <Grid item xs={12}>
+            <TextField
+              name="email"
+              variant="outlined"
+              required
+              fullWidth
+              id="email"
+              label="Email Address"
+              type="email"
+              autoFocus
+            />
+          </Grid>
+        )}
         <Grid item xs={12}>
           <TextField
             variant="outlined"
@@ -24,7 +26,7 @@ const Login = ({ buttonText, submitHandler, repeat }) => {
             fullWidth
             id="password"
             name="password"
-            label="password"
+            label="Password"
             type="password"
           />
         </Grid>
@@ -36,7 +38,7 @@ const Login = ({ buttonText, submitHandler, repeat }) => {
               fullWidth
               id="repeatPassword"
               name="repeatPassword"
-              label="repeat password"
+              label="Reenter Password"
               type="password"
             />
           </Grid>

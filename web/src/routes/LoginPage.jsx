@@ -26,7 +26,7 @@ const LoginPage = () => {
     <Page>
       <CenteredCard>
         <CardHeading variant="h3">Sign In</CardHeading>
-        <Login buttonText="login" submitHandler={SignIn} repeat={false} />
+        <Login buttonText="login" submitHandler={SignIn} />
         <MaterialLink to="/signup" component={Link} color="inherit">
           {"Don't have an account? Sign up"}
         </MaterialLink>

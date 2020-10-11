@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import app from "./firebase";
 import { Typography, CircularProgress, useTheme } from "@material-ui/core";
 import { motion, AnimatePresence } from "framer-motion";
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
             key="validation"
             theme={theme}
           >
-            <Typography variant="h2">Validating your Session...</Typography>
+            <Typography variant="h2">{"Validating your Session..."}</Typography>
             <CircularProgress color="primary" size={50} />
           </StyledCenteredMotionDiv>
         )}

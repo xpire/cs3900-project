@@ -4,11 +4,11 @@ import { Link, useHistory, Redirect } from "react-router-dom";
 import styled from "styled-components";
 import { useSnackbar } from "notistack";
 
-import { CenteredCard, CardHeading } from "../components/common/styled";
-import app, { useFirebaseAuth } from "../utils/firebase";
-import Page from "../components/page/Page";
-import Login from "../components/login/LoginComponent";
-import Alert, { useAlert } from "../components/common/Alert";
+import { CenteredCard, CardHeading } from "../../components/common/styled";
+import app, { useFirebaseAuth } from "../../utils/firebase";
+import Page from "../../components/page/Page";
+import Login from "../../components/login/LoginComponent";
+import Alert, { useAlert } from "../../components/common/Alert";
 
 export const CardBody = styled(Typography)`
   padding-bottom: 20px;

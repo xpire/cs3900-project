@@ -10,7 +10,7 @@ import {
 } from "@material-ui/core";
 import TradingIcon from "@material-ui/icons/LocalAtm";
 import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
-import Page from "../components/page/Page";
+import Page from "../../components/page/Page";
 
 const Trading = () => {
   const [tradeType, setTradeType] = useState("buy");

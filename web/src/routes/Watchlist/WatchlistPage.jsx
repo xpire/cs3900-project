@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
 import { Typography, Card } from "@material-ui/core";
 
-import { AuthContext } from "../utils/authentication";
-import Page from "../components/page/Page";
+import { AuthContext } from "../../utils/authentication";
+import Page from "../../components/page/Page";
 
 const Watchlist = () => {
   const { user } = useContext(AuthContext);

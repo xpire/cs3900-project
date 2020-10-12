@@ -1,35 +1,35 @@
 import React from "react";
 // public
-import HomePage from "../routes/HomePage";
+import HomePage from "../routes/Home/HomePage";
 import HomeIcon from "@material-ui/icons/Home";
-import LoginPage from "../routes/LoginPage";
+import LoginPage from "../routes/Auth/LoginPage";
 import LoginIcon from "@material-ui/icons/LockOpen";
-import SignUpPage from "../routes/SignUpPage";
+import SignUpPage from "../routes/Auth/SignUpPage";
 import SignUpIcon from "@material-ui/icons/Lock";
-import ForgotPasswordPage from "../routes/ForgotPasswordPage";
+import ForgotPasswordPage from "../routes/Auth/ForgotPasswordPage";
 import ForgotPasswordIcon from "@material-ui/icons/VpnKey";
 // private
-import DashboardPage from "../routes/DashboardPage";
+import DashboardPage from "../routes/Dashboard/DashboardPage";
 import DashboardIcon from "@material-ui/icons/Dashboard";
-import TradingPage from "../routes/TradingPage";
+import TradingPage from "../routes/Trading/TradingPage";
 import TradingIcon from "@material-ui/icons/MonetizationOn";
-import PortfolioPage from "../routes/PortfolioPage";
+import PortfolioPage from "../routes/Portfolio/PortfolioPage";
 import PortfolioIcon from "@material-ui/icons/TrackChanges";
-import WatchlistPage from "../routes/WatchlistPage";
+import WatchlistPage from "../routes/Watchlist/WatchlistPage";
 import WatchlistIcon from "@material-ui/icons/ViewList";
 // import WatchlistIcon2 from "@material-ui/icons/AddToQueue";
 // import WatchlistIcon3 from "@material-ui/icons/Book";
-import MarketPage from "../routes/MarketPage";
+import MarketPage from "../routes/Market/MarketPage";
 import MarketIcon from "@material-ui/icons/TrendingUp";
-import StockDetailsPage from "../routes/StockDetailsPage";
+import StockDetailsPage from "../routes/StockDetails/StockDetailsPage";
 import StockDetailsIcon from "@material-ui/icons/Assessment";
-import ProfilePage from "../routes/ProfilePage";
+import ProfilePage from "../routes/Profile/ProfilePage";
 import ProfileIcon from "@material-ui/icons/AccountCircle";
-import AchievementsPage from "../routes/AchievementsPage";
+import AchievementsPage from "../routes/Achievements/AchievementsPage";
 import AchievementsIcon from "@material-ui/icons/AssignmentTurnedIn";
-import LeaderboardPage from "../routes/LeaderboardPage";
+import LeaderboardPage from "../routes/Leaderboard/LeaderboardPage";
 import LeaderboardIcon from "@material-ui/icons/BarChart";
-import SupportPage from "../routes/SupportPage";
+import SupportPage from "../routes/Support/SupportPage";
 import SupportIcon from "@material-ui/icons/Help";
 // icons
 

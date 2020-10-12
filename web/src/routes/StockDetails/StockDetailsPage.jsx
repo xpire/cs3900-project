@@ -11,20 +11,20 @@ import {
   Button,
   CardActions,
 } from "@material-ui/core";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 // import { AuthContext } from "../utils/authentication";
-import Page from "../components/page/Page";
+import Page from "../../components/page/Page";
 import {
   ColoredText,
   CenteredCard,
   StandardCard,
-} from "../components/common/styled";
-import Candlestick from "../components/graph/Candlestick";
-// import ApexCandlestick from "../components/graph/ApexCandlestick";
+} from "../../components/common/styled";
+import Candlestick from "../../components/graph/Candlestick";
+// import ApexCandlestick from "../../components/graph/ApexCandlestick";
 
-import * as stockData from "../utils/stocksList.json"; //TODO: make this an API call
-import * as TimeSeriesData from "../utils/stocksTimeSeries.json"; //TODO: make this an API call
+import * as stockData from "../../utils/stocksList.json"; //TODO: make this an API call
+import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
 
 const listData = stockData.data.map(({ symbol }) => symbol);
 
@@ -86,19 +86,21 @@ const TableInfo = ({ rows }) => (
 
 const StockDetails = (props) => {
   // grab the list of available stocks
-  const stockCode = props.match.params.symbol.toUpperCase();
+  console.log({ props });
+  // const stockCode = props.match.params.symbol.toUpperCase();
+  const { symbol } = useParams();
   const myStockData = stockData.data.find(
-    ({ symbol }) => symbol.toUpperCase() === stockCode
+    (s) => s.symbol.toUpperCase() === symbol.toUpperCase()
   );
   return (
     <Page style={{ padding: "20px" }}>
-      {listData.includes(stockCode) ? (
+      {listData.includes(symbol) ? (
         <Grid container direction="row" alignItems="stretch">
           <Grid item md={3} sm={5} xs={12}>
             <StandardCard>
               <Grid direction="row" container alignItems="flex-end">
                 <Grid item sm={12} xs={6}>
-                  <Typography variant="h2">{stockCode}</Typography>
+                  <Typography variant="h2">{symbol}</Typography>
                   <Typography variant="h4">{myStockData.name}</Typography>
                   <Chip label={myStockData.type} size="small" />
                 </Grid>
@@ -158,7 +160,7 @@ const StockDetails = (props) => {
             Sorry, we can't find this stock's information...
           </Typography>
           <Typography>
-            Either the symbol "{stockCode}" is not real or it is not currently
+            Either the symbol "{symbol}" is not real or it is not currently
             supported.
           </Typography>
           <Button

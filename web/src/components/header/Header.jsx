@@ -62,7 +62,7 @@ const MyHeader = ({ toggleMenu }) => {
       <AppBar position="sticky" color="secondary">
         <Toolbar>
           <IconButton edge="start" onClick={toggleMenu}>
-            <img src={Logo} alt="Execute the Deal Logo" height="40px" />
+            <img src={Logo} alt="X" height="40px" />
           </IconButton>
           <HeaderTitle variant="h4">{headerTitle}</HeaderTitle>
           {/* <Grid container direction="row" justify="flex-end" spacing={2}>

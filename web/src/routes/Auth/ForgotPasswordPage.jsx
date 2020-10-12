@@ -7,9 +7,9 @@ import {
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
 
-import { CenteredCard, CardHeading } from "../components/common/styled";
-import app, { ActionCodeSettings } from "../utils/firebase";
-import Page from "../components/page/Page";
+import { CenteredCard, CardHeading } from "../../components/common/styled";
+import app, { ActionCodeSettings } from "../../utils/firebase";
+import Page from "../../components/page/Page";
 
 const ForgotPasswordPage = () => {
   const [finished, setFinished] = useState(false);

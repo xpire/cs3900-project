@@ -2,11 +2,11 @@ import React from "react";
 import { Link as MaterialLink } from "@material-ui/core";
 import { Link, useHistory } from "react-router-dom";
 
-import { CenteredCard, CardHeading } from "../components/common/styled";
-import app from "../utils/firebase";
-import Page from "../components/page/Page";
-import Login from "../components/login/LoginComponent";
-import Alert, { useAlert } from "../components/common/Alert";
+import { CenteredCard, CardHeading } from "../../components/common/styled";
+import app from "../../utils/firebase";
+import Page from "../../components/page/Page";
+import Login from "../../components/login/LoginComponent";
+import Alert, { useAlert } from "../../components/common/Alert";
 
 const LoginPage = () => {
   let history = useHistory();

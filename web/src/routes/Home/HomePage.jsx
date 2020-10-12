@@ -2,8 +2,8 @@ import React from "react";
 import { Typography, Link as MaterialLink } from "@material-ui/core";
 import { Link } from "react-router-dom";
 
-import Page from "../components/page/Page";
-import { CenteredCard } from "../components/common/styled";
+import Page from "../../components/page/Page";
+import { CenteredCard } from "../../components/common/styled";
 
 const Home = () => {
   return (

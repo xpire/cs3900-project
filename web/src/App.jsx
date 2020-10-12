@@ -7,7 +7,7 @@ import Header from "./components/header/Header";
 import Drawer from "./components/sidebar/SideBar";
 import PrivateRoute from "./utils/PrivateRoute";
 import { Routes } from "./utils/routes";
-import AuthPage from "./routes/AuthPage";
+import AuthPage from "./routes/Auth/AuthPage";
 import ScrollToTop from "./utils/scrollToTop";
 
 function App() {

@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { Link as MaterialLink } from "@material-ui/core";
 import { Link } from "react-router-dom";
 
-import { CenteredCard, CardHeading } from "../components/common/styled";
-import app, { ActionCodeSettings } from "../utils/firebase";
-import Page from "../components/page/Page";
-import Login from "../components/login/LoginComponent";
+import { CenteredCard, CardHeading } from "../../components/common/styled";
+import app, { ActionCodeSettings } from "../../utils/firebase";
+import Page from "../../components/page/Page";
+import Login from "../../components/login/LoginComponent";
 import { useHistory } from "react-router-dom";
-import Alert, { useAlert } from "../components/common/Alert";
+import Alert, { useAlert } from "../../components/common/Alert";
 
 const SignUpPage = () => {
   const [showAlert, alertDetails, createAlert, closeAlert] = useAlert();

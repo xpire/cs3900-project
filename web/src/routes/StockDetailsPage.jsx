@@ -7,12 +7,9 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   Button,
   CardActions,
-  CardActionArea,
-  CardContent,
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
 
@@ -22,7 +19,6 @@ import {
   ColoredText,
   CenteredCard,
   StandardCard,
-  InnerCard,
 } from "../components/common/styled";
 import Candlestick from "../components/graph/Candlestick";
 // import ApexCandlestick from "../components/graph/ApexCandlestick";

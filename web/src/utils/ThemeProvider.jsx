@@ -1,9 +1,7 @@
 import React from "react";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
+// import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { ThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
-// import purple from "@material-ui/core/colors/purple";
-// import grey from "@material-ui/core/colors/grey";
 
 const MyThemeProvider = ({ children }) => {
   const prefersDarkMode = true;

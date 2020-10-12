@@ -10,7 +10,6 @@ import { useHistory } from "react-router-dom";
 import Alert, { useAlert } from "../components/common/Alert";
 
 const SignUpPage = () => {
-  let history = useHistory();
   const [showAlert, alertDetails, createAlert, closeAlert] = useAlert();
   const [finished, setFinished] = useState(false);
 

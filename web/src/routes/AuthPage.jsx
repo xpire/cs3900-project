@@ -17,7 +17,7 @@ export const CardBody = styled(Typography)`
 const ResetPasswordPage = () => {
   const [showAlert, alertDetails, createAlert, closeAlert] = useAlert();
   const [mode, actionCode, continueUrl] = useFirebaseAuth();
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
   let history = useHistory();
 
   try {

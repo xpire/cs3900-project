@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography, Card, Link as MaterialLink } from "@material-ui/core";
+import { Typography, Link as MaterialLink } from "@material-ui/core";
 import { Link } from "react-router-dom";
 
 import Page from "../components/page/Page";

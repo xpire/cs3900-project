@@ -9,7 +9,7 @@ import {
   // Link as MaterialLink,
 } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
+// import MenuIcon from "@material-ui/icons/Menu";
 import styled from "styled-components";
 import {
   useHistory,
@@ -62,7 +62,6 @@ const MyHeader = ({ toggleMenu }) => {
       <AppBar position="sticky" color="secondary">
         <Toolbar>
           <IconButton edge="start" onClick={toggleMenu}>
-            {/* <StyledMenu /> */}
             <img src={Logo} alt="Execute the Deal Logo" height="40px" />
           </IconButton>
           <HeaderTitle variant="h4">{headerTitle}</HeaderTitle>

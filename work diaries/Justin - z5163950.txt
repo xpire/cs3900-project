@@ -24,4 +24,7 @@ I instead began looking for another replacement, and did a second round of resea
 This time I found react-stockcharts - although it was not maintained for a few years, it was lightyears ahead of many other graphing libraries in terms of displaying stock graphs such as candlesticks, along with blazing performance thanks to a canvas implementation. 
 However, because it was so old, I spent a whole day trying to get it to work (before realising that it can only be implemented as a class component, not as a functional component).
 I properly finished off authentication with a better sign up page with 2 password fields, an Email Verification step after signup and a Properly integrated Forgot Password and Reset Password functionality. 
-I added the Execute the Deal Logo and formalised the dark theme, and reorganised the front end layout or routes so that each class of pages had their own test. Spent a few hours debugging a jest issue to complete tests for StockDetails page.
+I added the Execute the Deal Logo and formalised the dark theme.
+I Reorganised the front end layout or routes so that each class of pages had their own test. 
+Spent a few hours debugging a jest issue to complete tests for StockDetails page.
+Finally, I configured the tests to run before every commit and push. 

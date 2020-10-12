@@ -36,6 +36,21 @@ and help Even with setting up a MySQL database
 
 
 Week 4
+- planned last week: implementing websocket for streaming real-time market data, helping Even with setting up a MySQL database
+- after more research into the two things above, there were various changes in the plan
+- we decided not to stream real-time market data from backend to frontend using websockets due to the complexities and issues
+surrounding syncing data across the screen (e.g. there may be values displayed on the client's screen that are computed in the backend 
+based on the real-time market data, and stream only the market data will cause out-of-sync behaviour); although there are solutions
+around it, they seemed too much of an effort at the current stage where we want to see a working soluiton, and so we decided not to
+use websockets for now. Instead, we will be polling every few seconds from the client
+- as for MySQL, we decided to switch to PostgreSQL, as it seemed to follow the SQL standards better and also have useful data types 
+such as arrays; but we still did not get to design nor setup the database together because we both have been busy
 - everyone got too busy for a meeting so I spent some time and tried to delegate tasks to each member, and they accepted the tasks
 - tried to break down user stories to subtasks so that we can work in parallel better and also keep track of our progress better
+- looked into different approximate search algorithms for searching for instruments, and found two useful libraries that we could use,
+one based on Bitap and another based on cosine similarity
+- most of the time this week was spent experimenting and researching on websockets, and not much on actual contribution to the codebase,
+so I plan to make up for this next week
+- plan for next week: setup interval-based polling on React, implement search functionality, help Even with database setup, grabbing data
+from twelvedata in the backend
  

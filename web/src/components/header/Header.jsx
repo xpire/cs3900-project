@@ -4,13 +4,12 @@ import {
   Toolbar,
   Typography,
   Button,
-  Switch,
   useScrollTrigger,
   Slide,
   // Link as MaterialLink,
 } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
+// import MenuIcon from "@material-ui/icons/Menu";
 import styled from "styled-components";
 import {
   useHistory,
@@ -21,6 +20,7 @@ import {
 import app from "../../utils/firebase";
 import { AuthContext } from "../../utils/authentication";
 import { locationToRoutes } from "../../utils/routes";
+import Logo from "../../ecksdeeLogo.png.svg";
 
 const HeaderButton = styled(Button)`
   // color: white;
@@ -30,11 +30,6 @@ const HeaderTitle = styled(Typography)`
   flex-grow: 1;
 `;
 
-const StyledMenu = styled(MenuIcon)({ color: "white" });
-
-// const StyledLink = styled(Button)`
-//   color: white;
-// `;
 const MyHeader = ({ toggleMenu }) => {
   const trigger = useScrollTrigger({ target: window }); // disable Slide for now
   const { user } = useContext(AuthContext);
@@ -67,7 +62,7 @@ const MyHeader = ({ toggleMenu }) => {
       <AppBar position="sticky" color="secondary">
         <Toolbar>
           <IconButton edge="start" onClick={toggleMenu}>
-            <StyledMenu />
+            <img src={Logo} alt="Execute the Deal Logo" height="40px" />
           </IconButton>
           <HeaderTitle variant="h4">{headerTitle}</HeaderTitle>
           {/* <Grid container direction="row" justify="flex-end" spacing={2}>
@@ -82,7 +77,6 @@ const MyHeader = ({ toggleMenu }) => {
               </Grid>
             ))}
           </Grid> */}
-          {/* <Switch onChange={handleChange} color="primary" /> */}
           {user ? (
             <HeaderButton
               variant="contained"

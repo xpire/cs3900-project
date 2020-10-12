@@ -31,10 +31,11 @@ const StyledColoredText = materialStyled(Typography)({
   color: (props) => props.color,
 });
 
+export const green = { dark: "#c1ff7a", light: "#689f38" };
+export const red = { dark: "#ef5350", light: "#f50057" };
+
 export const ColoredText = ({ children, color, ...restProps }) => {
   const theme = useTheme();
-  const green = { dark: "#c1ff7a", light: "#689f38" };
-  const red = { dark: "#ff669a", light: "#f50057" };
   return (
     <StyledColoredText
       color={
@@ -47,6 +48,14 @@ export const ColoredText = ({ children, color, ...restProps }) => {
   );
 };
 
-// export const StandardCard = materialStyled(Card)({
+export const StandardCard = materialStyled(Card)({
+  margin: "10px",
+  padding: "10px",
+  height: "95%",
+});
 
-// });
+export const InnerCard = materialStyled(Card)({
+  margin: "10px",
+  padding: "10px",
+  height: "80%",
+});

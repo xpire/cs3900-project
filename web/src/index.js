@@ -7,15 +7,18 @@ import { BrowserRouter as Router } from "react-router-dom";
 
 import { AuthProvider } from "./utils/authentication";
 import ThemeProvider from "./utils/ThemeProvider";
+import { SnackbarProvider } from "notistack";
 
 ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider>
-      <AuthProvider>
+      <SnackbarProvider>
         <Router>
-          <App />
+          <AuthProvider>
+            <App />
+          </AuthProvider>
         </Router>
-      </AuthProvider>
+      </SnackbarProvider>
     </ThemeProvider>
   </React.StrictMode>,
   document.getElementById("root")

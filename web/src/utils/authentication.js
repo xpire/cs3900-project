@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
             key="validation"
             theme={theme}
           >
-            <Typography variant="h2">Validating your Session...</Typography>
+            <Typography variant="h2">{"Validating your Session..."}</Typography>
             <CircularProgress color="primary" size={50} />
           </StyledCenteredMotionDiv>
         )}

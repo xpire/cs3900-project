@@ -55,7 +55,7 @@ const Market = () => {
           </Grid>
           {stockData.map(({ symbol, type }, index) => {
             return (
-              <Grid item md={4} sm={6} xs={12}>
+              <Grid item md={4} sm={6} xs={12} key={symbol}>
                 <StockCard
                   name={symbol}
                   category={type}

@@ -84,11 +84,11 @@ const TableInfo = ({ rows }) => (
   </TableContainer>
 );
 
-const StockDetails = (props) => {
+const StockDetails = () => {
   // grab the list of available stocks
-  console.log({ props });
   // const stockCode = props.match.params.symbol.toUpperCase();
-  const { symbol } = useParams();
+  // const { symbol } = useParams();
+  const symbol = "AAPL";
   const myStockData = stockData.data.find(
     (s) => s.symbol.toUpperCase() === symbol.toUpperCase()
   );

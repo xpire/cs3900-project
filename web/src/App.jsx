@@ -7,7 +7,7 @@ import Header from "./components/header/Header";
 import Drawer from "./components/sidebar/SideBar";
 import PrivateRoute from "./utils/PrivateRoute";
 import { Routes } from "./utils/routes";
-import resetPasswordPage from "./routes/ResetPasswordPage";
+import AuthPage from "./routes/AuthPage";
 import ScrollToTop from "./utils/scrollToTop";
 
 function App() {
@@ -22,7 +22,7 @@ function App() {
       <Header toggleMenu={toggleDrawer} />
       <Drawer isOpen={isOpen} handleChange={toggleDrawer} variant="temporary" />
       <Switch location={location} key={location.key}>
-        <Route path="/resetPassword" component={resetPasswordPage} />
+        <Route path="/auth" component={AuthPage} />
         {Routes.map(({ exact, path, isPublic, component }) => (
           <PrivateRoute
             exact={exact}

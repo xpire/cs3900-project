@@ -3,7 +3,7 @@ import { Link as MaterialLink } from "@material-ui/core";
 import { Link } from "react-router-dom";
 
 import { CenteredCard, CardHeading } from "../components/common/styled";
-import app from "../utils/firebase";
+import app, { ActionCodeSettings } from "../utils/firebase";
 import Page from "../components/page/Page";
 import Login from "../components/login/LoginComponent";
 import { useHistory } from "react-router-dom";
@@ -30,7 +30,8 @@ const SignUpPage = () => {
       await app
         .auth()
         .createUserWithEmailAndPassword(email.value, password.value);
-      history.push("/dashboard");
+      await app.auth().currentUser.sendEmailVerification(ActionCodeSettings);
+      // history.push("/dashboard");
       setFinished(true);
     } catch (error) {
       createAlert(error);

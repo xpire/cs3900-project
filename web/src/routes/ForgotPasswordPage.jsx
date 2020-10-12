@@ -8,7 +8,7 @@ import {
 import { Link } from "react-router-dom";
 
 import { CenteredCard, CardHeading } from "../components/common/styled";
-import app from "../utils/firebase";
+import app, { ActionCodeSettings } from "../utils/firebase";
 import Page from "../components/page/Page";
 
 const ForgotPasswordPage = () => {
@@ -18,7 +18,7 @@ const ForgotPasswordPage = () => {
     event.preventDefault();
     const { email } = event.target.elements;
     try {
-      await app.auth().sendPasswordResetEmail(email.value);
+      await app.auth().sendPasswordResetEmail(email.value, ActionCodeSettings);
       setFinished(true);
     } catch (error) {
       alert(error);

@@ -4,7 +4,6 @@ import {
   Toolbar,
   Typography,
   Button,
-  Switch,
   useScrollTrigger,
   Slide,
   // Link as MaterialLink,
@@ -31,11 +30,6 @@ const HeaderTitle = styled(Typography)`
   flex-grow: 1;
 `;
 
-const StyledMenu = styled(MenuIcon)({ color: "white" });
-
-// const StyledLink = styled(Button)`
-//   color: white;
-// `;
 const MyHeader = ({ toggleMenu }) => {
   const trigger = useScrollTrigger({ target: window }); // disable Slide for now
   const { user } = useContext(AuthContext);
@@ -84,7 +78,6 @@ const MyHeader = ({ toggleMenu }) => {
               </Grid>
             ))}
           </Grid> */}
-          {/* <Switch onChange={handleChange} color="primary" /> */}
           {user ? (
             <HeaderButton
               variant="contained"

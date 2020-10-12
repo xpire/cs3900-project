@@ -13,6 +13,7 @@
     "d3-time-format": "^2.1.1",
     "firebase": "^7.21.1",
     "framer-motion": "^2.7.7",
+    "husky": "^4.3.0",
     "lodash": "^4.17.20",
     "match-sorter": "^4.2.1",
     "notistack": "^1.0.1",
@@ -32,11 +33,11 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
+    "canvas": "^2.6.1",
+    "jest-canvas-mock": "^2.3.0",
     "jest-styled-components": "^6.3.3",
     "prettier": "^1.18.2",
-    "serve": "^11.3.2",
-    "canvas": "^2.6.1",
-    "jest-canvas-mock": "^2.3.0"
+    "serve": "^11.3.2"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -47,6 +48,17 @@
   },
   "eslintConfig": {
     "extends": "react-app"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx}"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "react-scripts test --watchAll=false",
+      "pre-push": "CI=true npm test"
+    }
   },
   "browserslist": {
     "production": [

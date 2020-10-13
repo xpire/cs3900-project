@@ -32,7 +32,7 @@ const StockCard = ({ name, category, price, delta, skeleton }) => {
           >
             {skeleton ? (
               <Grid item xs={12}>
-                <Skeleton variant="rectangle" width="100%" height={108} />
+                <Skeleton variant="rect" width="100%" height={108} />
               </Grid>
             ) : (
               <>
@@ -66,7 +66,7 @@ const StockCard = ({ name, category, price, delta, skeleton }) => {
       </CardActionArea>
       <CardActions>
         {skeleton ? (
-          <Skeleton variant="rectangle" height={30} width="100%" />
+          <Skeleton variant="rect" height={30} width="100%" />
         ) : (
           <>
             <Button size="small" color="primary">

@@ -66,7 +66,7 @@ const Market = () => {
               )}
             />
 
-            {/* <Typography variant="h2">TODO: [Search bar]</Typography> */}
+            <Typography variant="h2">TODO: [Search bar]</Typography>
             {/* </Card> */}
           </Grid>
           <Grid item xs={12}>

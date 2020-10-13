@@ -38,9 +38,12 @@ export const ColoredText = ({ children, color, ...restProps }) => {
   const theme = useTheme();
   return (
     <StyledColoredText
-      color={
-        color === "green" ? green[theme.palette.type] : red[theme.palette.type]
-      }
+      style={{
+        color:
+          color === "green"
+            ? green[theme.palette.type]
+            : red[theme.palette.type],
+      }}
       {...restProps}
     >
       {children}

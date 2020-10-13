@@ -56,8 +56,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "react-scripts test --watchAll=false",
-      "pre-push": "CI=true npm test"
+      "pre-commit": "CI=true react-scripts test --color --changedSince master",
+      "pre-push": "CI=true react-scripts test --color"
     }
   },
   "browserslist": {

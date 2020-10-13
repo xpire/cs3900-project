@@ -62,6 +62,7 @@ class CandleStickStockScaleChart extends React.Component {
         xAccessor={xAccessor}
         displayXAccessor={displayXAccessor}
         xExtents={xExtents}
+        seriesName="Graph"
       >
         <Chart id={1} yExtents={(d) => [d.high, d.low]}>
           <XAxis
@@ -125,7 +126,7 @@ class CandleStickStockScaleChart extends React.Component {
           )}
           <OHLCTooltip
             fontFamily="Roboto"
-            fontSize="16px"
+            fontSize={16}
             textFill="#FFFFFF"
             labelFill="#2196f3"
             origin={[-50, -10]}

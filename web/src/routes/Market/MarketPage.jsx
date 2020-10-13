@@ -37,7 +37,7 @@ const Market = () => {
       setVisibleData(stockData);
       setLoading(false);
     }, 1500);
-  }, []);
+  }, [stockData]);
   return (
     <Page>
       <div style={{ padding: "12px" }}>
@@ -49,20 +49,13 @@ const Market = () => {
           spacing={2}
         >
           <Grid item xs={12}>
-            {/* <Card> */}
             <Autocomplete
               filterOptions={filterOptions}
               options={stockData}
               getOptionLabel={(option) => option.symbol}
-              style={{ width: 300 }}
               fullWidth
               renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Combo box"
-                  variant="outlined"
-                  fullWidth
-                />
+                <TextField {...params} label="Combo box" variant="outlined" />
               )}
             />
 

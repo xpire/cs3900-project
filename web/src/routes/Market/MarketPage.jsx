@@ -4,7 +4,7 @@ import { Autocomplete } from "@material-ui/lab";
 import matchSorter from "match-sorter";
 
 import Page from "../../components/page/Page";
-import StockCard from "../../components/common/StockCard";
+import CardGrid from "../../components/common/CardGrid";
 
 import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
 
@@ -76,21 +76,8 @@ const Market = () => {
                 : `Your search returned ${visibleData.length} results.`}
             </Typography>
           </Grid>
-          {visibleData.map(({ symbol, type, skeleton }, index) => {
-            return (
-              <Grid item md={4} sm={6} xs={12} key={index}>
-                <StockCard
-                  name={symbol}
-                  category={type}
-                  price="$25,333"
-                  delta={index % 2 === 0 ? 25 : -10}
-                  key={index}
-                  skeleton={skeleton}
-                />
-              </Grid>
-            );
-          })}
         </Grid>
+        <CardGrid data={visibleData} />
       </div>
     </Page>
   );

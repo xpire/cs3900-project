@@ -2,16 +2,19 @@ import React from "react";
 import { render } from "@testing-library/react";
 import StockDetailsPage from "./StockDetailsPage";
 
+import routeData from "react-router";
+
+const mockLocation = {
+  symbol: "AAPL",
+};
+beforeEach(() => {
+  jest.spyOn(routeData, "useParams").mockReturnValue(mockLocation);
+});
+
 describe("Stock Details Page", () => {
-  jest.mock("react-router-dom", () => ({
-    ...jest.requireActual("react-router-dom"),
-    useParams: () => ({
-      push: jest.fn(),
-    }),
-  }));
   it("Displays in-depth details: symbol", () => {
     const { getByText } = render(<StockDetailsPage />);
-    const SymbolElement = getByText(/AAPL/);
+    const SymbolElement = getByText("AAPL");
     expect(SymbolElement).toBeInTheDocument();
   });
   it("Displays in-depth details: name", () => {

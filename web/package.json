@@ -13,7 +13,6 @@
     "d3-time-format": "^2.1.1",
     "firebase": "^7.21.1",
     "framer-motion": "^2.7.7",
-    "husky": "^4.3.0",
     "lodash": "^4.17.20",
     "match-sorter": "^4.2.1",
     "notistack": "^1.0.1",
@@ -37,7 +36,8 @@
     "jest-canvas-mock": "^2.3.0",
     "jest-styled-components": "^6.3.3",
     "prettier": "^1.18.2",
-    "serve": "^11.3.2"
+    "serve": "^11.3.2",
+    "husky": "^4.3.0"
   },
   "scripts": {
     "start": "react-scripts start",

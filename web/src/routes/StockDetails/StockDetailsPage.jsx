@@ -41,6 +41,12 @@ const parsedData = TimeSeriesData.AAPL.values
   })
   .reverse();
 
+// const parsedApexData = TimeSeriesData.AAPL.values.map(
+//   ({ datetime, open, close, high, low }) => {
+//     return { x: new Date(datetime), y: [open, high, low, close] };
+//   }
+// );
+
 function createData(name, value) {
   return { name, value };
 }
@@ -87,8 +93,7 @@ const TableInfo = ({ rows }) => (
 const StockDetails = () => {
   // grab the list of available stocks
   // const stockCode = props.match.params.symbol.toUpperCase();
-  // const { symbol } = useParams();
-  const symbol = "AAPL";
+  const { symbol } = useParams();
   const myStockData = stockData.data.find(
     (s) => s.symbol.toUpperCase() === symbol.toUpperCase()
   );

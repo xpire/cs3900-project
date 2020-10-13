@@ -13,20 +13,28 @@ import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
 import Page from "../../components/page/Page";
 
 const Trading = () => {
-  const [tradeType, setTradeType] = useState("buy");
-  const [purchaseBy, setPurchaseBy] = useState("quantity");
-  const [orderType, setOrderType] = useState("market");
-  const [sliderValue, setSliderValue] = useState(20);
+  const defaultState = {
+    tradeType: "buy",
+    purchaseBy: "quantity",
+    orderType: "market",
+    quantity: 20,
+  };
+  const [state, setState] = useState(defaultState);
+  // const set = (stateString) => (value) => setState({ ...state, [stateString]: value})
+  const setTradeType = (value) => setState({ ...state, tradeType: value });
+  const setPurchaseBy = (value) => setState({ ...state, purchaseBy: value });
+  const setOrderType = (value) => setState({ ...state, orderType: value });
+  const setQuantity = (value) => setState({ ...state, quantity: value });
 
   const handleInputChange = (event) => {
-    setSliderValue(event.target.value === "" ? "" : Number(event.target.value));
+    setQuantity(event.target.value === "" ? "" : Number(event.target.value));
   };
 
   const handleBlur = () => {
-    if (sliderValue < 0) {
-      setSliderValue(0);
-    } else if (sliderValue > 100) {
-      setSliderValue(100);
+    if (state.quantity < 0) {
+      setQuantity(0);
+    } else if (state.quantity > 100) {
+      setQuantity(100);
     }
   };
 
@@ -45,14 +53,14 @@ const Trading = () => {
             Symbol:
           </Grid>
           <Grid item xs={9}>
-            <TextField variant="outlined" label="Symbol" />{" "}
+            <TextField variant="outlined" label="Symbol" />
           </Grid>
           <Grid item xs={3}>
             Trade Type:
           </Grid>
           <Grid item xs={9}>
             <ToggleButtonGroup
-              value={tradeType}
+              value={state.tradeType}
               exclusive
               onChange={(_event, newValue) =>
                 newValue !== null && setTradeType(newValue)
@@ -73,7 +81,7 @@ const Trading = () => {
           </Grid>
           <Grid item xs={9}>
             <ToggleButtonGroup
-              value={purchaseBy}
+              value={state.purchaseBy}
               exclusive
               onChange={(_event, newValue) =>
                 newValue !== null && setPurchaseBy(newValue)
@@ -89,9 +97,9 @@ const Trading = () => {
           <Grid item container direction="row" xs={9}>
             <Grid item xs={7} sm={10}>
               <Slider
-                // defaultValue={sliderValue}
-                value={sliderValue}
-                onChange={(_event, newValue) => setSliderValue(newValue)}
+                // defaultValue={quantity}
+                value={state.quantity}
+                onChange={(_event, newValue) => setQuantity(newValue)}
                 getAriaValueText={valuetext}
                 aria-labelledby="discrete-slider"
                 step={1}
@@ -104,7 +112,7 @@ const Trading = () => {
             </Grid>
             <Grid item xs={5} sm={2}>
               <Input
-                value={sliderValue}
+                value={state.quantity}
                 // margin="dense"
                 onChange={handleInputChange}
                 onBlur={handleBlur}
@@ -131,7 +139,7 @@ const Trading = () => {
           </Grid>
           <Grid item xs={9}>
             <ToggleButtonGroup
-              value={orderType}
+              value={state.orderType}
               exclusive
               onChange={(_event, newValue) =>
                 newValue !== null && setOrderType(newValue)
@@ -145,7 +153,7 @@ const Trading = () => {
           <Grid item xs={9}>
             <TextField
               label="Price"
-              value={`$${123 * sliderValue}`}
+              value={`$${123 * state.quantity}`}
               InputProps={{
                 readOnly: true,
               }}
@@ -159,10 +167,10 @@ const Trading = () => {
             alignItems="flex-end"
           >
             <Grid item>
-              <Button>clear</Button>
+              <Button onClick={() => setState(defaultState)}>clear</Button>
             </Grid>
             <Grid item>
-              <Button>Submit</Button>
+              <Button onClick={() => {}}>Submit</Button>
             </Grid>
           </Grid>
         </Grid>

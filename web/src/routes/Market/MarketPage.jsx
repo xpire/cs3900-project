@@ -66,7 +66,7 @@ const Market = () => {
               )}
             />
 
-            <Typography variant="h2">TODO: [Search bar]</Typography>
+            {/* <Typography variant="h2">TODO: [Search bar]</Typography> */}
             {/* </Card> */}
           </Grid>
           <Grid item xs={12}>
@@ -82,7 +82,7 @@ const Market = () => {
                 <StockCard
                   name={symbol}
                   category={type}
-                  price="$25,333"
+                  price="$25,322"
                   delta={index % 2 === 0 ? 25 : -10}
                   key={index}
                   skeleton={skeleton}

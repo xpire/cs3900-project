@@ -111,7 +111,7 @@ const StockDetails = () => {
                 </Grid>
                 <Grid item sm={12} xs={6}>
                   <ColoredText color="green" variant="h2">
-                    +20%
+                    +15.1%
                   </ColoredText>
                   <CardActions>
                     <Button variant="outlined" color="primary">

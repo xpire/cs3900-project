@@ -56,7 +56,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "CI=true react-scripts test --color --changedSince master",
+      "pre-commit": "CI=true react-scripts test --color",
       "pre-push": "CI=true react-scripts test --color"
     }
   },

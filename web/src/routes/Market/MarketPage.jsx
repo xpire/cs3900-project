@@ -10,25 +10,10 @@ import * as data from "../../utils/stocksList.json"; //TODO: make this an API ca
 
 const Market = () => {
   const [loading, setLoading] = useState(true);
-  const [visibleData, setVisibleData] = useState([
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-  ]);
+  const [visibleData, setVisibleData] = useState(
+    Array.from({ length: 18}, () => ({ skeleton: true })
+  ));
+  
   const stockData = data.data; //.slice(0, 30);
   const filterOptions = (options, { inputValue }) =>
     matchSorter(options, inputValue);

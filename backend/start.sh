@@ -19,12 +19,12 @@ pre-config() {
         echo "Copyting secrets...";
         cp $1 ./src/core/;
         
-        echo "Checking if database is awake...";
-        python3 ./src/backend_pre_start.py;
-        
         echo "Set python path...";
         curd=$(pwd);
         export PYTHONPATH=${curd::len-7}:$PYTHONPATH;
+
+        echo "Checking if database is awake...";
+        python3 ./src/backend_pre_start.py;
         
         echo "Model migration...";
         alembic upgrade head;

@@ -1,24 +1,9 @@
 import React, { useState } from "react";
 import { Typography, Grid, Input } from "@material-ui/core";
 import Page from "../../components/page/Page";
-import StockCard from "../../components/common/StockCard";
+import CardGrid from "../../components/common/CardGrid";
 
 import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
-
-const toCard = ({ symbol, type, skeleton }, index) => {
-  return (
-    <Grid item md={4} sm={6} xs={12} key={index}>
-      <StockCard
-        name={symbol}
-        category={type}
-        price="$25,322"
-        delta={index % 2 === 0 ? 25 : -10}
-        key={index}
-        skeleton={skeleton}
-      />
-    </Grid>
-  );
-};
 
 const Market = () => {
   const [loading, setLoading] = useState(false);
@@ -64,8 +49,8 @@ const Market = () => {
                 : `Your search returned ${filteredData.length} results.`}
             </Typography>
           </Grid>
-          {filteredData.map((stock, index) => toCard(stock, index))}
         </Grid>
+        <CardGrid data={filteredData} />
       </div>
     </Page>
   );

@@ -1,43 +1,28 @@
-import React, { useState, useEffect } from "react";
-import { Typography, Grid, TextField } from "@material-ui/core";
-import { Autocomplete } from "@material-ui/lab";
-import matchSorter from "match-sorter";
-
+import React, { useState } from "react";
+import { Typography, Grid, Input } from "@material-ui/core";
 import Page from "../../components/page/Page";
 import CardGrid from "../../components/common/CardGrid";
 
 import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
 
 const Market = () => {
-  const [loading, setLoading] = useState(true);
-  const [visibleData, setVisibleData] = useState([
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-  ]);
+  const [loading, setLoading] = useState(false);
+
   const stockData = data.data; //.slice(0, 30);
-  const filterOptions = (options, { inputValue }) =>
-    matchSorter(options, inputValue);
-  useEffect(() => {
-    setTimeout(() => {
-      setVisibleData(stockData);
-      setLoading(false);
-    }, 1500);
-  }, []);
+  const [filteredData, setFilteredData] = useState(stockData);
+
+  const handleChange = (e) => {
+    if (e !== "") {
+      setFilteredData(
+        stockData.filter(({ symbol }) =>
+          symbol.toLowerCase().includes(e.toLowerCase())
+        )
+      );
+    } else {
+      setFilteredData(stockData);
+    }
+  };
+
   return (
     <Page>
       <div style={{ padding: "12px" }}>
@@ -49,35 +34,23 @@ const Market = () => {
           spacing={2}
         >
           <Grid item xs={12}>
-            {/* <Card> */}
-            <Autocomplete
-              filterOptions={filterOptions}
-              options={stockData}
-              getOptionLabel={(option) => option.symbol}
-              style={{ width: 300 }}
+            <Input
               fullWidth
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Combo box"
-                  variant="outlined"
-                  fullWidth
-                />
-              )}
+              onChange={(e) => handleChange(e.target.value)}
+              variant="filled"
+              placeholder="Search"
+              inputProps={{ style: { fontSize: 40 } }}
             />
-
-            <Typography variant="h2">TODO: [Search bar]</Typography>
-            {/* </Card> */}
           </Grid>
           <Grid item xs={12}>
             <Typography>
               {loading
                 ? `Loading...`
-                : `Your search returned ${visibleData.length} results.`}
+                : `Your search returned ${filteredData.length} results.`}
             </Typography>
           </Grid>
         </Grid>
-        <CardGrid data={visibleData} />
+        <CardGrid data={filteredData} />
       </div>
     </Page>
   );

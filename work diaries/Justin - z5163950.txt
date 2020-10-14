@@ -14,7 +14,10 @@ It was successful and really easy to use. I will do more research to see if it w
 
 Week 3
 
-This week was spent mostly on the wireframes. I worked together with song to create the overall design of the page, and the UI components on each individual page. Next we began creating storyboards which helped to solidify our design of our system and point out noticeable flaws with our user stories and designs. For example, because of our extension to implement short positions, our design for the portfolio page went through many iterations to include features for shorts. Ultimately, we finished the storyboards and help write up the Proposal. 
+This week was spent mostly on the wireframes. I worked together with song to create the overall design of the page, and the UI components on each individual page. 
+Next we began creating storyboards which helped to solidify our design of our system and point out noticeable flaws with our user stories and designs. 
+For example, because of our extension to implement short positions, our design for the portfolio page went through many iterations to include features for shorts. 
+Ultimately, we finished the storyboards and help write up the Proposal. 
 
 Week 4
 

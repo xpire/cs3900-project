@@ -69,10 +69,20 @@ const StockCard = ({ name, category, price, delta, skeleton }) => {
           <Skeleton variant="rect" height={30} width="100%" />
         ) : (
           <>
-            <Button size="small" color="primary">
+            <Button
+              size="small"
+              color="primary"
+              onClick={() => {
+                console.log("TODO: call api to add to user's watch list");
+              }}
+            >
               watch
             </Button>
-            <Button size="small" color="primary">
+            <Button
+              size="small"
+              color="primary"
+              onClick={() => history.push(`/trade?symbol=${name}`)}
+            >
               trade
             </Button>
           </>

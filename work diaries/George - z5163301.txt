@@ -27,3 +27,12 @@ We transferred all user stories to JIRA so that they can be allocated to sprints
 Group To Do:
 - Set up project development environment on personal desktop (get up and running)
 - Start sprint 1
+
+
+Week 4
+
+We started the first sprint which works on the most important functionalities of our system. We plan to have a basic working frontend with user authentication, and connect this to a backend using Python FastAPI. We have a meeting to decide what the API endpoints look like, the parameters of the call, and what form they return as a response.
+
+Group To Do:
+- Set up backend infrastructure, data access layer, API
+- Set up database

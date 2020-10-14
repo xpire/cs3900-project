@@ -6,7 +6,6 @@ import { CenteredCard, CardHeading } from "../../components/common/styled";
 import app, { ActionCodeSettings } from "../../utils/firebase";
 import Page from "../../components/page/Page";
 import Login from "../../components/login/LoginComponent";
-import { useHistory } from "react-router-dom";
 import Alert, { useAlert } from "../../components/common/Alert";
 
 const SignUpPage = () => {

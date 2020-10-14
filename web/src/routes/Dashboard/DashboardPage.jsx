@@ -20,7 +20,9 @@ const parsedApexData = TimeSeriesData.AAPL.values
 
 const StatCard = ({ name, value, stat, today }) => {
   return (
-    <StandardCard style={{ height: "150px" }}>
+    <StandardCard
+    // style={{ height: "150px" }}
+    >
       {/* TODO: make this not hardcoded somehow */}
       <Grid
         container
@@ -46,10 +48,15 @@ const StatCard = ({ name, value, stat, today }) => {
         {today && (
           <>
             <Grid item xs={12}>
-              <Typography variant="subtitle2">Today:</Typography>
+              <Typography variant="caption">Today:</Typography>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant="caption">{today}</Typography>
+              <ColoredText
+                variant="subtitle2"
+                color={stat > 0 ? "green" : "red"}
+              >
+                {today}
+              </ColoredText>
             </Grid>
           </>
         )}
@@ -102,7 +109,6 @@ const Dashboard = () => {
           direction="row"
           justify="flex-start"
           alignItems="flex-start"
-          spacing={1}
         >
           {StatisticsData.map((data) => (
             <Grid item md={3} sm={6} xs={12}>

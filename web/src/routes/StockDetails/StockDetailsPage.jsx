@@ -101,31 +101,42 @@ const StockDetails = () => {
     <Page style={{ padding: "20px" }}>
       {listData.includes(symbol) ? (
         <Grid container direction="row" alignItems="stretch">
-          <Grid item md={3} sm={5} xs={12}>
+          <Grid item md={3} sm={12} xs={12}>
             <StandardCard>
-              <Grid direction="row" container alignItems="flex-end">
-                <Grid item sm={12} xs={6}>
+              <Grid
+                direction="row"
+                container
+                justify="space-between"
+                alignItems="flex-end"
+              >
+                <Grid item md={12} sm={6}>
                   <Typography variant="h2">{symbol}</Typography>
                   <Typography variant="h4">{myStockData.name}</Typography>
                   <Chip label={myStockData.type} size="small" />
                 </Grid>
-                <Grid item sm={12} xs={6}>
-                  <ColoredText color="green" variant="h2">
-                    +20%
-                  </ColoredText>
-                  <CardActions>
-                    <Button variant="outlined" color="primary">
-                      Watch
-                    </Button>
-                    <Button variant="outlined" color="primary">
-                      Trade
-                    </Button>
-                  </CardActions>
+                <Grid item md={12} sm={6}>
+                  <Grid item>
+                    <ColoredText color="green" variant="h2" align="right">
+                      +20%
+                    </ColoredText>
+                  </Grid>
+                  <Grid container direction="row-reverse" spacing={2}>
+                    <Grid item>
+                      <Button variant="outlined" color="primary">
+                        Watch
+                      </Button>
+                    </Grid>
+                    <Grid item>
+                      <Button variant="outlined" color="primary">
+                        Trade
+                      </Button>
+                    </Grid>
+                  </Grid>
                 </Grid>
               </Grid>
             </StandardCard>
           </Grid>
-          <Grid item md={9} sm={7} xs={12}>
+          <Grid item md={9} sm={12} xs={12}>
             <StandardCard>
               <div // fix scrolling body in chrome
                 onMouseEnter={() => {

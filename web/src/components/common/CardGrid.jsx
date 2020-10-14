@@ -10,7 +10,7 @@ const CardGrid = ({ data }) => {
       direction="row"
       justify="flex-start"
       alignItems="flex-start"
-      spacing={2}
+      spacing={0}
     >
       {data.map(({ symbol, type, skeleton }, index) => {
         return (

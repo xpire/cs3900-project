@@ -16,7 +16,7 @@ const parsedApexData = TimeSeriesData.AAPL.values
   .map(({ datetime, open, close, high, low }) => {
     return { x: new Date(datetime), y: [open, high, low, close] };
   })
-  .slice(0, 365);
+  .slice(0, 120);
 
 const StatCard = ({ name, value, stat, today }) => {
   return (
@@ -65,29 +65,35 @@ const StatisticsData = [
   { name: "Available Balance", value: 5001.22 },
 ];
 
-const TabPanel = (props) => {
-  const { children, value, index, ...other } = props;
+// const TabPanel = (props) => {
+//   const { children, value, index, ...other } = props;
 
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      // id={`simple-tabpanel-${index}`}
-      // aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box p={3}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
-    </div>
-  );
-};
+//   return (
+//     <div
+//       role="tabpanel"
+//       hidden={value !== index}
+//       key={index}
+//       id={`simple-tabpanel-${index}`}
+//       aria-labelledby={`simple-tab-${index}`}
+//       {...other}
+//     >
+//       {value === index && (
+//         <Box p={3}>
+//           <Typography>{children}</Typography>
+//         </Box>
+//       )}
+//     </div>
+//   );
+// };
+
+// const longsData = stockData.slice(0, 3);
+// const shortsData = stockData.slice(3, 6);
+// const watchData = stockData.slice(3, 9);
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
   const [value, setValue] = useState(0);
+  const [data, setData] = useState(stockData.slice(0, 30));
   return (
     <Page>
       <div style={{ padding: "12px" }}>
@@ -112,7 +118,10 @@ const Dashboard = () => {
             <StandardCard>
               <Tabs
                 value={value}
-                onChange={(_event, newValue) => setValue(newValue)}
+                onChange={(_event, newValue) => {
+                  setValue(newValue);
+                  setData(stockData.slice(newValue * 30, newValue * 30 + 30));
+                }}
                 indicatorColor="primary"
                 textColor="primary"
                 variant="fullWidth"
@@ -122,15 +131,7 @@ const Dashboard = () => {
                 <Tab label="Watchlist" />
               </Tabs>
             </StandardCard>
-            <TabPanel value={value} index={0}>
-              <CardGrid data={stockData.slice(0, 30)} />
-            </TabPanel>
-            <TabPanel value={value} index={1}>
-              <CardGrid data={stockData.slice(15, 30)} />
-            </TabPanel>
-            <TabPanel value={value} index={2}>
-              <CardGrid data={stockData.slice(30, 40)} />
-            </TabPanel>
+            <CardGrid data={data} />
           </Grid>
         </Grid>
       </div>

@@ -9,7 +9,6 @@
 # ====================================================
 
 # give db name and 
-set -x;
 export can_run=0; 
 
 # Basing on CLI parameter, install dependency or 
@@ -21,7 +20,7 @@ pre-config() {
         cp $1 ./src/core/;
         
         echo "Checking if database is awake...";
-        python ./src/backend_pre_start.py;
+        python3 ./src/backend_pre_start.py;
         
         echo "Set python path...";
         curd=$(pwd);
@@ -40,7 +39,7 @@ backend-run() {
     if [ $can_run == 1 ];
     then
         echo "Is DB still awake ?"
-        python ./src/backend_pre_start.py;
+        python3 ./src/backend_pre_start.py;
         echo "Cool..."
         echo "Starting..."
         cd src;

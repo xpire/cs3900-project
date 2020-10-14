@@ -7,9 +7,9 @@ import {
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
 
-import { CenteredCard, CardHeading } from "../components/common/styled";
-import app from "../utils/firebase";
-import Page from "../components/page/Page";
+import { CenteredCard, CardHeading } from "../../components/common/styled";
+import app, { ActionCodeSettings } from "../../utils/firebase";
+import Page from "../../components/page/Page";
 
 const ForgotPasswordPage = () => {
   const [finished, setFinished] = useState(false);
@@ -18,7 +18,7 @@ const ForgotPasswordPage = () => {
     event.preventDefault();
     const { email } = event.target.elements;
     try {
-      await app.auth().sendPasswordResetEmail(email.value);
+      await app.auth().sendPasswordResetEmail(email.value, ActionCodeSettings);
       setFinished(true);
     } catch (error) {
       alert(error);

@@ -146,3 +146,6 @@ dmypy.json
 cython_debug/
 
 *.sqlite3
+
+*/.DS_Store
+*/Pipfile*

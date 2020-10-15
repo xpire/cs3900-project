@@ -2,7 +2,7 @@ import firebase_admin
 from fastapi import HTTPException
 from firebase_admin import auth, credentials
 
-cred = credentials.Certificate("ecksdee-firebase.json")
+cred = credentials.Certificate("src/core/ecksdee-firebase.json")
 firebase_admin.initialize_app(cred)
 
 

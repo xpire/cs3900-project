@@ -140,11 +140,7 @@ const StockDetails = () => {
       .catch((err) => setError(true));
   };
 
-  useEffect(() => {
-    pollStockData();
-    const interval = setInterval(pollStockData, 10000);
-    return () => clearInterval(interval);
-  }, []);
+  useEffect(pollStockData, []);
 
   // const parsedData = TimeSeriesData.AAPL.values
   // .map(({ datetime, open, close, high, low, volume }) => {

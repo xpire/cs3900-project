@@ -12,7 +12,8 @@ def decode_token(id_token: str):
     try:
         decoded_token = auth.verify_id_token(id_token)
         uid = decoded_token["uid"]
-    except:
+    except Exception as e:
+        print(e)
         raise HTTPException(401, detail="The authentication token is invalid.")
 
     return uid

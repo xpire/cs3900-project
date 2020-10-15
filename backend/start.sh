@@ -10,19 +10,22 @@
 #   `   \     \
 # ====================================================
 
+# give db name and 
+export CANRUN=0;
+
 # Basing on CLI parameter, install dependency
 first-time-setup() {
     export can_run=0;
     if [ $# -eq 1 ];
     then
         # echo "Running simple environment checks..."; 
-        echo "Copyting secrets...";
+        echo "Copying secrets...";
         cp $1 ./src/core/;
         echo " ======================================================== "
 
         echo "Set python path...";
-        curd=$(pwd);
-        export PYTHONPATH=${curd::len-7}:$PYTHONPATH;
+        # export PYTHONPATH=${PWD:0:-7};
+        echo $PYTHONPATH
 
         echo " ======================================================== "
         echo "Checking if database is awake...";
@@ -31,7 +34,7 @@ first-time-setup() {
         echo " ======================================================== "
         echo "Model migration...";
         alembic upgrade head;
-        export can_run=1;
+        export CANRUN=1;
     else
         echo "Please provide the correct amount of arguments.";
     fi
@@ -50,7 +53,7 @@ wake-up() {
 
 backend-run() {
 
-    if [ $can_run == 1 ];
+    if [ $CANRUN = 1 ];
     then
         echo "Is DB still awake ?"
         python3 ./src/backend_pre_start.py;

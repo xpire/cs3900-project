@@ -13,7 +13,7 @@ def test_create_user(db: Session) -> None:
     user_in = UserCreate(email=email, password=password)
     user = crud.user.create(db, obj_in=user_in)
     assert user.email == email
-    assert hasattr(user, "hashed_password")
+    assert hasattr(user, 'hashed_password')
 
 
 def test_authenticate_user(db: Session) -> None:

@@ -22,5 +22,5 @@ settings = Settings(
     FH_API_KEY = config("FH_API_KEY"), 
     TD_API_KEY = config("TD_API_KEY"),
     SQLITE_DB_URI = config("SQLITE_DB_URI"), 
-    BACKEND_CORS_ORIGINS = [str(x) for x in config("BACKEND_CORS_ORIGINS")[1:-1].split(", ")]
+    BACKEND_CORS_ORIGINS = [str(x) for x in config("BACKEND_CORS_ORIGINS")[1:-1].split(",")]
 )

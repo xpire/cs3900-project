@@ -1,8 +1,6 @@
 #! /usr/bin/env bash
-'''
-Script file for deployment tests and starting backend.
 
-''' 
+# Script file for deployment tests and starting backend.
 # ====================================================
 #             .''
 #   ._.-.___.' (`\

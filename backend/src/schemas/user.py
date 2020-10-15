@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, validator 
 
 
 # Shared properties
@@ -10,12 +10,15 @@ class UserBase(BaseModel):
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):
-    pass
+    username: str
+    email: str
+    balance: float
+    token: str
 
 
 # Properties to receive via API on update
 class UserUpdate(UserBase):
-    pass
+    balance: float
 
 
 class UserInDBBase(UserBase):

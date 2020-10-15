@@ -9,7 +9,7 @@ from backend.src.db.base_class import Base
 
 class StockData(Base):
     id = Column(DateTime, primary_key = True, index = True)
-    stock_symbol = Column(String, ForeignKey("stock.symbol")) 
+    stock_symbol = Column(String, ForeignKey('stock.symbol')) 
     low = Column(Float)
     high = Column(Float)
     open_p = Column(Float)

@@ -1,11 +1,6 @@
-from typing import TYPE_CHECKING
-
-from sqlalchemy import Column, ForeignKey, String, Float, DateTime
-
 from backend.src.db.base_model import BaseModel
-
-# if TYPE_CHECKING:
-#     from .stock import Stock
+from sqlalchemy import Column, ForeignKey, String, Float, DateTime
+from typing import TYPE_CHECKING
 
 
 class StockData(BaseModel):

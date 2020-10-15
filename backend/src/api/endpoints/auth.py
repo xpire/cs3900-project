@@ -1,24 +1,16 @@
 from datetime import timedelta
 from typing import Any
 
-from backend.src.core.auth import decode_token
-from backend.src.api.deps import get_db
-from backend.src.models import User
-from backend.src import schemas
-from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query
 from sqlalchemy.orm import Session
-
-from backend.src.crud.crud_user import user as crud_user
-
+from src.core.auth import decode_token
+from src.api.deps import get_db
+from src import crud
+from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query
 # Import from crud, model, etc..
 
 router = APIRouter()
 
 # Start implementation here, this file handles authentication
-
-
-
-
 @router.get("/create")
 async def create_user(
     *,
@@ -27,23 +19,23 @@ async def create_user(
     db: Session = Depends(get_db),
 ):
     uuid = decode_token(id_token)
-    user = crud_user.get_user_by_token(db, uuid=uuid)
+    user = crud.user.get_user_by_token(db, uuid=uuid)
 
     if not user:
-        user = crud_user.create(db, obj_in=dict(email=email, uuid=uuid, username="ian", balance=10000))
+        user = crud.user.create(db, obj_in=dict(email=email, uuid=uuid, username="ian", balance=10000))
     return user
+
 
 @router.get("/balance")
 async def get_user_balance(id_token: str = Header(None), db: Session = Depends(get_db)):
     uuid = decode_token(id_token)
-    user = crud_user.get_user_by_token(db, uuid=uuid)
+    user = crud.user.get_user_by_token(db, uuid=uuid)
 
     if not user:
         raise HTTPException(
             status_code=400,
             detail="no user exists",
         )
-    
     return user.balance
 
 

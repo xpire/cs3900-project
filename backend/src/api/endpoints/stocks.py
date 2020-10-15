@@ -1,16 +1,14 @@
 import json
+import numpy as np
 import os
 from typing import Any, List
 
-import numpy as np
-import json, os
 
-from backend.src.core.config import settings
+from src.core.config import settings
+from src import crud
+from src.api.deps import get_db
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from backend.src.crud.crud_stock import stock as crud_stock
-from backend.src.db.session import get_db
-
 from twelvedata import TDClient
 
 from src.real_time_market_data.data_provider import (
@@ -28,7 +26,6 @@ router = APIRouter()
 
 
 # Start implementation here, this file handles batch and single stock data retrieval
-
 # Can change to a different structure later
 
 STOCKS = {}
@@ -78,16 +75,17 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
 
     # Can make for efficient later
     for symbol in symbols:
-        stock = crud_stock.get_stock_by_symbol(db, symbol)
+        stock = crud.stock.get_stock_by_symbol(db, symbol)
         if stock is None:
             raise HTTPException(status_code=404, detail="Item not found")
-
+        
         ret.append(
             dict(
                 symbol=symbol,
                 name=stock.full_name,
                 exchange=stock.exchange,
-                last_close_price=float(latest_close_price_provider.data[symbol]),
+                curr_close_price=float(latest_close_price_provider.data[symbol][0]),
+                prev_close_price=float(latest_close_price_provider.data[symbol][1]),
             )
         )
     return ret
@@ -96,10 +94,9 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
 @router.get("/time_series")
 async def get_stock_data(symbol: str = Query(None), days: int = 90):
     data = TD.time_series(
-        symbol=symbol,
+        symbol=f"{symbol}:{STOCKS[symbol]}",
         interval="1day",
         outputsize=days, # TODO there seems to be a bug
         timezone="Australia/Sydney",
     ).as_json()
-    print('time series length:', len(data)) 
     return data

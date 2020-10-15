@@ -1,6 +1,6 @@
-from .crud_stock import Stock
-from .crud_stock_data import StockData
-from .crud_user import User
+from .crud_stock import stock
+from .crud_stock_data import stock_data
+from .crud_user import user
 
 # For a new basic set of CRUD operations you could just do
 

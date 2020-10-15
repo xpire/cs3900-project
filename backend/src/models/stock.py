@@ -1,6 +1,5 @@
-from sqlalchemy import Column, String
-
 from backend.src.db.base_model import BaseModel
+from sqlalchemy import Column, String
 
 
 class Stock(BaseModel):

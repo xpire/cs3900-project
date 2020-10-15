@@ -21,10 +21,10 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
 
-from backend.src.db.base import Base  # noqa
+from backend.src.db.base import Base, Stock, StockData, User  # noqa
 from backend.src.core.config import settings
 
-target_metadata = Base.metadata
+metadatas = [User.metadata, Stock.metadata, StockData.metadata]
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -32,13 +32,7 @@ target_metadata = Base.metadata
 # ... etc.
 
 
-def get_url():
-    # user = os.getenv("POSTGRES_USER", "postgres")
-    # password = os.getenv("POSTGRES_PASSWORD", "")
-    # server = os.getenv("POSTGRES_SERVER", "db")
-    # db = os.getenv("POSTGRES_DB", "app")
-    # return f"postgresql://{user}:{password}@{server}/{db}"
-    return settings.SQLALCHEMY_DATABASE_URI
+def get_url(): return settings.SQLITE_DB_URI
 
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
@@ -53,12 +47,13 @@ def run_migrations_offline():
 
     """
     url = get_url()
-    context.configure(
-        url = url, 
-        target_metadata = target_metadata, 
-        literal_binds = True, 
-        compare_type = True
-    )
+    for t in metadatas:
+        context.configure(
+            url = url, 
+            target_metadata = t, 
+            literal_binds = True, 
+            # render_as_batch = True,    
+        )
 
     with context.begin_transaction():
         context.run_migrations()
@@ -76,13 +71,17 @@ def run_migrations_online():
     connectable = engine_from_config(
         configuration, prefix="sqlalchemy.", poolclass=pool.NullPool,
     )
-
+    
     with connectable.connect() as connection:
-        context.configure(
-            connection = connection, 
-            target_metadata = target_metadata, 
-            compare_type = True             
-        )
+        
+        for t in metadatas:
+            print(t)
+            context.configure(
+                connection = connection, 
+                target_metadata = t, 
+                # render_as_batch = True
+                # compare_type = True             
+            )
 
         with context.begin_transaction():
             context.run_migrations()

@@ -6,7 +6,7 @@ This the the root directory for the backend of the application. Instruction on d
 You must ensure that the following is installed on the deployment environment:
 ```
 $ python = 3.7.3
-$ postgresql = 8.3.*
+$ sqlite3
 ```
 
 To install all the python dependencies please do 
@@ -14,18 +14,17 @@ To install all the python dependencies please do
 $ pip install -r requirements.txt
 ```
 
-NOTE: Please run the backend on a unix based system, I am not sure what happens on windows.
+`NOTE`: Please run the backend on a unix based system, I am not sure what happens on windows or mac.
 
 ## Execution
 Please run the following in terminal. 
 ```
 $ cd backend
-$ export start
+$ source start.sh
 $ pre-config /path/to/.env
-$ back-end-run
+$ backend-run
 ```
 `.env` file contains the configuration information and secrets required for execution.
-NOTE: Please set database properly before executing above scripts.
 
 
  

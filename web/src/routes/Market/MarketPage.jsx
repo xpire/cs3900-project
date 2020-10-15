@@ -65,26 +65,30 @@ const Market = () => {
       .catch((err) => {});
   }, []);
 
-  const [latestPrices, setLatestPrices] = useState(0);
+  const [latestPrices, setLatestPrices] = useState(0); // TODO: to null?
+  const [dayGains, setDayGains] = useState(0);
 
   const getRealTimeStockData = () => {
-    const symbols = stockData.map(({symbol}) => symbol ).join("&symbols=");
+    const symbols = stockData.map(({symbol}) => symbol );
     axios
-      .get(`/stocks/stocks?symbols=${symbols}`)
+      .get(`/stocks/stocks?symbols=${symbols.join("&symbols=")}`)
       .then((response) => {
         const data = response.data;
-        const data2 = data.map(({curr_close_price}, i) => {
-          return {symbol: symbols[i], price:curr_close_price}
+        const prices = {};
+        const gains = {};
+
+        data.forEach(({curr_close_price, prev_close_price}, i) => {
+          prices[symbols[i]] = curr_close_price;
+          gains[symbols[i]] = 100 * (curr_close_price - prev_close_price) / prev_close_price;
         })
-        console.log(data2);
-        setLatestPrices(data2);
+        setLatestPrices(prices);
+        setDayGains(gains);
         setLoading(false);
       })
       .catch((err) => console.log(err));
   }
 
   useEffect(() => {
-    console.log('loading symbols? ' + loadingSymbols);
     if (loadingSymbols) {
       return;
     }
@@ -133,7 +137,9 @@ const Market = () => {
           </Typography>
         </Grid>
       </Grid>
-      <CardGrid data={filteredData} />
+      <CardGrid data={filteredData} prices={latestPrices} gains={dayGains}/>
+      {/* {loading ?  <CardGrid data={filteredData} prices={latestPrices}/>
+      :  <CardGrid data={filteredData}/>} */}
     </Page>
   );
 };

@@ -147,6 +147,8 @@ cython_debug/
 
 *.sqlite3
 
+
+stocks.csv
 */Pipfile*
 
 ### macOS ###

@@ -10,8 +10,9 @@ import {
   TableRow,
   Button,
   CardActions,
+  CircularProgress,
 } from "@material-ui/core";
-import { Skeleton } from "@material-ui/lab";
+// import { Skeleton } from "@material-ui/lab";
 import { Link, useParams } from "react-router-dom";
 
 // import { AuthContext } from "../utils/authentication";
@@ -22,25 +23,13 @@ import {
   StandardCard,
 } from "../../components/common/styled";
 import Candlestick from "../../components/graph/Candlestick";
+import { Skeleton } from "@material-ui/lab";
 // import ApexCandlestick from "../../components/graph/ApexCandlestick";
 
 // import * as stockData from "../../utils/stocksList.json"; //TODO: make this an API call
-import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
+// import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
 
 // const listData = stockData.data.map(({ symbol }) => symbol);
-
-const parsedData = TimeSeriesData.AAPL.values
-  .map(({ datetime, open, close, high, low, volume }) => {
-    return {
-      date: new Date(datetime),
-      open: +open,
-      high: +high,
-      low: +low,
-      close: +close,
-      volume: +volume,
-    };
-  })
-  .reverse();
 
 // const parsedApexData = TimeSeriesData.AAPL.values.map(
 //   ({ datetime, open, close, high, low }) => {
@@ -95,6 +84,8 @@ const StockDetails = () => {
   // grab the list of available stocks
   // const stockCode = props.match.params.symbol.toUpperCase();
   const [stockData, setStockData] = useState({ skeleton: true });
+  const [loading, setLoading] = useState(true);
+  const [timeSeries, setTimeSeries] = useState(null);
   const [error, setError] = useState(false);
   const { symbol } = useParams();
 
@@ -103,10 +94,44 @@ const StockDetails = () => {
       .then((response) => response.json())
       .then((data) => {
         setStockData(data[0]);
-        console.log(data[0]);
+        setLoading(false);
       })
       .catch(() => setError(true));
   }, []);
+
+  useEffect(() => {
+    fetch(`http://127.0.0.1:8000/stocks/time_series?symbol=${symbol}&days=90`)
+      .then((response) => response.json())
+      .then((data) => {
+        setTimeSeries(
+          data
+            .map(({ datetime, open, close, high, low, volume }) => {
+              return {
+                date: new Date(datetime),
+                open: +open,
+                high: +high,
+                low: +low,
+                close: +close,
+                volume: +volume,
+              };
+            })
+            .reverse()
+        );
+      });
+  }, []);
+
+  // const parsedData = TimeSeriesData.AAPL.values
+  // .map(({ datetime, open, close, high, low, volume }) => {
+  //   return {
+  //     date: new Date(datetime),
+  //     open: +open,
+  //     high: +high,
+  //     low: +low,
+  //     close: +close,
+  //     volume: +volume,
+  //   };
+  // })
+  // .reverse();
 
   return (
     <Page style={{ padding: "20px" }}>
@@ -122,8 +147,11 @@ const StockDetails = () => {
               >
                 <Grid item md={12} sm={6}>
                   <Typography variant="h2">{symbol}</Typography>
-                  <Typography variant="h4">{stockData.name}</Typography>
-                  <Chip label={stockData.exchange} size="small" />
+                  {/* <Typography variant="h4"> 
+                    {loading ? <Skeleton /> : stockData.name}
+                  </Typography> */}{" "}
+                  {/* Add back when name is here*/}
+                  {!loading && <Chip label={stockData.exchange} size="small" />}
                 </Grid>
                 <Grid item md={12} sm={6}>
                   <Grid item>
@@ -132,7 +160,11 @@ const StockDetails = () => {
                       variant="h2"
                       align="right"
                     >
-                      {stockData.day_gain?.toFixed(1)}%
+                      {loading ? (
+                        <Skeleton />
+                      ) : (
+                        `${stockData.day_gain?.toFixed(1)}%`
+                      )}
                     </ColoredText>
                   </Grid>
                   <Grid item>
@@ -141,7 +173,11 @@ const StockDetails = () => {
                       variant="h3"
                       align="right"
                     >
-                      ${stockData.latest_price?.toFixed(2)}
+                      {loading ? (
+                        <Skeleton />
+                      ) : (
+                        `$${stockData.latest_price?.toFixed(2)}`
+                      )}
                     </ColoredText>
                   </Grid>
                   <Grid container direction="row-reverse" spacing={2}>
@@ -171,9 +207,19 @@ const StockDetails = () => {
                 onMouseLeave={() => {
                   document.removeEventListener("wheel", preventDefault, false);
                 }}
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100%",
+                }}
               >
                 {/* <ApexCandlestick data={parsedApexData} /> */}
-                <Candlestick data={parsedData} type="hybrid" />
+                {timeSeries === null ? (
+                  <CircularProgress color="primary" size={50} />
+                ) : (
+                  <Candlestick data={timeSeries} type="hybrid" />
+                )}
               </div>
             </StandardCard>
           </Grid>

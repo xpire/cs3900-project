@@ -3,7 +3,7 @@ import { Grid } from "@material-ui/core";
 
 import StockCard from "./StockCard";
 
-const CardGrid = ({ data, prices, gains}) => {
+const CardGrid = ({ data }) => {
   return (
     <Grid
       container
@@ -12,14 +12,21 @@ const CardGrid = ({ data, prices, gains}) => {
       alignItems="flex-start"
       spacing={0}
     >
-      {data.map(({ symbol, exchange, skeleton }, index) => {
+      {data.map(({ symbol, name, exchange, curr_close_price, prev_close_price, skeleton }, index) => {
+        let delta = null;
+        // TODO maybe it's undefined
+        if (curr_close_price !== undefined && prev_close_price !== undefined) {
+          delta = 100 * (curr_close_price - prev_close_price) / prev_close_price;
+        }
+
         return (
           <Grid item md={4} sm={6} xs={12} key={index}>
             <StockCard
-              name={symbol}
+              symbol={symbol}
+              name={name}
               category={exchange}
-              price={prices[symbol]?.toFixed(2)}
-              delta={gains[symbol]?.toFixed(2)}
+              price={curr_close_price?.toFixed(2)}
+              delta={delta?.toFixed(2)}
               key={index}
               skeleton={skeleton}
             />

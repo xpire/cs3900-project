@@ -19,6 +19,19 @@ const Market = () => {
 
   // const stockData = data.data; //.slice(0, 30);
   const [search, setSearch] = useState("");
+  const [symbols, setSymbols] = useState();
+
+  useEffect(() => {
+    axios
+      .get("stocks/symbols")
+      .then((response) => {
+        const data = response.data;
+        setSymbols(data);
+        setLoadingSymbols(false);
+      })
+      .catch((err) => {});
+  }, []);
+
   const [stockData, setStockData] = useState([
     { skeleton: true },
     { skeleton: true },
@@ -38,12 +51,44 @@ const Market = () => {
     { skeleton: true },
     { skeleton: true },
   ]);
-  const [filteredData, setFilteredData] = useState(stockData);
+
+  const getRealTimeStockData = () => {
+    if (symbols === undefined) {
+      return;
+    }
+
+    const s = symbols.map(({symbol}) => symbol ).join("&symbols=");
+    axios
+      .get(`/stocks/stocks?symbols=${s}`)
+      .then((response) => {
+        const data = response.data;
+        // const prices = {};
+        // const gains = {};
+
+        // data.forEach(({curr_close_price, prev_close_price}, i) => {
+        //   prices[symbols[i]] = curr_close_price;
+        //   gains[symbols[i]] = 100 * (curr_close_price - prev_close_price) / prev_close_price;
+        // })
+
+        // setLatestPrices(prices);
+        // setDayGains(gains);
+        setStockData(data);
+        setLoading(false);
+      })
+      .catch((err) => console.log(err));
+  }
+
+  useEffect(() => {
+    getRealTimeStockData();
+    const interval = setInterval(getRealTimeStockData, 5000);
+    return () => clearInterval(interval);
+  }, [symbols, loadingSymbols]);
 
   const handleChange = (e) => {
     setSearch(e);
   };
-
+  
+  const [filteredData, setFilteredData] = useState(stockData);
   useEffect(() => {
     setFilteredData(
       search !== ""
@@ -53,50 +98,6 @@ const Market = () => {
         : stockData
     );
   }, [search, stockData]);
-
-  useEffect(() => {
-    axios
-      .get("stocks/symbols")
-      .then((response) => {
-        const data = response.data;
-        setStockData(data);
-        setLoadingSymbols(false);
-      })
-      .catch((err) => {});
-  }, []);
-
-  const [latestPrices, setLatestPrices] = useState(0); // TODO: to null?
-  const [dayGains, setDayGains] = useState(0);
-
-  const getRealTimeStockData = () => {
-    const symbols = stockData.map(({symbol}) => symbol );
-    axios
-      .get(`/stocks/stocks?symbols=${symbols.join("&symbols=")}`)
-      .then((response) => {
-        const data = response.data;
-        const prices = {};
-        const gains = {};
-
-        data.forEach(({curr_close_price, prev_close_price}, i) => {
-          prices[symbols[i]] = curr_close_price;
-          gains[symbols[i]] = 100 * (curr_close_price - prev_close_price) / prev_close_price;
-        })
-        setLatestPrices(prices);
-        setDayGains(gains);
-        setLoading(false);
-      })
-      .catch((err) => console.log(err));
-  }
-
-  useEffect(() => {
-    if (loadingSymbols) {
-      return;
-    }
-      
-    getRealTimeStockData();
-    const interval = setInterval(getRealTimeStockData, 5000);
-    return () => clearInterval(interval);
-  }, [stockData, loadingSymbols]);
 
   return (
     <Page>
@@ -137,9 +138,7 @@ const Market = () => {
           </Typography>
         </Grid>
       </Grid>
-      <CardGrid data={filteredData} prices={latestPrices} gains={dayGains}/>
-      {/* {loading ?  <CardGrid data={filteredData} prices={latestPrices}/>
-      :  <CardGrid data={filteredData}/>} */}
+      <CardGrid data={filteredData}/>
     </Page>
   );
 };

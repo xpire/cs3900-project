@@ -18,11 +18,11 @@ import { ColoredText, StandardCard } from "./styled";
 
 const StyledCard = styled(Card)({ margin: "10px" });
 
-const StockCard = ({ name, category, price, delta, skeleton }) => {
+const StockCard = ({ symbol, name, category, price, delta, skeleton }) => {
   let history = useHistory();
   return (
     <StyledCard>
-      <CardActionArea onClick={() => history.push(`/stock/${name}`)}>
+      <CardActionArea onClick={() => history.push(`/stock/${symbol}`)}>
         <CardContent>
           <Grid
             container
@@ -37,7 +37,9 @@ const StockCard = ({ name, category, price, delta, skeleton }) => {
             ) : (
               <>
                 <Grid item>
-                  <Typography variant="h4">{name}</Typography>
+                  <Typography variant="h4">{symbol}</Typography>
+                  <Chip size="small" label={name} />
+                  <br/>
                   <Chip size="small" label={category} />
                 </Grid>
                 <Grid item>
@@ -81,7 +83,7 @@ const StockCard = ({ name, category, price, delta, skeleton }) => {
             <Button
               size="small"
               color="primary"
-              onClick={() => history.push(`/trade?symbol=${name}`)}
+              onClick={() => history.push(`/trade?symbol=${symbol}`)}
             >
               trade
             </Button>

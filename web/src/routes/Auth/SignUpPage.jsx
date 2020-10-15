@@ -16,9 +16,6 @@ const SignUpPage = () => {
     event.preventDefault();
     const { email, password, repeatPassword } = event.target.elements;
     try {
-      console.log(
-        [email, password, repeatPassword].map((e) => console.log(e.value))
-      );
       if (repeatPassword.value !== password.value) {
         throw {
           code: "Passwords don't match!",

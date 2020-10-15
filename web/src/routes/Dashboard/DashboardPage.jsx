@@ -6,6 +6,7 @@ import Page from "../../components/page/Page";
 import { StandardCard, ColoredText } from "../../components/common/styled";
 import CardGrid from "../../components/common/CardGrid";
 import ApexCandlestick from "../../components/graph/ApexCandlestick";
+import axios from "../../utils/api";
 
 import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
 // import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
@@ -120,12 +121,14 @@ const Dashboard = () => {
   ]);
   const [data, setData] = useState(stockData.slice(0, 3));
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/symbols")
-      .then((response) => response.json())
-      .then((data) => {
+    axios
+      .get("/symbols")
+      .then((response) => {
+        const data = response.data;
         setStockData(data);
         setData(data.slice(0, 3));
-      });
+      })
+      .catch((err) => {});
   }, []);
   return (
     <Page>

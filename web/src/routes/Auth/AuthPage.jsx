@@ -46,21 +46,18 @@ const ResetPasswordPage = () => {
     }
   } catch (error) {
     history.push("/");
-    console.log({ error });
     enqueueSnackbar(error.code, { variant: "Error", preventDuplicate: true });
   }
 
   const ResetPassword = async (event) => {
     event.preventDefault();
     const { password } = event.target.elements;
-    console.log({ password });
     try {
       await app.auth().confirmPasswordReset(actionCode, password.value);
       enqueueSnackbar("Password has been Reset.", { variant: "Success" });
       history.push("/");
     } catch (error) {
       createAlert(error);
-      console.log(error);
     }
   };
 

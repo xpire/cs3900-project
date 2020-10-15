@@ -25,12 +25,12 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     "something"
 
-    def get_user_by_token(self, db: Session, *, token: str) -> Optional[User]:
+    def get_user_by_token(self, db: Session, *, uuid: str) -> Optional[User]:
         """
         Return the corresponding user by token.
         """
         return (
-            db.query(self.model).filter(self.model.token == str).first()
+            db.query(self.model).filter(self.model.uuid == uuid).first()
         )  # Field is unique
 
     def update_balance(self, db: Session, *, db_obj: User, obj_in: UserUpdate) -> User:

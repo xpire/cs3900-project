@@ -8,6 +8,8 @@ import json, os
 from backend.src.core.config import settings
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from backend.src.crud.crud_stock import stock as crud_stock
+from backend.src.db.session import get_db
 
 from twelvedata import TDClient
 
@@ -51,18 +53,7 @@ latest_close_price_provider = LatestClosingPriceProvider(
 data_provider.start()
 latest_close_price_provider.start()
 
-STOCK_INFO = {}
-for symbol, exchange in STOCKS.items():
-    info = TD.get_stocks_list(symbol=symbol, exchange=exchange).as_json()
-    for data in info:
-        if data["symbol"] == symbol:
-            STOCK_INFO[symbol] = data
-            break
 
-print(STOCK_INFO)
-
-
-# CURRENTLY USELESS
 @router.get("/real_time")
 def get_real_time_data():
     return data_provider.data
@@ -75,27 +66,30 @@ def get_real_time_data(symbol: str):
 
 @router.get("/symbols")
 async def get_symbols():
-
     ret = []
     for symbol in STOCKS:
         ret.append({"symbol": symbol, "exchange": STOCKS[symbol]})
-
     return ret
 
 
 @router.get("/stocks")
-async def get_stocks(symbols: List[str] = Query(None)):
+async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get_db)):
     ret = []
 
     # Can make for efficient later
     for symbol in symbols:
-        if symbol not in STOCK_INFO:
+        stock = crud_stock.get_stock_by_symbol(db, symbol)
+        if stock is None:
             raise HTTPException(status_code=404, detail="Item not found")
 
-        data = latest_close_price_provider.data[symbol]
-        info = STOCK_INFO[symbol]
-        info["last_close_price"] = float(data)
-        ret.append(info)
+        ret.append(
+            dict(
+                symbol=symbol,
+                name=stock.full_name,
+                exchange=stock.exchange,
+                last_close_price=float(latest_close_price_provider.data[symbol]),
+            )
+        )
     return ret
 
 
@@ -104,6 +98,6 @@ async def get_stock_data(symbol: str = Query(None), days: int = 90):
     return TD.time_series(
         symbol=symbol,
         interval="1day",
-        outputsize=str(days),
+        outputsize=days,
         timezone="Australia/Sydney",
     ).as_json()

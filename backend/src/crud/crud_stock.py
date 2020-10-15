@@ -22,7 +22,7 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         """
         Get multiple stock information by multiple symbols.
         """
-        return db.query(self.model).filter(self.model.symobl.in_(stock_symbols))
+        return db.query(self.model).filter(self.model.symbol.in_(stock_symbols)).all()
 
     def csv_batch_insert(self, db: Session, csv_stocks: List[Dict]) -> Any:
         """

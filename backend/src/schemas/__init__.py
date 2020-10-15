@@ -7,4 +7,4 @@ from .stock_data import (
 )
 
 # from .token import Token, TokenPayload
-from .user import UserRet, UserCreate, UserInDB, UserUpdate
+from .user import User, UserCreate, UserInDB, UserUpdate

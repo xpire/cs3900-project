@@ -68,7 +68,7 @@ const StatisticsData = [
   { name: "Portfolio Value", value: 21123.33, stat: 5.3, today: -1.4 },
   { name: "Net Value", value: 26992.23, stat: 23, today: 2 },
   { name: "Profit", value: 1992.23, stat: 4.3, today: 10.4 },
-  { name: "Available Balance", value: 5001.22 },
+  // { name: "Available Balance", value: 5001.22 },
 ];
 
 // const TabPanel = (props) => {
@@ -130,6 +130,43 @@ const Dashboard = () => {
       })
       .catch((err) => {});
   }, []);
+
+  const [balance, setBalance] = useState(0);
+
+  const getBalance = (token) => {
+    axios
+      .get(`/user/create?email=${user.email}`)
+      .then((response) => {
+        console.log(response.data);
+      })
+      .then(() => {
+        axios
+          .get("/user/balance")
+          .then((response) => {
+            setBalance(response.data);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  useEffect(() => {
+    user &&
+      user
+        .getIdToken(true)
+        .then((token) => {
+          getBalance(token)
+        })
+        .catch((e) => {});
+  }, [user]);
+
+
+  const balance_card = { name: "Available Balance", value: balance };
+
   return (
     <Page>
       <Grid
@@ -143,6 +180,9 @@ const Dashboard = () => {
             <StatCard {...data} />
           </Grid>
         ))}
+        <Grid key={4} item md={3} sm={6} xs={12}>
+          <StatCard {...balance_card} />
+        </Grid>
         <Grid item xs={12}>
           <StandardCard>
             <ApexCandlestick data={parsedApexData} />

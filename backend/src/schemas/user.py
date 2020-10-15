@@ -5,15 +5,15 @@ from pydantic import BaseModel, EmailStr, validator
 
 # Shared properties
 class UserBase(BaseModel):
-    pass
+    username: str = "ian"
+    email: str
+    uuid: str
 
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):
-    username: str
-    email: str
-    balance: float
-    token: str
+    balance: float = 10000
+    pass
 
 
 # Properties to receive via API on update
@@ -22,14 +22,14 @@ class UserUpdate(UserBase):
 
 
 class UserInDBBase(UserBase):
-    pass
+    balance: float
 
     class Config:
         orm_mode = True
 
 
 # Additional properties to return via API
-class UserRet(UserInDBBase):
+class User(UserInDBBase):
     pass
 
 

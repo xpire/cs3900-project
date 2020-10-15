@@ -1,13 +1,12 @@
+import json
+import os
 from typing import Any, List
 
+import numpy as np
+import requests
+from backend.src.core.config import settings
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-
-import json, os
-import requests
-import numpy as np
-
-from backend.src.core.config import settings
 
 router = APIRouter()
 
@@ -26,6 +25,7 @@ with open("stocks.json") as json_file:
 # For now, return hardcoded data
 # -------------------------------
 
+
 @router.get("/symbols")
 async def get_symbols():
 
@@ -35,6 +35,7 @@ async def get_symbols():
 
     return ret
 
+
 @router.get("/stocks")
 async def get_stocks(symbols: List[str] = Query(None)):
     ret = []
@@ -43,7 +44,8 @@ async def get_stocks(symbols: List[str] = Query(None)):
     for symbol in symbols:
         if symbol not in STOCKS:
             raise HTTPException(status_code=404, detail="Item not found")
-    
+
+        # TODO: Popoulate with actual data
         ret.append(
             {
                 "symbol": symbol,
@@ -60,6 +62,8 @@ async def get_stocks(symbols: List[str] = Query(None)):
 async def get_stock_data(symbol: str = Query(None), days: int = 90):
     ret = []
 
-    r = requests.get(f"{API_URL}/time_series?symbol={symbol}&interval=1day&apikey={API_KEY}&outputsize={days}")
+    r = requests.get(
+        f"{API_URL}/time_series?symbol={symbol}&interval=1day&apikey={API_KEY}&outputsize={days}"
+    )
 
     return r.json()["values"]

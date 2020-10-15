@@ -2,7 +2,7 @@ from datetime import timedelta
 from typing import Any
 
 from backend.src.core.auth import decode_token
-from backend.src.db.session import get_db
+from backend.src.api.deps import get_db
 from backend.src.models import User
 from backend.src import schemas
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query

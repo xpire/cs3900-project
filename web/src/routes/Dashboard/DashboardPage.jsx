@@ -122,7 +122,7 @@ const Dashboard = () => {
   const [data, setData] = useState(stockData.slice(0, 3));
   useEffect(() => {
     axios
-      .get("/symbols")
+      .get("/stocks/symbols")
       .then((response) => {
         const data = response.data;
         setStockData(data);

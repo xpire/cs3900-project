@@ -1,9 +1,9 @@
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel as BaseSchema
 
 
 # Shared properties
-class StockDataBase(BaseModel):
+class StockDataBase(BaseSchema):
     pass
 
 

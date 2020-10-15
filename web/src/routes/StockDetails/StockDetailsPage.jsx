@@ -93,7 +93,7 @@ const StockDetails = () => {
   const { symbol } = useParams();
 
   useEffect(() => {
-    axios.get(`/real_times?symbol=${symbol}`).then((response) => {
+    axios.get(`/stocks/real_times?symbol=${symbol}`).then((response) => {
       const { close } = response.data;
       setLatestPrice(parseFloat(close));
     });
@@ -102,7 +102,7 @@ const StockDetails = () => {
   useEffect(() => {
     // fetch("http://127.0.0.1:8000/symbols")
     axios
-      .get(`/stocks?symbols=${symbol}`)
+      .get(`/stocks/stocks?symbols=${symbol}`)
       .then((response) => {
         const data = response.data;
         setStockData(data[0]);

@@ -1,11 +1,11 @@
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel as BaseSchema, EmailStr, validator
 
 
 # Shared properties
-class UserBase(BaseModel):
-    username: str = "ian"
+class UserBase(BaseSchema):
+    username: str
     email: str
     uuid: str
 

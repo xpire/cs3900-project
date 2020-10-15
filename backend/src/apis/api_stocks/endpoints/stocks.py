@@ -51,15 +51,15 @@ latest_close_price_provider = LatestClosingPriceProvider(
 data_provider.start()
 latest_close_price_provider.start()
 
-# STOCK_INFO = {}
-# for symbol, exchange in STOCKS.items():
-#     info = TD.get_stocks_list(symbol=symbol, exchange=exchange).as_json()
-#     for data in info:
-#         if data["symbol"] == symbol:
-#             STOCK_INFO[symbol] = data
-#             break
+STOCK_INFO = {}
+for symbol, exchange in STOCKS.items():
+    info = TD.get_stocks_list(symbol=symbol, exchange=exchange).as_json()
+    for data in info:
+        if data["symbol"] == symbol:
+            STOCK_INFO[symbol] = data
+            break
 
-# print(STOCK_INFO)
+print(STOCK_INFO)
 
 
 # CURRENTLY USELESS

@@ -13,4 +13,4 @@ class CRUDStockData(CRUDBase[StockData, StockDataCreate, StockDataUpdate]):
         pass
 
 
-stockdata = CRUDStockData(StockData)
+stock_data = CRUDStockData(StockData)

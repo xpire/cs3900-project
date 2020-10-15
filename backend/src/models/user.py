@@ -1,6 +1,5 @@
-from sqlalchemy import Column, String, Float
-
 from backend.src.db.base_model import BaseModel
+from sqlalchemy import Column, String, Float
 
 
 class User(BaseModel):

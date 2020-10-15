@@ -65,6 +65,7 @@ class LatestClosingPriceProvider(DataProvider):
         self.lock = Lock()
 
     def _start(self):
+        self.update()
         RepeatScheduler(self, seconds_until_next_minute).start()
 
     def update(self):
@@ -75,7 +76,7 @@ class LatestClosingPriceProvider(DataProvider):
         with self.lock:
             for symbol, data in message.items():
                 symbol = symbol.split(":")[0]
-                self._data[symbol] = data[1]["close"]
+                self._data[symbol] = [data[0]["close"], data[1]["close"]]
 
     @property
     def data(self):

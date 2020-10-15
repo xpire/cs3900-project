@@ -92,15 +92,20 @@ const StockDetails = () => {
   const [error, setError] = useState(false);
   const { symbol } = useParams();
 
-  useEffect(() => {
-    axios.get(`/stocks/real_times?symbol=${symbol}`).then((response) => {
-      const { close } = response.data;
-      setLatestPrice(parseFloat(close));
-    });
-  }, []);
+  // const getRealTimePrice = () => {
+  //   axios.get(`/stocks/real_times?symbol=${symbol}`).then((response) => {
+  //     const { close } = response.data;
+  //     console.log(close)
+  //     setLatestPrice(parseFloat(close));
+  //   });
+  // }
+  // useEffect(() => {
+  //   getRealTimePrice();
+  //   const interval = setInterval(getRealTimePrice, 5000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
-  useEffect(() => {
-    // fetch("http://127.0.0.1:8000/symbols")
+  const getRealTimeStockData = () => {
     axios
       .get(`/stocks/stocks?symbols=${symbol}`)
       .then((response) => {
@@ -109,13 +114,22 @@ const StockDetails = () => {
         setLoading(false);
       })
       .catch((err) => setError(true));
+  }
+
+  useEffect(() => {
+    getRealTimeStockData();
+    const interval = setInterval(getRealTimeStockData, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    if ("last_close_price" in stockData && latestPrice > 0) {
-      setDayGain(stockData.last_close_price / latestPrice);
+    if ("curr_close_price" in stockData) {
+      setLatestPrice(stockData.curr_close_price);
+      let gain = (stockData.curr_close_price - stockData.prev_close_price) / stockData.prev_close_price;
+      setDayGain(gain);
+      console.log(stockData.curr_close_price + " " + stockData.prev_close_price + " " + gain);
     }
-  }, [stockData, latestPrice]);
+  }, [stockData]);
 
   const pollStockData = () => {
     axios
@@ -183,7 +197,7 @@ const StockDetails = () => {
                       variant="h2"
                       align="right"
                     >
-                      {loading ? <Skeleton /> : `${dayGain?.toFixed(1)}%`}
+                      {loading ? <Skeleton /> : `${dayGain?.toFixed(2)}%`}
                     </ColoredText>
                   </Grid>
                   <Grid item>

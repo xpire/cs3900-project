@@ -9,7 +9,6 @@
 # ====================================================
 
 # give db name and 
-set -x;
 export can_run=0; 
 
 # Basing on CLI parameter, install dependency or 

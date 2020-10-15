@@ -1,57 +1,79 @@
 import React, { useState } from "react";
-import { Typography, Grid, Input } from "@material-ui/core";
+import {
+  Typography,
+  Grid,
+  Input,
+  IconButton,
+  InputAdornment,
+} from "@material-ui/core";
+import ClearIcon from "@material-ui/icons/Clear";
 import Page from "../../components/page/Page";
 import CardGrid from "../../components/common/CardGrid";
 
 import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
+import { useEffect } from "react";
 
 const Market = () => {
   const [loading, setLoading] = useState(false);
 
   const stockData = data.data; //.slice(0, 30);
+  const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState(stockData);
 
   const handleChange = (e) => {
-    if (e !== "") {
-      setFilteredData(
-        stockData.filter(({ symbol }) =>
-          symbol.toLowerCase().includes(e.toLowerCase())
-        )
-      );
-    } else {
-      setFilteredData(stockData);
-    }
+    setSearch(e);
   };
+
+  useEffect(() => {
+    setFilteredData(
+      search !== ""
+        ? stockData.filter(({ symbol }) =>
+            symbol.toLowerCase().includes(search.toLowerCase())
+          )
+        : stockData
+    );
+  }, [search]);
 
   return (
     <Page>
-      <div style={{ padding: "12px" }}>
-        <Grid
-          container
-          direction="row"
-          justify="flex-start"
-          alignItems="flex-start"
-          spacing={2}
-        >
-          <Grid item xs={12}>
-            <Input
-              fullWidth
-              onChange={(e) => handleChange(e.target.value)}
-              variant="filled"
-              placeholder="Search"
-              inputProps={{ style: { fontSize: 40 } }}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Typography>
-              {loading
-                ? `Loading...`
-                : `Your search returned ${filteredData.length} results.`}
-            </Typography>
-          </Grid>
+      <Grid
+        container
+        direction="row"
+        justify="flex-start"
+        alignItems="flex-start"
+      >
+        <Grid item xs={12}>
+          <Input
+            fullWidth
+            onChange={(e) => handleChange(e.target.value)}
+            value={search}
+            placeholder="Search"
+            endAdornment={
+              <InputAdornment position="end">
+                {search !== "" && (
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => handleChange("")}
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                )}
+              </InputAdornment>
+            }
+            inputProps={{ style: { fontSize: 40 } }}
+          />
         </Grid>
-        <CardGrid data={filteredData} />
-      </div>
+        <Grid item xs={12}>
+          <Typography>
+            {loading
+              ? `Loading...`
+              : `Your search returned ${
+                  filteredData.length
+                } result${filteredData.length !== 1 && "s"}.`}
+          </Typography>
+        </Grid>
+      </Grid>
+      <CardGrid data={filteredData} />
     </Page>
   );
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Typography,
   Chip,
@@ -11,6 +11,7 @@ import {
   Button,
   CardActions,
 } from "@material-ui/core";
+import { Skeleton } from "@material-ui/lab";
 import { Link, useParams } from "react-router-dom";
 
 // import { AuthContext } from "../utils/authentication";
@@ -23,10 +24,10 @@ import {
 import Candlestick from "../../components/graph/Candlestick";
 // import ApexCandlestick from "../../components/graph/ApexCandlestick";
 
-import * as stockData from "../../utils/stocksList.json"; //TODO: make this an API call
+// import * as stockData from "../../utils/stocksList.json"; //TODO: make this an API call
 import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
 
-const listData = stockData.data.map(({ symbol }) => symbol);
+// const listData = stockData.data.map(({ symbol }) => symbol);
 
 const parsedData = TimeSeriesData.AAPL.values
   .map(({ datetime, open, close, high, low, volume }) => {
@@ -93,13 +94,23 @@ const TableInfo = ({ rows }) => (
 const StockDetails = () => {
   // grab the list of available stocks
   // const stockCode = props.match.params.symbol.toUpperCase();
+  const [stockData, setStockData] = useState({ skeleton: true });
+  const [error, setError] = useState(false);
   const { symbol } = useParams();
-  const myStockData = stockData.data.find(
-    (s) => s.symbol.toUpperCase() === symbol.toUpperCase()
-  );
+
+  useEffect(() => {
+    fetch(`http://127.0.0.1:8000/stocks?symbols=${symbol}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setStockData(data[0]);
+        console.log(data[0]);
+      })
+      .catch(() => setError(true));
+  }, []);
+
   return (
     <Page style={{ padding: "20px" }}>
-      {listData.includes(symbol) ? (
+      {!error ? (
         <Grid container direction="row" alignItems="stretch">
           <Grid item md={3} sm={12} xs={12}>
             <StandardCard>
@@ -111,13 +122,26 @@ const StockDetails = () => {
               >
                 <Grid item md={12} sm={6}>
                   <Typography variant="h2">{symbol}</Typography>
-                  <Typography variant="h4">{myStockData.name}</Typography>
-                  <Chip label={myStockData.type} size="small" />
+                  <Typography variant="h4">{stockData.name}</Typography>
+                  <Chip label={stockData.exchange} size="small" />
                 </Grid>
                 <Grid item md={12} sm={6}>
                   <Grid item>
-                    <ColoredText color="green" variant="h2" align="right">
-                      +20%
+                    <ColoredText
+                      color={stockData.day_gain > 0 ? "green" : "red"}
+                      variant="h2"
+                      align="right"
+                    >
+                      {stockData.day_gain?.toFixed(1)}%
+                    </ColoredText>
+                  </Grid>
+                  <Grid item>
+                    <ColoredText
+                      color={stockData.day_gain > 0 ? "green" : "red"}
+                      variant="h3"
+                      align="right"
+                    >
+                      ${stockData.latest_price?.toFixed(2)}
                     </ColoredText>
                   </Grid>
                   <Grid container direction="row-reverse" spacing={2}>

@@ -10,14 +10,33 @@ import ClearIcon from "@material-ui/icons/Clear";
 import Page from "../../components/page/Page";
 import CardGrid from "../../components/common/CardGrid";
 
-import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
+// import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
 import { useEffect } from "react";
 
 const Market = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const stockData = data.data; //.slice(0, 30);
+  // const stockData = data.data; //.slice(0, 30);
   const [search, setSearch] = useState("");
+  const [stockData, setStockData] = useState([
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+  ]);
   const [filteredData, setFilteredData] = useState(stockData);
 
   const handleChange = (e) => {
@@ -32,7 +51,16 @@ const Market = () => {
           )
         : stockData
     );
-  }, [search]);
+  }, [search, stockData]);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/symbols")
+      .then((response) => response.json())
+      .then((data) => {
+        setStockData(data);
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <Page>

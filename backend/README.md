@@ -24,7 +24,8 @@ $ source start.sh
 $ first-time-setup /path/to/.env
 $ backend-run
 ```
-`.env` file contains the configuration information and secrets required for execution.
+`.env` file contains the configuration information and secrets required for execution. 
 
+`Note`: please run dos2unix if there are errors relating to format.
 
  

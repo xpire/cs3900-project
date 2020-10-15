@@ -11,7 +11,7 @@
 # give db name and 
 export can_run=0; 
 
-# Basing on CLI parameter, install dependency or 
+# Basing on CLI parameter, install dependency
 first-time-setup() {
     if [ $# -eq 1 ];
     then

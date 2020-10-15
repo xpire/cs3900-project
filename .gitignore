@@ -2,6 +2,7 @@
 .vscode
 .mypy_cache
 docker-stack.yml
+.env
 
 # python 
 # Byte-compiled / optimized / DLL files
@@ -113,6 +114,7 @@ celerybeat.pid
 # Environments
 # .env --> this file will be used as a key
 .venv
+.env
 env/
 venv/
 ENV/
@@ -142,3 +144,5 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+*.sqlite3

@@ -1,16 +1,24 @@
-import React, { useState, useEffect } from "react";
-import { Typography, Grid, TextField } from "@material-ui/core";
-import { Autocomplete } from "@material-ui/lab";
-import matchSorter from "match-sorter";
-
+import React, { useState } from "react";
+import {
+  Typography,
+  Grid,
+  Input,
+  IconButton,
+  InputAdornment,
+} from "@material-ui/core";
+import ClearIcon from "@material-ui/icons/Clear";
 import Page from "../../components/page/Page";
-import StockCard from "../../components/common/StockCard";
+import CardGrid from "../../components/common/CardGrid";
 
-import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
+// import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
+import { useEffect } from "react";
 
 const Market = () => {
   const [loading, setLoading] = useState(true);
-  const [visibleData, setVisibleData] = useState([
+
+  // const stockData = data.data; //.slice(0, 30);
+  const [search, setSearch] = useState("");
+  const [stockData, setStockData] = useState([
     { skeleton: true },
     { skeleton: true },
     { skeleton: true },
@@ -29,62 +37,71 @@ const Market = () => {
     { skeleton: true },
     { skeleton: true },
   ]);
-  const stockData = data.data; //.slice(0, 30);
-  const filterOptions = (options, { inputValue }) =>
-    matchSorter(options, inputValue);
+  const [filteredData, setFilteredData] = useState(stockData);
+
+  const handleChange = (e) => {
+    setSearch(e);
+  };
+
   useEffect(() => {
-    setTimeout(() => {
-      setVisibleData(stockData);
-      setLoading(false);
-    }, 1500);
-  }, [stockData]);
+    setFilteredData(
+      search !== ""
+        ? stockData.filter(({ symbol }) =>
+            symbol.toLowerCase().includes(search.toLowerCase())
+          )
+        : stockData
+    );
+  }, [search, stockData]);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/symbols")
+      .then((response) => response.json())
+      .then((data) => {
+        setStockData(data);
+        setLoading(false);
+      });
+  }, []);
+
   return (
     <Page>
-      <div style={{ padding: "12px" }}>
-        <Grid
-          container
-          direction="row"
-          justify="flex-start"
-          alignItems="flex-start"
-          spacing={2}
-        >
-          <Grid item xs={12}>
-            <Autocomplete
-              filterOptions={filterOptions}
-              options={stockData}
-              getOptionLabel={(option) => option.symbol}
-              fullWidth
-              renderInput={(params) => (
-                <TextField {...params} label="Combo box" variant="outlined" />
-              )}
-            />
-
-            {/* <Typography variant="h2">TODO: [Search bar]</Typography> */}
-            {/* </Card> */}
-          </Grid>
-          <Grid item xs={12}>
-            <Typography>
-              {loading
-                ? `Loading...`
-                : `Your search returned ${visibleData.length} results.`}
-            </Typography>
-          </Grid>
-          {visibleData.map(({ symbol, type, skeleton }, index) => {
-            return (
-              <Grid item md={4} sm={6} xs={12} key={index}>
-                <StockCard
-                  name={symbol}
-                  category={type}
-                  price="$25,322"
-                  delta={index % 2 === 0 ? 25 : -10}
-                  key={index}
-                  skeleton={skeleton}
-                />
-              </Grid>
-            );
-          })}
+      <Grid
+        container
+        direction="row"
+        justify="flex-start"
+        alignItems="flex-start"
+      >
+        <Grid item xs={12}>
+          <Input
+            fullWidth
+            onChange={(e) => handleChange(e.target.value)}
+            value={search}
+            placeholder="Search"
+            endAdornment={
+              <InputAdornment position="end">
+                {search !== "" && (
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => handleChange("")}
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                )}
+              </InputAdornment>
+            }
+            inputProps={{ style: { fontSize: 40 } }}
+          />
         </Grid>
-      </div>
+        <Grid item xs={12}>
+          <Typography>
+            {loading
+              ? `Loading...`
+              : `Your search returned ${
+                  filteredData.length
+                } result${filteredData.length !== 1 && "s"}.`}
+          </Typography>
+        </Grid>
+      </Grid>
+      <CardGrid data={filteredData} />
     </Page>
   );
 };

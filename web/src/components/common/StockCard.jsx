@@ -14,9 +14,9 @@ import { Skeleton } from "@material-ui/lab";
 import { useHistory } from "react-router-dom";
 // import styled from "styled-components";
 
-import { ColoredText } from "./styled";
+import { ColoredText, StandardCard } from "./styled";
 
-const StyledCard = styled(Card)({});
+const StyledCard = styled(Card)({ margin: "10px" });
 
 const StockCard = ({ name, category, price, delta, skeleton }) => {
   let history = useHistory();

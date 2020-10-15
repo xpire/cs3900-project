@@ -98,9 +98,9 @@ const Market = () => {
           <Typography>
             {loading
               ? `Loading...`
-              : `Your search returned ${
-                  filteredData.length
-                } result${filteredData.length !== 1 && "s"}.`}
+              : `Your search returned ${filteredData.length} result${
+                  filteredData.length !== 1 ? "s" : ""
+                }.`}
           </Typography>
         </Grid>
       </Grid>

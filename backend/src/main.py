@@ -17,8 +17,8 @@ if settings.BACKEND_CORS_ORIGIN:
         CORSMiddleware,
         allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGIN],
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=['*'],
+        allow_headers=['*'],
     )
 
 app.include_router(stock_api_router)  # , prefix=settings.API_V1_STR)

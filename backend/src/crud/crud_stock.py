@@ -4,15 +4,15 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from backend.src.crud.base import CRUDBase
-from backend.src.models.stock import StockRet
+from backend.src.models.stock import Stock
 from backend.src.schemas.stock import StockCreate, StockUpdate
 
 
-class CRUDStock(CRUDBase[StockRet, StockCreate, StockUpdate]):
+class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
     def create_stock(
         self, db: Session, *, obj_in: StockCreate, owner_id: int
-    ) -> StockRet: 
-        print("Creating Stock here.")
+    ) -> Stock: 
+        print('Creating Stock here.')
         pass
 
     # Please start implementing more of these functions, below are some sample to look at kek
@@ -38,4 +38,4 @@ class CRUDStock(CRUDBase[StockRet, StockCreate, StockUpdate]):
     #         .all()
     #     )
 
-stock = CRUDStock(StockRet)
+stock = CRUDStock(Stock)

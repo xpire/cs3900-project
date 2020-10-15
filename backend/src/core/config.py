@@ -13,7 +13,6 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Xecute the Deal"
     DEV_NAME: str = "ecksdee"
     COURSE_NAME: str = "COMP3900"
-
     TD_API_KEY: str
 
     SQLITE_DB_URI: str

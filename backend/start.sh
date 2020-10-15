@@ -60,7 +60,6 @@ first-time-setup() {
         echo "Copying secrets...";
         cp $1 ./src/core/;
         echo " ======================================================== ";
-        
         wake-up;
         
         upgrade-db;

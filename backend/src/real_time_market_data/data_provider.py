@@ -48,11 +48,47 @@ class CompositeDataProvider(DataProvider):
         return data
 
 
+class LatestClosingPriceProvider(DataProvider):
+    def __init__(self, apikey, symbols):
+        super().__init__()
+
+        self.TD = TDClient(apikey=apikey)
+        self.symbols = symbols
+
+        self.request = self.TD.time_series(
+            symbol=symbols,
+            interval="1day",
+            outputsize=2,
+            timezone="Australia/Sydney",  # output all timestamps in Sydney's timezone
+        )
+        self._data = {}
+        self.lock = Lock()
+
+    def _start(self):
+        RepeatScheduler(self, seconds_until_next_minute).start()
+
+    def update(self):
+        message = self.request.as_json()
+        if len(self.symbols) == 1:
+            message = {self.symbols[0]: message}
+
+        with self.lock:
+            for symbol, data in message.items():
+                symbol = symbol.split(":")[0]
+                self._data[symbol] = data[1]["close"]
+
+    @property
+    def data(self):
+        with self.lock:
+            return self._data
+
+
+# TODO change to real time price
 class RealTimeDataProvider(DataProvider):
     def __init__(self, apikey, symbols):
         super().__init__()
 
-        self.TD = TDClient(apikey="a603f4e94a3f4ebc8116636cd8e6aaba")
+        self.TD = TDClient(apikey=apikey)
         self.symbols = symbols
 
         self.request = self.TD.time_series(
@@ -74,6 +110,7 @@ class RealTimeDataProvider(DataProvider):
 
         with self.lock:
             for symbol, data in message.items():
+                symbol = symbol.split(":")[0]
                 self._data[symbol] = dict(
                     close=data[0]["close"], datetime=data[0]["datetime"]
                 )

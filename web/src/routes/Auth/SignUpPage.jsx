@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import { CenteredCard, CardHeading } from "../../components/common/styled";
 import app, { ActionCodeSettings } from "../../utils/firebase";
+import axios from "../../utils/api";
 import Page from "../../components/page/Page";
 import Login from "../../components/login/LoginComponent";
 import Alert, { useAlert } from "../../components/common/Alert";
@@ -14,7 +15,7 @@ const SignUpPage = () => {
 
   const SignUp = async (event) => {
     event.preventDefault();
-    const { email, password, repeatPassword } = event.target.elements;
+    const { username, email, password, repeatPassword } = event.target.elements;
     try {
       if (repeatPassword.value !== password.value) {
         throw {
@@ -26,6 +27,7 @@ const SignUpPage = () => {
         .auth()
         .createUserWithEmailAndPassword(email.value, password.value);
       await app.auth().currentUser.sendEmailVerification(ActionCodeSettings);
+      await axios.post(`/users?email=${email}&username=${username}`); //
       // history.push("/dashboard");
       setFinished(true);
     } catch (error) {
@@ -43,7 +45,12 @@ const SignUpPage = () => {
         ) : (
           <>
             <CardHeading variant="h3">Sign Up</CardHeading>
-            <Login buttonText="register" submitHandler={SignUp} repeat={true} />
+            <Login
+              buttonText="register"
+              submitHandler={SignUp}
+              repeat={true}
+              username={true}
+            />
             <MaterialLink to="/signin" component={Link} color="inherit">
               {"Already have an account? Sign in"}
             </MaterialLink>

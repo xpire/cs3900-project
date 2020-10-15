@@ -27,17 +27,14 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         Return the corresponding user by token.
         '''
         return db.query(self.model).filter(self.model.token == str).first() # Field is unique 
-
-    def create_and_give_balance(self, db: Session, *, obj_in: UserCreate) -> str:
-        pass
-
-    def update(
-        self, db: Session, *, db_obj: User, obj_in: Union[UserUpdate, Dict[str, Any]]
-    ) -> UserRet:
+ 
+    def update_balance(self, db: Session, *, db_obj: User, obj_in: UserUpdate) -> User: 
+        '''
+        Only update the balance of the user.
+        ''' 
         pass
 
     def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
         pass
-
 
 user = CRUDUser(User)

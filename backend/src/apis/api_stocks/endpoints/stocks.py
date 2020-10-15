@@ -1,13 +1,12 @@
+import json
+import os
 from typing import Any, List
 
+import numpy as np
+import requests
+from backend.src.core.config import settings
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-
-import json, os
-import requests
-import numpy as np
-
-from backend.src.core.config import settings
 
 router = APIRouter()
 
@@ -46,6 +45,7 @@ async def get_stocks(symbols: List[str] = Query(None)):
         if symbol not in STOCKS:
             raise HTTPException(status_code=404, detail="Item not found")
 
+        # TODO: Popoulate with actual data
         ret.append(
             {
                 "symbol": symbol,

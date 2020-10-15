@@ -1,27 +1,38 @@
 from datetime import timedelta
 from typing import Any
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Query, Header
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
-
 import firebase_admin
+from backend.src.core.auth import decode_token
+from backend.src.db.session import get_db
+from backend.src.models import User
+from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query
+from fastapi.security import OAuth2PasswordRequestForm
 from firebase_admin import auth, credentials
+from sqlalchemy.orm import Session
 
 # Import from crud, model, etc..
 
 router = APIRouter()
 
-cred = credentials.Certificate("ecksdee-firebase.json")
-firebase_admin.initialize_app(cred)
-
 # Start implementation here, this file handles authentication
 
 
-@router.get("/check")
+@router.get("")
 async def get_user(id_token: str = Header(None)):
 
-    decoded_token = auth.verify_id_token(id_token)
-    uid = decoded_token["uid"]
+    return decode_token(id_token)
 
-    return uid
+
+@router.post("", status_code=201)
+async def create_user(
+    db=Depends(get_db),
+    id_token: str = Header(None),
+    username: str = Query(None),
+    email: str = Query(None),
+):
+    uid = decode_token(id_token)
+    return {
+        "username": username,
+        "email": email,
+        "uid": uid,
+    }

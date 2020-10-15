@@ -1,7 +1,7 @@
 from typing import List
 from decouple import config
 
-from pydantic import BaseSettings, PostgresDsn, AnyHttpUrl
+from pydantic import BaseSettings, PostgresDsn, AnyHttpUrl, AnyUrl, ValidationError, validator
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Xecute the Deal"
@@ -11,8 +11,7 @@ class Settings(BaseSettings):
     TW_API_KEY: str 
     FH_API_KEY: str
 
-    SQLALCHEMY_DATABASE_URI: PostgresDsn
-    
+    SQLITE_DB_URI: str
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
 
 # Read things from here
@@ -22,6 +21,6 @@ settings = Settings(
     COURSE_NAME = config("COURSE_NAME"), 
     TW_API_KEY = config("TW_API_KEY"), 
     FH_API_KEY = config("FH_API_KEY"), 
-    SQLALCHEMY_DATABASE_URI = config("SQLALCHEMY_DATABASE_URI"), 
+    SQLITE_DB_URI = config("SQLITE_DB_URI"), 
     BACKEND_CORS_ORIGINS = [str(x) for x in config("BACKEND_CORS_ORIGINS")[1:-1].split(", ")]
 )

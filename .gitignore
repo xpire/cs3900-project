@@ -2,6 +2,7 @@
 .vscode
 .mypy_cache
 docker-stack.yml
+.env
 
 # python 
 # Byte-compiled / optimized / DLL files
@@ -143,3 +144,5 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+*.sqlite3

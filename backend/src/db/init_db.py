@@ -6,7 +6,7 @@ from backend.src import crud, schemas
 from backend.src.crud.crud_stock import stock
 from backend.src.core.config import settings
 from backend.src.db import base_model_import_all as base_model  # noqa: F401
-from backend.src.apis.api_util import get_db
+from backend.src.api.deps import get_db
 
 # make sure all SQL Alchemy models are imported (app.db.base) before initializing DB
 # otherwise, SQL Alchemy might fail to initialize relationships properly

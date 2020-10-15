@@ -21,7 +21,7 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
 
-from backend.src.db.base import Base, Stock, StockData, User  # noqa
+from backend.src.db.base_model_import_all import BaseModel, Stock, StockData, User  # noqa
 from backend.src.core.config import settings
 
 metadatas = [User.metadata, Stock.metadata, StockData.metadata]

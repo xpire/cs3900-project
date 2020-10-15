@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Grid,
@@ -7,11 +7,11 @@ import {
   InputAdornment,
 } from "@material-ui/core";
 import ClearIcon from "@material-ui/icons/Clear";
+
 import Page from "../../components/page/Page";
 import CardGrid from "../../components/common/CardGrid";
-
+import axios from "../../utils/api";
 // import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
-import { useEffect } from "react";
 
 const Market = () => {
   const [loading, setLoading] = useState(true);
@@ -54,12 +54,15 @@ const Market = () => {
   }, [search, stockData]);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/symbols")
-      .then((response) => response.json())
-      .then((data) => {
+    // fetch("http://127.0.0.1:8000/symbols")
+    axios
+      .get("/symbols")
+      .then((response) => {
+        const data = response.data;
         setStockData(data);
         setLoading(false);
-      });
+      })
+      .catch((err) => {});
   }, []);
 
   return (
@@ -95,9 +98,9 @@ const Market = () => {
           <Typography>
             {loading
               ? `Loading...`
-              : `Your search returned ${
-                  filteredData.length
-                } result${filteredData.length !== 1 && "s"}.`}
+              : `Your search returned ${filteredData.length} result${
+                  filteredData.length !== 1 ? "s" : ""
+                }.`}
           </Typography>
         </Grid>
       </Grid>

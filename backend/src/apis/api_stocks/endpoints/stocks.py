@@ -1,22 +1,48 @@
+import json
+import os
 from typing import Any, List
 
+import numpy as np
+import requests
+from backend.src.core.config import settings
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-import json, os
-import requests
-import numpy as np
+from src.real_time_market_data.data_provider import (
+    CompositeDataProvider,
+    RealTimeDataProvider,
+    SimulatedDataProvider,
+    SimulatedStock,
+)
 
-from backend.src.core.config import settings
+API_URL = "https://api.twelvedata.com"
+API_KEY = settings.TD_API_KEY
+
+provider1 = RealTimeDataProvider(
+    symbols=["WOW:ASX", "ADES:LSE", "ACC:NSE", "AAPL"],
+    apikey=API_KEY,
+)
+
+stocks = [
+    SimulatedStock("SIM-1", 100, 10, 200),
+    SimulatedStock("SIM-2", 150, 50, 1000, rise=False),
+    SimulatedStock("SIM-3", 400, 20, 500),
+]
+provider2 = SimulatedDataProvider(stocks)
+data_provider = CompositeDataProvider([provider1, provider2])
+data_provider.start()
 
 router = APIRouter()
+
+
+@router.get("/real_time")
+def get_real_time_data():
+    return data_provider.data
+
 
 # Start implementation here, this file handles batch and single stock data retrieval
 
 # Can change to a different structure later
-
-API_URL = "https://api.twelvedata.com"
-API_KEY = settings.TD_API_KEY
 
 STOCKS = {}
 with open("stocks.json") as json_file:
@@ -25,6 +51,7 @@ with open("stocks.json") as json_file:
 # -------------------------------
 # For now, return hardcoded data
 # -------------------------------
+
 
 @router.get("/symbols")
 async def get_symbols():
@@ -35,6 +62,7 @@ async def get_symbols():
 
     return ret
 
+
 @router.get("/stocks")
 async def get_stocks(symbols: List[str] = Query(None)):
     ret = []
@@ -43,7 +71,8 @@ async def get_stocks(symbols: List[str] = Query(None)):
     for symbol in symbols:
         if symbol not in STOCKS:
             raise HTTPException(status_code=404, detail="Item not found")
-    
+
+        # TODO: Popoulate with actual data
         ret.append(
             {
                 "symbol": symbol,
@@ -60,6 +89,8 @@ async def get_stocks(symbols: List[str] = Query(None)):
 async def get_stock_data(symbol: str = Query(None), days: int = 90):
     ret = []
 
-    r = requests.get(f"{API_URL}/time_series?symbol={symbol}&interval=1day&apikey={API_KEY}&outputsize={days}")
+    r = requests.get(
+        f"{API_URL}/time_series?symbol={symbol}&interval=1day&apikey={API_KEY}&outputsize={days}"
+    )
 
     return r.json()["values"]

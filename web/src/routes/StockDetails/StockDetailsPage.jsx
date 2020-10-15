@@ -24,6 +24,7 @@ import {
 } from "../../components/common/styled";
 import Candlestick from "../../components/graph/Candlestick";
 import { Skeleton } from "@material-ui/lab";
+import axios from "../../utils/api";
 // import ApexCandlestick from "../../components/graph/ApexCandlestick";
 
 // import * as stockData from "../../utils/stocksList.json"; //TODO: make this an API call
@@ -90,19 +91,22 @@ const StockDetails = () => {
   const { symbol } = useParams();
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/stocks?symbols=${symbol}`)
-      .then((response) => response.json())
-      .then((data) => {
+    // fetch("http://127.0.0.1:8000/symbols")
+    axios
+      .get(`/stocks?symbols=${symbol}`)
+      .then((response) => {
+        const data = response.data;
         setStockData(data[0]);
         setLoading(false);
       })
-      .catch(() => setError(true));
+      .catch((err) => setError(true));
   }, []);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/stocks/time_series?symbol=${symbol}&days=90`)
-      .then((response) => response.json())
-      .then((data) => {
+    axios
+      .get(`/stocks/time_series?symbol=${symbol}&days=90`)
+      .then((response) => {
+        const data = response.data;
         setTimeSeries(
           data
             .map(({ datetime, open, close, high, low, volume }) => {
@@ -117,7 +121,8 @@ const StockDetails = () => {
             })
             .reverse()
         );
-      });
+      })
+      .catch((err) => setError(true));
   }, []);
 
   // const parsedData = TimeSeriesData.AAPL.values

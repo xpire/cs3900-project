@@ -16,4 +16,4 @@ def init_db(db: Session) -> None:
     # Base.metadata.create_all(bind=engine)
 
     # Add exisitng data here
-    print("Database initialized, nothing has been done yet.")
+    print('Database initialized, nothing has been done yet.')

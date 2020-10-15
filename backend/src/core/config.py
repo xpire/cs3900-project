@@ -8,7 +8,6 @@ class Settings(BaseSettings):
     DEV_NAME: str = "ecksdee"
     COURSE_NAME: str = "COMP3900"
     
-    TW_API_KEY: str 
     FH_API_KEY: str
     TD_API_KEY: str
 

@@ -93,11 +93,13 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
     return ret
 
 
-@router.get("/stocks/time_series")
+@router.get("/time_series")
 async def get_stock_data(symbol: str = Query(None), days: int = 90):
-    return TD.time_series(
+    data = TD.time_series(
         symbol=symbol,
         interval="1day",
-        outputsize=days,
+        outputsize=days, # TODO there seems to be a bug
         timezone="Australia/Sydney",
     ).as_json()
+    print('time series length:', len(data)) 
+    return data

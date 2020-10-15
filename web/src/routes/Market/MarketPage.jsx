@@ -55,7 +55,7 @@ const Market = () => {
 
   useEffect(() => {
     axios
-      .get("/symbols")
+      .get("stocks/symbols")
       .then((response) => {
         const data = response.data;
         setStockData(data);

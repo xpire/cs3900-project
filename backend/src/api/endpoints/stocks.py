@@ -78,7 +78,7 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
         stock = crud.stock.get_stock_by_symbol(db, symbol)
         if stock is None:
             raise HTTPException(status_code=404, detail="Item not found")
-        
+
         ret.append(
             dict(
                 symbol=symbol,

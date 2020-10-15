@@ -14,6 +14,7 @@ import axios from "../../utils/api";
 // import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
 
 const Market = () => {
+  const [loadingSymbols, setLoadingSymbols] = useState(true);
   const [loading, setLoading] = useState(true);
 
   // const stockData = data.data; //.slice(0, 30);
@@ -59,10 +60,43 @@ const Market = () => {
       .then((response) => {
         const data = response.data;
         setStockData(data);
-        setLoading(false);
+        setLoadingSymbols(false);
       })
       .catch((err) => {});
   }, []);
+
+  const [latestPrices, setLatestPrices] = useState(0); // TODO: to null?
+  const [dayGains, setDayGains] = useState(0);
+
+  const getRealTimeStockData = () => {
+    const symbols = stockData.map(({symbol}) => symbol );
+    axios
+      .get(`/stocks/stocks?symbols=${symbols.join("&symbols=")}`)
+      .then((response) => {
+        const data = response.data;
+        const prices = {};
+        const gains = {};
+
+        data.forEach(({curr_close_price, prev_close_price}, i) => {
+          prices[symbols[i]] = curr_close_price;
+          gains[symbols[i]] = 100 * (curr_close_price - prev_close_price) / prev_close_price;
+        })
+        setLatestPrices(prices);
+        setDayGains(gains);
+        setLoading(false);
+      })
+      .catch((err) => console.log(err));
+  }
+
+  useEffect(() => {
+    if (loadingSymbols) {
+      return;
+    }
+      
+    getRealTimeStockData();
+    const interval = setInterval(getRealTimeStockData, 5000);
+    return () => clearInterval(interval);
+  }, [stockData, loadingSymbols]);
 
   return (
     <Page>
@@ -103,7 +137,9 @@ const Market = () => {
           </Typography>
         </Grid>
       </Grid>
-      <CardGrid data={filteredData} />
+      <CardGrid data={filteredData} prices={latestPrices} gains={dayGains}/>
+      {/* {loading ?  <CardGrid data={filteredData} prices={latestPrices}/>
+      :  <CardGrid data={filteredData}/>} */}
     </Page>
   );
 };

@@ -125,9 +125,8 @@ const StockDetails = () => {
   useEffect(() => {
     if ("curr_close_price" in stockData) {
       setLatestPrice(stockData.curr_close_price);
-      let gain = (stockData.curr_close_price - stockData.prev_close_price) / stockData.prev_close_price;
+      let gain = 100 * (stockData.curr_close_price - stockData.prev_close_price) / stockData.prev_close_price;
       setDayGain(gain);
-      console.log(stockData.curr_close_price + " " + stockData.prev_close_price + " " + gain);
     }
   }, [stockData]);
 

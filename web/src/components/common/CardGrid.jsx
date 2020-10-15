@@ -3,7 +3,7 @@ import { Grid } from "@material-ui/core";
 
 import StockCard from "./StockCard";
 
-const CardGrid = ({ data }) => {
+const CardGrid = ({ data, prices, gains}) => {
   return (
     <Grid
       container
@@ -18,8 +18,8 @@ const CardGrid = ({ data }) => {
             <StockCard
               name={symbol}
               category={exchange}
-              price="$25,333"
-              delta={index % 2 === 0 ? 25 : -10}
+              price={prices[symbol]?.toFixed(2)}
+              delta={gains[symbol]?.toFixed(2)}
               key={index}
               skeleton={skeleton}
             />

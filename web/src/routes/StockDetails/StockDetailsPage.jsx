@@ -85,10 +85,19 @@ const StockDetails = () => {
   // grab the list of available stocks
   // const stockCode = props.match.params.symbol.toUpperCase();
   const [stockData, setStockData] = useState({ skeleton: true });
+  const [latestPrice, setLatestPrice] = useState(0);
+  const [dayGain, setDayGain] = useState(0);
   const [loading, setLoading] = useState(true);
   const [timeSeries, setTimeSeries] = useState(null);
   const [error, setError] = useState(false);
   const { symbol } = useParams();
+
+  useEffect(() => {
+    axios.get(`/real_times?symbol=${symbol}`).then((response) => {
+      const { close } = response.data;
+      setLatestPrice(parseFloat(close));
+    });
+  }, []);
 
   useEffect(() => {
     // fetch("http://127.0.0.1:8000/symbols")
@@ -103,26 +112,38 @@ const StockDetails = () => {
   }, []);
 
   useEffect(() => {
+    if ("last_close_price" in stockData && latestPrice > 0) {
+      setDayGain(stockData.last_close_price / latestPrice);
+    }
+  }, [stockData, latestPrice]);
+
+  const pollStockData = () => {
     axios
       .get(`/stocks/time_series?symbol=${symbol}&days=90`)
       .then((response) => {
-        const data = response.data;
-        setTimeSeries(
-          data
-            .map(({ datetime, open, close, high, low, volume }) => {
-              return {
-                date: new Date(datetime),
-                open: +open,
-                high: +high,
-                low: +low,
-                close: +close,
-                volume: +volume,
-              };
-            })
-            .reverse()
-        );
+        let data = response.data;
+        data = data
+          .map(({ datetime, open, close, high, low, volume }) => {
+            return {
+              date: new Date(datetime),
+              open: +open,
+              high: +high,
+              low: +low,
+              close: +close,
+              volume: +volume,
+            };
+          })
+          .reverse();
+
+        setTimeSeries(data);
       })
       .catch((err) => setError(true));
+  };
+
+  useEffect(() => {
+    pollStockData();
+    const interval = setInterval(pollStockData, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   // const parsedData = TimeSeriesData.AAPL.values
@@ -156,33 +177,26 @@ const StockDetails = () => {
                     {loading ? <Skeleton /> : stockData.name}
                   </Typography> */}{" "}
                   {/* Add back when name is here*/}
+                  {!loading && <Chip label={stockData.name} size="small" />}
                   {!loading && <Chip label={stockData.exchange} size="small" />}
                 </Grid>
                 <Grid item md={12} sm={6}>
                   <Grid item>
                     <ColoredText
-                      color={stockData.day_gain > 0 ? "green" : "red"}
+                      color={dayGain > 0 ? "green" : "red"}
                       variant="h2"
                       align="right"
                     >
-                      {loading ? (
-                        <Skeleton />
-                      ) : (
-                        `${stockData.day_gain?.toFixed(1)}%`
-                      )}
+                      {loading ? <Skeleton /> : `${dayGain?.toFixed(1)}%`}
                     </ColoredText>
                   </Grid>
                   <Grid item>
                     <ColoredText
-                      color={stockData.day_gain > 0 ? "green" : "red"}
+                      color={dayGain > 0 ? "green" : "red"}
                       variant="h3"
                       align="right"
                     >
-                      {loading ? (
-                        <Skeleton />
-                      ) : (
-                        `$${stockData.latest_price?.toFixed(2)}`
-                      )}
+                      {loading ? <Skeleton /> : `$${latestPrice?.toFixed(2)}`}
                     </ColoredText>
                   </Grid>
                   <Grid container direction="row-reverse" spacing={2}>

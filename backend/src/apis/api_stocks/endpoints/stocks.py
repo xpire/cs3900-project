@@ -8,14 +8,41 @@ from backend.src.core.config import settings
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from src.real_time_market_data.data_provider import (
+    CompositeDataProvider,
+    RealTimeDataProvider,
+    SimulatedDataProvider,
+    SimulatedStock,
+)
+
+API_URL = "https://api.twelvedata.com"
+API_KEY = settings.TD_API_KEY
+
+provider1 = RealTimeDataProvider(
+    symbols=["WOW:ASX", "ADES:LSE", "ACC:NSE", "AAPL"],
+    apikey=API_KEY,
+)
+
+stocks = [
+    SimulatedStock("SIM-1", 100, 10, 200),
+    SimulatedStock("SIM-2", 150, 50, 1000, rise=False),
+    SimulatedStock("SIM-3", 400, 20, 500),
+]
+provider2 = SimulatedDataProvider(stocks)
+data_provider = CompositeDataProvider([provider1, provider2])
+data_provider.start()
+
 router = APIRouter()
+
+
+@router.get("/real_time")
+def get_real_time_data():
+    return data_provider.data
+
 
 # Start implementation here, this file handles batch and single stock data retrieval
 
 # Can change to a different structure later
-
-API_URL = "https://api.twelvedata.com"
-API_KEY = settings.TD_API_KEY
 
 STOCKS = {}
 with open("stocks.json") as json_file:

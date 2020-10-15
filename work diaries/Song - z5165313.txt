@@ -19,3 +19,13 @@ Work in Ian's garage with team to finalise propasal and submit.
     Issue close to submission: images in word became badly compressed when converting to PDF.
     'Solved' using Adobe converter, and also updating all images to more suitable resolution.
 Will be working on setting up an environment and begin implementing features for Sprint 1.
+
+Week 4:
+Busy week unfortunately and did not get much done.
+Curated a list of 30 ASX stocks for our application
+    Attempted to choose stocks that new investors might recognise
+    Attempted to have a balance between industry sectors, price points and ETFs
+
+Week 5:
+Curated similar lists for 30 NYSE stocks, and 10 LSE stocks with similar industry distributions to the ASX ones
+Working on implementing back end routing.

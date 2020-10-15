@@ -114,6 +114,7 @@ celerybeat.pid
 # Environments
 # .env --> this file will be used as a key
 .venv
+.env
 env/
 venv/
 ENV/
@@ -146,4 +147,34 @@ cython_debug/
 
 *.sqlite3
 
+
 stocks.csv
+*/Pipfile*
+
+### macOS ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk

@@ -1,16 +1,17 @@
-import React, { useContext, useState } from "react";
-import { Typography, AppBar, Tab, Tabs, Grid, Box } from "@material-ui/core";
+import React, { useContext, useState, useEffect } from "react";
+import { Typography, Tab, Tabs, Grid } from "@material-ui/core";
 
 import { AuthContext } from "../../utils/authentication";
 import Page from "../../components/page/Page";
 import { StandardCard, ColoredText } from "../../components/common/styled";
 import CardGrid from "../../components/common/CardGrid";
 import ApexCandlestick from "../../components/graph/ApexCandlestick";
+import axios from "../../utils/api";
 
 import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
-import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
+// import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
 
-const stockData = data.data; //.slice(0, 30);
+// const stockData = data.data; //.slice(0, 30);
 
 const parsedApexData = TimeSeriesData.AAPL.values
   .map(({ datetime, open, close, high, low }) => {
@@ -20,9 +21,7 @@ const parsedApexData = TimeSeriesData.AAPL.values
 
 const StatCard = ({ name, value, stat, today }) => {
   return (
-    <StandardCard
-    // style={{ height: "150px" }}
-    >
+    <StandardCard style={{ minHeight: "130px" }}>
       {/* TODO: make this not hardcoded somehow */}
       <Grid
         container
@@ -99,48 +98,76 @@ const StatisticsData = [
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
+  console.log(user.getIdToken(true));
   const [value, setValue] = useState(0);
-  const [data, setData] = useState(stockData.slice(0, 30));
+  const [stockData, setStockData] = useState([
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+  ]);
+  const [data, setData] = useState(stockData.slice(0, 3));
+  useEffect(() => {
+    axios
+      .get("/symbols")
+      .then((response) => {
+        const data = response.data;
+        setStockData(data);
+        setData(data.slice(0, 3));
+      })
+      .catch((err) => {});
+  }, []);
   return (
     <Page>
-      <div style={{ padding: "12px" }}>
-        <Grid
-          container
-          direction="row"
-          justify="flex-start"
-          alignItems="flex-start"
-        >
-          {StatisticsData.map((data) => (
-            <Grid item md={3} sm={6} xs={12}>
-              <StatCard {...data} />
-            </Grid>
-          ))}
-          <Grid xs={12}>
-            <StandardCard>
-              <ApexCandlestick data={parsedApexData} />
-            </StandardCard>
+      <Grid
+        container
+        direction="row"
+        justify="flex-start"
+        alignItems="flex-start"
+      >
+        {StatisticsData.map((data, index) => (
+          <Grid key={index} item md={3} sm={6} xs={12}>
+            <StatCard {...data} />
           </Grid>
-          <Grid xs={12}>
-            <StandardCard>
-              <Tabs
-                value={value}
-                onChange={(_event, newValue) => {
-                  setValue(newValue);
-                  setData(stockData.slice(newValue * 30, newValue * 30 + 30));
-                }}
-                indicatorColor="primary"
-                textColor="primary"
-                variant="fullWidth"
-              >
-                <Tab label="Longs" />
-                <Tab label="Shorts" />
-                <Tab label="Watchlist" />
-              </Tabs>
-            </StandardCard>
-            <CardGrid data={data} />
-          </Grid>
+        ))}
+        <Grid item xs={12}>
+          <StandardCard>
+            <ApexCandlestick data={parsedApexData} />
+          </StandardCard>
         </Grid>
-      </div>
+        <Grid item xs={12}>
+          <StandardCard>
+            <Tabs
+              value={value}
+              onChange={(_event, newValue) => {
+                setValue(newValue);
+                setData(stockData.slice(newValue * 3, newValue * 3 + 3));
+              }}
+              indicatorColor="primary"
+              textColor="primary"
+              variant="fullWidth"
+            >
+              <Tab label="Longs" />
+              <Tab label="Shorts" />
+              <Tab label="Watchlist" />
+            </Tabs>
+          </StandardCard>
+          <CardGrid data={data} />
+        </Grid>
+      </Grid>
     </Page>
   );
 };

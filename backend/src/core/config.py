@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from decouple import config
 
 from pydantic import (
@@ -17,10 +17,12 @@ class Settings(BaseSettings):
     COURSE_NAME: str = "COMP3900"
 
     FH_API_KEY: str
+
     TD_API_KEY: str
 
     SQLITE_DB_URI: str
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+    BACKEND_CORS_ORIGIN: List[AnyHttpUrl] = []
+
 
     NUM_STOCK: int
 

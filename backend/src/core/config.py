@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     
     TW_API_KEY: str 
     FH_API_KEY: str
+    TD_API_KEY: str
 
     SQLITE_DB_URI: str
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
@@ -21,6 +22,7 @@ settings = Settings(
     COURSE_NAME = config("COURSE_NAME"), 
     TW_API_KEY = config("TW_API_KEY"), 
     FH_API_KEY = config("FH_API_KEY"), 
+    TD_API_KEY = config("TD_API_KEY"),
     SQLITE_DB_URI = config("SQLITE_DB_URI"), 
     BACKEND_CORS_ORIGINS = [str(x) for x in config("BACKEND_CORS_ORIGINS")[1:-1].split(", ")]
 )

@@ -12,12 +12,12 @@ const CardGrid = ({ data }) => {
       alignItems="flex-start"
       spacing={0}
     >
-      {data.map(({ symbol, type, skeleton }, index) => {
+      {data.map(({ symbol, exchange, skeleton }, index) => {
         return (
           <Grid item md={4} sm={6} xs={12} key={index}>
             <StockCard
               name={symbol}
-              category={type}
+              category={exchange}
               price="$25,333"
               delta={index % 2 === 0 ? 25 : -10}
               key={index}

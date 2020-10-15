@@ -114,6 +114,7 @@ celerybeat.pid
 # Environments
 # .env --> this file will be used as a key
 .venv
+.env
 env/
 venv/
 ENV/

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Typography, Tab, Tabs, Grid } from "@material-ui/core";
 
 import { AuthContext } from "../../utils/authentication";
@@ -8,9 +8,9 @@ import CardGrid from "../../components/common/CardGrid";
 import ApexCandlestick from "../../components/graph/ApexCandlestick";
 
 import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
-import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
+// import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
 
-const stockData = data.data; //.slice(0, 30);
+// const stockData = data.data; //.slice(0, 30);
 
 const parsedApexData = TimeSeriesData.AAPL.values
   .map(({ datetime, open, close, high, low }) => {
@@ -99,7 +99,34 @@ const Dashboard = () => {
   const { user } = useContext(AuthContext);
   console.log(user.getIdToken(true));
   const [value, setValue] = useState(0);
-  const [data, setData] = useState(stockData.slice(0, 30));
+  const [stockData, setStockData] = useState([
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+  ]);
+  const [data, setData] = useState(stockData.slice(0, 3));
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/symbols")
+      .then((response) => response.json())
+      .then((data) => {
+        setStockData(data);
+        setData(data.slice(0, 3));
+      });
+  }, []);
   return (
     <Page>
       <Grid
@@ -124,7 +151,7 @@ const Dashboard = () => {
               value={value}
               onChange={(_event, newValue) => {
                 setValue(newValue);
-                setData(stockData.slice(newValue * 30, newValue * 30 + 30));
+                setData(stockData.slice(newValue * 3, newValue * 3 + 3));
               }}
               indicatorColor="primary"
               textColor="primary"

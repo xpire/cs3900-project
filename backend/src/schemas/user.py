@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, validator 
+from pydantic import BaseModel, EmailStr, validator
 
 
 # Shared properties
@@ -23,6 +23,7 @@ class UserUpdate(UserBase):
 
 class UserInDBBase(UserBase):
     pass
+
     class Config:
         orm_mode = True
 

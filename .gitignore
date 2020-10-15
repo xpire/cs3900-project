@@ -145,3 +145,5 @@ dmypy.json
 cython_debug/
 
 *.sqlite3
+
+stocks.csv

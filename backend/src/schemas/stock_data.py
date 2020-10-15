@@ -11,14 +11,18 @@ class StockDataBase(BaseModel):
 class StockDataCreate(StockDataBase):
     pass
 
+
 class StockDataUpdate(StockDataBase):
-    '''
+    """
     Not used, should not be updating exisiting stock information.
-    '''
+    """
+
     pass
+
 
 class StockDataRet(StockDataBase):
     pass
+
 
 # Properties shared by models stored in DB
 class StockDataInDBBase(StockDataBase):

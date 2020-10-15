@@ -1,7 +1,7 @@
 import sys
-import os 
+import os
 
-sys.path.append('../') # dont do this, this is special case uwu
+sys.path.append("../")  # dont do this, this is special case uwu
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
@@ -32,7 +32,9 @@ metadatas = [User.metadata, Stock.metadata, StockData.metadata]
 # ... etc.
 
 
-def get_url(): return settings.SQLITE_DB_URI
+def get_url():
+    return settings.SQLITE_DB_URI
+
 
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
@@ -49,10 +51,10 @@ def run_migrations_offline():
     url = get_url()
     for t in metadatas:
         context.configure(
-            url = url, 
-            target_metadata = t, 
-            literal_binds = True, 
-            # render_as_batch = True,    
+            url=url,
+            target_metadata=t,
+            literal_binds=True,
+            # render_as_batch = True,
         )
 
     with context.begin_transaction():
@@ -69,18 +71,19 @@ def run_migrations_online():
     configuration = config.get_section(config.config_ini_section)
     configuration["sqlalchemy.url"] = get_url()
     connectable = engine_from_config(
-        configuration, prefix="sqlalchemy.", poolclass=pool.NullPool,
+        configuration,
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
     )
-    
+
     with connectable.connect() as connection:
-        
+
         for t in metadatas:
-            print(t)
             context.configure(
-                connection = connection, 
-                target_metadata = t, 
+                connection=connection,
+                target_metadata=t,
                 # render_as_batch = True
-                # compare_type = True             
+                # compare_type = True
             )
 
         with context.begin_transaction():

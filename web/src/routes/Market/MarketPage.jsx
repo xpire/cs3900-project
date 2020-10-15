@@ -14,6 +14,7 @@ import axios from "../../utils/api";
 // import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
 
 const Market = () => {
+  const [loadingSymbols, setLoadingSymbols] = useState(true);
   const [loading, setLoading] = useState(true);
 
   // const stockData = data.data; //.slice(0, 30);
@@ -59,10 +60,39 @@ const Market = () => {
       .then((response) => {
         const data = response.data;
         setStockData(data);
-        setLoading(false);
+        setLoadingSymbols(false);
       })
       .catch((err) => {});
   }, []);
+
+  const [latestPrices, setLatestPrices] = useState(0);
+
+  const getRealTimeStockData = () => {
+    const symbols = stockData.map(({symbol}) => symbol ).join("&symbols=");
+    axios
+      .get(`/stocks/stocks?symbols=${symbols}`)
+      .then((response) => {
+        const data = response.data;
+        const data2 = data.map(({curr_close_price}, i) => {
+          return {symbol: symbols[i], price:curr_close_price}
+        })
+        console.log(data2);
+        setLatestPrices(data2);
+        setLoading(false);
+      })
+      .catch((err) => console.log(err));
+  }
+
+  useEffect(() => {
+    console.log('loading symbols? ' + loadingSymbols);
+    if (loadingSymbols) {
+      return;
+    }
+      
+    getRealTimeStockData();
+    const interval = setInterval(getRealTimeStockData, 5000);
+    return () => clearInterval(interval);
+  }, [stockData, loadingSymbols]);
 
   return (
     <Page>

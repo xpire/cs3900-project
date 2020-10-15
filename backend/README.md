@@ -21,7 +21,7 @@ Please run the following in terminal.
 ```
 $ cd backend
 $ source start.sh
-$ pre-config /path/to/.env
+$ first-time-setup /path/to/.env
 $ backend-run
 ```
 `.env` file contains the configuration information and secrets required for execution.

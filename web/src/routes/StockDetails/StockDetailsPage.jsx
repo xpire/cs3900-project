@@ -13,7 +13,7 @@ import {
   CircularProgress,
 } from "@material-ui/core";
 // import { Skeleton } from "@material-ui/lab";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useHistory } from "react-router-dom";
 
 // import { AuthContext } from "../utils/authentication";
 import Page from "../../components/page/Page";
@@ -91,6 +91,7 @@ const StockDetails = () => {
   const [timeSeries, setTimeSeries] = useState(null);
   const [error, setError] = useState(false);
   const { symbol } = useParams();
+  let history = useHistory();
 
   // const getRealTimePrice = () => {
   //   axios.get(`/stocks/real_times?symbol=${symbol}`).then((response) => {
@@ -114,7 +115,7 @@ const StockDetails = () => {
         setLoading(false);
       })
       .catch((err) => setError(true));
-  }
+  };
 
   useEffect(() => {
     getRealTimeStockData();
@@ -125,7 +126,9 @@ const StockDetails = () => {
   useEffect(() => {
     if ("curr_close_price" in stockData) {
       setLatestPrice(stockData.curr_close_price);
-      let gain = 100 * (stockData.curr_close_price - stockData.prev_close_price) / stockData.prev_close_price;
+      let gain =
+        (100 * (stockData.curr_close_price - stockData.prev_close_price)) /
+        stockData.prev_close_price;
       setDayGain(gain);
     }
   }, [stockData]);
@@ -215,7 +218,13 @@ const StockDetails = () => {
                       </Button>
                     </Grid>
                     <Grid item>
-                      <Button variant="outlined" color="primary">
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() =>
+                          history.push(`/trading?symbol=${symbol}`)
+                        }
+                      >
                         Trade
                       </Button>
                     </Grid>

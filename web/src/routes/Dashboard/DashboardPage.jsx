@@ -98,8 +98,21 @@ const StatisticsData = [
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
-  console.log(user.getIdToken(true));
-  const [value, setValue] = useState(0);
+  // console.log(user.getIdToken(true));
+  const [myValue, setValue] = useState(0);
+  const [loadingSymbols, setLoadingSymbols] = useState(true);
+  const [symbols, setSymbols] = useState();
+  useEffect(() => {
+    axios
+      .get("stocks/symbols")
+      .then((response) => {
+        const data = response.data;
+        setSymbols(data);
+        setLoadingSymbols(false);
+      })
+      .catch((err) => {});
+  }, []);
+
   const [stockData, setStockData] = useState([
     { skeleton: true },
     { skeleton: true },
@@ -119,17 +132,47 @@ const Dashboard = () => {
     { skeleton: true },
     { skeleton: true },
   ]);
-  const [data, setData] = useState(stockData.slice(0, 3));
-  useEffect(() => {
+
+  const getRealTimeStockData = () => {
+    if (symbols === undefined) {
+      return;
+    }
+    const s = symbols.map(({ symbol }) => symbol).join("&symbols=");
     axios
-      .get("/stocks/symbols")
+      .get(`/stocks/stocks?symbols=${s}`)
       .then((response) => {
         const data = response.data;
+        // console.lo g({ value, data });
         setStockData(data);
-        setData(data.slice(0, 3));
       })
-      .catch((err) => {});
-  }, []);
+      .catch((err) => console.log(err));
+  };
+
+  const [data, setData] = useState(
+    stockData.slice(myValue * 3, myValue * 3 + 3)
+  );
+
+  useEffect(() => {
+    getRealTimeStockData();
+    const interval = setInterval(getRealTimeStockData, 5000);
+    return () => clearInterval(interval);
+  }, [symbols, loadingSymbols]);
+
+  useEffect(() => {
+    setData(stockData.slice(myValue * 3, myValue * 3 + 3));
+  }, [myValue, stockData]);
+
+  // useEffect(() => {
+  //   axios
+  //     .get("/stocks/symbols")
+  //     .then((response) => {
+  //       const data = response.data;
+  //       console.log({ data });
+  //       setStockData(data);
+  //       setData(data.slice(0, 3));
+  //     })
+  //     .catch((err) => {});
+  // }, []);
 
   const [balance, setBalance] = useState(0);
 
@@ -152,18 +195,17 @@ const Dashboard = () => {
       .catch((err) => {
         console.log(err);
       });
-  }
+  };
 
   useEffect(() => {
     user &&
       user
         .getIdToken(true)
         .then((token) => {
-          getBalance(token)
+          getBalance(token);
         })
         .catch((e) => {});
   }, [user]);
-
 
   const balance_card = { name: "Available Balance", value: balance };
 
@@ -191,10 +233,11 @@ const Dashboard = () => {
         <Grid item xs={12}>
           <StandardCard>
             <Tabs
-              value={value}
+              value={myValue}
               onChange={(_event, newValue) => {
+                console.log("setting value to", newValue);
                 setValue(newValue);
-                setData(stockData.slice(newValue * 3, newValue * 3 + 3));
+                setData(stockData.slice(myValue * 3, myValue * 3 + 3));
               }}
               indicatorColor="primary"
               textColor="primary"

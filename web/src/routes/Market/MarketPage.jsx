@@ -57,7 +57,7 @@ const Market = () => {
       return;
     }
 
-    const s = symbols.map(({symbol}) => symbol ).join("&symbols=");
+    const s = symbols.map(({ symbol }) => symbol).join("&symbols=");
     axios
       .get(`/stocks/stocks?symbols=${s}`)
       .then((response) => {
@@ -76,7 +76,7 @@ const Market = () => {
         setLoading(false);
       })
       .catch((err) => console.log(err));
-  }
+  };
 
   useEffect(() => {
     getRealTimeStockData();
@@ -87,7 +87,7 @@ const Market = () => {
   const handleChange = (e) => {
     setSearch(e);
   };
-  
+
   const [filteredData, setFilteredData] = useState(stockData);
   useEffect(() => {
     setFilteredData(
@@ -138,7 +138,7 @@ const Market = () => {
           </Typography>
         </Grid>
       </Grid>
-      <CardGrid data={filteredData}/>
+      <CardGrid data={filteredData} />
     </Page>
   );
 };

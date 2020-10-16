@@ -27,7 +27,9 @@ const SignUpPage = () => {
         .auth()
         .createUserWithEmailAndPassword(email.value, password.value);
       await app.auth().currentUser.sendEmailVerification(ActionCodeSettings);
-      await axios.post(`/user?email=${email.value}&username=${username.value}`); //
+      await axios.get(
+        `/user/create?email=${email.value}&username=${username.value}`
+      ); //
       // history.push("/dashboard");
       setFinished(true);
     } catch (error) {

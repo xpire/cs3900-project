@@ -178,19 +178,9 @@ const Dashboard = () => {
 
   const getBalance = (token) => {
     axios
-      .get(`/user/create?email=${user.email}`)
+      .get("/user/balance")
       .then((response) => {
-        console.log(response.data);
-      })
-      .then(() => {
-        axios
-          .get("/user/balance")
-          .then((response) => {
-            setBalance(response.data);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+        setBalance(response.data);
       })
       .catch((err) => {
         console.log(err);

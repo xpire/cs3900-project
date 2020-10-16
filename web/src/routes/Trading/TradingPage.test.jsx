@@ -1,7 +1,16 @@
 import React from "react";
 import { render } from "@testing-library/react";
 import TradingPage from "./TradingPage";
+import routeData from "react-router";
 
+const mockLocation = {
+  symbol: "FB",
+};
+
+beforeEach(() => {
+  jest.spyOn(routeData, "useLocation").mockReturnValue(mockLocation);
+  jest.spyOn(routeData, "useHistory").mockReturnValue({});
+});
 describe("Trading Page", () => {
   it("Contains important buttons", () => {
     const { getByText } = render(<TradingPage />);

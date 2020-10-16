@@ -6,6 +6,7 @@ from src.core.auth import decode_token
 from src.api.deps import get_db
 from src import crud
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query
+
 # Import from crud, model, etc..
 
 router = APIRouter()
@@ -22,7 +23,9 @@ async def create_user(
     user = crud.user.get_user_by_token(db, uuid=uuid)
 
     if not user:
-        user = crud.user.create(db, obj_in=dict(email=email, uuid=uuid, username="ian", balance=10000))
+        user = crud.user.create(
+            db, obj_in=dict(email=email, uuid=uuid, username=email, balance=10000)
+        )
     return user
 
 

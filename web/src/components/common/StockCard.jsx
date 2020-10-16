@@ -38,8 +38,8 @@ const StockCard = ({ symbol, name, category, price, delta, skeleton }) => {
               <>
                 <Grid item>
                   <Typography variant="h4">{symbol}</Typography>
-                  <Chip size="small" label={name} />
-                  <br/>
+                  {name && <Chip size="small" label={name} />}
+                  <br />
                   <Chip size="small" label={category} />
                 </Grid>
                 <Grid item>
@@ -48,8 +48,7 @@ const StockCard = ({ symbol, name, category, price, delta, skeleton }) => {
                     variant="h3"
                     align="right"
                   >
-                    {delta > 0 && "+"}
-                    {delta}%
+                    {`${delta > 0 ? "+" : ""}${delta}%`}
                   </ColoredText>
                 </Grid>
                 <Grid item xs={12}>
@@ -58,7 +57,7 @@ const StockCard = ({ symbol, name, category, price, delta, skeleton }) => {
                     variant="h4"
                     align="right"
                   >
-                    {price}
+                    {`$${price}`}
                   </ColoredText>
                 </Grid>
               </>
@@ -83,7 +82,7 @@ const StockCard = ({ symbol, name, category, price, delta, skeleton }) => {
             <Button
               size="small"
               color="primary"
-              onClick={() => history.push(`/trade?symbol=${symbol}`)}
+              onClick={() => history.push(`/trading?symbol=${symbol}`)}
             >
               trade
             </Button>

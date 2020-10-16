@@ -10,17 +10,23 @@ import {
 } from "@material-ui/core";
 import TradingIcon from "@material-ui/icons/LocalAtm";
 import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
+import { useLocation } from "react-router-dom";
+
 import Page from "../../components/page/Page";
 
 const Trading = () => {
+  const search = useLocation().search;
   const defaultState = {
+    symbol: new URLSearchParams(search).get("symbol"),
     tradeType: "buy",
     purchaseBy: "quantity",
     orderType: "market",
     quantity: 20,
   };
+
   const [state, setState] = useState(defaultState);
   // const set = (stateString) => (value) => setState({ ...state, [stateString]: value})
+  const setSymbol = (value) => setState({ ...state, symbol: value });
   const setTradeType = (value) => setState({ ...state, tradeType: value });
   const setPurchaseBy = (value) => setState({ ...state, purchaseBy: value });
   const setOrderType = (value) => setState({ ...state, orderType: value });
@@ -53,7 +59,12 @@ const Trading = () => {
             Symbol:
           </Grid>
           <Grid item xs={9}>
-            <TextField variant="outlined" label="Symbol" />
+            <TextField
+              variant="outlined"
+              label="Symbol"
+              defaultValue={state.symbol}
+              onChange={(_event, newValue) => setSymbol(newValue)}
+            />
           </Grid>
           <Grid item xs={3}>
             Trade Type:

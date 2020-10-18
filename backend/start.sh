@@ -81,7 +81,7 @@ initial-populate() {
 
         wake-up;
         upgrade-db;
-        # init-data;
+        init-data;
 
         export CANRUN=1;
     else

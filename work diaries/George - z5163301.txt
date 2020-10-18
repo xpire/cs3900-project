@@ -36,3 +36,15 @@ We started the first sprint which works on the most important functionalities of
 Group To Do:
 - Set up backend infrastructure, data access layer, API
 - Set up database
+
+
+Week 5
+
+We finished the first sprint. My role was to expose some API's in the backend for the frontend to consume. I also contributed to setting up the firebase token verification in the backend, making user authentication possible. A lot of this week was also spent setting up the project structure, setting up the development environment, and learning many packages that I will be interacting with. We based our project structure off a cookiecutter REACT-FastAPI project, this was particularly useful as an example we can refer back to if we ever got confused.
+
+Right now, the stock data retrieved from Twelvedata is not being stored in our database, we need to urgently do so. We also need to do more work connecting the backend to the database through a data access layer. I also have my work allocation in the next sprint.
+
+Group To Do:
+- Store stock data in the database
+- Store user data in the database
+- Work on second sprint

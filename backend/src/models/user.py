@@ -1,4 +1,4 @@
-from backend.src.db.base_model import BaseModel
+from src.db.base_model import BaseModel
 from sqlalchemy import Column, String, Float
 
 

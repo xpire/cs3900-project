@@ -9,13 +9,13 @@
 from typing import Any, Dict, Optional, Union
 
 from sqlalchemy.orm import Session
-from backend.src.db.session import SessionLocal
-from backend.src.core.config import settings
-import backend.src.models as md
+from src.db.session import SessionLocal
+from src.core.config import settings
+import src.models as md
 
-from backend.src.crud.base import CRUDBase
-from backend.src.models.user import User
-from backend.src.schemas.user import UserCreate, UserUpdate
+from src.crud.base import CRUDBase
+from src.models.user import User
+from src.schemas.user import UserCreate, UserUpdate
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):

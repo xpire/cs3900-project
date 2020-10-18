@@ -1,12 +1,12 @@
-from sqlalchemy.orm import Session
-
-
+import logging
 import csv
-from backend.src import crud, schemas
-from backend.src.crud.crud_stock import stock
-from backend.src.core.config import settings
-from backend.src.db import base_model_import_all as base_model  # noqa: F401
-from backend.src.api.deps import get_db
+
+from os import path
+from src.core.config import settings, proj_root
+from sqlalchemy.orm import Session
+from src.db.session import SessionLocal
+from src.crud.crud_stock import stock
+from src.db import base_model_import_all as base_model  # noqa: F401
 
 # make sure all SQL Alchemy models are imported (app.db.base) before initializing DB
 # otherwise, SQL Alchemy might fail to initialize relationships properly
@@ -14,14 +14,26 @@ from backend.src.api.deps import get_db
 
 
 def init_db(db: Session) -> None:
-    # Tables should be created with Alembic migrations
-    # But if you don't want to use migrations, create
-    # the tables un-commenting the next line
-    # Base.metadata.create_all(bind=engine)
-    # A = stock.get_stock_by_symbol(db=db, stock_symbol="TSLA")
-
-    # # reserved_stocks = None
-    print("Inserting stocks...")  # This
-    with open("./src/db/stocks.csv", mode="r") as file:
+    """
+    Fill the stocks table with the selected stocks, also creates
+    the database if it doesn't exis
+    """
+    print("Inserting initial stocks")
+    with open(path.join(str(proj_root), "database", "stocks.csv"), mode="r") as file:
         reserved_stocks = [sd for sd in csv.DictReader(file)]
         stock.csv_batch_insert(db=db, csv_stocks=reserved_stocks)
+    print("Done!!! XD")
+
+
+if __name__ == "__main__":
+    """
+    Out layer of initialization
+    """
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    # Create the initial data
+    logger.info("Creating initial data")
+    db = SessionLocal()
+    init_db(db)
+    logger.info("Initial data created")

@@ -1,0 +1,71 @@
+symbol,name,exchange,industry,type,currency
+TLS,Telstra Corporation,ASX,Communication,Private,AUD
+SVW,Seven Group Holdings Ltd,ASX,Communication,Private,AUD
+TPG,TPG Telecom Ltd,ASX,Communication,Private,AUD
+APT,Afterpay Ltd,ASX,Financial,Private,AUD
+CBA,Commonwealth Bank of Australia,ASX,Financial,Private,AUD
+IAG,Insurance Australia Group Ltd,ASX,Financial,Private,AUD
+WBC,Westpac Banking Corporation,ASX,Financial,Private,AUD
+COH,Cochlear Ltd,ASX,Health Care,Private,AUD
+FPH,Fisher & Paykel Healthcare Corporation Ltd,ASX,Health Care,Private,AUD
+SHL,Sonic Healthcare Ltd,ASX,Health Care,Private,AUD
+IOZ,iShares Core S&P/ASX 200 ETF,ASX,Misc,ETF,AUD
+IOO,iShares Global 100 ETF,ASX,Misc,ETF,AUD
+VGE,Vanguard Ftse Emerging Markets Shares ETF,ASX,Misc,ETF,AUD
+ETHI,BetaShares Sustainability ETF,ASX,Misc,ETF,AUD
+SCG,Scentre Group,ASX,Real Estate,Private,AUD
+GPT,GPT Group,ASX,Real Estate,Private,AUD
+MVR,Vanek Vectors Australian Resources ETF,ASX,Resources,ETF,AUD
+AGL,AGL Energy Ltd,ASX,Resources,Private,AUD
+BHP,BHP Group Ltd,ASX,Resources,Private,AUD
+WES,Wesfarmers Ltd,ASX,Retail,Private,AUD
+WOW,Woolworths Group Ltd,ASX,Retail/Food,Private,AUD
+DMP,Domino's Piazza Enterprises Ltd,ASX,Retail/Food,Private,AUD
+CCL,Coca-Cola Amatil Ltd,ASX,Retail/Food,Private,AUD
+JBH,Jb Hi-Fi Ltd,ASX,Retail/Technology,Private,AUD
+CAR,Carsales.com Ltd,ASX,Retail/Technology,Private,AUD
+NDQ,BetaShares NASDAQ 100 ETF,ASX,Technology,ETF,AUD
+XRO,Xero Ltd,ASX,Technology,Private,AUD
+EOS,Electro Optic System Holdings Ltd,ASX,Technology,Private,AUD
+QAN,Qantas Airways Ltd,ASX,Transportation,Private,AUD
+SYD,Sydney Airport,ASX,Transportation,Private,AUD
+T,AT&T Inc,NYSE,Communication,Private,USD
+FB,Facebook Inc,NYSE,Communication,Private,USD
+CSCO,Cisco Inc,NYSE,Communication,Private,USD
+DIS,Walt Disney Company,NYSE,Entertainment,Private,USD
+BAC,Bank of America Corp,NYSE,Financial,Private,USD
+MA,Mastercard Inc,NYSE,Financial,Private,USD
+MTB,M&T Bank Corp,NYSE,Financial,Private,USD
+JNJ,Johnson & Johnson,NYSE,Health Care,Private,USD
+MDT,Medtronic Plc,NYSE,Health Care,Private,USD
+BRKb,Berkshire Hathaway Inc - Class B,NYSE,Misc,Private,USD
+VYM,Vanguard High Dividend Yield ETF,NYSE,Misc,ETF,USD
+GVAL,Cambria Global Value ETF,NYSE,Misc,ETF,USD
+DVEM,WisdomTree Emerging Markets ESG Fund,NYSE,Misc,ETF,USD
+IWL,iShares Russell Top 200 ETF,NYSE,Misc,ETF,USD
+SPG,Simon Property Group Inc,NYSE,Real Estate,Private,USD
+VNQ,Vanguard Real Estate ETF,NYSE,Real Estate,ETF,USD
+XOM,Exxon Mobil Corp,NYSE,Resources,Private,USD
+SCCO,Southern Copper Corp,NYSE,Resources,Private,USD
+WMT,Walmart Inc,NYSE,Retail,Private,USD
+KO,Coca-Cola Company,NYSE,Retail/Food,Private,USD
+MCD,McDonald's Corp,NYSE,Retail/Food,Private,USD
+K,Kellogg Company,NYSE,Retail/Food,Private,USD
+AMD,AMD Inc,NYSE,Retail/Technology,Private,USD
+AAPL,Apple Inc,NYSE,Technology,Private,USD
+HPQ,HP Inc,NYSE,Technology,Private,USD
+MSFT,Microsoft Corp,NYSE,Technology,Private,USD
+QQQ,Invesco QQQ Trust,NYSE,Technology,ETF,USD
+TSLA,Tesla Inc,NYSE,Transportation,Private,USD
+BA,Boeing Co,NYSE,Transportation,Private,USD
+GM,General Motors Company,NYSE,Transportation,Private,USD
+VOD,Vodafone,LSE,Communication,Private,GBP
+STJ,St James's Place PLC,LSE,Financial,Private,GBP
+MDC,Mediclinic International,LSE,Health Care,Private,GBP
+SEQI,Sequoia Economic Infrastructure Income Fund Ltd,LSE,Misc,ETF,GBP
+BYG,Big Yellow Group PLC,LSE,Real Estate,Private,GBP
+BP.,BP,LSE,Resources,Private,GBP
+KGF,Kingfisher PLC,LSE,Retail,Private,GBP
+ABF,AB Foods,LSE,Retail/Food,Private,GBP
+MCRO,Micro Focus,LSE,Technology,Private,GBP
+RR.,Rolls-Royce Holdings,LSE,Transportation,Private,GBP

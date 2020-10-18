@@ -21,10 +21,10 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
 
-from backend.src.db.base_model_import_all import BaseModel, Stock, StockData, User  # noqa
-from backend.src.core.config import settings
+from src.db.base_model_import_all import BaseModel, Stock, TimeSeries, User  # noqa
+from src.core.config import settings
 
-metadatas = [User.metadata, Stock.metadata, StockData.metadata]
+metadatas = [User.metadata, Stock.metadata, TimeSeries.metadata]
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

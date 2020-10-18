@@ -10,82 +10,107 @@
 #   `   \     \                                        
 # ========================================================
 
-export PROOT=$(pwd);
+export PROOT=$(pwd); # backend here
+export CANRUN=0; # can run the backend
+
+print-line() {
+    echo "============================================================================="
+}
 
 # Initialize the database with the stocks data
 init-data() {
-    echo " ======================================================== ";
+    print-line;
     echo "Creating initial data...";
-    python3 ./src/initial_data.py;
+    python3 ${PROOT}/src/db/init_db.py;
+    print-line;
 }
 
+check-wake() {
+    echo "Checking if database is awake...";
+    python3 ${PROOT}/src/db/wake_db.py;
+    echo "Cool...";
+}
 
 # Run this if tthe shell was closed
 wake-up() {
+    print-line;
     echo "Set python path...";
-    echo " ======================================================== ";
-    curd=$(pwd);
-    export PYTHONPATH=${curd::len-7}:$PYTHONPATH;
+    export PYTHONPATH=${PROOT}:$PYTHONPATH;
 
-    echo " ======================================================== ";
-    echo "Checking if database is awake...";
-    python3 ./src/backend_pre_start.py;
+    print-line;
+    check-wake; 
+    print-line;
+
+    export CANRUN=1;
 } 
 
-
-upgrade-db() {
-    echo "Upgrading database...";
-    echo " ======================================================== ";
-    alembic upgrade head; 
-}
-
-
-# Run this to get rid of the database
-clear-db() {
-    echo "Removing database...";
-    echo " ======================================================== ";
-    rm ../models/testdb.sqlite3; 
-}
-
-
-# give db name and 
-export CANRUN=0;
-
-# Basing on CLI parameter, install dependency
-first-time-setup() {
-    export can_run=0;
-    if [ $# -eq 1 ];
+#NOTE: please, always, always run this on the backend dir
+initial-populate() {
+    if [ $# -eq 2 ];
     then
-        # echo "Running simple environment checks..."; 
+        echo "============================================================================="
+        echo "▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄   ▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄    ▄▄   ▄▄ ▄▄▄▄▄▄    "
+        echo "█       █       █   █ █ █       █      ██       █       █  █  █▄█  █      █  "
+        echo "█    ▄▄▄█       █   █▄█ █  ▄▄▄▄▄█  ▄    █    ▄▄▄█    ▄▄▄█  █       █  ▄    █ "
+        echo "█   █▄▄▄█     ▄▄█      ▄█ █▄▄▄▄▄█ █ █   █   █▄▄▄█   █▄▄▄   █       █ █ █   █ "
+        echo "█    ▄▄▄█    █  █     █▄█▄▄▄▄▄  █ █▄█   █    ▄▄▄█    ▄▄▄█   █     ██ █▄█   █ "
+        echo "█   █▄▄▄█    █▄▄█    ▄  █▄▄▄▄▄█ █       █   █▄▄▄█   █▄▄▄   █   ▄   █       █ "
+        echo "█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄▄█ █▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄██▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█  █▄▄█ █▄▄█▄▄▄▄▄▄█  "
+        echo "============================================================================="
+
+        echo "uwu, Starting first time population"
+        print-line;
+
         echo "Copying secrets...";
-        cp $1 ./src/core/;
-        echo " ======================================================== ";
+
+        cp $1 ${PROOT}/src/core/.secrets/; 
+        if [ $? -eq 0 ]; then
+            echo "env.yaml looks good...";
+        else
+            echo "Error: Path provided for env.yaml is incorrect.";
+            exit $?;
+        fi
+
+        cp $2 ${PROOT}/src/core/.secrets/;
+        if [ $? -eq 0 ]; then
+            echo "Firebase token looks good...";
+        else
+            echo "Error: Path provided for firebase-token is incorrect.";
+            exit $?;
+        fi
+
         wake-up;
-        
         upgrade-db;
-        
-        init-data;
+        # init-data;
 
-        export can_run=1;
         export CANRUN=1;
-
     else
-        echo "Please provide the correct amount of arguments.";
+        echo "Please provide the correct amount of arguments, check the README file for usage.";
     fi
 }
 
+upgrade-db() {
+    print-line;
+    echo "Upgrading database...";
 
+    alembic upgrade head; 
 
+    # cd $s;
+    if [ $? -eq 0 ]; then
+        echo "Success!!!"
+    else
+        echo "Error: Upgrade database failed...";
+        exit $?;
+    fi
+    print-line;
+}
 
 backend-run() {
-
-    if [ $CANRUN = 1 ];
+    if [ $CANRUN -eq 1 ];
     then
-        echo "Is DB still awake ?";
-        python3 ./src/backend_pre_start.py;
-        echo "Cool...";
-        
-        echo " ======================================================== ";
+        print-line;
+        check-wake;
+        print-line;
         echo "Starting...";
         uvicorn src.main:app --reload;
     else

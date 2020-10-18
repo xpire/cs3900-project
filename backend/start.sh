@@ -118,6 +118,11 @@ elif [ $# -eq 1 ]; then
 
         "backend-run")
             print-line;
+
+            echo "Set python path...";
+            export PYTHONPATH=${PROOT}:$PYTHONPATH;
+            echo "Cool..."
+            
             check-wake;
             print-line;
             echo "Starting...";

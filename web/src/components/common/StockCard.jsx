@@ -18,6 +18,17 @@ import { ColoredText, StandardCard } from "./styled";
 
 const StyledCard = styled(Card)({ margin: "10px" });
 
+/* Sample Parameters:
+<StockCard
+  symbol={"ABCDEF"}
+  name={"this is a sample"}
+  category={"ASX"}
+  price={"12345.67"}
+  delta={999.99}
+  key={"sample"}
+  skeleton={false}
+/> */
+
 const StockCard = ({ symbol, name, category, price, delta, skeleton }) => {
   let history = useHistory();
   return (
@@ -36,25 +47,30 @@ const StockCard = ({ symbol, name, category, price, delta, skeleton }) => {
               </Grid>
             ) : (
               <>
-                <Grid item>
-                  <Typography variant="h4">{symbol}</Typography>
-                  {name && <Chip size="small" label={name} />}
-                  <br />
-                  <Chip size="small" label={category} />
+                <Grid item xs={12} spacing={1} container>
+                  <Grid item>{name && <Chip size="small" label={name} />}</Grid>
+                  <Grid item>
+                    <Chip size="small" label={category} />
+                  </Grid>
                 </Grid>
-                <Grid item>
-                  <ColoredText
-                    color={delta > 0 ? "green" : "red"}
-                    variant="h3"
-                    align="right"
-                  >
-                    {`${delta > 0 ? "+" : ""}${delta}%`}
-                  </ColoredText>
+                <Grid container alignItems="flex-end" justify="space-between">
+                  <Grid item>
+                    <Typography variant="h4">{symbol}</Typography>
+                  </Grid>
+                  <Grid item>
+                    <ColoredText
+                      color={delta > 0 ? "green" : "red"}
+                      variant="h4"
+                      align="right"
+                    >
+                      {`${delta > 0 ? "+" : ""}${delta}%`}
+                    </ColoredText>
+                  </Grid>
                 </Grid>
                 <Grid item xs={12}>
                   <ColoredText
                     color={delta > 0 ? "green" : "red"}
-                    variant="h4"
+                    variant="h3"
                     align="right"
                   >
                     {`$${price}`}

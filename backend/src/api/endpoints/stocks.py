@@ -1,5 +1,4 @@
 import json
-import numpy as np
 import os
 from typing import Any, List
 

@@ -36,6 +36,7 @@ wake-up() {
     print-line;
     echo "Set python path...";
     export PYTHONPATH=${PROOT}:$PYTHONPATH;
+    echo "Cool..."
 
     print-line;
     check-wake; 
@@ -108,6 +109,7 @@ elif [ $# -eq 1 ]; then
             print-line;
             echo "Set python path...";
             export PYTHONPATH=${PROOT}:$PYTHONPATH;
+            echo "Cool..."
 
             print-line;
             check-wake; 

@@ -19,28 +19,29 @@ $ pip install -r requirements.txt
 Please run the first time setup by   
 ```
 $ cd backend
-$ source start.sh && initial-populate /path/to/env.yaml /path/to/ecksdee-firebase.json
-$ backend-run
+$ bash start.sh initial-populate /path/to/env.yaml /path/to/ecksdee-firebase.json
 ```
-`.env` file contains the configuration information and secrets required for execution. 
-`Note`: please run dos2unix if there are errors relating to format.
+`env.yaml`: file containing the configuration information and secret keys. 
+`ecksdee-firebase`: file containing the firebase token. 
 
 ## Backend wake up
 If first time setup has been run but you have closed the shell, then you can just run
 ```
-$ source start.sh && wake-up && backend-run
+$ bash start.sh wake-up 
+$ bash start.sh backend-run
 ```
+to quick start the backend.
 
 ## Other utilities
 You may also use some of the utilities provided by `start.sh`. 
 
 Below command upgrades the database to a `newer` version.
 ```
-$ upgrade-db;
+$ bash start.sh upgrade-db;
 ```
 
 Below command starts the backend, note that other setup still needs to be ran before this.
 ```
-$ backend-run; 
+$ bash start.sh backend-run; 
 ```
  

@@ -1,13 +1,11 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from backend.src.api.api import api_router
+from src.api.api import api_router
 
-from backend.src.core.config import settings
+from src.core.config import settings
 
-app = FastAPI(
-    title=settings.PROJECT_NAME
-)
+app = FastAPI(title=settings.PROJECT_NAME)
 
 # # Set all CORS enabled origins
 if settings.BACKEND_CORS_ORIGIN:

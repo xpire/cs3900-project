@@ -2,12 +2,12 @@ from datetime import timedelta
 from typing import Any
 
 from sqlalchemy.orm import Session
-from src.core.auth import decode_token
-from src.api.deps import get_db
+
+# from src.core.config import settings
+from src.api.deps import get_db, decode_token
 from src import crud
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query
 
-# Import from crud, model, etc..
 
 router = APIRouter()
 

@@ -3,10 +3,10 @@ from typing import List, Optional, Dict, Any
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
-from backend.src.crud.base import CRUDBase
-from backend.src.models.stock import Stock
-from backend.src.schemas.stock import StockCreate, StockUpdate
-from backend.src.core.config import settings
+from src.crud.base import CRUDBase
+from src.models.stock import Stock
+from src.schemas.stock import StockCreate, StockUpdate
+from src.core.config import settings
 
 
 class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):

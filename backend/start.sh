@@ -44,51 +44,6 @@ wake-up() {
     export CANRUN=1;
 } 
 
-#NOTE: please, always, always run this on the backend dir
-initial-populate() {
-    if [ $# -eq 2 ];
-    then
-        echo "============================================================================="
-        echo "▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄   ▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄    ▄▄   ▄▄ ▄▄▄▄▄▄    "
-        echo "█       █       █   █ █ █       █      ██       █       █  █  █▄█  █      █  "
-        echo "█    ▄▄▄█       █   █▄█ █  ▄▄▄▄▄█  ▄    █    ▄▄▄█    ▄▄▄█  █       █  ▄    █ "
-        echo "█   █▄▄▄█     ▄▄█      ▄█ █▄▄▄▄▄█ █ █   █   █▄▄▄█   █▄▄▄   █       █ █ █   █ "
-        echo "█    ▄▄▄█    █  █     █▄█▄▄▄▄▄  █ █▄█   █    ▄▄▄█    ▄▄▄█   █     ██ █▄█   █ "
-        echo "█   █▄▄▄█    █▄▄█    ▄  █▄▄▄▄▄█ █       █   █▄▄▄█   █▄▄▄   █   ▄   █       █ "
-        echo "█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄▄█ █▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄██▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█  █▄▄█ █▄▄█▄▄▄▄▄▄█  "
-        echo "============================================================================="
-
-        echo "uwu, Starting first time population"
-        print-line;
-
-        echo "Copying secrets...";
-
-        cp $1 ${PROOT}/src/core/.secrets/; 
-        if [ $? -eq 0 ]; then
-            echo "env.yaml looks good...";
-        else
-            echo "Error: Path provided for env.yaml is incorrect.";
-            exit $?;
-        fi
-
-        cp $2 ${PROOT}/src/core/.secrets/;
-        if [ $? -eq 0 ]; then
-            echo "Firebase token looks good...";
-        else
-            echo "Error: Path provided for firebase-token is incorrect.";
-            exit $?;
-        fi
-
-        wake-up;
-        upgrade-db;
-        init-data;
-
-        export CANRUN=1;
-    else
-        echo "Please provide the correct amount of arguments, check the README file for usage.";
-    fi
-}
-
 upgrade-db() {
     print-line;
     echo "Upgrading database...";
@@ -105,16 +60,69 @@ upgrade-db() {
     print-line;
 }
 
-backend-run() {
-    if [ $CANRUN -eq 1 ];
-    then
-        print-line;
-        check-wake;
-        print-line;
-        echo "Starting...";
-        uvicorn src.main:app --reload;
-    else
-        echo "Run configuration first please.";
-    fi
-}   
 
+if [ $# -eq 3 ]; then
+    case $1 in
+        "initial-populate")
+            echo "============================================================================="
+            echo "▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄   ▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄    ▄▄   ▄▄ ▄▄▄▄▄▄    "
+            echo "█       █       █   █ █ █       █      ██       █       █  █  █▄█  █      █  "
+            echo "█    ▄▄▄█       █   █▄█ █  ▄▄▄▄▄█  ▄    █    ▄▄▄█    ▄▄▄█  █       █  ▄    █ "
+            echo "█   █▄▄▄█     ▄▄█      ▄█ █▄▄▄▄▄█ █ █   █   █▄▄▄█   █▄▄▄   █       █ █ █   █ "
+            echo "█    ▄▄▄█    █  █     █▄█▄▄▄▄▄  █ █▄█   █    ▄▄▄█    ▄▄▄█   █     ██ █▄█   █ "
+            echo "█   █▄▄▄█    █▄▄█    ▄  █▄▄▄▄▄█ █       █   █▄▄▄█   █▄▄▄   █   ▄   █       █ "
+            echo "█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄▄█ █▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄██▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█  █▄▄█ █▄▄█▄▄▄▄▄▄█  "
+            echo "============================================================================="
+
+            echo "uwu, Starting first time population"
+            print-line;
+
+            echo "Copying secrets...";
+
+            cp $2 ${PROOT}/src/core/.secrets/; 
+            if [ $? -eq 0 ]; then
+                echo "env.yaml looks good...";
+            else
+                echo "Error: Path provided for env.yaml is incorrect.";
+                exit $?;
+            fi
+
+            cp $3 ${PROOT}/src/core/.secrets/;
+            if [ $? -eq 0 ]; then
+                echo "Firebase token looks good...";
+            else
+                echo "Error: Path provided for firebase-token is incorrect.";
+                exit $?;
+            fi
+
+            wake-up;
+            upgrade-db;
+            init-data;
+
+        ;; 
+        *) echo "Variable name error.";;
+    esac
+elif [ $# -eq 1 ]; then
+    case $1 in
+            "wake-up")
+            print-line;
+            echo "Set python path...";
+            export PYTHONPATH=${PROOT}:$PYTHONPATH;
+
+            print-line;
+            check-wake; 
+            print-line;
+        ;;
+
+        "backend-run")
+            print-line;
+            check-wake;
+            print-line;
+            echo "Starting...";
+            uvicorn src.main:app --reload;
+        ;;
+        *) echo "Please provide the correct path.";;
+    esac
+else
+    echo "Please provide the correct amount of arguments, check the README file for usage.";
+fi

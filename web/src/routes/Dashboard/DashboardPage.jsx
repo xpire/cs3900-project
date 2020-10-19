@@ -98,7 +98,7 @@ const StatisticsData = [
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
-  // console.log(user.getIdToken(true));
+  console.log(user.getIdToken(true));
   const [myValue, setValue] = useState(0);
   const [loadingSymbols, setLoadingSymbols] = useState(true);
   const [symbols, setSymbols] = useState();

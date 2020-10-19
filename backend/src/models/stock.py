@@ -1,5 +1,5 @@
-from src.db.base_model import BaseModel
 from sqlalchemy import Column, String
+from src.db.base_model import BaseModel
 
 
 class Stock(BaseModel):

@@ -1,12 +1,11 @@
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
 
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
-
+from src.core.config import settings
 from src.crud.base import CRUDBase
 from src.models.stock import Stock
 from src.schemas.stock import StockCreate, StockUpdate
-from src.core.config import settings
 
 
 class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
@@ -16,9 +15,7 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         """
         return db.query(self.model).filter(self.model.symbol == stock_symbol).first()
 
-    def get_stock_by_symbols(
-        self, db: Session, stock_symbols: List[str]
-    ) -> Optional[List[Stock]]:
+    def get_stock_by_symbols(self, db: Session, stock_symbols: List[str]) -> Optional[List[Stock]]:
         """
         Get multiple stock information by multiple symbols.
         """

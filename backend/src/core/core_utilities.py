@@ -6,7 +6,8 @@
     Purpose: Some utility functions used by core 
         features, maybe it can be used by other modules too 
 """
-import os, inspect
+import inspect
+import os
 
 
 def find_path_curr_f() -> str:

@@ -8,12 +8,11 @@
 
 from typing import Any, Dict, Optional, Union
 
-from sqlalchemy.orm import Session
-from src.db.session import SessionLocal
-from src.core.config import settings
 import src.models as md
-
+from sqlalchemy.orm import Session
+from src.core.config import settings
 from src.crud.base import CRUDBase
+from src.db.session import SessionLocal
 from src.models.user import User
 from src.schemas.user import UserCreate, UserUpdate
 
@@ -29,9 +28,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Return the corresponding user by token.
         """
-        return (
-            db.query(self.model).filter(self.model.uuid == uuid).first()
-        )  # Field is unique
+        return db.query(self.model).filter(self.model.uuid == uuid).first()  # Field is unique
 
     def update_balance(self, db: Session, *, db_obj: User, obj_in: UserUpdate) -> User:
         """

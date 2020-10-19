@@ -19,11 +19,11 @@ async def create_user(
     db: Session = Depends(get_db),
 ) -> schemas.user:
 
-    uuid = decode_token(id_token)
-    user = crud.user.get_user_by_token(db, uuid=uuid)
+    uid = decode_token(id_token)
+    user = crud.user.get_user_by_token(db, uid=uid)
 
     if not user:
-        user = crud.user.create(db, obj_in=dict(email=email, uuid=uuid, username=email, balance=10000))
+        user = crud.user.create(db, obj_in=dict(email=email, uid=uid, username=email, balance=10000))
 
     # TODO raise error if already created
 

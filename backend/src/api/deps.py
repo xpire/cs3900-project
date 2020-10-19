@@ -24,7 +24,7 @@ def decode_token(id_token: str):
 
 async def get_current_user(id_token: str = Header(None), db: Session = Depends(get_db)) -> models.User:
 
-    user = crud.user.get_user_by_token(db, uuid=decode_token(id_token))
+    user = crud.user.get_user_by_token(db, uid=decode_token(id_token))
     if not user:
         raise HTTPException(
             status_code=400,

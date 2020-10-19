@@ -7,7 +7,7 @@ from pydantic import EmailStr, validator
 class UserBase(BaseSchema):
     username: str
     email: str
-    uuid: str
+    uid: str
 
 
 class UserCreate(UserBase):

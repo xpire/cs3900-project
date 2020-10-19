@@ -89,7 +89,7 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
         ret.append(
             dict(
                 symbol=symbol,
-                name=stock.full_name,
+                name=stock.name,
                 exchange=stock.exchange,
                 curr_close_price=float(latest_close_price_provider.data[symbol][0]),
                 prev_close_price=float(latest_close_price_provider.data[symbol][1]),

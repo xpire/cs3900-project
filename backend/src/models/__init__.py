@@ -1,3 +1,3 @@
-from .stock_data import StockData
 from .stock import Stock
+from .time_series import TimeSeries
 from .user import User

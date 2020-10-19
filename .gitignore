@@ -1,10 +1,17 @@
+# Secrets 
+ecksdee-firebase.json
+*.sqlite3
+env.yaml
+
+
+# Python stuff
+# =====================================================================
+
 # Generic rule
 .vscode
 .mypy_cache
 docker-stack.yml
-.env
 
-# python 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -145,10 +152,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-*.sqlite3
-
-
-stocks.csv
 */Pipfile*
 
 ### macOS ###
@@ -178,3 +181,6 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# vscode
+*.code-workspace

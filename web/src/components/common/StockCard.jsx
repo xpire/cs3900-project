@@ -11,7 +11,7 @@ import {
   styled,
 } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 // import styled from "styled-components";
 
 import { ColoredText, StandardCard } from "./styled";
@@ -33,7 +33,7 @@ const StockCard = ({ symbol, name, category, price, delta, skeleton }) => {
   let history = useHistory();
   return (
     <StyledCard>
-      <CardActionArea onClick={() => history.push(`/stock/${symbol}`)}>
+      <CardActionArea component={Link} to={`/stock/${symbol}`}>
         <CardContent>
           <Grid
             container

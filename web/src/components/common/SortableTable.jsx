@@ -21,7 +21,7 @@ import Switch from "@material-ui/core/Switch";
 import DeleteIcon from "@material-ui/icons/Delete";
 import FilterListIcon from "@material-ui/icons/FilterList";
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 
 function createData(symbol, name, price, open, close, daily, dailyPercentage) {
   return { symbol, name, price, open, close, daily, dailyPercentage };
@@ -317,9 +317,9 @@ export default function EnhancedTable() {
       <EnhancedTableToolbar numSelected={selected.length} />
       <TableContainer>
         <Table
-          className={classes.table}
+          //   className={classes.table}
           aria-labelledby="tableTitle"
-          size={dense ? "small" : "medium"}
+          size={"small"} // "medium"
           aria-label="enhanced table"
         >
           <EnhancedTableHead
@@ -372,7 +372,8 @@ export default function EnhancedTable() {
                     <TableCell padding="checkbox">
                       <IconButton
                         //   color="primary"
-                        onClick={() => history.push(`/stock/${row.symbol}`)}
+                        component={Link}
+                        to={`/stock/${row.symbol}`}
                       >
                         <OpenInNewIcon />
                       </IconButton>

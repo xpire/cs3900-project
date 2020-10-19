@@ -3,7 +3,9 @@ from typing import Any
 
 from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query
 from sqlalchemy.orm import Session
-from src import crud, models, schemas
+from src import crud
+from src import domain_models as dm
+from src import models, schemas
 from src.api.deps import decode_token, get_current_user, get_db
 
 router = APIRouter()
@@ -23,16 +25,27 @@ async def create_user(
     user = crud.user.get_user_by_token(db, uid=uid)
 
     if not user:
-        user = crud.user.create(db, obj_in=dict(email=email, uid=uid, username=email, balance=10000))
+        user = crud.user.create(db, obj_in=schemas.UserCreate(email=email, uid=uid, username=email))
 
     # TODO raise error if already created
 
-    return user
+    return dm.UserDM(user, db).schema
 
 
 @router.get("/balance")
 async def get_user_balance(user: models.User = Depends(get_current_user), db: Session = Depends(get_db)) -> float:
     return user.balance
+
+
+# TODO implement get_current_user_dm
+# temporarily added for the sake of testing
+@router.get("/add_exp")
+async def add_exp(
+    amount: float, user_model: models.User = Depends(get_current_user), db: Session = Depends(get_db)
+) -> schemas.User:
+    user = dm.UserDM(user_model, db)
+    user.add_exp(amount)
+    return user.schema
 
 
 # @router.post("", status_code=201)

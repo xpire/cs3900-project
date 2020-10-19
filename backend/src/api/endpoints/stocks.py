@@ -46,15 +46,15 @@ STOCKS = {
 TD = TDClient(apikey=API_KEY)
 
 stock_names = [f"{symbol}:{exchange}" for symbol, exchange in STOCKS.items()]
-data_provider = RealTimeDataProvider(
-    symbols=stock_names,
-    apikey=API_KEY,
-)
+# data_provider = RealTimeDataProvider(
+#     symbols=stock_names,
+#     apikey=API_KEY,
+# )
 latest_close_price_provider = LatestClosingPriceProvider(
     symbols=stock_names,
     apikey=API_KEY,
 )
-data_provider.start()
+# data_provider.start()
 latest_close_price_provider.start()
 
 

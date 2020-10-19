@@ -8,7 +8,7 @@
 
 from typing import Any, Dict, Optional, Union
 
-import src.models as md
+# import src.models as md
 from sqlalchemy.orm import Session
 from src.core.config import settings
 from src.crud.base import CRUDBase

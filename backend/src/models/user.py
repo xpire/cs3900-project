@@ -1,9 +1,11 @@
-from sqlalchemy import Column, Float, String
+from sqlalchemy import Column, Float, Integer, String
 from src.db.base_model import BaseModel
 
 
 class User(BaseModel):
-    uuid = Column(String, unique=True, primary_key=True)
+    uid = Column(String, unique=True, primary_key=True)
     email = Column(String, unique=True, nullable=False)
     username = Column(String, unique=True, nullable=False)
     balance = Column(Float, nullable=False)
+    level = Column(Integer, nullable=False)
+    exp = Column(Float, nullable=False)

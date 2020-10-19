@@ -46,15 +46,15 @@ STOCKS = {
 TD = TDClient(apikey=API_KEY)
 
 stock_names = [f"{symbol}:{exchange}" for symbol, exchange in STOCKS.items()]
-data_provider = RealTimeDataProvider(
-    symbols=stock_names,
-    apikey=API_KEY,
-)
+# data_provider = RealTimeDataProvider(
+#     symbols=stock_names,
+#     apikey=API_KEY,
+# )
 latest_close_price_provider = LatestClosingPriceProvider(
     symbols=stock_names,
     apikey=API_KEY,
 )
-data_provider.start()
+# data_provider.start()
 latest_close_price_provider.start()
 
 
@@ -89,7 +89,7 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
         ret.append(
             dict(
                 symbol=symbol,
-                name=stock.full_name,
+                name=stock.name,
                 exchange=stock.exchange,
                 curr_close_price=float(latest_close_price_provider.data[symbol][0]),
                 prev_close_price=float(latest_close_price_provider.data[symbol][1]),

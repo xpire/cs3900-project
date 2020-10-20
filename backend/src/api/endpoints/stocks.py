@@ -45,6 +45,7 @@ latest_close_price_provider = None
 @router.on_event("startup")
 def startup_event():
     global STOCKS
+    global latest_close_price_provider
 
     try:
         db = SessionLocal()

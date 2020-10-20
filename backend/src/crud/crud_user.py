@@ -6,19 +6,19 @@
     Purpose: Handles user CRUD operations on database 
 """
 
-from typing import Any, Dict, List, Optional, Union
+
+from typing import Optional
 
 # import src.models as md
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
-from sqlalchemy.util.langhelpers import symbol
 from src.core.config import settings
 from src.core.utilities import log_msg
 from src.crud.base import CRUDBase
 from src.crud.crud_stock import stock
 from src.models.user import User
 from src.models.watch_list import WatchList
-from src.schemas.user import UserCreate, UserUpdate
+from src.models.portfolio import Portfolio
+from src.core.utilities import log_msg
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -51,7 +51,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     def add_to_watch_list(self, db: Session, user_in: User, w_symbol: str) -> User:
         """
-        Add a watchlist to the user's watchlist.
+        Add a watchlist to the user_in's watchlist.
         """
         if self.symbol_exist(db=db, c_symbol=w_symbol):
             a_wl = WatchList(user_id=user_in.uid, symbol=w_symbol)
@@ -69,7 +69,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     def delete_from_watch_list(self, db: Session, *, user_in: User, w_symbol: str) -> User:
         """
-        Delete a watchlist for this user.
+        Delete a watchlist for user_in.
         """
         if self.symbol_exist(db=db, c_symbol=w_symbol):
             tbr = None
@@ -95,6 +95,28 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
                 "WARNING",
             )
             return user_in
+
+    def add_to_portfolio(
+        self, db: Session, *, user_in: User, p_symbol: str, amount: int, price: float
+    ):
+        # """
+        # Add to portfolio
+        # """
+        # if self.symbol_exist(db=db, c_symbol=p_symbol):
+        #     a_wl = WatchList(user_id=user_in.uid, symbol=)
+
+        #     user_in.watchlist.append(a_wl)
+        #     db.commit()
+        #     db.refresh(user_in)
+        #     return user_in
+        # else:
+        #     log_msg(
+        #         f"Deleting a non-existent symbol from watchlist of User(uid = {user_in.uid}).",
+        #         "WARNING",
+        #     )
+        #     return user_in
+
+        pass
 
 
 user = CRUDUser(User)

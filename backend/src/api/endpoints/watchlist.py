@@ -14,18 +14,22 @@ router = APIRouter()
 async def get_watchlist(
     user: models.User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
-    pass
+    ret = []
+    for entry in user.watchlist:
+        ret += [{"symbol": entry.symbol}]
+
+    return ret
 
 
 @router.post("")
 async def update_watchlist(
-    user: models.User = Depends(get_current_user), db: Session = Depends(get_db)
+    symbol: str, user: models.User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
-    pass
+    crud.user.add_to_watch_list(db, user, symbol)
 
 
 @router.delete("")
 async def delete_watchlist(
-    user: models.User = Depends(get_current_user), db: Session = Depends(get_db)
+    symbol: str, user: models.User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
-    pass
+    crud.user.delete_from_watch_list(db, user, symbol)

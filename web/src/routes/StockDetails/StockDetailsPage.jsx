@@ -12,6 +12,7 @@ import {
   CircularProgress,
 } from "@material-ui/core";
 import { Link, useParams, useHistory } from "react-router-dom";
+import { useSnackbar } from "notistack";
 
 import Page from "../../components/page/Page";
 import {
@@ -78,6 +79,7 @@ const StockDetails = () => {
   const [error, setError] = useState(false);
   const { symbol } = useParams();
   let history = useHistory();
+  const { enqueueSnackbar } = useSnackbar();
 
   const getRealTimeStockData = () => {
     axios
@@ -171,9 +173,39 @@ const StockDetails = () => {
                       {loading ? <Skeleton /> : `$${latestPrice?.toFixed(2)}`}
                     </ColoredText>
                   </Grid>
-                  <Grid container direction="row-reverse" spacing={2}>
+                  <Grid container spacing={2}>
                     <Grid item>
-                      <Button variant="outlined" color="primary">
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => {
+                          axios
+                            .post(`/watchlist?symbol=${symbol}`)
+                            .then((response) => {
+                              console.log({ response });
+                              response.data?.result === "success"
+                                ? enqueueSnackbar(
+                                    `${response.data.result}! ${symbol} added to watchlist`,
+                                    {
+                                      variant: "Success",
+                                    }
+                                  )
+                                : enqueueSnackbar(
+                                    `${response.data.result}: ${symbol}`,
+                                    {
+                                      variant: "Warning",
+                                    }
+                                  );
+                              console.log({ response });
+                              console.log(response.data.result === "success");
+                            })
+                            .catch((err) =>
+                              enqueueSnackbar(`${err}`, {
+                                variant: "Error",
+                              })
+                            );
+                        }}
+                      >
                         Watch
                       </Button>
                     </Grid>

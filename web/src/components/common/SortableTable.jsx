@@ -103,7 +103,12 @@ const EnhancedTableToolbar = ({ title }) => {
   );
 };
 
-export default function EnhancedTable({ data, header, title }) {
+export default function EnhancedTable({
+  data,
+  header,
+  title,
+  handleDelete = null,
+}) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
 
@@ -145,6 +150,7 @@ export default function EnhancedTable({ data, header, title }) {
                           scope="row"
                           align={numeric ? "right" : "left"}
                           padding={disablePadding ? "none" : "default"}
+                          key={id}
                         >
                           {color ? (
                             <ColoredText color={row[id] > 0 ? "green" : "red"}>
@@ -198,18 +204,18 @@ export default function EnhancedTable({ data, header, title }) {
                     <TableCell padding="checkbox">
                       <IconButton
                         component={Link}
-                        to={`/trading/${row.symbol}`}
+                        to={`/trading?symbol=${row.symbol}`}
                       >
                         <TradingIcon />
                       </IconButton>
                     </TableCell>
-                    <TableCell padding="checkbox">
-                      <IconButton
-                        onClick={() => console.log(`delete ${row.symbol}`)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
+                    {handleDelete && (
+                      <TableCell padding="checkbox">
+                        <IconButton onClick={() => handleDelete(row.symbol)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               }

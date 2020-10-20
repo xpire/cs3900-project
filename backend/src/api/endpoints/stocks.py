@@ -118,7 +118,7 @@ async def get_stock_data(
     stock = crud.stock.get_stock_by_symbol(db, symbol)
 
     data = TD.time_series(
-        symbol=f"{stoc.symbol}:{stock.exchange}",
+        symbol=f"{stock.symbol}:{stock.exchange}",
         interval="1day",
         outputsize=days,  # TODO there seems to be a bug
         timezone="Australia/Sydney",

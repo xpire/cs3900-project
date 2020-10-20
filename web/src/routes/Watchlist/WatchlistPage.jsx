@@ -1,24 +1,26 @@
-import React from "react";
-import { Typography, Card } from "@material-ui/core";
+import React, { useState, useEffect } from "react";
+import { Card } from "@material-ui/core";
 
 import Page from "../../components/page/Page";
 import SortableTable from "../../components/common/SortableTable";
+import axios from "../../utils/api";
+import { useSnackbar } from "notistack";
 
-function createData(symbol, name, price, open, close, daily, dailyPercentage) {
-  return { symbol, name, price, open, close, daily, dailyPercentage };
-}
+// function createData(symbol, name, price, open, close, daily, dailyPercentage) {
+//   return { symbol, name, price, open, close, daily, dailyPercentage };
+// }
 
-const rows = [
-  createData("TLS", "Cupcake", 305, 3.7, 67, 4.3, 5),
-  createData("SVW", "Donut", 452, 25.0, 51, 4.9, 6),
-  createData("TPG", "Eclair", 262, 16.0, 24, 6.0, 6),
-  createData("T", "Frozen yoghurt", 159, 35.2, 24, 4.0, 6),
-  createData("FB", "Gingerbread", 356, 16.0, 49, 3.9, 6),
-  createData("CSCO", "Honeycomb", 408, 3.2, 87, 6.5, 6),
-  createData("VOD", "Ice cream sandwich", 237, 109, 37, 4.3, 6),
-  createData("STJ", "Jelly Bean", 375, 0.0, 94, 0.0, 6),
-  createData("MDC", "KitKat", 518, 66, 65, 7.0, 6),
-];
+// const rows = [
+//   createData("TLS", "Cupcake", 305, 3.7, 67, 4.3, 5),
+//   createData("SVW", "Donut", 452, 25.0, 51, 4.9, 6),
+//   createData("TPG", "Eclair", 262, 16.0, 24, 6.0, 6),
+//   createData("T", "Frozen yoghurt", 159, 35.2, 24, 4.0, 6),
+//   createData("FB", "Gingerbread", 356, 16.0, 49, 3.9, 6),
+//   createData("CSCO", "Honeycomb", 408, 3.2, 87, 6.5, 6),
+//   createData("VOD", "Ice cream sandwich", 237, 109, 37, 4.3, 6),
+//   createData("STJ", "Jelly Bean", 375, 0.0, 94, 0.0, 6),
+//   createData("MDC", "KitKat", 518, 66, 65, 7.0, 6),
+// ];
 
 const headCells = [
   { id: "symbol", numeric: false, disablePadding: true, label: "Symbol" },
@@ -43,10 +45,50 @@ const headCells = [
 ];
 
 const Watchlist = () => {
+  const [data, setData] = useState([]);
+  const [deleted, setDeleted] = useState(0);
+  const { enqueueSnackbar } = useSnackbar();
+  useEffect(() => {
+    axios
+      .get("/watchlist")
+      .then((response) => {
+        setData(response.data);
+      })
+      .catch((err) => console.log(err));
+  }, [deleted]);
   return (
     <Page>
       <Card>
-        <SortableTable data={rows} header={headCells} title="Watch List" />
+        <SortableTable
+          data={data}
+          header={headCells}
+          title="Watch List"
+          handleDelete={(symbol) => {
+            axios
+              .delete(`/watchlist?symbol=${symbol}`)
+              .then((response) => {
+                console.log({ response });
+                response.data?.result === "success"
+                  ? enqueueSnackbar(
+                      `${response.data.result}! ${symbol} deleted from watchlist`,
+                      {
+                        variant: "Success",
+                      }
+                    )
+                  : enqueueSnackbar(`${response.data.result}: ${symbol}`, {
+                      variant: "Warning",
+                    });
+                setDeleted(deleted + 1);
+                console.log({ response });
+                console.log(response.data.result === "success");
+              })
+              .catch((err) =>
+                enqueueSnackbar(`${err}`, {
+                  variant: "Error",
+                })
+              );
+          }}
+        />
       </Card>
     </Page>
   );

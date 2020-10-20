@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "../utils/api";
 
-const useRealTimeStockData = () => {
+const useRealTimeStockData = (path = "stocks/symbols") => {
   const [loadingSymbols, setLoadingSymbols] = useState(true);
   const [loading, setLoading] = useState(true);
 
@@ -9,7 +9,7 @@ const useRealTimeStockData = () => {
 
   useEffect(() => {
     axios
-      .get("stocks/symbols")
+      .get(path)
       .then((response) => {
         const data = response.data;
         setSymbols(data);

@@ -9,10 +9,13 @@ import {
   TableContainer,
   TableRow,
   Button,
+  CardActions,
   CircularProgress,
 } from "@material-ui/core";
+// import { Skeleton } from "@material-ui/lab";
 import { Link, useParams, useHistory } from "react-router-dom";
 
+// import { AuthContext } from "../utils/authentication";
 import Page from "../../components/page/Page";
 import {
   ColoredText,
@@ -23,6 +26,17 @@ import Candlestick from "../../components/graph/Candlestick";
 import { Skeleton } from "@material-ui/lab";
 import axios from "../../utils/api";
 // import ApexCandlestick from "../../components/graph/ApexCandlestick";
+
+// import * as stockData from "../../utils/stocksList.json"; //TODO: make this an API call
+// import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
+
+// const listData = stockData.data.map(({ symbol }) => symbol);
+
+// const parsedApexData = TimeSeriesData.AAPL.values.map(
+//   ({ datetime, open, close, high, low }) => {
+//     return { x: new Date(datetime), y: [open, high, low, close] };
+//   }
+// );
 
 function createData(name, value) {
   return { name, value };
@@ -79,6 +93,19 @@ const StockDetails = () => {
   const { symbol } = useParams();
   let history = useHistory();
 
+  // const getRealTimePrice = () => {
+  //   axios.get(`/stocks/real_times?symbol=${symbol}`).then((response) => {
+  //     const { close } = response.data;
+  //     console.log(close)
+  //     setLatestPrice(parseFloat(close));
+  //   });
+  // }
+  // useEffect(() => {
+  //   getRealTimePrice();
+  //   const interval = setInterval(getRealTimePrice, 5000);
+  //   return () => clearInterval(interval);
+  // }, []);
+
   const getRealTimeStockData = () => {
     axios
       .get(`/stocks/stocks?symbols=${symbol}`)
@@ -131,8 +158,21 @@ const StockDetails = () => {
 
   useEffect(pollStockData, []);
 
+  // const parsedData = TimeSeriesData.AAPL.values
+  // .map(({ datetime, open, close, high, low, volume }) => {
+  //   return {
+  //     date: new Date(datetime),
+  //     open: +open,
+  //     high: +high,
+  //     low: +low,
+  //     close: +close,
+  //     volume: +volume,
+  //   };
+  // })
+  // .reverse();
+
   return (
-    <Page>
+    <Page style={{ padding: "20px" }}>
       {!error ? (
         <Grid container direction="row" alignItems="stretch">
           <Grid item md={3} sm={12} xs={12}>

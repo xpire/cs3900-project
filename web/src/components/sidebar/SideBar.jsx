@@ -13,7 +13,7 @@ import styled from "styled-components";
 
 import { Routes } from "../../utils/routes";
 import { AuthContext } from "../../utils/authentication";
-import Logo from "../../logo.svg";
+import Logo from "../../ecksdeeLogo.png.svg";
 
 const StyledSideBar = styled.div`
   padding: 20px;

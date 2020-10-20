@@ -20,7 +20,7 @@ import {
 import app from "../../utils/firebase";
 import { AuthContext } from "../../utils/authentication";
 import { locationToRoutes } from "../../utils/routes";
-import Logo from "../../logo.svg";
+import Logo from "../../ecksdeeLogo.png.svg";
 
 const HeaderButton = styled(Button)`
   // color: white;

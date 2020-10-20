@@ -21,6 +21,12 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         """
         return db.query(self.model).filter(self.model.symbol.in_(stock_symbols)).all()
 
+    def get_all_stocks(self, db: Session) -> Optional[List[Stock]]:
+        """
+        Get multiple stock information by multiple symbols.
+        """
+        return db.query(self.model).all()
+
     def csv_batch_insert(self, db: Session, csv_stocks: List[Dict]) -> Any:
         """
         Insert batch amount of basic stock data from existing model. Note that no type

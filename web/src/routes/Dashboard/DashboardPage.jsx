@@ -7,7 +7,6 @@ import { StandardCard, ColoredText } from "../../components/common/styled";
 import CardGrid from "../../components/common/CardGrid";
 import ApexCandlestick from "../../components/graph/ApexCandlestick";
 import axios from "../../utils/api";
-import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 
 import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
 // import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
@@ -99,21 +98,85 @@ const StatisticsData = [
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
-  // console.log(user.getIdToken(true));
+  console.log(user.getIdToken(true));
   const [myValue, setValue] = useState(0);
-  const [stockData, loading] = useRealTimeStockData();
+  const [loadingSymbols, setLoadingSymbols] = useState(true);
+  const [symbols, setSymbols] = useState();
+  useEffect(() => {
+    axios
+      .get("stocks/symbols")
+      .then((response) => {
+        const data = response.data;
+        setSymbols(data);
+        setLoadingSymbols(false);
+      })
+      .catch((err) => {});
+  }, []);
+
+  const [stockData, setStockData] = useState([
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+  ]);
+
+  const getRealTimeStockData = () => {
+    if (symbols === undefined) {
+      return;
+    }
+    const s = symbols.map(({ symbol }) => symbol).join("&symbols=");
+    axios
+      .get(`/stocks/stocks?symbols=${s}`)
+      .then((response) => {
+        const data = response.data;
+        // console.lo g({ value, data });
+        setStockData(data);
+      })
+      .catch((err) => console.log(err));
+  };
 
   const [data, setData] = useState(
     stockData.slice(myValue * 3, myValue * 3 + 3)
   );
 
   useEffect(() => {
+    getRealTimeStockData();
+    const interval = setInterval(getRealTimeStockData, 5000);
+    return () => clearInterval(interval);
+  }, [symbols, loadingSymbols]);
+
+  useEffect(() => {
     setData(stockData.slice(myValue * 3, myValue * 3 + 3));
   }, [myValue, stockData]);
 
+  // useEffect(() => {
+  //   axios
+  //     .get("/stocks/symbols")
+  //     .then((response) => {
+  //       const data = response.data;
+  //       console.log({ data });
+  //       setStockData(data);
+  //       setData(data.slice(0, 3));
+  //     })
+  //     .catch((err) => {});
+  // }, []);
+
   const [balance, setBalance] = useState(0);
 
-  const getBalance = () => {
+  const getBalance = (token) => {
     axios
       .get("/user/balance")
       .then((response) => {
@@ -127,7 +190,7 @@ const Dashboard = () => {
   useEffect(() => {
     user &&
       user
-        .getIdToken()
+        .getIdToken(true)
         .then((token) => {
           getBalance(token);
         })

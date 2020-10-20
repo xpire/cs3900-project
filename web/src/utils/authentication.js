@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import app from "./firebase";
 import { Typography, CircularProgress, useTheme } from "@material-ui/core";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,13 +21,11 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     user &&
       user
-        .getIdToken()
+        .getIdToken(true)
         .then((token) => {
           axios.defaults.headers.common["id-token"] = token;
         })
-        .catch((e) => {
-          delete axios.defaults.headers.common["id-token"];
-        });
+        .catch((e) => {});
   }, [user]);
   return (
     <div style={{ background: theme.palette.background.default }}>
@@ -40,7 +38,6 @@ export const AuthProvider = ({ children }) => {
             transition={{ ease: "easeOut" }}
             key="validation"
             theme={theme}
-            style={{ padding: "10px" }}
           >
             <Typography variant="h2">{"Validating your Session..."}</Typography>
             <CircularProgress color="primary" size={50} />

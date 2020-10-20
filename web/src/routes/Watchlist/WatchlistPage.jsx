@@ -5,6 +5,7 @@ import Page from "../../components/page/Page";
 import SortableTable from "../../components/common/SortableTable";
 import axios from "../../utils/api";
 import { useSnackbar } from "notistack";
+import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 
 // function createData(symbol, name, price, open, close, daily, dailyPercentage) {
 //   return { symbol, name, price, open, close, daily, dailyPercentage };
@@ -45,22 +46,40 @@ const headCells = [
 ];
 
 const Watchlist = () => {
-  const [data, setData] = useState([]);
+  // const [data, setData] = useState([]);
   const [deleted, setDeleted] = useState(0);
+  const [data, loading] = useRealTimeStockData("/watchlist", [deleted], []);
+  const mappedData = data.map(
+    ({ curr_close_price, exchange, name, prev_close_price, symbol }) => {
+      return {
+        symbol: symbol,
+        name: name,
+        price: curr_close_price,
+        open: 1111,
+        close: prev_close_price,
+        daily: (curr_close_price - prev_close_price).toFixed(2),
+        dailyPercentage: (
+          (100 * (curr_close_price - prev_close_price)) /
+          prev_close_price
+        ).toFixed(2),
+      };
+    }
+  );
+  console.log(data);
   const { enqueueSnackbar } = useSnackbar();
-  useEffect(() => {
-    axios
-      .get("/watchlist")
-      .then((response) => {
-        setData(response.data);
-      })
-      .catch((err) => console.log(err));
-  }, [deleted]);
+  // useEffect(() => {
+  //   axios
+  //     .get("/watchlist")
+  //     .then((response) => {
+  //       setData(response.data);
+  //     })
+  //     .catch((err) => console.log(err));
+  // }, [deleted]);
   return (
     <Page>
       <Card>
         <SortableTable
-          data={data}
+          data={mappedData}
           header={headCells}
           title="Watch List"
           handleDelete={(symbol) => {

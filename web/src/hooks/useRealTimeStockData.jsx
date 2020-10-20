@@ -1,7 +1,29 @@
 import { useEffect, useState } from "react";
 import axios from "../utils/api";
 
-const useRealTimeStockData = (path = "stocks/symbols") => {
+const useRealTimeStockData = (
+  path = "stocks/symbols",
+  update = [],
+  initialData = [
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+    { skeleton: true },
+  ]
+) => {
   const [loadingSymbols, setLoadingSymbols] = useState(true);
   const [loading, setLoading] = useState(true);
 
@@ -16,27 +38,9 @@ const useRealTimeStockData = (path = "stocks/symbols") => {
         setLoadingSymbols(false);
       })
       .catch((err) => {});
-  }, []);
+  }, update);
 
-  const [stockData, setStockData] = useState([
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-  ]);
+  const [stockData, setStockData] = useState(initialData);
 
   const getRealTimeStockData = () => {
     if (symbols === undefined) {

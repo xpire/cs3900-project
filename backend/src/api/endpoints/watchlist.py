@@ -3,7 +3,7 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from src import crud, models, schemas
-from src.api.deps import check_symbol, decode_token, get_current_user, get_db
+from src.api.deps import check_symbol, decode_token, get_current_user_m, get_db
 from src.core.config import settings
 from src.core.watchlist import check_exists_watchlist
 from src.db.session import SessionLocal

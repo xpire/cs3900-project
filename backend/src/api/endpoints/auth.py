@@ -66,7 +66,7 @@ async def get_user_balance(
 @router.get("/add_exp")
 async def add_exp(
     amount: float,
-    user_model: models.User = Depends(get_current_user),
+    user_model: models.User = Depends(get_current_user_m),
     db: Session = Depends(get_db),
 ) -> schemas.User:
     user = dm.UserDM(user_model, db)

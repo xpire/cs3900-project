@@ -54,3 +54,22 @@ so I plan to make up for this next week
 - plan for next week: setup interval-based polling on React, implement search functionality, help Even with database setup, grabbing data
 from twelvedata in the backend
  
+Week 5:
+- planned last week: setup interval-based polling on React, implement search functionality, help Even with database setup, grabbing data
+from twelvedata in the backend
+- all of the above have been successfully achieved, and before the demo on Friday, however, there were some improvements that needed to be made
+- for example, we want to cache API responses from TwelveData in our database so that we can easily connect the data with the rest of the database,
+but also we want to avoid going over the API call limit (i.e. 55 calls per minute)
+- to save development effort, I implemented the stock search functionality using a rather simple algorithm, which essentially displays the stocks
+whos symbol contains the search term
+- technical obstacle 1: it turned out that PostgreSQL was not supported in VLAB so we decided to switch to SQLite, which Even handled mostly of, but using SQLite came at the cost of making it difficult to migrate databases using Alembic (i.e. Alembic can no longer autogenerate correct migration scripts) - so I had to learn how to write alembic code
+- technical obstacle 2: even after we switched to SQLite our dependencies could not be installed on VLAB for some reason, but I was able to fix it by upgrading pip on the system
+- technical obstacle 3: There was an issue with using websockets to acquire real-time data from TwelveData. When I contacted the support from TwelveData, after several hours of back-and-forth communication, we found out that TwelveData had a bug on the server-side. Hence, I had to abandon this approach and build a new system that regularly polls TwelveData every minute.
+- in the sprint that the first demo was due, I pulled off an all nighter to finish off all the features that were not done yet, including: passing market data (price, day gain, historical data) from the server to the client, displaying those data, and initialising user balance upon registration (+ displaying it on the client)
+- for the sprint after the first demo, I populated the sprint with tasks and assigned to the members.
+- I started working on the level up system, and I completed the level up logic, but haven't got around to implement notification system for it yet
+- plan for next week: notification system, achievement system, and possibly creating a full-fledged simulated stock data
+
+Week 6:
+- planned last week: notification system, achievement system, and possibly creating a full-fledged simulated stock data
+- implemented notification system using websockets, which came with additional challenges as dealing with it was very different from REST API.

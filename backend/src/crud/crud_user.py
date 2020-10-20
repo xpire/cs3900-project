@@ -39,5 +39,13 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
         pass
 
+    def delete_user_by_email(self, db: Session, *, email: str) -> bool:
+        obj = db.query(self.model).filter(self.model.email == email).first()
+        if obj:
+            db.delete(obj)
+            db.commit()
+            return True
+        return False
+
 
 user = CRUDUser(User)

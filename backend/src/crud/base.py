@@ -1,3 +1,12 @@
+"""
+    File name: base.py
+    Author: Peiyu Tang
+    Date created: 10/14/2020
+    Python Version: 3.7.3
+    Purpose: A base for CRUD operations.
+"""
+
+
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
 from fastapi.encoders import jsonable_encoder
@@ -38,7 +47,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.refresh(db_obj)
         return db_obj
 
-    def update(self, db: Session, *, db_obj: ModelType, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
+    def update(
+        self,
+        db: Session,
+        *,
+        db_obj: ModelType,
+        obj_in: Union[UpdateSchemaType, Dict[str, Any]]
+    ) -> ModelType:
         obj_data = jsonable_encoder(db_obj)
         if isinstance(obj_in, dict):
             update_data = obj_in

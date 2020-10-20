@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from src import crud
 from src.api.deps import get_db
 from src.core.config import settings
+from src.db.session import SessionLocal
 from src.real_time_market_data.data_provider import (
     CompositeDataProvider,
     LatestClosingPriceProvider,
@@ -25,60 +26,69 @@ router = APIRouter()
 # Start implementation here, this file handles batch and single stock data retrieval
 # Can change to a different structure later
 
-STOCKS = {
-    "TLS": "ASX",
-    "SVW": "ASX",
-    "TPG": "ASX",
-    "T": "NYSE",
-    "FB": "NASDAQ",
-    "CSCO": "NASDAQ",
-    "VOD": "LSE",
-    "STJ": "LSE",
-    "MDC": "LSE",
-}
-# with open("stocks.json") as json_file:
-#     STOCKS = json.load(json_file)
-
-# -------------------------------
-# For now, return hardcoded data
-# -------------------------------
+# Retrieve all stocks
+STOCKS = []
 
 TD = TDClient(apikey=API_KEY)
 
-stock_names = [f"{symbol}:{exchange}" for symbol, exchange in STOCKS.items()]
+
 # data_provider = RealTimeDataProvider(
 #     symbols=stock_names,
 #     apikey=API_KEY,
 # )
-latest_close_price_provider = LatestClosingPriceProvider(
-    symbols=stock_names,
-    apikey=API_KEY,
-)
-# # data_provider.start()
-# latest_close_price_provider.start()
+latest_close_price_provider = None
+# data_provider.start()
+
+
+# We can't use deps to get the database here, on_event is not part of FastAPI so it can't use depends apparently
+# https://github.com/tiangolo/fastapi/issues/425
+@router.on_event("startup")
+def startup_event():
+    global STOCKS
+    global latest_close_price_provider
+
+    try:
+        db = SessionLocal()
+        STOCKS = crud.stock.get_all_stocks(db)[:10]  # Change this slice later
+    
+        stock_names = [f"{stock.symbol}:{stock.exchange}" for stock in STOCKS]
+       
+
+        latest_close_price_provider = LatestClosingPriceProvider(
+            symbols=stock_names, apikey=API_KEY,
+        )
+        latest_close_price_provider.start()
+    finally:
+        db.close()
 
 
 @router.get("/real_time")
-def get_real_time_data():
+async def get_real_time_data():
     return data_provider.data
 
 
 @router.get("/real_times")
-def get_real_time_data(symbol: str):
+async def get_real_time_data(symbol: str):
     return data_provider.data[symbol]
 
 
 @router.get("/symbols")
-async def get_symbols():
+async def get_symbols(db: Session = Depends(get_db)):
     ret = []
-    for symbol in STOCKS:
-        ret.append({"symbol": symbol, "exchange": STOCKS[symbol]})
+
+    for stock in STOCKS:
+        ret.append(
+            {"symbol": stock.symbol, "exchange": stock.exchange,}
+        )
+
     return ret
 
 
 @router.get("/stocks")
 async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get_db)):
     ret = []
+    if not symbols:
+        return ret
 
     # Can make for efficient later
     for symbol in symbols:
@@ -99,9 +109,11 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
 
 
 @router.get("/time_series")
-async def get_stock_data(symbol: str = Query(None), days: int = 90):
+async def get_stock_data(symbol: str = Query(None), db: Session = Depends(get_db), days: int = 90):
+    stock = crud.stock.get_stock_by_symbol(db, symbol)
+
     data = TD.time_series(
-        symbol=f"{symbol}:{STOCKS[symbol]}",
+        symbol=f"{stoc.symbol}:{stock.exchange}",
         interval="1day",
         outputsize=days,  # TODO there seems to be a bug
         timezone="Australia/Sydney",

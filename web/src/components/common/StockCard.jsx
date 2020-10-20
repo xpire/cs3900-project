@@ -13,8 +13,10 @@ import {
 import { Skeleton } from "@material-ui/lab";
 import { useHistory, Link } from "react-router-dom";
 // import styled from "styled-components";
+import { useSnackbar } from "notistack";
 
 import { ColoredText, StandardCard } from "./styled";
+import axios from "../../utils/api";
 
 const StyledCard = styled(Card)({ margin: "10px" });
 
@@ -29,8 +31,17 @@ const StyledCard = styled(Card)({ margin: "10px" });
   skeleton={false}
 /> */
 
-const StockCard = ({ symbol, name, category, price, delta, skeleton }) => {
+const StockCard = ({
+  symbol,
+  name,
+  category,
+  price,
+  delta,
+  skeleton,
+  watchButton = true,
+}) => {
   let history = useHistory();
+  const { enqueueSnackbar } = useSnackbar();
   return (
     <StyledCard>
       <CardActionArea component={Link} to={`/stock/${symbol}`}>
@@ -86,15 +97,41 @@ const StockCard = ({ symbol, name, category, price, delta, skeleton }) => {
           <Skeleton variant="rect" height={30} width="100%" />
         ) : (
           <>
-            <Button
-              size="small"
-              color="primary"
-              onClick={() => {
-                console.log("TODO: call api to add to user's watch list");
-              }}
-            >
-              watch
-            </Button>
+            {watchButton && (
+              <Button
+                size="small"
+                color="primary"
+                onClick={() => {
+                  axios
+                    .post(`/watchlist?symbol=${symbol}`)
+                    .then((response) => {
+                      console.log({ response });
+                      response.data?.result === "success"
+                        ? enqueueSnackbar(
+                            `${response.data.result}! ${symbol} added to watchlist`,
+                            {
+                              variant: "Success",
+                            }
+                          )
+                        : enqueueSnackbar(
+                            `${response.data.result}: ${symbol}`,
+                            {
+                              variant: "Warning",
+                            }
+                          );
+                      console.log({ response });
+                      console.log(response.data.result === "success");
+                    })
+                    .catch((err) =>
+                      enqueueSnackbar(`${err}`, {
+                        variant: "Error",
+                      })
+                    );
+                }}
+              >
+                watch
+              </Button>
+            )}
             <Button
               size="small"
               color="primary"

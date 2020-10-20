@@ -24,7 +24,9 @@ def decode_token(id_token: str):
         raise HTTPException(401, detail="The authentication token is invalid.")
 
 
-async def get_current_user_m(id_token: str = Header(None), db: Session = Depends(get_db)) -> models.User:
+async def get_current_user_m(
+    id_token: str = Header(None), db: Session = Depends(get_db)
+) -> models.User:
 
     user_m = crud.user.get_user_by_uid(db, uid=decode_token(id_token))
     if not user_m:

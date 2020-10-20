@@ -14,7 +14,7 @@ router = APIRouter()
 
 @router.get("")
 async def get_portfolio(
-    user: models.User = Depends(get_current_user), db: Session = Depends(get_db)
+    user: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)
 ):
     ret = {}
     ret["balance"] = user.balance

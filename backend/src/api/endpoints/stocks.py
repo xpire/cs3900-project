@@ -50,9 +50,8 @@ def startup_event():
     try:
         db = SessionLocal()
         STOCKS = crud.stock.get_all_stocks(db)[:10]  # Change this slice later
-    
+
         stock_names = [f"{stock.symbol}:{stock.exchange}" for stock in STOCKS]
-       
 
         latest_close_price_provider = LatestClosingPriceProvider(
             symbols=stock_names, apikey=API_KEY,

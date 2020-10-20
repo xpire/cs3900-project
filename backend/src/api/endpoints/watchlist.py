@@ -13,7 +13,7 @@ router = APIRouter()
 
 @router.get("")
 async def get_watchlist(
-    user: models.User = Depends(get_current_user), db: Session = Depends(get_db)
+    user: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)
 ):
     ret = []
     for entry in user.watchlist:
@@ -31,7 +31,7 @@ async def get_watchlist(
 @router.post("")
 async def update_watchlist(
     symbol: str = Depends(check_symbol),
-    user: models.User = Depends(get_current_user),
+    user: models.User = Depends(get_current_user_m),
     db: Session = Depends(get_db),
 ):
     # Check if already exists
@@ -46,7 +46,7 @@ async def update_watchlist(
 @router.delete("")
 async def delete_watchlist(
     symbol: str = Depends(check_symbol),
-    user: models.User = Depends(get_current_user),
+    user: models.User = Depends(get_current_user_m),
     db: Session = Depends(get_db),
 ):
     # Check if already exists

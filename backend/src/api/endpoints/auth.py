@@ -18,17 +18,15 @@ async def check_user(id_token: str = Header(None)) -> schemas.user:
 
     return uid
 
+
 @router.get("/delete")
-async def delete_user(
-    *,
-    email: str,
-    db: Session = Depends(get_db),
-) -> bool:
+async def delete_user(*, email: str, db: Session = Depends(get_db),) -> bool:
     """
     Just a helper api for testing
     """
 
     return crud.user.delete_user_by_email(db, email=email)
+
 
 # TODO:
 # - change to post again
@@ -75,6 +73,7 @@ async def add_exp(
     user.add_exp(amount)
     return user.schema
 
+
 # @router.post("", status_code=201)
 # async def create_user(
 #     db=Depends(get_db),
@@ -111,7 +110,9 @@ async def add_exp(
 
 
 @router.get("/reset_level")
-async def reset_level(user: models.User = Depends(get_current_user_dm), db: Session = Depends(get_db)) -> schemas.User:
+async def reset_level(
+    user: models.User = Depends(get_current_user_dm), db: Session = Depends(get_db)
+) -> schemas.User:
     """
     Reset user's level and exp
     - exposed for testing purposes

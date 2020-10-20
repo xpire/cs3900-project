@@ -8,8 +8,8 @@ class Portfolio(BaseModel):
     symbol = Column(String, ForeignKey("stock.symbol"), primary_key=True)
     amount = Column(Integer, nullable=False)
     avg = Column(Float, nullable=False)
-    stock = relationship(
+    stock_info = relationship(
         "Stock",
-        backref="watchlist",
+        backref="portfolio",
         cascade="save-update, merge",
     )

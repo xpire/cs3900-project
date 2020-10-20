@@ -39,3 +39,10 @@ async def get_current_user_dm(
     user_m: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)
 ) -> dm.UserDM:
     return dm.UserDM(user_m, db)
+  
+async def check_symbol(symbol: str, db: Session = Depends(get_db)):
+
+    if not crud.stock.get_stock_by_symbol(db, symbol):
+        raise HTTPException(status_code=400, detail="No such symbol exists")
+
+    return symbol

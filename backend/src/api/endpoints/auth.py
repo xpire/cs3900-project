@@ -11,12 +11,16 @@ from src.core.async_exit import AppStatus
 router = APIRouter()
 
 
+@router.get("")
+async def check_user(id_token: str = Header(None)) -> schemas.user:
+
+    uid = decode_token(id_token)
+
+    return uid
+
+
 @router.get("/delete")
-async def delete_user(
-    *,
-    email: str,
-    db: Session = Depends(get_db),
-) -> bool:
+async def delete_user(*, email: str, db: Session = Depends(get_db),) -> bool:
     """
     Just a helper api for testing
     """
@@ -24,12 +28,12 @@ async def delete_user(
     return crud.user.delete_user_by_email(db, email=email)
 
 
+# TODO:
+# - change to post again
+# - current doesn't check whether the email matches the user's uid
 @router.get("/create")
 async def create_user(
-    *,
-    id_token: str = Header(None),
-    email: str,
-    db: Session = Depends(get_db),
+    *, id_token: str = Header(None), email: str, db: Session = Depends(get_db),
 ) -> schemas.user:
 
     # TODO @GeorgeBai:
@@ -37,15 +41,37 @@ async def create_user(
     # - current doesn't check whether the email matches the user's uid
 
     uid = decode_token(id_token)
-    user = crud.user.get_user_by_token(db, uid=uid)
+    user = crud.user.get_user_by_uid(db, uid=uid)
 
     if not user:
-        user = crud.user.create(db, obj_in=schemas.UserCreate(email=email, uid=uid, username=email))
+        user = crud.user.create(
+            db, obj_in=schemas.UserCreate(email=email, uid=uid, username=email)
+        )
 
     # TODO @GeorgeBai
     # raise error if already created
 
     return dm.UserDM(user, db).schema
+
+
+@router.get("/balance")
+async def get_user_balance(
+    user: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)
+) -> float:
+    return user.balance
+
+
+# TODO implement get_current_user_dm
+# temporarily added for the sake of testing
+@router.get("/add_exp")
+async def add_exp(
+    amount: float,
+    user_model: models.User = Depends(get_current_user_m),
+    db: Session = Depends(get_db),
+) -> schemas.User:
+    user = dm.UserDM(user_model, db)
+    user.add_exp(amount)
+    return user.schema
 
 
 # @router.post("", status_code=201)
@@ -84,7 +110,9 @@ async def add_exp(
 
 
 @router.get("/reset_level")
-async def reset_level(user: models.User = Depends(get_current_user_dm), db: Session = Depends(get_db)) -> schemas.User:
+async def reset_level(
+    user: models.User = Depends(get_current_user_dm), db: Session = Depends(get_db)
+) -> schemas.User:
     """
     Reset user's level and exp
     - exposed for testing purposes

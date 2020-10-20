@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy import Column, ForeignKey, String
 from src.db.base_model import BaseModel
 
 

@@ -6,20 +6,19 @@
     Purpose: Handles user CRUD operations on database 
 """
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 # import src.models as md
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from sqlalchemy.util.langhelpers import symbol
 from src.core.config import settings
-
+from src.core.utilities import log_msg
 from src.crud.base import CRUDBase
 from src.crud.crud_stock import stock
 from src.models.user import User
-from src.schemas.user import UserCreate, UserUpdate
 from src.models.watch_list import WatchList
-from src.core.utilities import log_msg
+from src.schemas.user import UserCreate, UserUpdate
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -31,9 +30,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Return the corresponding user by token.
         """
-        return (
-            db.query(self.model).filter(self.model.uid == uid).first()
-        )  # Field is unique
+        return db.query(self.model).filter(self.model.uid == uid).first()  # Field is unique
 
     def update_balance(self, db: Session, *, db_obj: User, obj_in: UserUpdate) -> User:
         """
@@ -70,9 +67,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             )
             return user_in
 
-    def delete_from_watch_list(
-        self, db: Session, *, user_in: User, w_symbol: str
-    ) -> User:
+    def delete_from_watch_list(self, db: Session, *, user_in: User, w_symbol: str) -> User:
         """
         Delete a watchlist for this user.
         """

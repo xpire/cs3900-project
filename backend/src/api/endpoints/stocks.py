@@ -54,8 +54,8 @@ latest_close_price_provider = LatestClosingPriceProvider(
     symbols=stock_names,
     apikey=API_KEY,
 )
-# data_provider.start()
-latest_close_price_provider.start()
+# # data_provider.start()
+# latest_close_price_provider.start()
 
 
 @router.get("/real_time")

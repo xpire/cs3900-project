@@ -1,9 +1,17 @@
+"""
+    File name: base.py
+    Author: Peiyu Tang
+    Date created: 10/14/2020
+    Python Version: 3.7.3
+    Purpose: A base for CRUD operations.
+"""
+
+
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel as BaseSchema
 from sqlalchemy.orm import Session
-
 from src.db.base_model import BaseModel
 
 ModelType = TypeVar("ModelType", bound=BaseModel)

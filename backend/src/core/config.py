@@ -1,22 +1,19 @@
-from typing import List, Union, Any
-import yaml
 from os import path
 from pathlib import Path
+from typing import Any, List
 
-import firebase_admin
+import yaml
 from fastapi import HTTPException
-from firebase_admin import auth, credentials
-from src.core.core_utilities import find_path_curr_f
-
-
+from firebase_admin import auth, credentials, initialize_app
 from pydantic import (
-    BaseSettings,
-    PostgresDsn,
     AnyHttpUrl,
     AnyUrl,
+    BaseSettings,
+    PostgresDsn,
     ValidationError,
     validator,
 )
+from src.core.utilities import find_path_curr_f
 
 
 class Settings(BaseSettings):
@@ -37,7 +34,7 @@ proj_backend_src = proj_src.parent
 proj_root = proj_backend_src.parent
 
 cred = credentials.Certificate(path.join(abs_path, ".secrets", "ecksdee-firebase.json"))
-firebase_admin.initialize_app(cred)
+initialize_app(cred)
 
 settings = None
 with open(path.join(abs_path, ".secrets", "env.yaml")) as e:

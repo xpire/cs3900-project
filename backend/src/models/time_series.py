@@ -1,5 +1,5 @@
+from sqlalchemy import Column, DateTime, Float, ForeignKey, String
 from src.db.base_model import BaseModel
-from sqlalchemy import Column, ForeignKey, String, Float, DateTime
 
 
 class TimeSeries(BaseModel):

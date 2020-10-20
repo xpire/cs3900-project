@@ -19,9 +19,9 @@ async def get_watchlist(
     for entry in user.watchlist:
         ret += [
             {
-                "name": entry.stock.name,
-                "symbol": entry.stock.symbol,
-                "exchange": entry.stock.exchange,
+                "name": entry.stock_info.name,
+                "symbol": entry.stock_info.symbol,
+                "exchange": entry.stock_info.exchange,
             }
         ]
 

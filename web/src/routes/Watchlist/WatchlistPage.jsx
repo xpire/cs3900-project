@@ -26,12 +26,19 @@ const headCells = [
   { id: "price", numeric: true, disablePadding: false, label: "Price" },
   { id: "open", numeric: true, disablePadding: false, label: "Open" },
   { id: "close", numeric: true, disablePadding: false, label: "Close" },
-  { id: "daily", numeric: true, disablePadding: false, label: "Day Change" },
+  {
+    id: "daily",
+    numeric: true,
+    disablePadding: false,
+    label: "Day Change",
+    color: true,
+  },
   {
     id: "dailyPercentage",
     numeric: true,
     disablePadding: false,
     label: "% Day Change",
+    color: true,
   },
 ];
 
@@ -39,7 +46,7 @@ const Watchlist = () => {
   return (
     <Page>
       <Card>
-        <SortableTable data={rows} header={headCells} />
+        <SortableTable data={rows} header={headCells} title="Watch List" />
       </Card>
     </Page>
   );

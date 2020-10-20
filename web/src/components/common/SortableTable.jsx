@@ -77,7 +77,7 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort, headCells }) => {
   );
 };
 
-const EnhancedTableToolbar = () => {
+const EnhancedTableToolbar = ({ title }) => {
   return (
     <Toolbar>
       <Grid
@@ -88,7 +88,7 @@ const EnhancedTableToolbar = () => {
       >
         <Grid item>
           <Typography variant="h6" id="tableTitle" component="div">
-            Watch List
+            {title}
           </Typography>
         </Grid>
         <Grid item>
@@ -103,7 +103,7 @@ const EnhancedTableToolbar = () => {
   );
 };
 
-export default function EnhancedTable({ data, header }) {
+export default function EnhancedTable({ data, header, title }) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
 
@@ -115,7 +115,7 @@ export default function EnhancedTable({ data, header }) {
 
   return (
     <div style={{ paddingBottom: "20px" }}>
-      <EnhancedTableToolbar />
+      <EnhancedTableToolbar title={title} />
       <TableContainer>
         <Table
           aria-labelledby="tableTitle"
@@ -133,11 +133,30 @@ export default function EnhancedTable({ data, header }) {
             {stableSort(data, getComparator(order, orderBy)).map(
               (row, index) => {
                 const labelId = `enhanced-table-checkbox-${index}`;
-                const polarity = row.close > row.open;
+                // const polarity = row.close > row.open;
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
                     <TableCell padding="checkbox" />
-                    <TableCell
+                    {header.map(({ id, numeric, disablePadding, color }) => {
+                      return (
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          align={numeric ? "right" : "left"}
+                          padding={disablePadding ? "none" : "default"}
+                        >
+                          {color ? (
+                            <ColoredText color={row[id] > 0 ? "green" : "red"}>
+                              {row[id]}
+                            </ColoredText>
+                          ) : (
+                            <>{row[id]}</>
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                    {/* <TableCell
                       component="th"
                       id={labelId}
                       scope="row"
@@ -170,7 +189,7 @@ export default function EnhancedTable({ data, header }) {
                       <ColoredText color={polarity ? "green" : "red"}>
                         {row.dailyPercentage}
                       </ColoredText>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell padding="checkbox">
                       <IconButton component={Link} to={`/stock/${row.symbol}`}>
                         <OpenInNewIcon />

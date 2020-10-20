@@ -15,7 +15,9 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         """
         return db.query(self.model).filter(self.model.symbol == stock_symbol).first()
 
-    def get_stock_by_symbols(self, db: Session, stock_symbols: List[str]) -> Optional[List[Stock]]:
+    def get_stock_by_symbols(
+        self, db: Session, stock_symbols: List[str]
+    ) -> Optional[List[Stock]]:
         """
         Get multiple stock information by multiple symbols.
         """

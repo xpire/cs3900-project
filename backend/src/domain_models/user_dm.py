@@ -2,7 +2,7 @@ from typing import List
 
 from sqlalchemy.orm import Session
 from src.db.base_model import BaseModel
-from src.levelling import level_manager
+from src.game import level_manager
 from src.schemas import User, UserInDB
 
 
@@ -20,6 +20,9 @@ class UserDM:
 
     def add_exp(self, amount: float):
         level_manager.add_exp(self, amount)
+        self.save_to_db()
+
+    def save_to_db(self):
         update(self.user, self.db)
 
     @property

@@ -27,6 +27,7 @@
     "react-scripts": "3.4.3",
     "react-stockcharts": "^0.7.8",
     "react-swipeable-views": "^0.13.9",
+    "react-use-websocket": "^2.2.0",
     "shortid": "^2.2.8",
     "styled-components": "^5.2.0"
   },

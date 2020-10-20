@@ -26,9 +26,17 @@ async def get_current_user(
     id_token: str = Header(None), db: Session = Depends(get_db)
 ) -> models.User:
 
-    user = crud.user.get_user_by_token(db, uid=decode_token(id_token))
+    user = crud.user.get_user_by_uid(db, uid=decode_token(id_token))
     if not user:
         raise HTTPException(
             status_code=400, detail="No user exists",
         )
     return user
+
+
+async def check_symbol(symbol: str, db: Session = Depends(get_db)):
+
+    if not crud.stock.get_stock_by_symbol(db, symbol):
+        raise HTTPException(status_code=400, detail="No such symbol exists")
+
+    return symbol

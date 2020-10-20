@@ -1,7 +1,5 @@
 from fastapi import APIRouter
-
-from src.api.endpoints import stocks, auth
-
+from src.api.endpoints import auth, stocks
 from src.db import base_model_import_all as base_model
 from src.db.session import engine
 

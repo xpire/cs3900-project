@@ -8,12 +8,11 @@
 
 from typing import Any, Dict, Optional, Union
 
+# import src.models as md
 from sqlalchemy.orm import Session
-from src.db.session import SessionLocal
 from src.core.config import settings
-import src.models as md
-
 from src.crud.base import CRUDBase
+from src.db.session import SessionLocal
 from src.models.user import User
 from src.schemas.user import UserCreate, UserUpdate
 
@@ -25,13 +24,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     "something"
 
-    def get_user_by_token(self, db: Session, *, uuid: str) -> Optional[User]:
+    def get_user_by_token(self, db: Session, *, uid: str) -> Optional[User]:
         """
         Return the corresponding user by token.
         """
-        return (
-            db.query(self.model).filter(self.model.uuid == uuid).first()
-        )  # Field is unique
+        return db.query(self.model).filter(self.model.uid == uid).first()  # Field is unique
 
     def update_balance(self, db: Session, *, db_obj: User, obj_in: UserUpdate) -> User:
         """
@@ -41,6 +38,14 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
         pass
+
+    def delete_user_by_email(self, db: Session, *, email: str) -> bool:
+        obj = db.query(self.model).filter(self.model.email == email).first()
+        if obj:
+            db.delete(obj)
+            db.commit()
+            return True
+        return False
 
 
 user = CRUDUser(User)

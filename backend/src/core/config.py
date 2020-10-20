@@ -1,22 +1,11 @@
-from typing import List, Union, Any
-import yaml
 from os import path
 from pathlib import Path
+from typing import Any, List
 
-import firebase_admin
-from fastapi import HTTPException
-from firebase_admin import auth, credentials
+import yaml
+from firebase_admin import credentials, initialize_app
+from pydantic import AnyHttpUrl, BaseSettings
 from src.core.core_utilities import find_path_curr_f
-
-
-from pydantic import (
-    BaseSettings,
-    PostgresDsn,
-    AnyHttpUrl,
-    AnyUrl,
-    ValidationError,
-    validator,
-)
 
 
 class Settings(BaseSettings):
@@ -37,7 +26,7 @@ proj_backend_src = proj_src.parent
 proj_root = proj_backend_src.parent
 
 cred = credentials.Certificate(path.join(abs_path, ".secrets", "ecksdee-firebase.json"))
-firebase_admin.initialize_app(cred)
+initialize_app(cred)
 
 settings = None
 with open(path.join(abs_path, ".secrets", "env.yaml")) as e:
@@ -48,8 +37,7 @@ with open(path.join(abs_path, ".secrets", "env.yaml")) as e:
         DEV_NAME=env["DEV_NAME"],
         COURSE_NAME=env["COURSE_NAME"],
         TD_API_KEY=env["TD_API_KEY"],
-        SQLITE_DB_URI="sqlite:///"
-        + path.join(str(proj_root), "database", env["SQLITE_DB_NAME"] + ".sqlite3"),
+        SQLITE_DB_URI="sqlite:///" + path.join(str(proj_root), "database", env["SQLITE_DB_NAME"] + ".sqlite3"),
         BACKEND_CORS_ORIGIN=[x for x in env["BACKEND_CORS_ORIGINS"]],
         CRED_FB=cred,
     )

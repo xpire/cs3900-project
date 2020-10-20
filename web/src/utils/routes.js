@@ -31,7 +31,20 @@ import LeaderboardPage from "../routes/Leaderboard/LeaderboardPage";
 import LeaderboardIcon from "@material-ui/icons/BarChart";
 import SupportPage from "../routes/Support/SupportPage";
 import SupportIcon from "@material-ui/icons/Help";
-// icons
+
+/* 
+Structure: [
+  {
+    text: "Page Name",
+    path: "page path",
+    component: Page Component,
+    icon: Page Icon,
+    isPublic: Is this route available on public facing site? (not logged in),
+    exact: Match this route exactly (no sub paths),
+    isShown: Is this shown in sidebar?,
+  },
+]
+*/
 
 export const Routes = [
   {

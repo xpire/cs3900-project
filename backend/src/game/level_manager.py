@@ -1,6 +1,8 @@
-from __future__ import annotations  # resolve circular typing depencies
+from __future__ import annotations  # resolve circular typing depencies (regarding UserDM)
 
 from typing import List
+
+from src.notification import LevelUpEvent, notifier
 
 
 class LevelManager:
@@ -10,12 +12,12 @@ class LevelManager:
     def add_exp(self, user: UserDM, amount: float):
         user.exp += amount
 
-        # events = []
+        events = []
         while user.level < self.max_level and self.exp_until_next_level(user) <= 0:
             user.exp -= self.get_threshold(user.level)
             user.level += 1
-            # events.append(LevelUpEvent(self.user, self.user.level))
-        # event_hub.publish_multi(events)
+            events.append(LevelUpEvent(new_level=user.level))
+        notifier.publish_multi(events)
 
     def is_max_level(self, user: UserDM) -> bool:
         return user.level == self.max_level

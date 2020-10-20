@@ -50,10 +50,12 @@ def startup_event():
     try:
         db = SessionLocal()
         STOCKS = crud.stock.get_all_stocks(db)[:10]  # Change this slice later
+
         stock_names = [f"{stock.symbol}:{stock.exchange}" for stock in STOCKS]
 
         latest_close_price_provider = LatestClosingPriceProvider(
-            symbols=stock_names, apikey=API_KEY,
+            symbols=stock_names,
+            apikey=API_KEY,
         )
         latest_close_price_provider.start()
     finally:
@@ -76,7 +78,10 @@ async def get_symbols(db: Session = Depends(get_db)):
 
     for stock in STOCKS:
         ret.append(
-            {"symbol": stock.symbol, "exchange": stock.exchange,}
+            {
+                "symbol": stock.symbol,
+                "exchange": stock.exchange,
+            }
         )
 
     return ret
@@ -107,7 +112,9 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
 
 
 @router.get("/time_series")
-async def get_stock_data(symbol: str = Query(None), db: Session = Depends(get_db), days: int = 90):
+async def get_stock_data(
+    symbol: str = Query(None), db: Session = Depends(get_db), days: int = 90
+):
     stock = crud.stock.get_stock_by_symbol(db, symbol)
 
     data = TD.time_series(

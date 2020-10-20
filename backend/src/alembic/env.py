@@ -21,10 +21,23 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
 
-from src.db.base_model_import_all import BaseModel, Stock, TimeSeries, User  # noqa
+from src.db.base_model_import_all import (
+    BaseModel,
+    Stock,
+    TimeSeries,
+    User,
+    WatchList,
+    Portfolio,
+)  # noqa
 from src.core.config import settings
 
-metadatas = [User.metadata, Stock.metadata, TimeSeries.metadata]
+metadatas = [
+    User.metadata,
+    Stock.metadata,
+    TimeSeries.metadata,
+    WatchList.metadata,
+    Portfolio.metadata,
+]
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

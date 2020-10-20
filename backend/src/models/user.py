@@ -13,6 +13,6 @@ class User(BaseModel):
     watchlist = relationship(
         "WatchList", backref="user", cascade="save-update, merge, delete, delete-orphan"
     )
-    portfolio = relationship(
+    portfolios = relationship(
         "Portfolio", backref="user", cascade="save-update, merge, delete, delete-orphan"
     )

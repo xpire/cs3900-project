@@ -13,6 +13,6 @@ class Stock(BaseModel):
     timeseries = relationship(
         "TimeSeries",
         backref="stock",
-        cascade="save-update, merge, delete",
+        cascade="save-update, merge",
         lazy="dynamic",
     )

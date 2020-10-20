@@ -59,6 +59,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Add a watchlist to the user_in's watchlist.
         """
+        # BUG: adding existing stocks breaks the code, handle it
         if self.symbol_exist(db=db, c_symbol=w_symbol):
             a_wl = WatchList(user_id=user_in.uid, symbol=w_symbol)
 

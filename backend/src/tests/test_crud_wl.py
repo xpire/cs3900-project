@@ -5,7 +5,7 @@ from src.db.session import SessionLocal
 ins = SessionLocal()
 t_u = user.get_user_by_uid(ins, uid="1")
 
-# # Normaladd
+# Normaladd
 # u_t_u = user.add_to_watch_list(db=ins, user_in=t_u, w_symbol="CBA")
 # u_t_u = user.add_to_watch_list(db=ins, user_in=t_u, w_symbol="AAPL")
 
@@ -19,8 +19,8 @@ t_u = user.get_user_by_uid(ins, uid="1")
 
 
 # Normal delete
-# u_t_u = user.delete_from_watch_list(db=ins, user_in=t_u, w_symbol="AAPL")
-# u_t_u = user.delete_from_watch_list(db=ins, user_in=t_u, w_symbol="CBA")
+u_t_u = user.delete_from_watch_list(db=ins, user_in=t_u, w_symbol="AAPL")
+u_t_u = user.delete_from_watch_list(db=ins, user_in=t_u, w_symbol="CBA")
 
 # Trying to delete valid symbol that doesnt exist in watchlist
 # u_t_u = user.delete_from_watch_list(db=ins, user_in=t_u, w_symbol="CAR")

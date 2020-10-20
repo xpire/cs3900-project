@@ -9,5 +9,5 @@ class WatchList(BaseModel):
     stock = relationship(
         "Stock",
         backref="watchlist",
-        cascade="save-update, merge, delete",
+        cascade="save-update, merge",
     )

@@ -11,11 +11,12 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 from src.core.config import settings
-from src.core.utilities import log_msg
+
 from src.crud.base import CRUDBase
 from src.crud.crud_stock import stock
 from src.models.portfolio import Portfolio
 from src.models.user import User
+from src.schemas.user import UserCreate, UserUpdate
 from src.models.watch_list import WatchList
 from src.schemas.user import UserCreate, UserUpdate
 
@@ -29,13 +30,18 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Return the corresponding user by token.
         """
-        return db.query(self.model).filter(self.model.uid == uid).first()  # Field is unique
+        return (
+            db.query(self.model).filter(self.model.uid == uid).first()
+        )  # Field is unique
 
     def update_balance(self, db: Session, *, db_obj: User, obj_in: UserUpdate) -> User:
         """
         Only update the balance of the user.
         """
-        pass
+        db_obj.balance = obj_in.balance
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
 
     def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
         pass
@@ -52,6 +58,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Add a watchlist to the user_in's watchlist.
         """
+        # BUG: adding existing stocks breaks the code, handle it
         if self.symbol_exist(db=db, c_symbol=w_symbol):
             a_wl = WatchList(user_id=user_in.uid, symbol=w_symbol)
 
@@ -96,26 +103,91 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             return user_in
 
     def add_to_portfolio(
-        self, db: Session, *, user_in: User, p_symbol: str, amount: int, price: float
-    ):
-        # """
-        # Add to portfolio
-        # """
-        # if self.symbol_exist(db=db, c_symbol=p_symbol):
-        #     a_wl = WatchList(user_id=user_in.uid, symbol=)
+        self, db: Session, *, user_in: User, p_symbol: str, p_amount: int, price: float
+    ) -> User:
+        """
+        Add to portfolio
+        """
+        if self.symbol_exist(db=db, c_symbol=p_symbol):
 
-        #     user_in.watchlist.append(a_wl)
-        #     db.commit()
-        #     db.refresh(user_in)
-        #     return user_in
-        # else:
-        #     log_msg(
-        #         f"Deleting a non-existent symbol from watchlist of User(uid = {user_in.uid}).",
-        #         "WARNING",
-        #     )
-        #     return user_in
+            ex = None
+            # Compact portfolio
+            for x in user_in.portfolios:
+                if x.symbol == p_symbol:
+                    ex = x
+                    break
 
-        pass
+            if ex == None:
+                a_wl = Portfolio(
+                    user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price
+                )
+                user_in.portfolios.append(a_wl)
+                db.commit()
+                db.refresh(user_in)
+                return user_in
+            else:
+                # running average used here
+                new_avg = (ex.avg * ex.amount + p_amount * price) / (
+                    ex.amount + p_amount
+                )
+                new_amount = ex.amount + p_amount
+
+                ex.avg, ex.amount = new_avg, new_amount
+
+                db.commit()
+                db.refresh(user_in)
+                return user_in
+
+        else:
+            log_msg(
+                f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).",
+                "WARNING",
+            )
+            return user_in
+
+    def deduct_from_portfolio(
+        self, db: Session, *, user_in: User, p_symbol: str, p_amount: int
+    ) -> User:
+        """
+        Remove a stock from portfolio (selling).
+        """
+        if self.symbol_exist(db=db, c_symbol=p_symbol):
+            ex = None
+            for x in user_in.portfolios:
+                if x.symbol == p_symbol:
+                    ex = x
+                    break
+
+            if ex == None:
+                log_msg(
+                    f"Deducting a non-existent stock on portfolio of User(uid = {user_in.uid}).",
+                    "WARNING",
+                )
+                return user_in
+            else:
+
+                new_amount = ex.amount - p_amount
+
+                if new_amount < 0:
+                    log_msg(
+                        f"Deducting more than owned on porfolio of User(uid = {user_in.uid}).",
+                        "WARNING",
+                    )
+                elif new_amount == 0:
+                    user_in.portfolios.remove(ex)
+                else:
+                    ex.amount = new_amount
+
+                db.commit()
+                db.refresh(user_in)
+                return user_in
+
+        else:
+            log_msg(
+                f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).",
+                "WARNING",
+            )
+            return user_in
 
 
 user = CRUDUser(User)

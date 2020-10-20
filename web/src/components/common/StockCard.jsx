@@ -98,7 +98,8 @@ const StockCard = ({ symbol, name, category, price, delta, skeleton }) => {
             <Button
               size="small"
               color="primary"
-              onClick={() => history.push(`/trading?symbol=${symbol}`)}
+              to={`/trading?symbol=${symbol}`}
+              component={Link}
             >
               trade
             </Button>

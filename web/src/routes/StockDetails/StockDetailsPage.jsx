@@ -173,7 +173,7 @@ const StockDetails = () => {
                       {loading ? <Skeleton /> : `$${latestPrice?.toFixed(2)}`}
                     </ColoredText>
                   </Grid>
-                  <Grid container spacing={2}>
+                  <Grid container spacing={2} justify="flex-end">
                     <Grid item>
                       <Button
                         variant="outlined"

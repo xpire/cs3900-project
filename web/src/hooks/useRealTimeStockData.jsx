@@ -4,25 +4,9 @@ import axios from "../utils/api";
 const useRealTimeStockData = (
   path = "stocks/symbols",
   update = [],
-  initialData = [
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-    { skeleton: true },
-  ]
+  initialData = [...Array(12)].map((_) => {
+    return { skeleton: true };
+  })
 ) => {
   const [loadingSymbols, setLoadingSymbols] = useState(true);
   const [loading, setLoading] = useState(true);

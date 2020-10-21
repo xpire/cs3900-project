@@ -1,25 +1,13 @@
-from enum import Enum, auto
+from enum import auto
 
 from pydantic import BaseModel as BaseSchema
 from pydantic import Field
-
-"""
-class NotifEventType(str, Enum):
-    # LEVEL_UP = "LEVEL_UP"
-    # ACHIEVEMENT_UNLOCKED = "ACHIEVEMENT_UNLOCKED"
-    LEVEL_UP = ()
-    ACHIEVEMENT_UNLOCKED = ()
-
-    def __init__(self):
-        self.value = self.name
-"""
+from src.game.achievement import AchievementData
+from src.util.auto_name_enum import AutoName
+from typing_extensions import Literal
 
 
-class AutoName(Enum):
-    def _generate_next_value_(name, start, count, last_values):
-        return name
-
-
+# TODO possibly merge with game event, sharing the event hub
 class NotifEventType(str, AutoName):
     LEVEL_UP = auto()
     ACHIEVEMENT_UNLOCKED = auto()
@@ -34,6 +22,5 @@ class LevelUpEvent(NotifEvent):
     new_level: int
 
 
-# class AchievementEvent(NotifEvent):
-#     event_type:NotifEventType = Field(NotifEventType.LEVEL_UP, const=NotifEventType.LEVEL_UP)
-#     description:str
+class AchievementUnlockedEvent(NotifEvent, AchievementData):
+    event_type: NotifEventType = Field(NotifEventType.ACHIEVEMENT_UNLOCKED, const=NotifEventType.ACHIEVEMENT_UNLOCKED)

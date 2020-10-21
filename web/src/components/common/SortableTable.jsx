@@ -55,7 +55,6 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort, headCells }) => {
   return (
     <TableHead>
       <TableRow>
-        <TableCell padding="checkbox" />
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
@@ -103,7 +102,12 @@ const EnhancedTableToolbar = ({ title }) => {
   );
 };
 
-export default function EnhancedTable({ data, header, title }) {
+export default function EnhancedTable({
+  data,
+  header,
+  title,
+  handleDelete = null,
+}) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
 
@@ -136,8 +140,10 @@ export default function EnhancedTable({ data, header, title }) {
                 // const polarity = row.close > row.open;
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
-                    <TableCell padding="checkbox" />
                     {header.map(({ id, numeric, disablePadding, color }) => {
+                      const value = numeric
+                        ? Number(row[id]).toFixed(2)
+                        : row[id];
                       return (
                         <TableCell
                           component="th"
@@ -145,13 +151,15 @@ export default function EnhancedTable({ data, header, title }) {
                           scope="row"
                           align={numeric ? "right" : "left"}
                           padding={disablePadding ? "none" : "default"}
+                          key={id}
                         >
                           {color ? (
-                            <ColoredText color={row[id] > 0 ? "green" : "red"}>
-                              {row[id]}
+                            <ColoredText color={value > 0 ? "green" : "red"}>
+                              {value > 0 && "+"}
+                              {value}
                             </ColoredText>
                           ) : (
-                            <>{row[id]}</>
+                            <>{value}</>
                           )}
                         </TableCell>
                       );
@@ -191,25 +199,34 @@ export default function EnhancedTable({ data, header, title }) {
                       </ColoredText>
                     </TableCell> */}
                     <TableCell padding="checkbox">
-                      <IconButton component={Link} to={`/stock/${row.symbol}`}>
-                        <OpenInNewIcon />
-                      </IconButton>
+                      <Tooltip title="Stock Details">
+                        <IconButton
+                          component={Link}
+                          to={`/stock/${row.symbol}`}
+                        >
+                          <OpenInNewIcon />
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
                     <TableCell padding="checkbox">
-                      <IconButton
-                        component={Link}
-                        to={`/trading/${row.symbol}`}
-                      >
-                        <TradingIcon />
-                      </IconButton>
+                      <Tooltip title="Trade">
+                        <IconButton
+                          component={Link}
+                          to={`/trading?symbol=${row.symbol}`}
+                        >
+                          <TradingIcon />
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
-                    <TableCell padding="checkbox">
-                      <IconButton
-                        onClick={() => console.log(`delete ${row.symbol}`)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
+                    {handleDelete && (
+                      <TableCell padding="checkbox">
+                        <Tooltip title="Remove">
+                          <IconButton onClick={() => handleDelete(row.symbol)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               }

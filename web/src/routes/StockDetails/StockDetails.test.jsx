@@ -1,5 +1,6 @@
 import React from "react";
 import { render } from "@testing-library/react";
+import { SnackbarProvider } from "notistack";
 import StockDetailsPage from "./StockDetailsPage";
 
 import routeData from "react-router";
@@ -11,12 +12,15 @@ const mockLocation = {
 beforeEach(() => {
   jest.spyOn(routeData, "useParams").mockReturnValue(mockLocation);
   jest.spyOn(routeData, "useHistory").mockReturnValue({});
-  // fetch.mockClear();
 });
 
 describe("Stock Details Page", () => {
   it("Displays in-depth details: symbol", () => {
-    const { getByText } = render(<StockDetailsPage />);
+    const { getByText } = render(
+      <SnackbarProvider>
+        <StockDetailsPage />
+      </SnackbarProvider>
+    );
     const SymbolElement = getByText("FB");
     expect(SymbolElement).toBeInTheDocument();
   });

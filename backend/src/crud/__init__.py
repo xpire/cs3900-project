@@ -1,5 +1,4 @@
 from .crud_stock import stock
-from .crud_time_series import time_series
 from .crud_user import user
 
 # For a new basic set of CRUD operations you could just do

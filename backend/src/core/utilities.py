@@ -6,10 +6,12 @@
     Purpose: Some utility functions used by core 
         features, maybe it can be used by other modules too 
 """
-from collections import defaultdict
 import inspect
-import os
 import logging
+import os
+from collections import defaultdict
+
+from sqlalchemy.exc import SQLAlchemyError
 
 
 def find_path_curr_f() -> str:
@@ -28,9 +30,7 @@ def log_msg(msg: str, level: str) -> None:
     handles printing not actually raising any errors
     """
     logger = logging.getLogger("backend logger")
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     ch = logging.StreamHandler()
     ch.setFormatter(formatter)
@@ -55,3 +55,27 @@ def log_msg(msg: str, level: str) -> None:
         logger.critical("No specified logger level.")
     else:
         plvs[level](msg)
+
+
+def fail_save(func):
+    """
+    Handle update crud operation using this, prevents backend from stopping.
+    """
+
+    def inner(*args, **kwargs):
+        ret = None
+        try:
+            ret = func(*args, **kwargs)
+            return ret
+        except SQLAlchemyError as e:
+            error = str(e.__dict__["orig"])
+            log_msg(error, "ERROR")
+            return None
+
+    return inner
+
+    try:
+        func()
+    except SQLAlchemyError as e:
+        error = str(e.__dict__["orig"])
+        log_msg(error, "ERROR")

@@ -53,7 +53,7 @@ export const ColoredText = ({ children, color, ...restProps }) => {
 
 export const StandardCard = materialStyled(Card)({
   margin: "10px",
-  padding: "10px",
+  // padding: "10px",
   height: "95%",
 });
 

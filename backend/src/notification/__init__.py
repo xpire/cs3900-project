@@ -1,2 +1,2 @@
-from .notif_event import LevelUpEvent
-from .notifier import notifier
+from .notif_event import AchievementUnlockedEvent, LevelUpEvent
+from .notifier import notif_hub

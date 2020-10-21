@@ -1,6 +1,7 @@
 from typing import Any, List
 
 import numpy as np
+
 import src.api.endpoints.stocks as stocks_api
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -18,10 +19,11 @@ async def get_portfolio(user: models.User = Depends(get_current_user_m), db: Ses
 
     ret = {}
     ret["balance"] = user.balance
-    ret["portfolio"] = []
+    ret["long"] = []
+    ret["short"] = []
 
     total_value = 0
-    for stock in stocks_api.STOCKS:
+    for index, stock in enumerate(stocks_api.STOCKS):
         entry = {}
 
         entry["price"] = float(stocks_api.latest_close_price_provider.data[stock.symbol][0])
@@ -31,7 +33,7 @@ async def get_portfolio(user: models.User = Depends(get_current_user_m), db: Ses
         entry["name"] = stock.name
 
         # Temporary data, change to actual data in database when implemented
-        entry["owned"] = np.random.randint(20)
+        entry["owned"] = (1 + np.random.randint(20)) * ((-1) ** index)
         entry["average_paid"] = entry["price"] + (10 - np.random.randint(20)) * entry["price"] / 100
         entry["total_paid"] = entry["average_paid"] * entry["owned"]
         entry["value"] = entry["price"] * entry["owned"]
@@ -41,7 +43,10 @@ async def get_portfolio(user: models.User = Depends(get_current_user_m), db: Ses
 
         total_value += entry["value"]
 
-        ret["portfolio"] += [entry]
+        if index % 2 == 0:
+            ret["long"] += [entry]
+        else:
+            ret["short"] += [entry]
 
     ret["total_value"] = total_value
 

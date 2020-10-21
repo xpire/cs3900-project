@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card } from "@material-ui/core";
+import { Card, CardContent } from "@material-ui/core";
 
 import Page from "../../components/page/Page";
 import SortableTable from "../../components/common/SortableTable";
@@ -24,7 +24,7 @@ import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 // ];
 
 const headCells = [
-  { id: "symbol", numeric: false, disablePadding: true, label: "Symbol" },
+  { id: "symbol", numeric: false, disablePadding: false, label: "Symbol" },
   { id: "name", numeric: false, disablePadding: false, label: "Name" },
   { id: "exchange", numeric: false, disablePadding: false, label: "Exchange" },
   { id: "price", numeric: true, disablePadding: false, label: "Price" },
@@ -80,6 +80,7 @@ const Watchlist = () => {
   return (
     <Page>
       <Card>
+        {/* <CardContent> */}
         <SortableTable
           data={mappedData}
           header={headCells}
@@ -96,7 +97,7 @@ const Watchlist = () => {
                         variant: "Success",
                       }
                     )
-                  : enqueueSnackbar(`${response.data.result}: ${symbol}`, {
+                  : enqueueSnackbar(`${response.data.result}`, {
                       variant: "Warning",
                     });
                 setDeleted(deleted + 1);
@@ -110,6 +111,7 @@ const Watchlist = () => {
               );
           }}
         />
+        {/* </CardContent> */}
       </Card>
     </Page>
   );

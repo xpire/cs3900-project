@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Typography, Tab, Tabs, Grid } from "@material-ui/core";
+import { Typography, Tab, Tabs, Grid, CardContent } from "@material-ui/core";
 
 import { AuthContext } from "../../utils/authentication";
 import Page from "../../components/page/Page";
@@ -23,44 +23,46 @@ const parsedApexData = TimeSeriesData.AAPL.values
 const StatCard = ({ name, value, stat, today }) => {
   return (
     <StandardCard style={{ minHeight: "130px" }}>
-      {/* TODO: make this not hardcoded somehow */}
-      <Grid
-        container
-        direction="row"
-        justify="flex-start"
-        alignItems="flex-start"
-      >
-        <Grid item xs={12} container>
-          <Typography variant="button">{name}</Typography>
-        </Grid>
-        <Grid item container alignItems="flex-end" spacing={1}>
-          <Grid item>
-            <Typography variant="h4">{value}</Typography>
+      <CardContent>
+        {/* TODO: make this not hardcoded somehow */}
+        <Grid
+          container
+          direction="row"
+          justify="flex-start"
+          alignItems="flex-start"
+        >
+          <Grid item xs={12} container>
+            <Typography variant="button">{name}</Typography>
           </Grid>
-          {stat && (
+          <Grid item container alignItems="flex-end" spacing={1}>
             <Grid item>
-              <ColoredText color={stat > 0 ? "green" : "red"} variant="h5">
-                ({stat})
-              </ColoredText>
+              <Typography variant="h4">{value}</Typography>
             </Grid>
+            {stat && (
+              <Grid item>
+                <ColoredText color={stat > 0 ? "green" : "red"} variant="h5">
+                  ({stat})
+                </ColoredText>
+              </Grid>
+            )}
+          </Grid>
+          {today && (
+            <>
+              <Grid item xs={12}>
+                <Typography variant="caption">Today:</Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <ColoredText
+                  variant="subtitle2"
+                  color={stat > 0 ? "green" : "red"}
+                >
+                  {today}
+                </ColoredText>
+              </Grid>
+            </>
           )}
         </Grid>
-        {today && (
-          <>
-            <Grid item xs={12}>
-              <Typography variant="caption">Today:</Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <ColoredText
-                variant="subtitle2"
-                color={stat > 0 ? "green" : "red"}
-              >
-                {today}
-              </ColoredText>
-            </Grid>
-          </>
-        )}
-      </Grid>
+      </CardContent>
     </StandardCard>
   );
 };
@@ -154,7 +156,9 @@ const Dashboard = () => {
         </Grid>
         <Grid item xs={12}>
           <StandardCard>
-            <ApexCandlestick data={parsedApexData} />
+            <CardContent>
+              <ApexCandlestick data={parsedApexData} />
+            </CardContent>
           </StandardCard>
         </Grid>
         <Grid item xs={12}>

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import {
   Typography,
   Chip,
+  CardContent,
+  CardActions,
   Grid,
   Table,
   TableBody,
@@ -139,154 +141,165 @@ const StockDetails = () => {
         <Grid container direction="row" alignItems="stretch">
           <Grid item md={3} sm={12} xs={12}>
             <StandardCard>
-              <Grid
-                direction="row"
-                container
-                justify="space-between"
-                alignItems="flex-end"
-              >
-                <Grid item md={12} sm={6}>
-                  <Typography variant="h2">{symbol}</Typography>
-                  {/* <Typography variant="h4"> 
+              <CardContent>
+                <Grid
+                  direction="row"
+                  container
+                  justify="space-between"
+                  alignItems="flex-end"
+                >
+                  <Grid item md={12} sm={6}>
+                    <Typography variant="h2">{symbol}</Typography>
+                    {/* <Typography variant="h4"> 
                     {loading ? <Skeleton /> : stockData.name}
                   </Typography> */}{" "}
-                  {/* Add back when name is here*/}
-                  {!loading && <Chip label={stockData.name} size="small" />}
-                  {!loading && <Chip label={stockData.exchange} size="small" />}
-                </Grid>
-                <Grid item md={12} sm={6}>
-                  <Grid item>
-                    <ColoredText
-                      color={dayGain > 0 ? "green" : "red"}
-                      variant="h2"
-                      align="right"
-                    >
-                      {loading ? <Skeleton /> : `${dayGain?.toFixed(2)}%`}
-                    </ColoredText>
+                    {/* Add back when name is here*/}
+                    {!loading && <Chip label={stockData.name} size="small" />}
+                    {!loading && (
+                      <Chip label={stockData.exchange} size="small" />
+                    )}
                   </Grid>
-                  <Grid item>
-                    <ColoredText
-                      color={dayGain > 0 ? "green" : "red"}
-                      variant="h3"
-                      align="right"
-                    >
-                      {loading ? <Skeleton /> : `$${latestPrice?.toFixed(2)}`}
-                    </ColoredText>
-                  </Grid>
-                  <Grid container spacing={2} justify="flex-end">
+                  <Grid item md={12} sm={6}>
                     <Grid item>
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => {
-                          axios
-                            .post(`/watchlist?symbol=${symbol}`)
-                            .then((response) => {
-                              console.log({ response });
-                              response.data?.result === "success"
-                                ? enqueueSnackbar(
-                                    `${response.data.result}! ${symbol} added to watchlist`,
-                                    {
-                                      variant: "Success",
-                                    }
-                                  )
-                                : enqueueSnackbar(
-                                    `${response.data.result}: ${symbol}`,
-                                    {
-                                      variant: "Warning",
-                                    }
-                                  );
-                              console.log({ response });
-                              console.log(response.data.result === "success");
-                            })
-                            .catch((err) =>
-                              enqueueSnackbar(`${err}`, {
-                                variant: "Error",
-                              })
+                      <ColoredText
+                        color={dayGain > 0 ? "green" : "red"}
+                        variant="h2"
+                        align="right"
+                      >
+                        {loading ? <Skeleton /> : `${dayGain?.toFixed(2)}%`}
+                      </ColoredText>
+                    </Grid>
+                    <Grid item>
+                      <ColoredText
+                        color={dayGain > 0 ? "green" : "red"}
+                        variant="h3"
+                        align="right"
+                      >
+                        {loading ? <Skeleton /> : `$${latestPrice?.toFixed(2)}`}
+                      </ColoredText>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </CardContent>
+              <CardActions>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => {
+                    axios
+                      .post(`/watchlist?symbol=${symbol}`)
+                      .then((response) => {
+                        console.log({ response });
+                        response.data?.result === "success"
+                          ? enqueueSnackbar(
+                              `${response.data.result}! ${symbol} added to watchlist`,
+                              {
+                                variant: "Success",
+                              }
+                            )
+                          : enqueueSnackbar(
+                              `${response.data.result}: ${symbol}`,
+                              {
+                                variant: "Warning",
+                              }
                             );
-                        }}
-                      >
-                        Watch
-                      </Button>
-                    </Grid>
-                    <Grid item>
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() =>
-                          history.push(`/trading?symbol=${symbol}`)
-                        }
-                      >
-                        Trade
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
+                        console.log({ response });
+                        console.log(response.data.result === "success");
+                      })
+                      .catch((err) =>
+                        enqueueSnackbar(`${err}`, {
+                          variant: "Error",
+                        })
+                      );
+                  }}
+                >
+                  Watch
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => history.push(`/trading?symbol=${symbol}`)}
+                >
+                  Trade
+                </Button>
+              </CardActions>
             </StandardCard>
           </Grid>
           <Grid item md={9} sm={12} xs={12}>
             <StandardCard>
-              <div // fix scrolling body in chrome
-                onMouseEnter={() => {
-                  document.addEventListener("wheel", preventDefault, {
-                    passive: false,
-                  });
-                }}
-                onMouseLeave={() => {
-                  document.removeEventListener("wheel", preventDefault, false);
-                }}
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "100%",
-                }}
-              >
-                {/* <ApexCandlestick data={parsedApexData} /> */}
-                {timeSeries === null ? (
-                  <CircularProgress color="primary" size={50} />
-                ) : (
-                  <Candlestick data={timeSeries} type="hybrid" />
-                )}
-              </div>
+              <CardContent>
+                <div // fix scrolling body in chrome
+                  onMouseEnter={() => {
+                    document.addEventListener("wheel", preventDefault, {
+                      passive: false,
+                    });
+                  }}
+                  onMouseLeave={() => {
+                    document.removeEventListener(
+                      "wheel",
+                      preventDefault,
+                      false
+                    );
+                  }}
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100%",
+                  }}
+                >
+                  {/* <ApexCandlestick data={parsedApexData} /> */}
+                  {timeSeries === null ? (
+                    <CircularProgress color="primary" size={50} />
+                  ) : (
+                    <Candlestick data={timeSeries} type="hybrid" />
+                  )}
+                </div>
+              </CardContent>
             </StandardCard>
           </Grid>
           <Grid item xs={12}>
             <StandardCard>
-              <Typography variant="h5">Further Information</Typography>
+              <CardContent>
+                <Typography variant="h5">Further Information</Typography>
 
-              <Grid container direction="row">
-                <Grid item sm={6} xs={12}>
-                  <TableInfo
-                    rows={rows.slice(0, Math.floor(rows.length / 2))}
-                  />
+                <Grid container direction="row">
+                  <Grid item sm={6} xs={12}>
+                    <TableInfo
+                      rows={rows.slice(0, Math.floor(rows.length / 2))}
+                    />
+                  </Grid>
+                  <Grid item sm={6} xs={12}>
+                    <TableInfo rows={rows.slice(Math.floor(rows.length / 2))} />
+                  </Grid>
                 </Grid>
-                <Grid item sm={6} xs={12}>
-                  <TableInfo rows={rows.slice(Math.floor(rows.length / 2))} />
-                </Grid>
-              </Grid>
+              </CardContent>
             </StandardCard>
           </Grid>
         </Grid>
       ) : (
         <CenteredCard>
-          <Typography variant="h2">
-            Sorry, we can't find this stock's information...
-          </Typography>
-          <Typography>
-            Either the symbol "{symbol}" is not real or it is not currently
-            supported.
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            style={{ marginTop: "20px" }}
-            component={Link}
-            to="/market"
-          >
-            Go back
-          </Button>
+          <CardContent>
+            <Typography variant="h2">
+              Sorry, we can't find this stock's information...
+            </Typography>
+            <Typography>
+              Either the symbol "{symbol}" is not real or it is not currently
+              supported.
+            </Typography>
+          </CardContent>
+          <CardActions>
+            <Button
+              variant="contained"
+              color="primary"
+              style={{ marginTop: "20px" }}
+              component={Link}
+              to="/market"
+            >
+              Go back
+            </Button>
+          </CardActions>
         </CenteredCard>
       )}
     </Page>

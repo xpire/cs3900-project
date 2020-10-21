@@ -1,5 +1,5 @@
 import React from "react";
-import { Card } from "@material-ui/core";
+import { Card, CardContent } from "@material-ui/core";
 
 import SortableTable from "../../components/common/SortableTable";
 import Page from "../../components/page/Page";
@@ -57,7 +57,7 @@ const rows = [
 ];
 
 const headCells = [
-  { id: "symbol", numeric: false, disablePadding: true, label: "Symbol" },
+  { id: "symbol", numeric: false, disablePadding: false, label: "Symbol" },
   { id: "name", numeric: false, disablePadding: false, label: "Name" },
   { id: "exchange", numeric: false, disablePadding: false, label: "Exchange" },
   { id: "price", numeric: true, disablePadding: false, label: "Price" },
@@ -66,9 +66,9 @@ const headCells = [
     id: "average",
     numeric: true,
     disablePadding: false,
-    label: "Average Sale $",
+    label: "Avg Sale",
   },
-  { id: "total", numeric: true, disablePadding: false, label: "Total Sale $" },
+  { id: "total", numeric: true, disablePadding: false, label: "Total Sale" },
   { id: "value", numeric: true, disablePadding: false, label: "Value" },
 
   {
@@ -98,7 +98,9 @@ const Portfolio = () => {
   return (
     <Page>
       <Card>
+        {/* <CardContent> */}
         <SortableTable data={rows} header={headCells} title="Portfolio" />
+        {/* </CardContent> */}
       </Card>
     </Page>
   );

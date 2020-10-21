@@ -11,18 +11,40 @@ import {
   styled,
 } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 // import styled from "styled-components";
+import { useSnackbar } from "notistack";
 
 import { ColoredText, StandardCard } from "./styled";
+import axios from "../../utils/api";
 
 const StyledCard = styled(Card)({ margin: "10px" });
 
-const StockCard = ({ symbol, name, category, price, delta, skeleton }) => {
+/* Sample Parameters:
+<StockCard
+  symbol={"ABCDEF"}
+  name={"this is a sample"}
+  category={"ASX"}
+  price={"12345.67"}
+  delta={999.99}
+  key={"sample"}
+  skeleton={false}
+/> */
+
+const StockCard = ({
+  symbol,
+  name,
+  category,
+  price,
+  delta,
+  skeleton,
+  watchButton = true,
+}) => {
   let history = useHistory();
+  const { enqueueSnackbar } = useSnackbar();
   return (
     <StyledCard>
-      <CardActionArea onClick={() => history.push(`/stock/${symbol}`)}>
+      <CardActionArea component={Link} to={`/stock/${symbol}`}>
         <CardContent>
           <Grid
             container
@@ -36,25 +58,30 @@ const StockCard = ({ symbol, name, category, price, delta, skeleton }) => {
               </Grid>
             ) : (
               <>
-                <Grid item>
-                  <Typography variant="h4">{symbol}</Typography>
-                  {name && <Chip size="small" label={name} />}
-                  <br />
-                  <Chip size="small" label={category} />
+                <Grid item xs={12} spacing={1} container>
+                  <Grid item>{name && <Chip size="small" label={name} />}</Grid>
+                  <Grid item>
+                    <Chip size="small" label={category} />
+                  </Grid>
                 </Grid>
-                <Grid item>
-                  <ColoredText
-                    color={delta > 0 ? "green" : "red"}
-                    variant="h3"
-                    align="right"
-                  >
-                    {`${delta > 0 ? "+" : ""}${delta}%`}
-                  </ColoredText>
+                <Grid container alignItems="flex-end" justify="space-between">
+                  <Grid item>
+                    <Typography variant="h4">{symbol}</Typography>
+                  </Grid>
+                  <Grid item>
+                    <ColoredText
+                      color={delta > 0 ? "green" : "red"}
+                      variant="h4"
+                      align="right"
+                    >
+                      {`${delta > 0 ? "+" : ""}${delta}%`}
+                    </ColoredText>
+                  </Grid>
                 </Grid>
                 <Grid item xs={12}>
                   <ColoredText
                     color={delta > 0 ? "green" : "red"}
-                    variant="h4"
+                    variant="h3"
                     align="right"
                   >
                     {`$${price}`}
@@ -70,19 +97,46 @@ const StockCard = ({ symbol, name, category, price, delta, skeleton }) => {
           <Skeleton variant="rect" height={30} width="100%" />
         ) : (
           <>
+            {watchButton && (
+              <Button
+                size="small"
+                color="primary"
+                onClick={() => {
+                  axios
+                    .post(`/watchlist?symbol=${symbol}`)
+                    .then((response) => {
+                      console.log({ response });
+                      response.data?.result === "success"
+                        ? enqueueSnackbar(
+                            `${response.data.result}! ${symbol} added to watchlist`,
+                            {
+                              variant: "Success",
+                            }
+                          )
+                        : enqueueSnackbar(
+                            `${response.data.result}: ${symbol}`,
+                            {
+                              variant: "Warning",
+                            }
+                          );
+                      console.log({ response });
+                      console.log(response.data.result === "success");
+                    })
+                    .catch((err) =>
+                      enqueueSnackbar(`${err}`, {
+                        variant: "Error",
+                      })
+                    );
+                }}
+              >
+                watch
+              </Button>
+            )}
             <Button
               size="small"
               color="primary"
-              onClick={() => {
-                console.log("TODO: call api to add to user's watch list");
-              }}
-            >
-              watch
-            </Button>
-            <Button
-              size="small"
-              color="primary"
-              onClick={() => history.push(`/trading?symbol=${symbol}`)}
+              to={`/trading?symbol=${symbol}`}
+              component={Link}
             >
               trade
             </Button>

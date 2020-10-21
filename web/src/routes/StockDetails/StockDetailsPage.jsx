@@ -9,13 +9,11 @@ import {
   TableContainer,
   TableRow,
   Button,
-  CardActions,
   CircularProgress,
 } from "@material-ui/core";
-// import { Skeleton } from "@material-ui/lab";
 import { Link, useParams, useHistory } from "react-router-dom";
+import { useSnackbar } from "notistack";
 
-// import { AuthContext } from "../utils/authentication";
 import Page from "../../components/page/Page";
 import {
   ColoredText,
@@ -26,17 +24,6 @@ import Candlestick from "../../components/graph/Candlestick";
 import { Skeleton } from "@material-ui/lab";
 import axios from "../../utils/api";
 // import ApexCandlestick from "../../components/graph/ApexCandlestick";
-
-// import * as stockData from "../../utils/stocksList.json"; //TODO: make this an API call
-// import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
-
-// const listData = stockData.data.map(({ symbol }) => symbol);
-
-// const parsedApexData = TimeSeriesData.AAPL.values.map(
-//   ({ datetime, open, close, high, low }) => {
-//     return { x: new Date(datetime), y: [open, high, low, close] };
-//   }
-// );
 
 function createData(name, value) {
   return { name, value };
@@ -92,19 +79,7 @@ const StockDetails = () => {
   const [error, setError] = useState(false);
   const { symbol } = useParams();
   let history = useHistory();
-
-  // const getRealTimePrice = () => {
-  //   axios.get(`/stocks/real_times?symbol=${symbol}`).then((response) => {
-  //     const { close } = response.data;
-  //     console.log(close)
-  //     setLatestPrice(parseFloat(close));
-  //   });
-  // }
-  // useEffect(() => {
-  //   getRealTimePrice();
-  //   const interval = setInterval(getRealTimePrice, 5000);
-  //   return () => clearInterval(interval);
-  // }, []);
+  const { enqueueSnackbar } = useSnackbar();
 
   const getRealTimeStockData = () => {
     axios
@@ -158,21 +133,8 @@ const StockDetails = () => {
 
   useEffect(pollStockData, []);
 
-  // const parsedData = TimeSeriesData.AAPL.values
-  // .map(({ datetime, open, close, high, low, volume }) => {
-  //   return {
-  //     date: new Date(datetime),
-  //     open: +open,
-  //     high: +high,
-  //     low: +low,
-  //     close: +close,
-  //     volume: +volume,
-  //   };
-  // })
-  // .reverse();
-
   return (
-    <Page style={{ padding: "20px" }}>
+    <Page>
       {!error ? (
         <Grid container direction="row" alignItems="stretch">
           <Grid item md={3} sm={12} xs={12}>
@@ -211,9 +173,39 @@ const StockDetails = () => {
                       {loading ? <Skeleton /> : `$${latestPrice?.toFixed(2)}`}
                     </ColoredText>
                   </Grid>
-                  <Grid container direction="row-reverse" spacing={2}>
+                  <Grid container spacing={2} justify="flex-end">
                     <Grid item>
-                      <Button variant="outlined" color="primary">
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => {
+                          axios
+                            .post(`/watchlist?symbol=${symbol}`)
+                            .then((response) => {
+                              console.log({ response });
+                              response.data?.result === "success"
+                                ? enqueueSnackbar(
+                                    `${response.data.result}! ${symbol} added to watchlist`,
+                                    {
+                                      variant: "Success",
+                                    }
+                                  )
+                                : enqueueSnackbar(
+                                    `${response.data.result}: ${symbol}`,
+                                    {
+                                      variant: "Warning",
+                                    }
+                                  );
+                              console.log({ response });
+                              console.log(response.data.result === "success");
+                            })
+                            .catch((err) =>
+                              enqueueSnackbar(`${err}`, {
+                                variant: "Error",
+                              })
+                            );
+                        }}
+                      >
                         Watch
                       </Button>
                     </Grid>

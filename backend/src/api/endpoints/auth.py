@@ -7,6 +7,7 @@ from src import domain_models as dm
 from src import models, schemas
 from src.api.deps import decode_token, get_current_user_dm, get_current_user_m, get_db
 from src.core.async_exit import AppStatus
+from src.notification import notifier
 
 router = APIRouter()
 
@@ -20,7 +21,11 @@ async def check_user(id_token: str = Header(None)) -> schemas.user:
 
 
 @router.get("/delete")
-async def delete_user(*, email: str, db: Session = Depends(get_db),) -> bool:
+async def delete_user(
+    *,
+    email: str,
+    db: Session = Depends(get_db),
+) -> bool:
     """
     Just a helper api for testing
     """
@@ -33,7 +38,10 @@ async def delete_user(*, email: str, db: Session = Depends(get_db),) -> bool:
 # - current doesn't check whether the email matches the user's uid
 @router.get("/create")
 async def create_user(
-    *, id_token: str = Header(None), email: str, db: Session = Depends(get_db),
+    *,
+    id_token: str = Header(None),
+    email: str,
+    db: Session = Depends(get_db),
 ) -> schemas.user:
 
     # TODO @GeorgeBai:
@@ -44,9 +52,7 @@ async def create_user(
     user = crud.user.get_user_by_uid(db, uid=uid)
 
     if not user:
-        user = crud.user.create(
-            db, obj_in=schemas.UserCreate(email=email, uid=uid, username=email)
-        )
+        user = crud.user.create(db, obj_in=schemas.UserCreate(email=email, uid=uid, username=email))
 
     # TODO @GeorgeBai
     # raise error if already created
@@ -55,9 +61,7 @@ async def create_user(
 
 
 @router.get("/balance")
-async def get_user_balance(
-    user: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)
-) -> float:
+async def get_user_balance(user: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)) -> float:
     return user.balance
 
 
@@ -99,7 +103,9 @@ async def get_user_balance(user_m: models.User = Depends(get_current_user_m)) ->
 
 @router.get("/add_exp")
 async def add_exp(
-    amount: float, user: models.User = Depends(get_current_user_dm), db: Session = Depends(get_db)
+    amount: float,
+    user: models.User = Depends(get_current_user_dm),
+    db: Session = Depends(get_db),
 ) -> schemas.User:
     """
     Give user [amount] exp
@@ -110,9 +116,7 @@ async def add_exp(
 
 
 @router.get("/reset_level")
-async def reset_level(
-    user: models.User = Depends(get_current_user_dm), db: Session = Depends(get_db)
-) -> schemas.User:
+async def reset_level(user: models.User = Depends(get_current_user_dm), db: Session = Depends(get_db)) -> schemas.User:
     """
     Reset user's level and exp
     - exposed for testing purposes
@@ -130,12 +134,10 @@ async def receive_json(ws: WebSocket):
         return None
 
 
-from src.notification import notifier
-
-
-@router.websocket("/notifications")
+@router.websocket("/notifs")
 async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
     await ws.accept()
+
     try:
         print("VALIDATE USER")
         id_token = await receive_json(ws)
@@ -146,7 +148,7 @@ async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
             print("INVALID AUTH MESSAGE RECEIVED:", id_token)
             uid = None
 
-        user = crud.user.get_user_by_token(db, uid=uid)
+        user = crud.user.get_user_by_uid(db, uid=uid)
 
         if user:
             print("AUTHORISED")
@@ -154,7 +156,9 @@ async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
             await ws.send_json(dict(is_error=False, msg="User authorised", type="auth"))
         else:
             print("NOT AUTHORISED")
-            await ws.send_json(dict(is_error=True, msg="User not authorised", type="auth"))
+            await ws.send_json(
+                dict(is_error=True, msg="User not authorised", type="auth")
+            )
             await ws.close()
             return
 
@@ -180,7 +184,7 @@ async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
 #             print("INVALID AUTH MESSAGE RECEIVED:", id_token)
 #             uid = None
 
-#         user = crud.user.get_user_by_token(db, uid=uid)
+#         user = crud.user.get_user_by_uid(db, uid=uid)
 
 #         if user:
 #             print("AUTHORISED")

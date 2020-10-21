@@ -4,13 +4,12 @@ import { Typography, Card } from "@material-ui/core";
 
 import { AuthContext } from "../../utils/authentication";
 import Page from "../../components/page/Page";
-import axios from "../../utils/api";
 
 const Achievements = () => {
   const { user } = useContext(AuthContext);
 
   // TODO: see if we can use wss://
-  const socketUrl = "ws://localhost:8000/user/notifications";
+  const socketUrl = "ws://localhost:8000/user/notifs";
 
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
     socketUrl,

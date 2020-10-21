@@ -212,7 +212,7 @@ export default function EnhancedTable({
                       <Tooltip title="Trade">
                         <IconButton
                           component={Link}
-                          to={`/trading?symbol=${row.symbol}`}
+                          to={`/trade?symbol=${row.symbol}`}
                         >
                           <TradingIcon />
                         </IconButton>

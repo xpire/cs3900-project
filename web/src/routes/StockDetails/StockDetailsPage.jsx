@@ -216,7 +216,7 @@ const StockDetails = () => {
                 <Button
                   variant="outlined"
                   color="primary"
-                  onClick={() => history.push(`/trading?symbol=${symbol}`)}
+                  onClick={() => history.push(`/trade?symbol=${symbol}`)}
                 >
                   Trade
                 </Button>

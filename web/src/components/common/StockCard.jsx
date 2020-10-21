@@ -132,7 +132,7 @@ const StockCard = ({
             <Button
               size="small"
               color="primary"
-              to={`/trading?symbol=${symbol}`}
+              to={`/trade?symbol=${symbol}`}
               component={Link}
             >
               trade

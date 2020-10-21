@@ -94,7 +94,7 @@ export const Routes = [
   },
   {
     text: "Trading",
-    path: "/trading",
+    path: "/trade",
     component: TradingPage,
     icon: <TradingIcon />,
     isPublic: false,

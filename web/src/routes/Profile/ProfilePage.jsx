@@ -32,7 +32,8 @@ const Profile = () => {
               </CardContent>
             </CardActionArea>
             <CardActions>
-              <Button>More info</Button>
+              <Button>Achievements</Button>
+              <Button>Leaderboard</Button>
             </CardActions>
           </StandardCard>
         </Grid>

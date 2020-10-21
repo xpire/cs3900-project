@@ -173,7 +173,7 @@ const Trading = () => {
           <Grid item xs={3} />
           <Grid item xs={9}>
             <TextField
-              label="Price"
+              label="Estimated Price"
               value={`$${123 * state.quantity}`}
               InputProps={{
                 readOnly: true,

@@ -4,9 +4,11 @@ import { Typography, CircularProgress, useTheme } from "@material-ui/core";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthState } from "react-firebase-hooks/auth";
 import styled from "styled-components";
+import { useSnackbar } from "notistack";
 
 import axios from "./api";
 import { CenteredMotionDiv } from "../components/common/styled";
+import useSockets from "../hooks/useSockets";
 const StyledCenteredMotionDiv = styled(CenteredMotionDiv)({
   background: (props) => props.theme.palette.background.default || "#303030",
 });
@@ -29,6 +31,37 @@ export const AuthProvider = ({ children }) => {
           delete axios.defaults.headers.common["id-token"];
         });
   }, [user]);
+
+  const { enqueueSnackbar } = useSnackbar();
+  const [lastJsonMessage, messageHistory, connectionStatus] = useSockets();
+  useEffect(() => {
+    switch (lastJsonMessage?.type) {
+      case "auth":
+        enqueueSnackbar(`${lastJsonMessage?.msg}`, {
+          variant: "info",
+        });
+        break;
+      case "notif":
+        if (lastJsonMessage.msg.event_type === `LEVEL_UP`) {
+          enqueueSnackbar(`Level Up! Lv. ${lastJsonMessage.msg.new_level}`, {
+            variant: "success",
+          });
+        } else if (lastJsonMessage.msg.event_type === `ACHIEVEMENT_UNLOCKED`) {
+          enqueueSnackbar(
+            `Achievement Unlocked! ${JSON.stringify(lastJsonMessage.msg)}`,
+            {
+              variant: "success",
+            }
+          );
+        } else {
+          enqueueSnackbar(`${JSON.stringify(lastJsonMessage)}`, {
+            variant: "success",
+          });
+        }
+        break;
+      default:
+    }
+  }, [lastJsonMessage]);
   return (
     <div style={{ background: theme.palette.background.default }}>
       <AnimatePresence exitBeforeEnter>

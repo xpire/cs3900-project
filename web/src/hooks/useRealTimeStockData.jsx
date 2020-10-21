@@ -6,7 +6,8 @@ const useRealTimeStockData = (
   update = [],
   initialData = [...Array(12)].map((_) => {
     return { skeleton: true };
-  })
+  }),
+  modifier = (x) => x
 ) => {
   const [loadingSymbols, setLoadingSymbols] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -18,7 +19,7 @@ const useRealTimeStockData = (
       .get(path)
       .then((response) => {
         const data = response.data;
-        setSymbols(data);
+        setSymbols(modifier(data));
         setLoadingSymbols(false);
       })
       .catch((err) => {});

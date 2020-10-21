@@ -6,7 +6,14 @@ from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm
 from src import models, schemas
-from src.api.deps import decode_token, get_current_user_dm, get_current_user_m, get_db
+from src.api.deps import (
+    check_uid_email,
+    check_user_exists,
+    decode_token,
+    get_current_user_dm,
+    get_current_user_m,
+    get_db,
+)
 from src.core.async_exit import AppStatus
 from src.domain_models import UserDM
 from src.game.achievement import UserAchievement
@@ -23,9 +30,8 @@ async def check_user(id_token: str = Header(None)) -> schemas.user:
     return uid
 
 
-@router.get("/delete")
+@router.delete("")
 async def delete_user(
-    *,
     email: str,
     db: Session = Depends(get_db),
 ) -> bool:
@@ -36,29 +42,23 @@ async def delete_user(
     return crud.user.delete_user_by_email(db, email=email)
 
 
-# TODO:
-# - change to post again
-# - current doesn't check whether the email matches the user's uid
-@router.get("/create")
+@router.post("")
 async def create_user(
-    *,
-    id_token: str = Header(None),
     email: str,
+    id_token: str = Header(None),
     db: Session = Depends(get_db),
 ) -> schemas.user:
 
-    # TODO @GeorgeBai:
-    # - change to post again
-    # - current doesn't check whether the email matches the user's uid
-
     uid = decode_token(id_token)
-    user = crud.user.get_user_by_uid(db, uid=uid)
 
-    if not user:
-        user = crud.user.create(db, obj_in=schemas.UserCreate(email=email, uid=uid, username=email))
+    # Check if email matches
+    check_uid_email(email, uid)
 
-    # TODO @GeorgeBai
-    # raise error if already created
+    # Check if user exists
+    check_user_exists(uid, db)
+
+    # Create if doesn't exist
+    user = crud.user.create(db, obj_in=schemas.UserCreate(email=email, uid=uid, username=email))
 
     return dm.UserDM(user, db).schema
 

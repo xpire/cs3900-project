@@ -14,4 +14,6 @@ class AchievementData(BaseSchema):
 class Achievement(AchievementData):
     event_type: GameEventType
     can_unlock: Callable[[GameEvent], bool]
-    # is_unlocked: bool
+
+class UserAchievement(AchievementData):
+    is_unlocked:bool

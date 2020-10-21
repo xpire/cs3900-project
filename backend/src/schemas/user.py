@@ -10,7 +10,7 @@ from pydantic import Field
 
 class UserBase(BaseSchema):
     username: str
-    email: str
+    email: str  # TODO change this to EmailStr (e.g. i.p@gmail == ip@gmail)
     balance: float
     level: int
     exp: float

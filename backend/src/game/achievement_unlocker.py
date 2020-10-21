@@ -6,7 +6,7 @@ from typing import Dict
 from src.game.achievement import Achievement, AchievementData
 from src.game.event import GameEvent
 from src.game.event_hub import EventObserver
-from src.notification import AchievementUnlockedEvent, notifier
+from src.notification import AchievementUnlockedEvent, notif_hub
 
 
 # TODO optimize handling multiple events in one session?
@@ -30,6 +30,8 @@ class AchievementUnlocker(EventObserver):
                 self.unlock(event.user, x)
 
     def unlock(self, user: UserDM, achievement: Achievement):
-        notifier.publish(AchievementUnlockedEvent(**AchievementData(**achievement.__dict__).__dict__))
+        achievement_data = AchievementData(**achievement.dict())
+        achievement_event = AchievementUnlockedEvent(**achievement_data.dict(), user=user)
+        notif_hub.publish(achievement_event)
         user.unlock_achievement(achievement.id)
         user.add_exp(achievement.exp)

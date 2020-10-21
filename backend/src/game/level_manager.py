@@ -5,7 +5,7 @@ from typing import List
 from src.game.setup import LevelUpEvent as LevelUpGameEvent
 from src.game.setup import event_hub
 from src.notification import LevelUpEvent as LevelUpNotifEvent
-from src.notification import notifier
+from src.notification import notif_hub
 
 
 class LevelManager:
@@ -19,7 +19,7 @@ class LevelManager:
             user.exp -= self.get_threshold(user.level)
             user.level += 1
 
-            notifier.publish(LevelUpNotifEvent(new_level=user.level))
+            notif_hub.publish(LevelUpNotifEvent(user=user, new_level=user.level))
             event_hub.publish(LevelUpGameEvent(user=user, new_level=user.level))
 
     def is_max_level(self, user: UserDM) -> bool:

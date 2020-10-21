@@ -1,4 +1,5 @@
 from json.decoder import JSONDecodeError
+from typing import List
 
 from fastapi import APIRouter, Depends, Header, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
@@ -14,7 +15,9 @@ from src.api.deps import (
     get_db,
 )
 from src.core.async_exit import AppStatus
-from src.notification import notifier
+from src.domain_models import UserDM
+from src.game.achievement import UserAchievement
+from src.notification.notifier import Notifier, notif_hub
 
 router = APIRouter()
 
@@ -28,7 +31,10 @@ async def check_user(id_token: str = Header(None)) -> schemas.user:
 
 
 @router.delete("")
-async def delete_user(email: str, db: Session = Depends(get_db),) -> bool:
+async def delete_user(
+    email: str,
+    db: Session = Depends(get_db),
+) -> bool:
     """
     Just a helper api for testing
     """
@@ -37,7 +43,11 @@ async def delete_user(email: str, db: Session = Depends(get_db),) -> bool:
 
 
 @router.post("")
-async def create_user(email: str, id_token: str = Header(None), db: Session = Depends(get_db),) -> schemas.user:
+async def create_user(
+    email: str,
+    id_token: str = Header(None),
+    db: Session = Depends(get_db),
+) -> schemas.user:
 
     uid = decode_token(id_token)
 
@@ -51,22 +61,6 @@ async def create_user(email: str, id_token: str = Header(None), db: Session = De
     user = crud.user.create(db, obj_in=schemas.UserCreate(email=email, uid=uid, username=email))
 
     return dm.UserDM(user, db).schema
-
-
-@router.get("/balance")
-async def get_user_balance(user: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)) -> float:
-    return user.balance
-
-
-# TODO implement get_current_user_dm
-# temporarily added for the sake of testing
-@router.get("/add_exp")
-async def add_exp(
-    amount: float, user_model: models.User = Depends(get_current_user_m), db: Session = Depends(get_db),
-) -> schemas.User:
-    user = dm.UserDM(user_model, db)
-    user.add_exp(amount)
-    return user.schema
 
 
 # @router.post("", status_code=201)
@@ -94,7 +88,9 @@ async def get_user_balance(user_m: models.User = Depends(get_current_user_m)) ->
 
 @router.get("/add_exp")
 async def add_exp(
-    amount: float, user: models.User = Depends(get_current_user_dm), db: Session = Depends(get_db),
+    amount: float,
+    user: UserDM = Depends(get_current_user_dm),
+    db: Session = Depends(get_db),
 ) -> schemas.User:
     """
     Give user [amount] exp
@@ -105,7 +101,7 @@ async def add_exp(
 
 
 @router.get("/reset_level")
-async def reset_level(user: models.User = Depends(get_current_user_dm), db: Session = Depends(get_db)) -> schemas.User:
+async def reset_level(user: UserDM = Depends(get_current_user_dm), db: Session = Depends(get_db)) -> schemas.User:
     """
     Reset user's level and exp
     - exposed for testing purposes
@@ -114,6 +110,14 @@ async def reset_level(user: models.User = Depends(get_current_user_dm), db: Sess
     user.level = 1
     user.save_to_db()
     return user.schema
+
+
+@router.get("/achievements")
+async def achievements(user: UserDM = Depends(get_current_user_dm)) -> List[UserAchievement]:
+    """
+    List of achievements and whether or not they are unlocked by the user
+    """
+    return user.achievements
 
 
 async def receive_json(ws: WebSocket):
@@ -142,13 +146,15 @@ async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
         if user:
             print("AUTHORISED")
             # print(schemas.UserInDB.from_orm(user))
-            await ws.send_json(dict(is_error=False, msg="User authorised", type="auth"))
+            await ws.send_json(dict(msg="User authorised", is_error=False, type="auth"))
         else:
             print("NOT AUTHORISED")
-            await ws.send_json(dict(is_error=True, msg="User not authorised", type="auth"))
+            await ws.send_json(dict(msg="User not authorised", is_error=True, type="auth"))
             await ws.close()
             return
 
+        notifier = Notifier(user)
+        notif_hub.subscribe(notifier)
         while not AppStatus.should_exit:
             await notifier.flush(ws)
 

@@ -141,6 +141,9 @@ export default function EnhancedTable({
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
                     {header.map(({ id, numeric, disablePadding, color }) => {
+                      const value = numeric
+                        ? Number(row[id]).toFixed(2)
+                        : row[id];
                       return (
                         <TableCell
                           component="th"
@@ -151,11 +154,12 @@ export default function EnhancedTable({
                           key={id}
                         >
                           {color ? (
-                            <ColoredText color={row[id] > 0 ? "green" : "red"}>
-                              {row[id]}
+                            <ColoredText color={value > 0 ? "green" : "red"}>
+                              {value > 0 && "+"}
+                              {value}
                             </ColoredText>
                           ) : (
-                            <>{row[id]}</>
+                            <>{value}</>
                           )}
                         </TableCell>
                       );

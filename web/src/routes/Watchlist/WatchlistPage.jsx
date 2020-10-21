@@ -97,7 +97,7 @@ const Watchlist = () => {
                         variant: "Success",
                       }
                     )
-                  : enqueueSnackbar(`${response.data.result}: ${symbol}`, {
+                  : enqueueSnackbar(`${response.data.result}`, {
                       variant: "Warning",
                     });
                 setDeleted(deleted + 1);

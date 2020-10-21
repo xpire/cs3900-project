@@ -1,11 +1,13 @@
-import sys
 import os
+import sys
 
 sys.path.append("../")  # dont do this, this is special case uwu
 
-from alembic import context
-from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
+
+from sqlalchemy import engine_from_config, pool
+
+from alembic import context
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -21,15 +23,16 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
 
+from src.core.config import settings
 from src.db.base_model_import_all import (
     BaseModel,
-    Stock,
+    Portfolio,
+    Stock,  # noqa
     TimeSeries,
+    UnlockedAchievement,
     User,
     WatchList,
-    Portfolio,
-)  # noqa
-from src.core.config import settings
+)
 
 metadatas = [
     User.metadata,
@@ -37,6 +40,7 @@ metadatas = [
     TimeSeries.metadata,
     WatchList.metadata,
     Portfolio.metadata,
+    UnlockedAchievement.metadata,
 ]
 
 # other values from the config, defined by the needs of env.py,

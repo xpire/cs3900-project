@@ -128,6 +128,13 @@ elif [ $# -eq 1 ]; then
             echo "Starting...";
             uvicorn src.main:app --reload;
         ;;
+
+        "init-db")
+            print-line;
+            wake-up;
+            upgrade-db;
+            init-data;
+        ;;
         *) echo "Please provide the correct path.";;
     esac
 else

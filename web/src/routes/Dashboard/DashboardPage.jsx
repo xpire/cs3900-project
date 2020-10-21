@@ -10,9 +10,6 @@ import axios from "../../utils/api";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 
 import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
-// import * as data from "../../utils/stocksList.json"; //TODO: make this an API call
-
-// const stockData = data.data; //.slice(0, 30);
 
 const parsedApexData = TimeSeriesData.AAPL.values
   .map(({ datetime, open, close, high, low }) => {
@@ -74,45 +71,26 @@ const StatisticsData = [
   // { name: "Available Balance", value: 5001.22 },
 ];
 
-// const TabPanel = (props) => {
-//   const { children, value, index, ...other } = props;
-
-//   return (
-//     <div
-//       role="tabpanel"
-//       hidden={value !== index}
-//       key={index}
-//       id={`simple-tabpanel-${index}`}
-//       aria-labelledby={`simple-tab-${index}`}
-//       {...other}
-//     >
-//       {value === index && (
-//         <Box p={3}>
-//           <Typography>{children}</Typography>
-//         </Box>
-//       )}
-//     </div>
-//   );
-// };
-
-// const longsData = stockData.slice(0, 3);
-// const shortsData = stockData.slice(3, 6);
-// const watchData = stockData.slice(3, 9);
-
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
-  // console.log(user.getIdToken(true));
   const [myValue, setValue] = useState(0);
-  const [stockData, loading] = useRealTimeStockData();
-
-  const [data, setData] = useState(
-    stockData.slice(myValue * 3, myValue * 3 + 3)
+  const [longData] = useRealTimeStockData(
+    "/portfolio",
+    [],
+    [...Array(12)].map((_) => {
+      return { skeleton: true };
+    }),
+    (d) => d.long
   );
-
-  useEffect(() => {
-    setData(stockData.slice(myValue * 3, myValue * 3 + 3));
-  }, [myValue, stockData]);
-
+  const [shortData] = useRealTimeStockData(
+    "/portfolio",
+    [],
+    [...Array(12)].map((_) => {
+      return { skeleton: true };
+    }),
+    (d) => d.short
+  );
+  const [watchData] = useRealTimeStockData("/watchlist", []);
   const [balance, setBalance] = useState(0);
 
   const getBalance = () => {
@@ -168,7 +146,7 @@ const Dashboard = () => {
               onChange={(_event, newValue) => {
                 console.log("setting value to", newValue);
                 setValue(newValue);
-                setData(stockData.slice(myValue * 3, myValue * 3 + 3));
+                // setData(stockData.slice(myValue * 3, myValue * 3 + 3));
               }}
               indicatorColor="primary"
               textColor="primary"
@@ -179,7 +157,11 @@ const Dashboard = () => {
               <Tab label="Watchlist" />
             </Tabs>
           </StandardCard>
-          <CardGrid data={data} />
+          <CardGrid
+            data={
+              myValue === 0 ? longData : myValue === 1 ? shortData : watchData
+            }
+          />
         </Grid>
       </Grid>
     </Page>

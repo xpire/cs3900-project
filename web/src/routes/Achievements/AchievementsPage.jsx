@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import { Typography, Card } from "@material-ui/core";
 
@@ -19,10 +19,9 @@ const Achievements = () => {
       shouldReconnect: (closeEvent) => true,
       reconnectAttempts: 20,
       reconnectInterval: 3000,
+      share: true,
     }
   );
-
-  console.log("RERENDERED");
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: "Connecting",
@@ -45,14 +44,14 @@ const Achievements = () => {
     }
   }, [readyState, user]);
 
+  const [messageHistory, setMessageHistory] = useState([]);
   useEffect(() => {
-    if (readyState === ReadyState.OPEN) {
-      if (lastJsonMessage.is_error) {
-        console.log("ERROR: " + lastJsonMessage.error_msg);
-      } else if (lastJsonMessage.type === "auth") {
-        // this was for testing purposes
-        // sendJsonMessage(JSON.stringify({ name: "ian", desc: "cool" }));
-      }
+    console.log("Recieved message");
+    console.log(lastJsonMessage);
+    setMessageHistory([...messageHistory, lastJsonMessage]);
+
+    if (readyState === ReadyState.OPEN && lastJsonMessage.is_error) {
+      console.log("ERROR: " + lastJsonMessage.error_msg);
     }
   }, [lastJsonMessage]);
 
@@ -65,6 +64,14 @@ const Achievements = () => {
         <Typography>{`last json message: ${JSON.stringify(
           lastJsonMessage
         )}`}</Typography>
+
+        <ul>
+          {messageHistory.map((msg, idx) => (
+            <span key={idx}>
+              {JSON.stringify(msg)} <br />
+            </span>
+          ))}
+        </ul>
       </Card>
     </Page>
   );

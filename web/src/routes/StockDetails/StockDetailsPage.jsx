@@ -197,12 +197,9 @@ const StockDetails = () => {
                                 variant: "Success",
                               }
                             )
-                          : enqueueSnackbar(
-                              `${response.data.result}: ${symbol}`,
-                              {
-                                variant: "Warning",
-                              }
-                            );
+                          : enqueueSnackbar(`${response.data.result}`, {
+                              variant: "Warning",
+                            });
                         console.log({ response });
                         console.log(response.data.result === "success");
                       })

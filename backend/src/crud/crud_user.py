@@ -9,14 +9,14 @@
 
 from typing import Optional
 
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from src.core.config import settings
-
+from src.core.utilities import fail_save, log_msg
 from src.crud.base import CRUDBase
 from src.crud.crud_stock import stock
 from src.models.portfolio import Portfolio
 from src.models.user import User
-from src.schemas.user import UserCreate, UserUpdate
 from src.models.watch_list import WatchList
 from src.schemas.user import UserCreate, UserUpdate
 
@@ -26,15 +26,14 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     Module for user/auth related CRUD operations
     """
 
-    def get_user_by_uid(self, db: Session, *, uid: str) -> Optional[User]:
+    def get_user_by_uid(self, db: Session, uid: str) -> Optional[User]:
         """
         Return the corresponding user by token.
         """
-        return (
-            db.query(self.model).filter(self.model.uid == uid).first()
-        )  # Field is unique
+        return db.query(self.model).filter(self.model.uid == uid).first()  # Field is unique
 
-    def update_balance(self, db: Session, *, db_obj: User, obj_in: UserUpdate) -> User:
+    @fail_save
+    def update_balance(self, db: Session, db_obj: User, obj_in: UserUpdate) -> User:
         """
         Only update the balance of the user.
         """
@@ -43,7 +42,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db.refresh(db_obj)
         return db_obj
 
-    def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
+    def authenticate(self, db: Session, email: str, password: str) -> Optional[User]:
         pass
 
     def symbol_exist(self, db: Session, c_symbol: str):
@@ -52,8 +51,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         check = stock.get_stock_by_symbol(db=db, stock_symbol=c_symbol)
 
-        return True if (check != None) else False
+        return check != None
 
+    @fail_save
     def add_to_watch_list(self, db: Session, user_in: User, w_symbol: str) -> User:
         """
         Add a watchlist to the user_in's watchlist.
@@ -73,6 +73,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             )
             return user_in
 
+    @fail_save
     def delete_from_watch_list(self, db: Session, user_in: User, w_symbol: str) -> User:
         """
         Delete a watchlist for user_in.
@@ -89,11 +90,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
                     f"Deleting a non-existent stock from watchlist of User(uid = {user_in.uid})",
                     "WARNING",
                 )
-
             else:
                 user_in.watchlist.remove(tbr)
                 db.commit()
                 db.refresh(user_in)
+
             return user_in
         else:
             log_msg(
@@ -102,9 +103,8 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             )
             return user_in
 
-    def add_to_portfolio(
-        self, db: Session, *, user_in: User, p_symbol: str, p_amount: int, price: float
-    ) -> User:
+    @fail_save
+    def add_to_portfolio(self, db: Session, user_in: User, p_symbol: str, p_amount: int, price: float) -> User:
         """
         Add to portfolio
         """
@@ -118,25 +118,18 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
                     break
 
             if ex == None:
-                a_wl = Portfolio(
-                    user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price
-                )
+                a_wl = Portfolio(user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price)
                 user_in.portfolios.append(a_wl)
-                db.commit()
-                db.refresh(user_in)
-                return user_in
             else:
                 # running average used here
-                new_avg = (ex.avg * ex.amount + p_amount * price) / (
-                    ex.amount + p_amount
-                )
+                new_avg = (ex.avg * ex.amount + p_amount * price) / (ex.amount + p_amount)
                 new_amount = ex.amount + p_amount
 
                 ex.avg, ex.amount = new_avg, new_amount
 
-                db.commit()
-                db.refresh(user_in)
-                return user_in
+            db.commit()
+            db.refresh(user_in)
+            return user_in
 
         else:
             log_msg(
@@ -145,9 +138,8 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             )
             return user_in
 
-    def deduct_from_portfolio(
-        self, db: Session, *, user_in: User, p_symbol: str, p_amount: int
-    ) -> User:
+    @fail_save
+    def deduct_from_portfolio(self, db: Session, user_in: User, p_symbol: str, p_amount: int) -> User:
         """
         Remove a stock from portfolio (selling).
         """
@@ -188,7 +180,8 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
                 "WARNING",
             )
             return user_in
-          
+
+    @fail_save
     def delete_user_by_email(self, db: Session, *, email: str) -> bool:
         obj = db.query(self.model).filter(self.model.email == email).first()
         if obj:

@@ -54,21 +54,22 @@ def startup_event():
         stock_names = [f"{stock.symbol}:{stock.exchange}" for stock in STOCKS]
 
         latest_close_price_provider = LatestClosingPriceProvider(
-            symbols=stock_names, apikey=API_KEY,
+            symbols=stock_names,
+            apikey=API_KEY,
         )
         latest_close_price_provider.start()
     finally:
         db.close()
 
 
-@router.get("/real_time")
-async def get_real_time_data():
-    return data_provider.data
+# @router.get("/real_time")
+# async def get_real_time_data():
+#     return data_provider.data
 
 
-@router.get("/real_times")
-async def get_real_time_data(symbol: str):
-    return data_provider.data[symbol]
+# @router.get("/real_times")
+# async def get_real_time_data(symbol: str):
+#     return data_provider.data[symbol]
 
 
 @router.get("/symbols")
@@ -77,7 +78,10 @@ async def get_symbols(db: Session = Depends(get_db)):
 
     for stock in STOCKS:
         ret.append(
-            {"symbol": stock.symbol, "exchange": stock.exchange,}
+            {
+                "symbol": stock.symbol,
+                "exchange": stock.exchange,
+            }
         )
 
     return ret
@@ -108,11 +112,13 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
 
 
 @router.get("/time_series")
-async def get_stock_data(symbol: str = Query(None), db: Session = Depends(get_db), days: int = 90):
+async def get_stock_data(
+    symbol: str = Query(None), db: Session = Depends(get_db), days: int = 90
+):
     stock = crud.stock.get_stock_by_symbol(db, symbol)
 
     data = TD.time_series(
-        symbol=f"{stoc.symbol}:{stock.exchange}",
+        symbol=f"{stock.symbol}:{stock.exchange}",
         interval="1day",
         outputsize=days,  # TODO there seems to be a bug
         timezone="Australia/Sydney",

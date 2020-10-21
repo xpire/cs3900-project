@@ -7,6 +7,7 @@ import {
   Slider,
   Input,
   InputAdornment,
+  LinearProgress,
 } from "@material-ui/core";
 import TradingIcon from "@material-ui/icons/LocalAtm";
 import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
@@ -143,7 +144,16 @@ const Trading = () => {
             </Grid>
           </Grid>
           <Grid item xs={12}>
-            TODO: Portfolio Allocation
+            Portfolio Allocation:
+          </Grid>
+          <Grid item xs={12}>
+            <LinearProgress
+              variant="determinate"
+              style={{ height: "20px" }}
+              value={state.quantity}
+              // valueBuffer={state.quantity + 4}
+              // variant="buffer"
+            />
           </Grid>
           <Grid item xs={3}>
             Order Type:
@@ -181,7 +191,15 @@ const Trading = () => {
               <Button onClick={() => setState(defaultState)}>clear</Button>
             </Grid>
             <Grid item>
-              <Button onClick={() => {}}>Submit</Button>
+              <Button
+                onClick={() => {
+                  console.log(
+                    `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`
+                  );
+                }}
+              >
+                Submit
+              </Button>
             </Grid>
           </Grid>
         </Grid>

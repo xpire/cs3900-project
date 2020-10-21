@@ -24,15 +24,18 @@ def decode_token(id_token: str):
         raise HTTPException(401, detail="The authentication token is invalid.")
 
 
-async def get_current_user_m(
-    id_token: str = Header(None), db: Session = Depends(get_db)
-) -> models.User:
+def check_user_exists(uid: str, db: Session = Depends(get_db)) -> None:
+    user = crud.user.get_user_by_uid(db, uid=uid)
+    if user:
+        raise HTTPException(status_code=400, detail="User already exists.")
+
+
+async def get_current_user_m(id_token: str = Header(None), db: Session = Depends(get_db)) -> models.User:
 
     user_m = crud.user.get_user_by_uid(db, uid=decode_token(id_token))
     if not user_m:
         raise HTTPException(
-            status_code=400,
-            detail="no user exists",
+            status_code=400, detail="no user exists",
         )
     return user_m
 
@@ -49,3 +52,9 @@ async def check_symbol(symbol: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="No such symbol exists")
 
     return symbol
+
+
+def check_uid_email(email: str, uid: str):
+
+    if not auth.get_user(uid).email == email:
+        raise HTTPException(status_code=400, detail="The uid does not match with the provided email.")

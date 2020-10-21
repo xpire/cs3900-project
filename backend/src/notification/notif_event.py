@@ -1,10 +1,10 @@
 from enum import auto
+from typing import Any
 
 from pydantic import BaseModel as BaseSchema
 from pydantic import Field
 from src.game.achievement import AchievementData
 from src.util.auto_name_enum import AutoName
-from typing_extensions import Literal
 
 
 # TODO possibly merge with game event, sharing the event hub
@@ -15,6 +15,7 @@ class NotifEventType(str, AutoName):
 
 class NotifEvent(BaseSchema):
     event_type: NotifEventType
+    user: Any  # UserDM
 
 
 class LevelUpEvent(NotifEvent):

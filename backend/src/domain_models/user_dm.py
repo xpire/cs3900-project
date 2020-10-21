@@ -70,12 +70,16 @@ class UserDM:
     @property
     def achievements(self):
         unlocked = self.unlocked_achievement_ids
-        return [UserAchievement(**x.__dict__, is_unlocked=x.id in unlocked) for x in achievements_list]
+        return [UserAchievement(**x.dict(), is_unlocked=x.id in unlocked) for x in achievements_list]
+
+    @property
+    def uid(self):
+        return self.user.uid
 
     @property
     def schema(self):
         return User(
-            **UserInDB.from_orm(self.user).__dict__,
+            **UserInDB.from_orm(self.user).dict(),
             exp_until_next_level=self.exp_until_next_level,
             is_max_level=self.is_max_level
         )

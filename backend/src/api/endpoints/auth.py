@@ -10,7 +10,7 @@ from src.api.deps import decode_token, get_current_user_dm, get_current_user_m, 
 from src.core.async_exit import AppStatus
 from src.domain_models import UserDM
 from src.game.achievement import UserAchievement
-from src.notification import notifier
+from src.notification.notifier import Notifier, notif_hub
 
 router = APIRouter()
 
@@ -153,6 +153,8 @@ async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
             await ws.close()
             return
 
+        notifier = Notifier(user)
+        notif_hub.subscribe(notifier)
         while not AppStatus.should_exit:
             await notifier.flush(ws)
 

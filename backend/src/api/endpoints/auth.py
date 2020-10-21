@@ -156,9 +156,7 @@ async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
             await ws.send_json(dict(is_error=False, msg="User authorised", type="auth"))
         else:
             print("NOT AUTHORISED")
-            await ws.send_json(
-                dict(is_error=True, msg="User not authorised", type="auth")
-            )
+            await ws.send_json(dict(is_error=True, msg="User not authorised", type="auth"))
             await ws.close()
             return
 

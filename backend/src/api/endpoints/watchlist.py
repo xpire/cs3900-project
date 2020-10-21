@@ -12,17 +12,11 @@ router = APIRouter()
 
 
 @router.get("")
-async def get_watchlist(
-    user: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)
-):
+async def get_watchlist(user: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)):
     ret = []
     for entry in user.watchlist:
         ret += [
-            {
-                "name": entry.stock_info.name,
-                "symbol": entry.stock_info.symbol,
-                "exchange": entry.stock_info.exchange,
-            }
+            {"name": entry.stock_info.name, "symbol": entry.stock_info.symbol, "exchange": entry.stock_info.exchange,}
         ]
 
     return ret
@@ -30,13 +24,12 @@ async def get_watchlist(
 
 @router.post("")
 async def update_watchlist(
-    symbol: str = Depends(check_symbol),
-    user: models.User = Depends(get_current_user_m),
-    db: Session = Depends(get_db),
+    symbol: str = Depends(check_symbol), user: models.User = Depends(get_current_user_m), db: Session = Depends(get_db),
 ):
     # Check if already exists
     if check_exists_watchlist(user, symbol):
-        return {"result": "symbol already exists"}
+        raise HTTPException(status_code=400, detail="Symbol already exists in watchlist.")
+        # return {"result": "symbol already exists"}
 
     crud.user.add_to_watch_list(db, user, symbol)
 
@@ -45,13 +38,12 @@ async def update_watchlist(
 
 @router.delete("")
 async def delete_watchlist(
-    symbol: str = Depends(check_symbol),
-    user: models.User = Depends(get_current_user_m),
-    db: Session = Depends(get_db),
+    symbol: str = Depends(check_symbol), user: models.User = Depends(get_current_user_m), db: Session = Depends(get_db),
 ):
     # Check if already exists
     if not check_exists_watchlist(user, symbol):
-        return {"result": "symbol does not exist in watchlist"}
+        raise HTTPException(status_code=400, detail="Symbol does not exist in watchlist.")
+        # return {"result": "symbol does not exist in watchlist"}
 
     crud.user.delete_from_watch_list(db, user, symbol)
 

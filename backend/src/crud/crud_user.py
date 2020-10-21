@@ -30,14 +30,16 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Return the corresponding user by token.
         """
-        return db.query(self.model).filter(self.model.uid == uid).first()  # Field is unique
+        return (
+            db.query(self.model).filter(self.model.uid == uid).first()
+        )  # Field is unique
 
     @fail_save
-    def update_balance(self, db: Session, db_obj: User, obj_in: UserUpdate) -> User:
+    def update_balance(self, db: Session, db_obj: User, u_balance: float) -> User:
         """
         Only update the balance of the user.
         """
-        db_obj.balance = obj_in.balance
+        db_obj.balance = u_balance
         db.commit()
         db.refresh(db_obj)
         return db_obj
@@ -104,7 +106,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             return user_in
 
     @fail_save
-    def add_to_portfolio(self, db: Session, user_in: User, p_symbol: str, p_amount: int, price: float) -> User:
+    def add_to_portfolio(
+        self, db: Session, user_in: User, p_symbol: str, p_amount: int, price: float
+    ) -> User:
         """
         Add to portfolio
         """
@@ -118,11 +122,15 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
                     break
 
             if ex == None:
-                a_wl = Portfolio(user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price)
+                a_wl = Portfolio(
+                    user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price
+                )
                 user_in.portfolios.append(a_wl)
             else:
                 # running average used here
-                new_avg = (ex.avg * ex.amount + p_amount * price) / (ex.amount + p_amount)
+                new_avg = (ex.avg * ex.amount + p_amount * price) / (
+                    ex.amount + p_amount
+                )
                 new_amount = ex.amount + p_amount
 
                 ex.avg, ex.amount = new_avg, new_amount
@@ -139,7 +147,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             return user_in
 
     @fail_save
-    def deduct_from_portfolio(self, db: Session, user_in: User, p_symbol: str, p_amount: int) -> User:
+    def deduct_from_portfolio(
+        self, db: Session, user_in: User, p_symbol: str, p_amount: int
+    ) -> User:
         """
         Remove a stock from portfolio (selling).
         """

@@ -62,14 +62,14 @@ def startup_event():
         db.close()
 
 
-@router.get("/real_time")
-async def get_real_time_data():
-    return data_provider.data
+# @router.get("/real_time")
+# async def get_real_time_data():
+#     return data_provider.data
 
 
-@router.get("/real_times")
-async def get_real_time_data(symbol: str):
-    return data_provider.data[symbol]
+# @router.get("/real_times")
+# async def get_real_time_data(symbol: str):
+#     return data_provider.data[symbol]
 
 
 @router.get("/symbols")
@@ -118,7 +118,7 @@ async def get_stock_data(
     stock = crud.stock.get_stock_by_symbol(db, symbol)
 
     data = TD.time_series(
-        symbol=f"{stoc.symbol}:{stock.exchange}",
+        symbol=f"{stock.symbol}:{stock.exchange}",
         interval="1day",
         outputsize=days,  # TODO there seems to be a bug
         timezone="Australia/Sydney",

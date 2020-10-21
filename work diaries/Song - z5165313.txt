@@ -27,5 +27,10 @@ Curated a list of 30 ASX stocks for our application
     Attempted to have a balance between industry sectors, price points and ETFs
 
 Week 5:
-Curated similar lists for 30 NYSE stocks, and 10 LSE stocks with similar industry distributions to the ASX ones
-Working on implementing back end routing.
+Curated similar lists for 30 NYSE stocks, and 10 LSE stocks with similar industry distributions to the ASX ones.
+Spent a lot of time understanding the architecture, including time spent learning fastapi and crud.
+First demo was this week. Held meetings to prepare for this and finalise the sprint.
+Held retrospective meeting for the first demo and contributed to that report.
+
+Week 6:
+Implementing trading APIs for front end.

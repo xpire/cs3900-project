@@ -1,4 +1,5 @@
 from json.decoder import JSONDecodeError
+from typing import List
 
 from fastapi import APIRouter, Depends, Header, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
@@ -7,6 +8,8 @@ from src import domain_models as dm
 from src import models, schemas
 from src.api.deps import decode_token, get_current_user_dm, get_current_user_m, get_db
 from src.core.async_exit import AppStatus
+from src.domain_models import UserDM
+from src.game.achievement import UserAchievement
 from src.notification import notifier
 
 router = APIRouter()
@@ -60,24 +63,6 @@ async def create_user(
     return dm.UserDM(user, db).schema
 
 
-@router.get("/balance")
-async def get_user_balance(user: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)) -> float:
-    return user.balance
-
-
-# TODO implement get_current_user_dm
-# temporarily added for the sake of testing
-@router.get("/add_exp")
-async def add_exp(
-    amount: float,
-    user_model: models.User = Depends(get_current_user_m),
-    db: Session = Depends(get_db),
-) -> schemas.User:
-    user = dm.UserDM(user_model, db)
-    user.add_exp(amount)
-    return user.schema
-
-
 # @router.post("", status_code=201)
 # async def create_user(
 #     db=Depends(get_db),
@@ -104,7 +89,7 @@ async def get_user_balance(user_m: models.User = Depends(get_current_user_m)) ->
 @router.get("/add_exp")
 async def add_exp(
     amount: float,
-    user: models.User = Depends(get_current_user_dm),
+    user: UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> schemas.User:
     """
@@ -116,7 +101,7 @@ async def add_exp(
 
 
 @router.get("/reset_level")
-async def reset_level(user: models.User = Depends(get_current_user_dm), db: Session = Depends(get_db)) -> schemas.User:
+async def reset_level(user: UserDM = Depends(get_current_user_dm), db: Session = Depends(get_db)) -> schemas.User:
     """
     Reset user's level and exp
     - exposed for testing purposes
@@ -125,6 +110,14 @@ async def reset_level(user: models.User = Depends(get_current_user_dm), db: Sess
     user.level = 1
     user.save_to_db()
     return user.schema
+
+
+@router.get("/achievements")
+async def achievements(user: UserDM = Depends(get_current_user_dm)) -> List[UserAchievement]:
+    """
+    List of achievements and whether or not they are unlocked by the user
+    """
+    return user.achievements
 
 
 async def receive_json(ws: WebSocket):

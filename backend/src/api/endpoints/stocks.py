@@ -61,14 +61,14 @@ def startup_event():
         db.close()
 
 
-@router.get("/real_time")
-async def get_real_time_data():
-    return data_provider.data
+# @router.get("/real_time")
+# async def get_real_time_data():
+#     return data_provider.data
 
 
-@router.get("/real_times")
-async def get_real_time_data(symbol: str):
-    return data_provider.data[symbol]
+# @router.get("/real_times")
+# async def get_real_time_data(symbol: str):
+#     return data_provider.data[symbol]
 
 
 @router.get("/symbols")

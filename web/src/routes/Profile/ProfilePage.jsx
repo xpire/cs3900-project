@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   Typography,
   Grid,
@@ -12,11 +12,18 @@ import {
 import { Skeleton } from "@material-ui/lab";
 
 import { AuthContext } from "../../utils/authentication";
+import axios from "../../utils/api";
 import Page from "../../components/page/Page";
 import { StandardCard } from "../../components/common/styled";
 
 const Profile = () => {
   const { user } = useContext(AuthContext);
+  const [data, setData] = useState({});
+  useEffect(() => {
+    axios.get("/user").then((response) => {
+      setData(response.data);
+    });
+  }, []);
   return (
     <Page>
       <Grid container direction="row">
@@ -26,14 +33,23 @@ const Profile = () => {
               <CardContent>
                 <Typography variant="h3">{user.email}</Typography>
                 <Typography variant="h5">Rank: #{5}</Typography>
-                <Typography variant="h5">Net: ${1234567890.12}</Typography>
-                <Typography variant="h5">Level {6}</Typography>
-                <LinearProgress value={45} variant="determinate" />
+                <Typography variant="h5">Net: ${data.balance}</Typography>
+                <Typography variant="h5">Level {data.level}</Typography>
+                <LinearProgress
+                  value={
+                    (data.exp / (data.exp_until_next_level + data.exp)) * 100
+                  }
+                  variant="determinate"
+                />
               </CardContent>
             </CardActionArea>
             <CardActions>
-              <Button>Achievements</Button>
-              <Button>Leaderboard</Button>
+              <Button color="primary" variant="outlined">
+                Achievements
+              </Button>
+              <Button color="primary" variant="outlined">
+                Leaderboard
+              </Button>
             </CardActions>
           </StandardCard>
         </Grid>

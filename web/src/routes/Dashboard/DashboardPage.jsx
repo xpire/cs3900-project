@@ -90,7 +90,7 @@ const Dashboard = () => {
     }),
     (d) => d.short
   );
-  const [watchData] = useRealTimeStockData("/watchlist", []);
+  const [watchData] = useRealTimeStockData("/watchlist", [myValue]);
   const [balance, setBalance] = useState(0);
 
   const getBalance = () => {

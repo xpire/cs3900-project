@@ -24,24 +24,25 @@ $ bash start.sh initial-populate /path/to/env.yaml /path/to/ecksdee-firebase.jso
 `env.yaml`: file containing the configuration information and secret keys. 
 `ecksdee-firebase`: file containing the firebase token. 
 
-## Backend wake up
-If first time setup has been run but you have closed the shell, then you can just run
-```
-$ bash start.sh wake-up 
-$ bash start.sh backend-run
-```
-to quick start the backend.
-
 ## Other utilities
 You may also use some of the utilities provided by `start.sh`. 
 
-Below command upgrades the database to a `newer` version.
+To check if db exists and create one if its missing, run
 ```
-$ bash start.sh upgrade-db;
+$ bash start.sh check-wake
+```
+To only create the tables and insert the static stock data, run
+```
+$ bash start.sh init-db
+``` 
+
+Below command deletes the database and creates a new one following the defined metadata in `src/models`, use with caution please.
+```
+$ bash start.sh nuke-db-from-orbit;
 ```
 
-Below command starts the backend, note that other setup still needs to be ran before this.
+Below command starts the backend, please make sure that tables are created before running this.
 ```
-$ bash start.sh backend-run; 
+$ bash start.sh run; 
 ```
  

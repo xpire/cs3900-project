@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Float
-from src.db.base_model import BaseModel
+from sqlalchemy import Column, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from src.db.base_model import BaseModel
+
 
 # Requires compactification
 class Portfolio(BaseModel):

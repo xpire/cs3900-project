@@ -16,48 +16,39 @@ export CANRUN=0; # can run the backend
 print-line() {
     echo "============================================================================="
 }
-
-# Initialize the database with the stocks data
-init-data() {
-    print-line;
-    echo "Creating initial data...";
-    python3 ${PROOT}/src/db/init_db.py;
-    print-line;
+title-bar() {
+    echo "============================================================================="
+    echo "▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄   ▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄    ▄▄   ▄▄ ▄▄▄▄▄▄    "
+    echo "█       █       █   █ █ █       █      ██       █       █  █  █▄█  █      █  "
+    echo "█    ▄▄▄█       █   █▄█ █  ▄▄▄▄▄█  ▄    █    ▄▄▄█    ▄▄▄█  █       █  ▄    █ "
+    echo "█   █▄▄▄█     ▄▄█      ▄█ █▄▄▄▄▄█ █ █   █   █▄▄▄█   █▄▄▄   █       █ █ █   █ "
+    echo "█    ▄▄▄█    █  █     █▄█▄▄▄▄▄  █ █▄█   █    ▄▄▄█    ▄▄▄█   █     ██ █▄█   █ "
+    echo "█   █▄▄▄█    █▄▄█    ▄  █▄▄▄▄▄█ █       █   █▄▄▄█   █▄▄▄   █   ▄   █       █ "
+    echo "█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄▄█ █▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄██▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█  █▄▄█ █▄▄█▄▄▄▄▄▄█  "
+    echo "============================================================================="
 }
 
-check-wake() {
-    echo "Checking if database is awake...";
-    python3 ${PROOT}/src/db/wake_db.py;
-    echo "Cool...";
-}
-
-# Run this if tthe shell was closed
-wake-up() {
+set-python-path() {
     print-line;
     echo "Set python path...";
     export PYTHONPATH=${PROOT}:$PYTHONPATH;
     echo "Cool..."
-
     print-line;
-    check-wake; 
+}
+
+check-wake() {
     print-line;
-
-    export CANRUN=1;
-} 
-
-upgrade-db() {
+    echo "Checking if database is awake...create one if its missing...";
+    python3 ${PROOT}/src/db/wake_db.py;
+    echo "Cool...";
     print-line;
-    echo "Upgrading database...";
+}
 
-    alembic upgrade head; 
-
-    # cd $s;
-    if [ $? -eq 0 ]; then
-        echo "Success!!!"
-    else
-        echo "Error: Upgrade database failed...";
-        exit $?;
-    fi
+# Initialize the database with the stocks data
+init-db() {
+    print-line;
+    echo "Creating initial data...";
+    python3 ${PROOT}/src/db/init_db.py;
     print-line;
 }
 
@@ -65,16 +56,7 @@ upgrade-db() {
 if [ $# -eq 3 ]; then
     case $1 in
         "initial-populate")
-            echo "============================================================================="
-            echo "▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄   ▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄    ▄▄   ▄▄ ▄▄▄▄▄▄    "
-            echo "█       █       █   █ █ █       █      ██       █       █  █  █▄█  █      █  "
-            echo "█    ▄▄▄█       █   █▄█ █  ▄▄▄▄▄█  ▄    █    ▄▄▄█    ▄▄▄█  █       █  ▄    █ "
-            echo "█   █▄▄▄█     ▄▄█      ▄█ █▄▄▄▄▄█ █ █   █   █▄▄▄█   █▄▄▄   █       █ █ █   █ "
-            echo "█    ▄▄▄█    █  █     █▄█▄▄▄▄▄  █ █▄█   █    ▄▄▄█    ▄▄▄█   █     ██ █▄█   █ "
-            echo "█   █▄▄▄█    █▄▄█    ▄  █▄▄▄▄▄█ █       █   █▄▄▄█   █▄▄▄   █   ▄   █       █ "
-            echo "█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄▄█ █▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄██▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█  █▄▄█ █▄▄█▄▄▄▄▄▄█  "
-            echo "============================================================================="
-
+            title-bar;
             echo "uwu, Starting first time population"
             print-line;
 
@@ -96,54 +78,45 @@ if [ $# -eq 3 ]; then
                 exit $?;
             fi
 
-            wake-up;
-            upgrade-db;
-            init-data;
-
+            check-wake;
+            init-db;
         ;; 
         *) echo "Variable name error.";;
     esac
 elif [ $# -eq 1 ]; then
     case $1 in
-            "wake-up")
-            print-line;
-            echo "Set python path...";
-            export PYTHONPATH=${PROOT}:$PYTHONPATH;
-            echo "Cool..."
-
-            print-line;
+        "check-wake")
+            title-bar;
+            set-python-path;
             check-wake; 
-            print-line;
         ;;
-
-        "backend-run")
-            print-line;
-
-            echo "Set python path...";
-            export PYTHONPATH=${PROOT}:$PYTHONPATH;
-            echo "Cool..."
-            
+        "run")
+            title-bar;
+            set-python-path;
             check-wake;
-            print-line;
             echo "Starting...";
             uvicorn src.main:app --reload;
         ;;
 
         "init-db")
-            print-line;
-            wake-up;
-            upgrade-db;
-            init-data;
+            title-bar;
+            check-wake;
+            init-db;
         ;;
 
-        "nuke-db") # be in backend
-            print-line;
-            rm ../database/testdb.sqlite3 # change this later
-            echo "Nuking database from the orbit ..."
-            export PYTHONPATH=${PROOT}:$PYTHONPATH;
-        
-            python src/db/init_db.py
-        echo "Database destroyed" 
+        "nuke-db-from-orbit") # be in backend
+            title-bar; 
+            read -p "Are you sure you want to nuke it ? you will lose all the data in the database...   "  res
+
+            if [ $res == "yes" ]; then 
+                echo "Nuking database from the orbit..."
+                rm ../database/testdb.sqlite3 # change this later
+                echo "Recreating it now..."
+                check-wake;
+                init-db;
+            else
+                echo "ABORT!!!! ABORT!!!!" 
+            fi
         ;;
         *) echo "Please provide the correct path.";;
     esac

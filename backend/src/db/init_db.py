@@ -1,16 +1,32 @@
-import logging
 import csv
-
+import logging
 from os import path
-from src.core.config import settings, proj_root
+
 from sqlalchemy.orm import Session
-from src.db.session import SessionLocal
+from src.core.config import proj_root, settings
 from src.crud.crud_stock import stock
 from src.db import base_model_import_all as base_model  # noqa: F401
+from src.db.base_model_import_all import (
+    BaseModel,
+    Portfolio,
+    ShortSell,
+    Stock,
+    TimeSeries,
+    UnlockedAchievement,
+    User,
+    WatchList,
+)
+from src.db.session import SessionLocal, engine
 
-# make sure all SQL Alchemy models are imported (app.db.base) before initializing DB
-# otherwise, SQL Alchemy might fail to initialize relationships properly
-# for more details: https://github.com/tiangolo/full-stack-fastapi-postgresql/issues/28
+metadatas = [
+    User.metadata,
+    Stock.metadata,
+    TimeSeries.metadata,
+    WatchList.metadata,
+    Portfolio.metadata,
+    UnlockedAchievement.metadata,
+    ShortSell.metadata,
+]
 
 
 def init_db(db: Session) -> None:
@@ -18,11 +34,14 @@ def init_db(db: Session) -> None:
     Fill the stocks table with the selected stocks, also creates
     the database if it doesn't exis
     """
-    print("Inserting initial stocks")
+    # create all tables
+    for x in metadatas:
+        x.create_all(bind=engine)
+
+    print("Inserting initial stocks...")
     with open(path.join(str(proj_root), "database", "stocks.csv"), mode="r") as file:
         reserved_stocks = [sd for sd in csv.DictReader(file)]
         stock.csv_batch_insert(db=db, csv_stocks=reserved_stocks)
-    print("Done!!! XD")
 
 
 if __name__ == "__main__":

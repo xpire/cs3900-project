@@ -57,6 +57,7 @@ class LatestClosingPriceProvider(DataProvider):
         self.TD = TDClient(apikey=apikey)
         self.symbols = symbols
         self.db = db
+        self.n = 0  # Number of times we've polled
 
         self.request = None
 
@@ -65,22 +66,7 @@ class LatestClosingPriceProvider(DataProvider):
 
     def _start(self):
 
-        # First, request historical data for last 90 days
-        self.request = self.TD.time_series(
-            symbol=self.symbols,
-            interval="1day",
-            outputsize=90,
-            timezone="Australia/Sydney",  # output all timestamps in Sydney's timezone
-        )
         self.update()
-
-        # Now, change request to poll for last 2 days
-        self.request = self.TD.time_series(
-            symbol=self.symbols,
-            interval="1day",
-            outputsize=2,
-            timezone="Australia/Sydney",  # output all timestamps in Sydney's timezone
-        )
 
         RepeatScheduler(self, seconds_until_next_minute).start()
 
@@ -89,6 +75,24 @@ class LatestClosingPriceProvider(DataProvider):
         self.db.close()
 
     def update(self):
+
+        if self.n == 0:
+            self.request = self.TD.time_series(
+                symbol=self.symbols,
+                interval="1day",
+                outputsize=90,
+                timezone="Australia/Sydney",  # output all timestamps in Sydney's timezone
+            )
+
+            self.startup = False
+        if self.n == 1:
+            self.request = self.TD.time_series(
+                symbol=self.symbols,
+                interval="1day",
+                outputsize=2,
+                timezone="Australia/Sydney",  # output all timestamps in Sydney's timezone
+            )
+
         message = self.request.as_json()
         if len(self.symbols) == 1:
             message = {self.symbols[0]: message}
@@ -102,6 +106,8 @@ class LatestClosingPriceProvider(DataProvider):
             for symbol, data in message.items():
                 symbol = symbol.split(":")[0]
                 self._data[symbol] = [data[0]["close"], data[1]["close"]]
+
+        self.n += 1
 
     @property
     def data(self):
@@ -223,11 +229,11 @@ class RepeatScheduler(Thread):
 
     def run(self):
         while True:
-            self.provider.update()
-
             if callable(self.wait_for_x_seconds):
                 x = self.wait_for_x_seconds()
             else:
                 x = self.wait_for_x_seconds
 
             time.sleep(x)
+
+            self.provider.update()

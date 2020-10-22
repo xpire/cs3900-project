@@ -1,11 +1,7 @@
 from typing import Optional
 
 from pydantic import BaseModel as BaseSchema
-from pydantic import Field
-
-# TODO figure out a way to export these
-# BaseModel
-# Const = lambda x: Field(x, const=x)
+from src.util.extended_types import Const
 
 
 class UserBase(BaseSchema):
@@ -18,9 +14,9 @@ class UserBase(BaseSchema):
 
 class UserCreate(UserBase):
     uid: str
-    balance: float = Field(10000, const=10000)
-    level: int = Field(1, const=1)
-    exp: float = Field(0, const=0)
+    balance: float = Const(10000)
+    level: int = Const(1)
+    exp: float = Const(0)
 
 
 class UserUpdate(UserBase):

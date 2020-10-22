@@ -6,10 +6,10 @@ from src.util.auto_name_enum import AutoName
 
 
 class GameEventType(str, AutoName):
-    ORDER = auto()  # when orders are made
+    TRANSACTION = auto()  # when transactions are executed
     LEVEL_UP = auto()  # when levelling up
     STATISTICS = auto()  # after statistics have been computed
-    ACTION = auto()  # e.g. read a wiki
+    # ACTION = auto()  # e.g. read a wiki
     ACHIEVEMENT_UNLOCKED = auto()
 
 

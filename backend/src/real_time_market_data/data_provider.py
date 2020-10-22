@@ -94,10 +94,8 @@ class LatestClosingPriceProvider(DataProvider):
             message = {self.symbols[0]: message}
 
         # Insert into sqlite database
-        print("Inserting historical data into database...")
         for symbol, data in message.items():
             stock = crud.stock.get_stock_by_symbol(self.db, symbol.split(":")[0])
-            # print(data)
             crud.stock.batch_add_daily_time_series(self.db, stock, data)
 
         with self.lock:

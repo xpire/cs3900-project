@@ -47,7 +47,7 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         """
         Retieve the sorted time series of the obj_in.
         """
-        return [x.dict for x in obj_in.timeseries]
+        return [x.__dict__ for x in obj_in.timeseries]
 
     @fail_save
     def update_time_series(self, db: Session, obj_in: Stock, u_time_series: Dict) -> Stock:
@@ -104,24 +104,23 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
                     close_p=row["close"],
                     volume=row["volume"],
                 )
+
+                # Check if currently exists
+                entry = (
+                    db.query(TimeSeries)
+                    .filter(TimeSeries.datetime == dt_str and TimeSeries.symbol == obj_in.symbol)
+                    .first()
+                )
+                if not entry:
+                    entry = tsc  # Replace if found
+                else:
+                    obj_in.timeseries.append(tsc)  # Otherwise, add row
+
             except ValidationError as e:
                 log_msg(f"Failed to insert time series {row.__str__}.", "ERROR")
                 continue
 
             tsc = TimeSeries(**tsc.dict())
-
-            print(tsc)
-            # Check if already exists
-            entry = (
-                db.query(TimeSeries)
-                .filter(TimeSeries.datetime == dt_str and TimeSeries.symbol == obj_in.symbol)
-                .first()
-            )
-
-            if not entry:
-                print("FOUND")
-
-                obj_in.timeseries.append(tsc)
 
         db.commit()
         db.refresh(obj_in)

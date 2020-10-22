@@ -115,11 +115,11 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
 async def get_stock_data(symbol: str = Query(None), db: Session = Depends(get_db), days: int = 90):
     stock = crud.stock.get_stock_by_symbol(db, symbol)
 
-    # data = crud.stock.get_time_series(db, stock)
-    data = TD.time_series(
-        symbol=f"{stock.symbol}:{stock.exchange}",
-        interval="1day",
-        outputsize=days,  # TODO there seems to be a bug
-        timezone="Australia/Sydney",
-    ).as_json()
+    data = crud.stock.get_time_series(db, stock)
+    # data = TD.time_series(
+    #     symbol=f"{stock.symbol}:{stock.exchange}",
+    #     interval="1day",
+    #     outputsize=days,  # TODO there seems to be a bug
+    #     timezone="Australia/Sydney",
+    # ).as_json()
     return data

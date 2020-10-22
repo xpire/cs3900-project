@@ -176,7 +176,7 @@ async def market_buy(symbol: str, quantity: int, user: UserDM = Depends(get_curr
         trade_timestamp=datetime.now(),
     )
 
-    from src.game.setup import event_hub
+    from src.game.setup.setup import event_hub
 
     event_hub.publish(TransactionEvent(user=user, transaction=t))
     return user.schema

@@ -95,7 +95,7 @@ elif [ $# -eq 1 ]; then
             set-python-path;
             check-wake;
             echo "Starting...";
-            uvicorn src.main:app --reload;
+            uvicorn src.main:app --reload --ws websockets;
         ;;
 
         "init-db")

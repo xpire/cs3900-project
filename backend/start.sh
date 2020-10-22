@@ -126,7 +126,7 @@ elif [ $# -eq 1 ]; then
             check-wake;
             print-line;
             echo "Starting...";
-            uvicorn src.main:app --reload;
+            uvicorn src.main:app --reload --ws websockets;
         ;;
 
         "init-db")

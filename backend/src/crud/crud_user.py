@@ -16,6 +16,7 @@ from src.core.utilities import fail_save, log_msg
 from src.crud.base import CRUDBase
 from src.crud.crud_stock import stock
 from src.models.portfolio import Portfolio
+from src.models.short_sell import ShortSell
 from src.models.user import User
 from src.models.watch_list import WatchList
 from src.schemas.user import UserCreate, UserUpdate
@@ -106,26 +107,49 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             return user_in
 
     @fail_save
-    def add_to_portfolio(
-        self, db: Session, user_in: User, p_symbol: str, p_amount: int, price: float
+    def add_transaction(
+        self,
+        db: Session,
+        user_in: User,
+        t_type: str,
+        p_symbol: str,
+        p_amount: int,
+        price: float,
     ) -> User:
         """
         Add to portfolio
         """
+        if t_type != "long" or t_type != "short":
+            log_msg(
+                "No such type of transaction allowed, allowed are 'long' or'short'.",
+                "ERROR",
+            )
+            return user_in
+
         if self.symbol_exist(db=db, c_symbol=p_symbol):
 
             ex = None
+            ca = user_in.long_positions if t_type == "long" else user_in.short_positions
+
             # Compact portfolio
-            for x in user_in.portfolios:
+            for x in ca:
                 if x.symbol == p_symbol:
                     ex = x
                     break
 
             if ex == None:
-                a_wl = Portfolio(
-                    user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price
+                a_wl = (
+                    Portfolio(
+                        user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price
+                    )
+                    if t_type == "long"
+                    else ShortSell(
+                        user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price
+                    )
                 )
-                user_in.portfolios.append(a_wl)
+                user_in.long_positions.append(
+                    a_wl
+                ) if t_type == "long" else user_in.short_positions.append(a_wl)
             else:
                 # running average used here
                 new_avg = (ex.avg * ex.amount + p_amount * price) / (
@@ -147,15 +171,25 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             return user_in
 
     @fail_save
-    def deduct_from_portfolio(
-        self, db: Session, user_in: User, p_symbol: str, p_amount: int
+    def deduct_transaction(
+        self, db: Session, user_in: User, t_type: str, p_symbol: str, p_amount: int
     ) -> User:
         """
-        Remove a stock from portfolio (selling).
+        Remove a stock from portfolio (selling). For type specify 'long' or 'short'
         """
+        if t_type != "long" or t_type != "short":
+            log_msg(
+                "No such type of transaction allowed, allowed are 'long' or'short'.",
+                "ERROR",
+            )
+            return user_in
+
         if self.symbol_exist(db=db, c_symbol=p_symbol):
             ex = None
-            for x in user_in.portfolios:
+
+            ca = user_in.long_positions if t_type == "long" else user_in.short_positions
+
+            for x in ca:
                 if x.symbol == p_symbol:
                     ex = x
                     break
@@ -172,11 +206,13 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
                 if new_amount < 0:
                     log_msg(
-                        f"Deducting more than owned on porfolio of User(uid = {user_in.uid}).",
+                        f"Deducting more than owned of User(uid = {user_in.uid}).",
                         "WARNING",
                     )
                 elif new_amount == 0:
-                    user_in.portfolios.remove(ex)
+                    user_in.long_positions.remove(
+                        ex
+                    ) if t_type == "long" else user_in.short_positions.remove(ex)
                 else:
                     ex.amount = new_amount
 

@@ -131,6 +131,57 @@ class UserDM:
 
         return ret
 
+    def get_total_opening_values(self, p_type: str):
+        """
+        Returns total amount paid for long_positions or
+        total amount gained for short_positions
+        """
+        if p_type != "long" and p_type != "short":
+            log_msg(
+                "No such position. allowed are 'long' or'short'.",
+                "ERROR",
+            )
+            return
+
+        portfolio = (
+            self.model.long_positions
+            if p_type == "long"
+            else self.model.short_positions
+        )
+
+        value = 0
+        for position in portfolio:
+            value += position.amount * postion.avg
+
+        return value
+
+    def get_total_closing_values(self, p_type: str):
+        """
+        Returns total current value of long_positions or
+        total current cost to cover short_positions
+        """
+        if p_type != "long" and p_type != "short":
+            log_msg(
+                "No such position. allowed are 'long' or'short'.",
+                "ERROR",
+            )
+            return
+
+        portfolio = (
+            self.model.long_positions
+            if p_type == "long"
+            else self.model.short_positions
+        )
+
+        value = 0
+        for position in portfolio:
+            curr_price = float(
+                stocks_api.latest_close_price_provider.data[position.symbol][0]
+            )
+            value += position.avg * curr_price
+
+        return value
+
     def watchlist_create(self, wl_sys: str):
         self.user = user.add_to_watch_list(
             db=self.db, user_in=self.user, w_symbol=wl_sys

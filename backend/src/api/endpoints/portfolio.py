@@ -24,5 +24,7 @@ async def get_portfolio(
     ret["balance"] = user.model.balance
     ret["long"] = user.get_positions("long")
     ret["short"] = user.get_positions("short")
+    ret["total_long_val"] = user.get_total_closing_values("long")
+    ret["total_short_val"] = user.get_total_closing_values("short")
 
     return ret

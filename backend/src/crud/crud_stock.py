@@ -54,30 +54,40 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
     @fail_save
     def update_time_series(self, db: Session, obj_in: Stock, u_time_series: Dict) -> Stock:
         """
-        Update the newest entry of time series. Update the value to u_time_series
+        Update the newest entry of time series. Update last 2 entries u_time_series.
         """
-        tsc = None
-        try:
-            tsc = TimeSeriesCreate(
-                datetime=u_time_series["datetime"],
-                symbol=Stock.symbol,
-                low=u_time_series["low"],
-                high=u_time_series["high"],
-                open=u_time_series["open"],
-                close=u_time_series["close"],
-                volume=u_time_series["volume"],
-            )
-        except ValidationError as e:
-            log_msg(f"Failed to update time series {u_time_series.__str__}.", "ERROR")
-            return obj_in
 
-        # BUG: Below could be computationally expensive, optimize later maybe
-        tsc = TimeSeries(**tsc.dict())
+        # only 2 entries
+        for e in u_time_series:
+            tsc = None
+            try:
+                tsc = TimeSeriesCreate(
+                    datetime=e["datetime"],
+                    symbol=obj_in.symbol,
+                    low=e["low"],
+                    high=e["high"],
+                    open=e["open"],
+                    close=e["close"],
+                    volume=e["volume"],
+                )
+            except ValidationError as e:
+                log_msg(f"Failed to update time series {e.__str__}.", "ERROR")
+                return obj_in
 
-        l = len(obj_in.timeseries)
-        newest = obj_in.timeseries[l]
-        obj_in.timeseries.remove(newest)
-        obj_in.timeseries.append(tsc)
+            tsc = TimeSeries(**tsc.dict())
+
+            found = False
+            for t in obj_in.timeseries:
+                if t.datetime == tsc.datetime:
+                    found = True
+                    t.low = tsc.low
+                    t.high = tsc.high
+                    t.open = tsc.open
+                    t.close = tsc.close
+
+            if not found:
+                obj_in.timeseries.append(tsc)
+
         db.commit()
         db.refresh(obj_in)
 
@@ -109,19 +119,8 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
                     volume=row["volume"],
                 )
 
-                # Check if currently exists
-                entry = (
-                    db.query(TimeSeries)
-                    .filter(and_(TimeSeries.datetime == row["datetime"], TimeSeries.symbol == obj_in.symbol))
-                    .first()
-                )
-
                 tsc = TimeSeries(**tsc.dict())
-                # print(tsc.__dict__)
-                if entry:
-                    entry = tsc  # Replace if found
-                else:
-                    obj_in.timeseries.append(tsc)  # Otherwise, add row
+                obj_in.timeseries.append(tsc)  # Otherwise, add row
 
             except ValidationError as e:
                 log_msg(f"Failed to insert time series {row.__str__}.", "ERROR")

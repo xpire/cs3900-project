@@ -23,14 +23,14 @@ async def market_buy(
         return {"result": "cannot buy negative quantity"}
 
     curr_stock_price = trade.get_stock_price(db, symbol)
-    trade_price = trade.apply_commission(
-        trade.get_trade_price(curr_stock_price, quantity)
-    )
+    trade_price = trade.apply_commission(curr_stock_price * quantity)
 
     if user.model.balance < trade_price:
         return {"result": "insufficient balance"}
 
-    crud_user.user.add_to_portfolio(db, user.model, symbol, quantity, curr_stock_price)
+    crud_user.user.add_transaction(
+        db, user.model, "long", symbol, quantity, curr_stock_price
+    )
 
     new_balance = user.model.balance - trade_price
     crud_user.user.update_balance(db, user.model, new_balance)
@@ -53,11 +53,9 @@ async def market_sell(
         return {"result": "cannot sell more than owned"}
 
     curr_stock_price = trade.get_stock_price(db, symbol)
-    trade_price = trade.apply_commission(
-        trade.get_trade_price(curr_stock_price, quantity), False
-    )
+    trade_price = trade.apply_commission(curr_stock_price * quantity, False)
 
-    crud_user.user.deduct_from_portfolio(db, user.model, symbol, quantity)
+    crud_user.user.deduct_transaction(db, user.model, "long", symbol, quantity)
 
     new_balance = user.model.balance + trade_price
     crud_user.user.update_balance(db, user.model, new_balance)
@@ -76,15 +74,16 @@ async def market_short(
         return {"result": "cannot short sell negative quantity"}
 
     curr_stock_price = trade.get_stock_price(db, symbol)
-    trade_price = trade.get_trade_price(curr_stock_price, quantity)
+    trade_price = curr_stock_price * quantity
 
     if not trade.check_short_balance(user, trade_price):
         return {"result": "insufficient short balance"}
 
     final_trade_price = trade.apply_commission(trade_price, False)
 
-    # waiting on this function
-    # crud_user.user.add_to_short_positions(db, user.model, symbol, quantity, curr_stock_price)
+    crud_user.user.add_transaction(
+        db, user.model, "short", symbol, quantity, curr_stock_price
+    )
 
     new_balance = user.model.balance + final_trade_price
     crud_user.user.update_balance(db, user.model, new_balance)
@@ -103,17 +102,15 @@ async def market_cover(
         return {"result": "cannot cover negative quantity"}
 
     curr_stock_price = trade.get_stock_price(db, symbol)
-    trade_price = trade.apply_commission(
-        trade.get_trade_price(curr_stock_price, quantity)
-    )
+    trade_price = trade.apply_commission(curr_stock_price * quantity)
 
     if not trade.check_owned_shorts(user, quantity, symbol):
-        return {"results": "cannot cover more than owned"}
+        return {"results": "cannot cover more than owed"}
 
     if user.model.balance < trade_price:
         return {"result": "insufficient balance"}
 
-    crud_user.user.close_short_positions(db, user.model, symbol, quantity)
+    crud_user.user.deduct_transaction(db, user.model, "short", symbol, quantity)
 
     new_balance = user.model.balance - trade_price
     crud_user.user.update_balance(db, user.model, new_balance)
@@ -121,7 +118,6 @@ async def market_cover(
     return {"result": "success"}
 
 
-# TODO: next sprint - or whenever orders page is ready i guess
 @router.post("/limit/buy")
 async def limit_buy(
     quantity: int,

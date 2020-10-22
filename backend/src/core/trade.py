@@ -9,16 +9,12 @@ def get_stock_price(db: Session, symbol: str):
     return 100
 
 
-def get_trade_price(price: float, quantity: int):
-    return price * quantity
-
-
 def apply_commission(price: float, buy: bool = True):
     return price * 1.005 if buy else price * 0.995
 
 
 def check_owned_longs(user: UserDM, quantity: int, symbol: str):
-    for position in user.model.portfolios:
+    for position in user.model.long_positions:
         if position.symbol == symbol:
             return False if position.amount < quantity else True
 
@@ -26,17 +22,12 @@ def check_owned_longs(user: UserDM, quantity: int, symbol: str):
 
 
 def check_owned_shorts(user: UserDM, quantity: int, symbol: str):
-    # for position in user.model.short_positions:
-    #     if postion.symbol == symbol:
-    #         return False if position.amount < quantity else True
+    for position in user.model.short_positions:
+        if postion.symbol == symbol:
+            return False if position.amount < quantity else True
 
-    return True
+    return False
 
 
 def check_short_balance(user: UserDM, price: float):
-    curr_shorts_owing = user.get_shorts_owing()
-    curr_gross_portfolio_value = user.get_gross_portfolio_value()
-
-    short_balance = curr_gross_portfolio_value * 0.25 - curr_shorts_owing
-    
-    return False if short_balance < price else True
+    return False if user.get_short_balance() < price else True

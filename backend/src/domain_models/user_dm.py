@@ -33,7 +33,9 @@ class UserDM:
             log_msg("Achievement is already unlocked by the user", "ERROR")
             return
 
-        self.user.unlocked_achievements.append(UnlockedAchievement(achievement_id=achievement_id))
+        self.user.unlocked_achievements.append(
+            UnlockedAchievement(achievement_id=achievement_id)
+        )
         self.save_to_db()
 
     def save_to_db(self):
@@ -70,7 +72,10 @@ class UserDM:
     @property
     def achievements(self):
         unlocked = self.unlocked_achievement_ids
-        return [UserAchievement(**x.dict(), is_unlocked=x.id in unlocked) for x in achievements_list]
+        return [
+            UserAchievement(**x.dict(), is_unlocked=x.id in unlocked)
+            for x in achievements_list
+        ]
 
     @property
     def uid(self):
@@ -89,25 +94,39 @@ class UserDM:
         return self.user
 
     def watchlist_create(self, wl_sys: str):
-        self.user = user.add_to_watch_list(db=self.db, user_in=self.user, w_symbol=wl_sys)
+        self.user = user.add_to_watch_list(
+            db=self.db, user_in=self.user, w_symbol=wl_sys
+        )
         return self.user
 
     def watchlist_delete(self, wl_sys: str):
-        self.user = user.delete_from_watch_list(db=self.db, user_in=self.user, w_symbol=wl_sys)
+        self.user = user.delete_from_watch_list(
+            db=self.db, user_in=self.user, w_symbol=wl_sys
+        )
         return self.user
 
     def get_gross_portfolio_value(self):
+        """
+        Available balance + value of longs
+        """
         value = self.user.balance
-        for position in self.user.portfolios:
+        for position in self.user.long_positions:
             value += position.amount * position.avg
 
         return value
 
     def get_shorts_owing(self):
-        # value = 0
-        # for position in self.user.short_positions:
-        #     value += position.amount * postion.avg
+        """
+        Returns amount user has currently short sold for
+        """
+        value = 0
+        for position in self.user.short_positions:
+            value += position.amount * position.avg
 
-        # return value
+        return value
 
-        return 0
+    def get_short_balance(self):
+        """
+        Returns amount the investor can still short sell for
+        """
+        return self.get_gross_portfolio_value() * 0.25 - self.get_shorts_owing()

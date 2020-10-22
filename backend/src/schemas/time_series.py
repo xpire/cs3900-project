@@ -9,8 +9,8 @@ class TimeSeriesBase(BaseSchema):
     symbol: str
     low: float
     high: float
-    open_p: float
-    close_p: float
+    open: float
+    close: float
     volume: int
 
 

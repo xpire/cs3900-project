@@ -55,9 +55,7 @@ def startup_event():
 
     if stock_names:
         latest_close_price_provider = LatestClosingPriceProvider(symbols=stock_names, apikey=API_KEY, db=db)
-        print("Starting provider...")
         latest_close_price_provider.start()
-        print("Finish...")
     else:
         log_msg("There are no stocks in the database, not polling for data.", "WARNING")
 

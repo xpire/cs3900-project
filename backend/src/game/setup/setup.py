@@ -11,9 +11,6 @@ ACHIEVEMENTS
 """
 
 achievements_list = [*achievements_level_up, *achievements_transaction]
-for x in achievements_list:
-    print(x.name)
-
 achievements = {x.id: x for x in achievements_list}
 
 if len(achievements) != len(achievements_list):

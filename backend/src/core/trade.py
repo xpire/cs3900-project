@@ -1,4 +1,4 @@
-from src.models.user import User
+from src.domain_models.user_dm import UserDM
 from src.crud import crud_user, crud_stock
 from sqlalchemy.orm import Session
 
@@ -9,17 +9,34 @@ def get_stock_price(db: Session, symbol: str):
     return 100
 
 
-def get_trade_price(price: float, quantity: int, buy: bool = True):
-    return price * quantity * 1.005 if buy else price * quantity * 0.995
+def get_trade_price(price: float, quantity: int):
+    return price * quantity
 
 
-def check_balance(user: User, price: float):
-    return False if user.balance < price else True
+def apply_commission(price: float, buy: bool = True):
+    return price * 1.005 if buy else price * 0.995
 
 
-def check_owned_stocks(user: User, quantity: int, symbol: str):
-    for portfolio in user.portfolios:
-        if portfolio.symbol == symbol:
-            return True if portfolio.amount > quantity else False
+def check_owned_longs(user: UserDM, quantity: int, symbol: str):
+    for position in user.model.portfolios:
+        if position.symbol == symbol:
+            return False if position.amount < quantity else True
 
     return False
+
+
+def check_owned_shorts(user: UserDM, quantity: int, symbol: str):
+    # for position in user.model.short_positions:
+    #     if postion.symbol == symbol:
+    #         return False if position.amount < quantity else True
+
+    return True
+
+
+def check_short_balance(user: UserDM, price: float):
+    curr_shorts_owing = user.get_shorts_owing()
+    curr_gross_portfolio_value = user.get_gross_portfolio_value()
+
+    short_balance = curr_gross_portfolio_value * 0.25 - curr_shorts_owing
+    
+    return False if short_balance < price else True

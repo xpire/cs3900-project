@@ -2,10 +2,10 @@ from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from src import models, schemas
+from src import domain_models, schemas
 from src.crud import crud_user, crud_stock
 from src.core import trade
-from src.api.deps import check_symbol, decode_token, get_current_user_m, get_db
+from src.api.deps import check_symbol, get_current_user_dm, get_db
 from src.core.config import settings
 from src.db.session import SessionLocal
 
@@ -16,22 +16,24 @@ router = APIRouter()
 async def market_buy(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user: models.User = Depends(get_current_user_m),
+    user: domain_models.User = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
     if quantity < 0:
         return {"result": "cannot buy negative quantity"}
 
     curr_stock_price = trade.get_stock_price(db, symbol)
-    trade_price = trade.get_trade_price(curr_stock_price, quantity)
+    trade_price = trade.apply_commission(
+        trade.get_trade_price(curr_stock_price, quantity)
+    )
 
-    if not trade.check_balance(user, trade_price):
+    if user.model.balance < trade_price:
         return {"result": "insufficient balance"}
 
-    crud_user.user.add_to_portfolio(db, user, symbol, quantity, curr_stock_price)
+    crud_user.user.add_to_portfolio(db, user.model, symbol, quantity, curr_stock_price)
 
-    new_balance = user.balance - trade_price
-    crud_user.user.update_balance(db, user, new_balance)
+    new_balance = user.model.balance - trade_price
+    crud_user.user.update_balance(db, user.model, new_balance)
 
     return {"result": "success"}
 
@@ -40,23 +42,25 @@ async def market_buy(
 async def market_sell(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user: models.User = Depends(get_current_user_m),
+    user: domain_models.User = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
 
     if quantity < 0:
         return {"result": "cannot sell negative quantity"}
 
-    if not trade.check_owned_stocks(user, quantity, symbol):
+    if not trade.check_owned_longs(user, quantity, symbol):
         return {"result": "cannot sell more than owned"}
 
     curr_stock_price = trade.get_stock_price(db, symbol)
-    trade_price = trade.get_trade_price(curr_stock_price, quantity, False)
+    trade_price = trade.apply_commission(
+        trade.get_trade_price(curr_stock_price, quantity), False
+    )
 
-    crud_user.user.deduct_from_portfolio(db, user, symbol, quantity)
+    crud_user.user.deduct_from_portfolio(db, user.model, symbol, quantity)
 
-    new_balance = user.balance + trade_price
-    crud_user.user.update_balance(db, user, new_balance)
+    new_balance = user.model.balance + trade_price
+    crud_user.user.update_balance(db, user.model, new_balance)
 
     return {"result": "success"}
 
@@ -65,9 +69,26 @@ async def market_sell(
 async def market_short(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user: models.User = Depends(get_current_user_m),
+    user: domain_models.User = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
+    if quantity < 0:
+        return {"result": "cannot short sell negative quantity"}
+
+    curr_stock_price = trade.get_stock_price(db, symbol)
+    trade_price = trade.get_trade_price(curr_stock_price, quantity)
+
+    if not trade.check_short_balance(user, trade_price):
+        return {"result": "insufficient short balance"}
+
+    final_trade_price = trade.apply_commission(trade_price, False)
+
+    # waiting on this function
+    # crud_user.user.add_to_short_positions(db, user.model, symbol, quantity, curr_stock_price)
+
+    new_balance = user.model.balance + final_trade_price
+    crud_user.user.update_balance(db, user.model, new_balance)
+
     return {"result": "success"}
 
 
@@ -75,17 +96,37 @@ async def market_short(
 async def market_cover(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user: models.User = Depends(get_current_user_m),
+    user: domain_models.User = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
+    if quantity < 0:
+        return {"result": "cannot cover negative quantity"}
+
+    curr_stock_price = trade.get_stock_price(db, symbol)
+    trade_price = trade.apply_commission(
+        trade.get_trade_price(curr_stock_price, quantity)
+    )
+
+    if not trade.check_owned_shorts(user, quantity, symbol):
+        return {"results": "cannot cover more than owned"}
+
+    if user.model.balance < trade_price:
+        return {"result": "insufficient balance"}
+
+    crud_user.user.close_short_positions(db, user.model, symbol, quantity)
+
+    new_balance = user.model.balance - trade_price
+    crud_user.user.update_balance(db, user.model, new_balance)
+
     return {"result": "success"}
 
 
+# TODO: next sprint - or whenever orders page is ready i guess
 @router.post("/limit/buy")
 async def limit_buy(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user: models.User = Depends(get_current_user_m),
+    user: domain_models.User = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
     return {"result": "success"}
@@ -95,7 +136,7 @@ async def limit_buy(
 async def limit_sell(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user: models.User = Depends(get_current_user_m),
+    user: domain_models.User = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
     return {"result": "success"}
@@ -105,7 +146,7 @@ async def limit_sell(
 async def limit_short(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user: models.User = Depends(get_current_user_m),
+    user: domain_models.User = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
     return {"result": "success"}
@@ -115,7 +156,7 @@ async def limit_short(
 async def limit_cover(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user: models.User = Depends(get_current_user_m),
+    user: domain_models.User = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
     return {"result": "success"}

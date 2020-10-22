@@ -95,3 +95,19 @@ class UserDM:
     def watchlist_delete(self, wl_sys: str):
         self.user = user.delete_from_watch_list(db=self.db, user_in=self.user, w_symbol=wl_sys)
         return self.user
+
+    def get_gross_portfolio_value(self):
+        value = self.user.balance
+        for position in self.user.portfolios:
+            value += position.amount * position.avg
+
+        return value
+
+    def get_shorts_owing(self):
+        # value = 0
+        # for position in self.user.short_positions:
+        #     value += position.amount * postion.avg
+
+        # return value
+
+        return 0

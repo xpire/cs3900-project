@@ -4,9 +4,8 @@ from sqlalchemy.orm import Session
 from src.core.utilities import log_msg
 from src.crud.crud_user import user
 from src.db.base_model import BaseModel
-from src.game import level_manager
-from src.game.achievement import UserAchievement
-from src.game.setup import achievements_list
+from src.game.achievement.achievement import UserAchievement
+from src.game.setup.setup import achievements_list, level_manager
 from src.models import UnlockedAchievement
 from src.schemas import User, UserInDB
 
@@ -33,9 +32,7 @@ class UserDM:
             log_msg("Achievement is already unlocked by the user", "ERROR")
             return
 
-        self.user.unlocked_achievements.append(
-            UnlockedAchievement(achievement_id=achievement_id)
-        )
+        self.user.unlocked_achievements.append(UnlockedAchievement(achievement_id=achievement_id))
         self.save_to_db()
 
     def save_to_db(self):
@@ -72,10 +69,7 @@ class UserDM:
     @property
     def achievements(self):
         unlocked = self.unlocked_achievement_ids
-        return [
-            UserAchievement(**x.dict(), is_unlocked=x.id in unlocked)
-            for x in achievements_list
-        ]
+        return [UserAchievement(**x.dict(), is_unlocked=x.id in unlocked) for x in achievements_list]
 
     @property
     def uid(self):
@@ -94,15 +88,11 @@ class UserDM:
         return self.user
 
     def watchlist_create(self, wl_sys: str):
-        self.user = user.add_to_watch_list(
-            db=self.db, user_in=self.user, w_symbol=wl_sys
-        )
+        self.user = user.add_to_watch_list(db=self.db, user_in=self.user, w_symbol=wl_sys)
         return self.user
 
     def watchlist_delete(self, wl_sys: str):
-        self.user = user.delete_from_watch_list(
-            db=self.db, user_in=self.user, w_symbol=wl_sys
-        )
+        self.user = user.delete_from_watch_list(db=self.db, user_in=self.user, w_symbol=wl_sys)
         return self.user
 
     def get_gross_portfolio_value(self):

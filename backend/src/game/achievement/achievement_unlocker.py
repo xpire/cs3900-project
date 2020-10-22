@@ -3,13 +3,12 @@ from __future__ import annotations  # resolve circular typing depencies (regardi
 from collections import defaultdict
 from typing import Dict, List
 
-from src.game.achievement import Achievement
-from src.game.event import GameEvent
-from src.game.event_hub import EventObserver
+from src.game.achievement.achievement import Achievement
+from src.game.event.event import GameEvent
+from src.game.event.event_hub import EventObserver
 from src.notification import AchievementUnlockedEvent, notif_hub
 
 
-# TODO optimize handling multiple events in one session?
 class AchievementUnlocker(EventObserver):
     def __init__(self, achievements: Dict[Achievement]):
 

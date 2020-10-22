@@ -106,13 +106,22 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     @fail_save
     def add_transaction(
-        self, db: Session, user_in: User, t_type: str, p_symbol: str, p_amount: int, price: float
+        self,
+        db: Session,
+        user_in: User,
+        t_type: str,
+        p_symbol: str,
+        p_amount: int,
+        price: float,
     ) -> User:
         """
-        Add to portfolio
+        Add amount and price to portfolio
         """
-        if t_type != "long" or t_type != "short":
-            log_msg("No such type of transaction allowed, allowed are 'long' or'short'.", "ERROR")
+        if t_type != "long" and t_type != "short":
+            log_msg(
+                "No such type of transaction allowed, allowed are 'long' or'short'.",
+                "ERROR",
+            )
             return user_in
 
         if self.symbol_exist(db=db, c_symbol=p_symbol):
@@ -156,8 +165,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Remove a stock from portfolio (selling). For type specify 'long' or 'short'
         """
-        if t_type != "long" or t_type != "short":
-            log_msg("No such type of transaction allowed, allowed are 'long' or'short'.", "ERROR")
+        if t_type != "long" and t_type != "short":
+            log_msg(
+                "No such type of transaction allowed, allowed are 'long' or'short'.",
+                "ERROR",
+            )
             return user_in
 
         if self.symbol_exist(db=db, c_symbol=p_symbol):
@@ -172,7 +184,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
             if ex == None:
                 log_msg(
-                    f"Deducting a non-existent stock on portfolio of User(uid = {user_in.uid}).",
+                    f"Deducting a non-existent stock of User(uid = {user_in.uid}).",
                     "WARNING",
                 )
                 return user_in

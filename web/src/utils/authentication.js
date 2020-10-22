@@ -37,18 +37,18 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     switch (lastJsonMessage?.type) {
       case "auth":
-        enqueueSnackbar(`${lastJsonMessage?.msg}`, {
+        enqueueSnackbar(`${lastJsonMessage.msg}`, {
           variant: "info",
         });
         break;
       case "notif":
         if (lastJsonMessage.msg.event_type === `LEVEL_UP`) {
-          enqueueSnackbar(`Level Up! Lv. ${lastJsonMessage.msg.new_level}`, {
+          enqueueSnackbar(`${lastJsonMessage.msg.title}`, {
             variant: "success",
           });
         } else if (lastJsonMessage.msg.event_type === `ACHIEVEMENT_UNLOCKED`) {
           enqueueSnackbar(
-            `Achievement Unlocked! ${JSON.stringify(lastJsonMessage.msg)}`,
+            `${lastJsonMessage.msg.title} (${lastJsonMessage.msg.content}xp)`,
             {
               variant: "success",
             }
@@ -58,6 +58,7 @@ export const AuthProvider = ({ children }) => {
             variant: "success",
           });
         }
+
         break;
       default:
     }

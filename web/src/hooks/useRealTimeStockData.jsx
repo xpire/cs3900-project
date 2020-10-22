@@ -43,6 +43,7 @@ const useRealTimeStockData = (
         })
         .catch((err) => console.log(err));
     } else {
+      // fix error when attempting to GET `/stocks/stocks?symbolss=`
       setStockData([]);
       setLoading(false);
     }

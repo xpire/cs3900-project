@@ -21,6 +21,7 @@ const Profile = () => {
   const [data, setData] = useState({});
   useEffect(() => {
     axios.get("/user").then((response) => {
+      console.log(response.data);
       setData(response.data);
     });
   }, []);
@@ -32,9 +33,12 @@ const Profile = () => {
             <CardActionArea>
               <CardContent>
                 <Typography variant="h3">{user.email}</Typography>
-                <Typography variant="h5">Rank: #{5}</Typography>
+                {/* <Typography variant="h5">Rank: #{5}</Typography> */}
                 <Typography variant="h5">Net: ${data.balance}</Typography>
-                <Typography variant="h5">Level {data.level}</Typography>
+                <Typography variant="h5">
+                  Level {data.level} (
+                  {(data.exp / (data.exp_until_next_level + data.exp)) * 100}%)
+                </Typography>
                 <LinearProgress
                   value={
                     (data.exp / (data.exp_until_next_level + data.exp)) * 100

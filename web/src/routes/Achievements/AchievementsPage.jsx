@@ -6,64 +6,27 @@ import {
   Grid,
   LinearProgress,
   CardContent,
+  Chip,
 } from "@material-ui/core";
 
-import useSockets from "../../hooks/useSockets";
+// import useSockets from "../../hooks/useSockets";
 import { AuthContext } from "../../utils/authentication";
 import Page from "../../components/page/Page";
 import { StandardCard } from "../../components/common/styled";
+import axios from "../../utils/api";
 
 const Achievements = () => {
   const { user } = useContext(AuthContext);
 
-  // TODO: see if we can use wss://
-  // const socketUrl = "ws://localhost:8000/user/notifs";
+  // const [lastJsonMessage, messageHistory, connectionStatus] = useSockets();
+  const [achievements, setAchievements] = useState([]);
 
-  // const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
-  //   socketUrl,
-  //   {
-  //     onOpen: () => console.log("opened"),
-  //     // will attempt to reconnect on all close events, such as server shutting down
-  //     shouldReconnect: (closeEvent) => true,
-  //     reconnectAttempts: 20,
-  //     reconnectInterval: 3000,
-  //     share: true,
-  //   }
-  // );
-
-  // const connectionStatus = {
-  //   [ReadyState.CONNECTING]: "Connecting",
-  //   [ReadyState.OPEN]: "Open",
-  //   [ReadyState.CLOSING]: "Closing",
-  //   [ReadyState.CLOSED]: "Closed",
-  //   [ReadyState.UNINSTANTIATED]: "Uninstantiated",
-  // }[readyState];
-
-  // useEffect(() => {
-  //   if (readyState === ReadyState.OPEN) {
-  //     console.log(user.getIdToken(true));
-  //     user &&
-  //       user
-  //         .getIdToken(true)
-  //         .then((token) => {
-  //           sendJsonMessage(token);
-  //         })
-  //         .catch((e) => console.log(e));
-  //   }
-  // }, [readyState, user]);
-
-  // const [messageHistory, setMessageHistory] = useState([]);
-  // useEffect(() => {
-  //   console.log("Recieved message");
-  //   console.log(lastJsonMessage);
-  //   setMessageHistory([...messageHistory, lastJsonMessage]);
-
-  //   if (readyState === ReadyState.OPEN && lastJsonMessage.is_error) {
-  //     console.log("ERROR: " + lastJsonMessage.error_msg);
-  //   }
-  // }, [lastJsonMessage]);
-  const [lastJsonMessage, messageHistory, connectionStatus] = useSockets();
-
+  useEffect(() => {
+    axios.get("/user/achievements").then((response) => {
+      setAchievements(response.data);
+      console.log(response.data);
+    });
+  }, []);
   return (
     <Page>
       <StandardCard>
@@ -73,12 +36,41 @@ const Achievements = () => {
           <LinearProgress variant="determinate" value={40} />
         </CardContent>
       </StandardCard>
-      <Typography>{`websocket status: ${connectionStatus}`}</Typography>
+      <StandardCard>
+        <CardContent>
+          <Typography variant="h3">
+            Unlocked Achievements: (
+            {achievements.filter(({ is_unlocked }) => is_unlocked).length}/
+            {achievements.length})
+          </Typography>
+        </CardContent>
+      </StandardCard>
+      <Grid container direction="row">
+        {achievements.map(({ id, name, description, is_unlocked, exp }) => {
+          return (
+            <Grid item xs={12} sm={6} md={4} key={id}>
+              <StandardCard>
+                <CardContent>
+                  <Typography
+                    variant="h4"
+                    color={is_unlocked ? "primary" : "primaryText"}
+                  >
+                    {name}
+                  </Typography>
+                  <Chip label={`${exp} xp`} />
+                  <Typography>{description}</Typography>
+                </CardContent>
+              </StandardCard>
+            </Grid>
+          );
+        })}
+      </Grid>
+      {/* <Typography>{`websocket status: ${connectionStatus}`}</Typography>
       <Typography>{`last json message: ${JSON.stringify(
         lastJsonMessage
-      )}`}</Typography>
+      )}`}</Typography> */}
 
-      <Grid container>
+      {/* <Grid container>
         {messageHistory.map((msg, idx) => (
           <Grid item key={idx}>
             <StandardCard>
@@ -90,7 +82,7 @@ const Achievements = () => {
             </StandardCard>
           </Grid>
         ))}
-      </Grid>
+      </Grid> */}
     </Page>
   );
 };

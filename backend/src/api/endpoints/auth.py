@@ -25,12 +25,13 @@ from src.schemas.transaction import ClosingTransaction, OpeningTransaction, Orde
 router = APIRouter()
 
 
+# @router.get("")
+# async def check_user(id_token: str = Header(None)) -> schemas.user:
+#     uid = decode_token(id_token)
+#     return uid
 @router.get("")
-async def check_user(id_token: str = Header(None)) -> schemas.user:
-
-    uid = decode_token(id_token)
-
-    return uid
+async def get_user(user: UserDM = Depends(get_current_user_dm)) -> schemas.User:
+    return user.schema
 
 
 @router.delete("")

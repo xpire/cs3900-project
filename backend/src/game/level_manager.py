@@ -2,14 +2,16 @@ from __future__ import annotations  # resolve circular typing depencies (regardi
 
 from typing import List
 
-from src.game.setup import LevelUpEvent as LevelUpGameEvent
-from src.game.setup import event_hub
+from src.game.event.event_hub import EventHub
+from src.game.event.sub_events import LevelUpEvent as LevelUpGameEvent
 from src.notification import LevelUpEvent as LevelUpNotifEvent
-from src.notification import notif_hub
+from src.notification.notifier import NotificationHub
 
 
 class LevelManager:
-    def __init__(self, thresholds: List[float]):
+    def __init__(self, thresholds: List[float], event_hub: EventHub, notif_hub: NotificationHub):
+        self.event_hub = event_hub
+        self.notif_hub = notif_hub
         self.thresholds = thresholds
 
     def add_exp(self, user: UserDM, amount: float):
@@ -19,8 +21,8 @@ class LevelManager:
             user.exp -= self.get_threshold(user.level)
             user.level += 1
 
-            notif_hub.publish(LevelUpNotifEvent(user=user, new_level=user.level))
-            event_hub.publish(LevelUpGameEvent(user=user, new_level=user.level))
+            self.notif_hub.publish(LevelUpNotifEvent(user=user, new_level=user.level))
+            self.event_hub.publish(LevelUpGameEvent(user=user, new_level=user.level))
 
     def is_max_level(self, user: UserDM) -> bool:
         return user.level == self.max_level
@@ -37,6 +39,3 @@ class LevelManager:
     @property
     def max_level(self) -> int:
         return len(self.thresholds) + 1
-
-
-level_manager = LevelManager([10, 20, 30, 40, 50, 60, 70, 80, 90])

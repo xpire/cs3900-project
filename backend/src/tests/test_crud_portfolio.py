@@ -6,61 +6,14 @@ ins = SessionLocal()
 t_u = user.get_user_by_uid(ins, uid="1")
 
 
-# add normal multiple
-# t_u = user.add_to_portfolio(
-#     db=ins,
-#     user_in=t_u,
-#     p_symbol="AAPL",
-#     p_amount=3,
-#     price=83,
-# )
-
-# t_u = user.add_to_portfolio(
-#     db=ins,
-#     user_in=t_u,
-#     p_symbol="CBA",
-#     p_amount=3,
-#     price=43,
-# )
+# user.add_transaction(db=ins, user_in=t_u, t_type="long", p_symbol="AAPL", p_amount=12, price=67.3)
+# user.add_transaction(db=ins, user_in=t_u, t_type="long", p_symbol="AAPL", p_amount=12, price=67.3)
+# user.add_transaction(db=ins, user_in=t_u, t_type="long", p_symbol="AAPL", p_amount=12, price=67.3)
 
 
-# Trying compactification and average updating
-# t_u = user.add_to_portfolio(
-#     db=ins,
-#     user_in=t_u,
-#     p_symbol="AAPL",
-#     p_amount=5,
-#     price=83,
-# )
+# user.add_transaction(db=ins, user_in=t_u, t_type="short", p_symbol="AAPL", p_amount=12, price=67.3)
+# user.add_transaction(db=ins, user_in=t_u, t_type="short", p_symbol="AAPL", p_amount=12, price=67.3)
+# user.add_transaction(db=ins, user_in=t_u, t_type="short", p_symbol="AAPL", p_amount=12, price=67.3)
 
-# t_u = user.add_to_portfolio(
-#     db=ins,
-#     user_in=t_u,
-#     p_symbol="AAPL",
-#     p_amount=6,
-#     price=70,
-# )
 
-# Normal dedcuct
-# t_u = user.deduct_from_portfolio(
-#     db=ins,
-#     user_in=t_u,
-#     p_symbol="AAPL",
-#     p_amount=6,
-# )
-
-# # Deduct non-existent
-# t_u = user.deduct_from_portfolio(
-#     db=ins,
-#     user_in=t_u,
-#     p_symbol="IOO",
-#     p_amount=7,
-# )
-
-# # Deduct till 0
-# t_u = user.deduct_from_portfolio(
-#     db=ins,
-#     user_in=t_u,
-#     p_symbol="AAPL",
-#     p_amount=8,
-# )
+# user.deduct_transaction(db=ins, user_in=t_u, t_type="long", p_symbol="AAPL", p_amount=24)

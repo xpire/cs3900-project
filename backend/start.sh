@@ -100,6 +100,7 @@ elif [ $# -eq 1 ]; then
 
         "init-db")
             title-bar;
+            set-python-path
             check-wake;
             init-db;
         ;;
@@ -107,7 +108,7 @@ elif [ $# -eq 1 ]; then
         "nuke-db-from-orbit") # be in backend
             title-bar; 
             read -p "Are you sure you want to nuke it ? you will lose all the data in the database...   "  res
-
+            set-python-path
             if [ $res == "yes" ]; then 
                 echo "Nuking database from the orbit..."
                 rm ../database/testdb.sqlite3 # change this later

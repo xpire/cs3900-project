@@ -10,7 +10,6 @@ from src.models import UnlockedAchievement
 from src.schemas import User, UserInDB
 
 import src.api.endpoints.stocks as stocks_api
-from src.api.endpoints.stocks import latest_close_price_provider
 
 # TODO move this and relevant imports somewhere
 def update(model: BaseModel, db: Session):
@@ -94,7 +93,7 @@ class UserDM:
     def model(self):
         return self.user
 
-    def get_postions(self, p_type: str):
+    def get_positions(self, p_type: str):
         if p_type != "long" and p_type != "short":
             log_msg(
                 "No such position. allowed are 'long' or'short'.",

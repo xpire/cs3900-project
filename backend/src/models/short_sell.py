@@ -11,6 +11,6 @@ class ShortSell(BaseModel):
     avg = Column(Float, nullable=False)
     stock_info = relationship(
         "Stock",
-        backref="portfolio",
+        backref="shortsell",
         cascade="save-update, merge",
     )

@@ -31,7 +31,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Return the corresponding user by token.
         """
-        return db.query(self.model).filter(self.model.uid == uid).first()  # Field is unique
+        return (
+            db.query(self.model).filter(self.model.uid == uid).first()
+        )  # Field is unique
 
     @fail_save
     def update_balance(self, db: Session, db_obj: User, u_balance: float) -> User:
@@ -106,13 +108,22 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     @fail_save
     def add_transaction(
-        self, db: Session, user_in: User, t_type: str, p_symbol: str, p_amount: int, price: float
+        self,
+        db: Session,
+        user_in: User,
+        t_type: str,
+        p_symbol: str,
+        p_amount: int,
+        price: float,
     ) -> User:
         """
         Add to portfolio
         """
         if t_type != "long" or t_type != "short":
-            log_msg("No such type of transaction allowed, allowed are 'long' or'short'.", "ERROR")
+            log_msg(
+                "No such type of transaction allowed, allowed are 'long' or'short'.",
+                "ERROR",
+            )
             return user_in
 
         if self.symbol_exist(db=db, c_symbol=p_symbol):
@@ -128,14 +139,22 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
             if ex == None:
                 a_wl = (
-                    Portfolio(user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price)
+                    Portfolio(
+                        user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price
+                    )
                     if t_type == "long"
-                    else ShortSell(user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price)
+                    else ShortSell(
+                        user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price
+                    )
                 )
-                user_in.long_positions.append(a_wl) if t_type == "long" else user_in.short_positions.append(a_wl)
+                user_in.long_positions.append(
+                    a_wl
+                ) if t_type == "long" else user_in.short_positions.append(a_wl)
             else:
                 # running average used here
-                new_avg = (ex.avg * ex.amount + p_amount * price) / (ex.amount + p_amount)
+                new_avg = (ex.avg * ex.amount + p_amount * price) / (
+                    ex.amount + p_amount
+                )
                 new_amount = ex.amount + p_amount
 
                 ex.avg, ex.amount = new_avg, new_amount
@@ -152,12 +171,17 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             return user_in
 
     @fail_save
-    def deduct_transaction(self, db: Session, user_in: User, t_type: str, p_symbol: str, p_amount: int) -> User:
+    def deduct_transaction(
+        self, db: Session, user_in: User, t_type: str, p_symbol: str, p_amount: int
+    ) -> User:
         """
         Remove a stock from portfolio (selling). For type specify 'long' or 'short'
         """
         if t_type != "long" or t_type != "short":
-            log_msg("No such type of transaction allowed, allowed are 'long' or'short'.", "ERROR")
+            log_msg(
+                "No such type of transaction allowed, allowed are 'long' or'short'.",
+                "ERROR",
+            )
             return user_in
 
         if self.symbol_exist(db=db, c_symbol=p_symbol):
@@ -186,7 +210,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
                         "WARNING",
                     )
                 elif new_amount == 0:
-                    user_in.long_positions.remove(ex) if t_type == "long" else user_in.short_positions.remove(ex)
+                    user_in.long_positions.remove(
+                        ex
+                    ) if t_type == "long" else user_in.short_positions.remove(ex)
                 else:
                     ex.amount = new_amount
 

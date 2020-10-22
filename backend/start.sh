@@ -140,6 +140,7 @@ elif [ $# -eq 1 ]; then
             print-line;
             rm ../database/testdb.sqlite3 # change this later
             echo "Nuking database from the orbit ..."
+            export PYTHONPATH=${PROOT}:$PYTHONPATH;
         
             python src/db/init_db.py
         echo "Database destroyed" 

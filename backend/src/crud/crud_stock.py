@@ -48,7 +48,8 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         """
         Retieve the sorted time series of the obj_in.
         """
-        return [x.__dict__ for x in obj_in.timeseries]
+        # Need to reverse the order, since db returns in reverse order
+        return [x.__dict__ for x in obj_in.timeseries][::-1]
 
     @fail_save
     def update_time_series(self, db: Session, obj_in: Stock, u_time_series: Dict) -> Stock:
@@ -62,8 +63,8 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
                 symbol=Stock.symbol,
                 low=u_time_series["low"],
                 high=u_time_series["high"],
-                open_p=u_time_series["open"],
-                close_p=u_time_series["close"],
+                open=u_time_series["open"],
+                close=u_time_series["close"],
                 volume=u_time_series["volume"],
             )
         except ValidationError as e:
@@ -103,8 +104,8 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
                     symbol=obj_in.symbol,
                     low=row["low"],
                     high=row["high"],
-                    open_p=row["open"],
-                    close_p=row["close"],
+                    open=row["open"],
+                    close=row["close"],
                     volume=row["volume"],
                 )
 

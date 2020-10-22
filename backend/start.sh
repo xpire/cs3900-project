@@ -95,7 +95,7 @@ elif [ $# -eq 1 ]; then
             set-python-path;
             check-wake;
             echo "Starting...";
-            uvicorn src.main:app --reload;
+            uvicorn src.main:app --reload --ws websockets;
         ;;
 
         "init-db")
@@ -109,7 +109,7 @@ elif [ $# -eq 1 ]; then
             title-bar; 
             read -p "Are you sure you want to nuke it ? you will lose all the data in the database...   "  res
             set-python-path
-            if [ $res == "yes" ]; then 
+            if [ $res=="yes" ]; then 
                 echo "Nuking database from the orbit..."
                 rm ../database/testdb.sqlite3 # change this later
                 echo "Recreating it now..."

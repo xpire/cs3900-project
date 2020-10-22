@@ -10,8 +10,12 @@ from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
 from src.db.session import SessionLocal
 from src.real_time_market_data.data_provider import (
-    CompositeDataProvider, LatestClosingPriceProvider, RealTimeDataProvider,
-    SimulatedDataProvider, SimulatedStock)
+    CompositeDataProvider,
+    LatestClosingPriceProvider,
+    RealTimeDataProvider,
+    SimulatedDataProvider,
+    SimulatedStock,
+)
 from twelvedata import TDClient
 
 API_URL = "https://api.twelvedata.com"

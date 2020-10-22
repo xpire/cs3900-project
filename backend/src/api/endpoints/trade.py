@@ -16,7 +16,7 @@ router = APIRouter()
 async def market_buy(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user: domain_models.User = Depends(get_current_user_dm),
+    user: domain_models.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
     if quantity < 0:
@@ -42,12 +42,14 @@ async def market_buy(
 async def market_sell(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user: domain_models.User = Depends(get_current_user_dm),
+    user: domain_models.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
 
     if quantity < 0:
         return {"result": "cannot sell negative quantity"}
+
+    print(symbol, quantity)
 
     if not trade.check_owned_longs(user, quantity, symbol):
         return {"result": "cannot sell more than owned"}
@@ -67,7 +69,7 @@ async def market_sell(
 async def market_short(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user: domain_models.User = Depends(get_current_user_dm),
+    user: domain_models.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
     if quantity < 0:
@@ -95,7 +97,7 @@ async def market_short(
 async def market_cover(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user: domain_models.User = Depends(get_current_user_dm),
+    user: domain_models.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
     if quantity < 0:
@@ -122,7 +124,7 @@ async def market_cover(
 async def limit_buy(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user: domain_models.User = Depends(get_current_user_dm),
+    user: domain_models.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
     return {"result": "success"}
@@ -132,7 +134,7 @@ async def limit_buy(
 async def limit_sell(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user: domain_models.User = Depends(get_current_user_dm),
+    user: domain_models.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
     return {"result": "success"}
@@ -142,7 +144,7 @@ async def limit_sell(
 async def limit_short(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user: domain_models.User = Depends(get_current_user_dm),
+    user: domain_models.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
     return {"result": "success"}
@@ -152,7 +154,7 @@ async def limit_short(
 async def limit_cover(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user: domain_models.User = Depends(get_current_user_dm),
+    user: domain_models.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
     return {"result": "success"}

@@ -5,17 +5,13 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from src import crud
-from src.api.deps import get_db
+from src.api.deps import check_symbol, get_db
 from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
 from src.db.session import SessionLocal
 from src.real_time_market_data.data_provider import (
-    CompositeDataProvider,
-    LatestClosingPriceProvider,
-    RealTimeDataProvider,
-    SimulatedDataProvider,
-    SimulatedStock,
-)
+    CompositeDataProvider, LatestClosingPriceProvider, RealTimeDataProvider,
+    SimulatedDataProvider, SimulatedStock)
 from twelvedata import TDClient
 
 API_URL = "https://api.twelvedata.com"
@@ -112,7 +108,7 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
 
 
 @router.get("/time_series")
-async def get_stock_data(symbol: str = Query(None), db: Session = Depends(get_db), days: int = 90):
+async def get_stock_data(symbol: str = Depends(check_symbol), db: Session = Depends(get_db), days: int = 90):
     stock = crud.stock.get_stock_by_symbol(db, symbol)
 
     data = crud.stock.get_time_series(db, stock)

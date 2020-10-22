@@ -92,11 +92,11 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
             try:
                 # @Even Tang
                 # Change this later
-                dt = datetime.strptime(row["datetime"], "%Y-%m-%d")
-                dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
+                # dt = datetime.strptime(row["datetime"], "%Y-%m-%d")
+                # dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
                 # print(dt.strftime("%Y-%m-%d %H:%M:%S"))
                 tsc = TimeSeriesCreate(
-                    datetime=dt_str,
+                    datetime=row["datetime"],
                     symbol=obj_in.symbol,
                     low=row["low"],
                     high=row["high"],
@@ -108,14 +108,13 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
                 # Check if currently exists
                 entry = (
                     db.query(TimeSeries)
-                    .filter(TimeSeries.datetime == dt_str and TimeSeries.symbol == obj_in.symbol)
+                    .filter(TimeSeries.datetime == row["datetime"] and TimeSeries.symbol == obj_in.symbol)
                     .first()
                 )
                 if not entry:
                     entry = tsc  # Replace if found
                 else:
                     obj_in.timeseries.append(tsc)  # Otherwise, add row
-
             except ValidationError as e:
                 log_msg(f"Failed to insert time series {row.__str__}.", "ERROR")
                 continue

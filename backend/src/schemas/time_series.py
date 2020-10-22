@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import date
 from typing import Optional
 
 from pydantic import BaseModel as BaseSchema
 
 
 class TimeSeriesBase(BaseSchema):
-    datetime: datetime
+    datetime: date
     symbol: str
     low: float
     high: float

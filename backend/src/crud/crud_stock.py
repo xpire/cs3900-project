@@ -1,7 +1,9 @@
 import json
+from datetime import date, datetime
 from typing import Any, Dict, List, Optional
 
 from pydantic import ValidationError
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
@@ -46,7 +48,7 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         """
         Retieve the sorted time series of the obj_in.
         """
-        return [x.dict for x in obj_in.timeseries]
+        return [x.__dict__ for x in obj_in.timeseries]
 
     @fail_save
     def update_time_series(self, db: Session, obj_in: Stock, u_time_series: Dict) -> Stock:
@@ -69,7 +71,7 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
             return obj_in
 
         # BUG: Below could be computationally expensive, optimize later maybe
-        tsc = TimeSeries(**tsc.dict)
+        tsc = TimeSeries(**tsc.dict())
 
         l = len(obj_in.timeseries)
         newest = obj_in.timeseries[l]
@@ -86,24 +88,43 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         Batch insert historical daily timeseries candle stock data, continue insertion even
         if 1 entry fails convention.
         """
+
         for row in time_series_in:
             tsc = None
             try:
+                # @Even Tang
+                # Change this later
+                # dt = datetime.strptime(row["datetime"], "%Y-%m-%d")
+                # dt_str = dt.strftime("%Y-%m-%d")
+                # dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
+                # print(dt.strftime("%Y-%m-%d %H:%M:%S"))
                 tsc = TimeSeriesCreate(
                     datetime=row["datetime"],
-                    symbol=Stock.symbol,
+                    symbol=obj_in.symbol,
                     low=row["low"],
                     high=row["high"],
                     open_p=row["open"],
                     close_p=row["close"],
                     volume=row["volume"],
                 )
+
+                # Check if currently exists
+                entry = (
+                    db.query(TimeSeries)
+                    .filter(and_(TimeSeries.datetime == row["datetime"], TimeSeries.symbol == obj_in.symbol))
+                    .first()
+                )
+
+                tsc = TimeSeries(**tsc.dict())
+                # print(tsc.__dict__)
+                if entry:
+                    entry = tsc  # Replace if found
+                else:
+                    obj_in.timeseries.append(tsc)  # Otherwise, add row
+
             except ValidationError as e:
                 log_msg(f"Failed to insert time series {row.__str__}.", "ERROR")
                 continue
-
-            tsc = TimeSeries(**tsc.dict)
-            Stock.timeseries.append(tsc)
 
         db.commit()
         db.refresh(obj_in)

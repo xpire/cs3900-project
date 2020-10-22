@@ -5,8 +5,9 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from src import crud
-from src.api.deps import get_db
+from src.api.deps import check_symbol, get_db
 from src.core.config import settings
+from src.core.utilities import fail_save, log_msg
 from src.db.session import SessionLocal
 from src.real_time_market_data.data_provider import (
     CompositeDataProvider, LatestClosingPriceProvider, RealTimeDataProvider,
@@ -43,19 +44,21 @@ def startup_event():
     global STOCKS
     global latest_close_price_provider
 
-    try:
-        db = SessionLocal()
-        STOCKS = crud.stock.get_all_stocks(db)[:10]  # Change this slice later
+    db = SessionLocal()
+    STOCKS = crud.stock.get_all_stocks(db)[:10]  # Change this slice later
 
-        stock_names = [f"{stock.symbol}:{stock.exchange}" for stock in STOCKS]
+    stock_names = [f"{stock.symbol}:{stock.exchange}" for stock in STOCKS]
 
-        latest_close_price_provider = LatestClosingPriceProvider(
-            symbols=stock_names,
-            apikey=API_KEY,
-        )
+    if stock_names:
+        latest_close_price_provider = LatestClosingPriceProvider(symbols=stock_names, apikey=API_KEY, db=db)
         latest_close_price_provider.start()
-    finally:
-        db.close()
+    else:
+        log_msg("There are no stocks in the database, not polling for data.", "WARNING")
+
+
+@router.on_event("shutdown")
+def startup_event():
+    latest_close_price_provider.close()
 
 
 # @router.get("/real_time")
@@ -74,10 +77,7 @@ async def get_symbols(db: Session = Depends(get_db)):
 
     for stock in STOCKS:
         ret.append(
-            {
-                "symbol": stock.symbol,
-                "exchange": stock.exchange,
-            }
+            {"symbol": stock.symbol, "exchange": stock.exchange,}
         )
 
     return ret
@@ -108,15 +108,14 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
 
 
 @router.get("/time_series")
-async def get_stock_data(
-    symbol: str = Query(None), db: Session = Depends(get_db), days: int = 90
-):
+async def get_stock_data(symbol: str = Depends(check_symbol), db: Session = Depends(get_db), days: int = 90):
     stock = crud.stock.get_stock_by_symbol(db, symbol)
 
-    data = TD.time_series(
-        symbol=f"{stock.symbol}:{stock.exchange}",
-        interval="1day",
-        outputsize=days,  # TODO there seems to be a bug
-        timezone="Australia/Sydney",
-    ).as_json()
+    data = crud.stock.get_time_series(db, stock)
+    # data = TD.time_series(
+    #     symbol=f"{stock.symbol}:{stock.exchange}",
+    #     interval="1day",
+    #     outputsize=days,  # TODO there seems to be a bug
+    #     timezone="Australia/Sydney",
+    # ).as_json()
     return data

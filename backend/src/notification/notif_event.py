@@ -5,6 +5,7 @@ from pydantic import BaseModel as BaseSchema
 from pydantic import Field
 from src.game.achievement import AchievementData
 from src.util.auto_name_enum import AutoName
+from src.util.extended_types import Const
 
 
 # TODO possibly merge with game event, sharing the event hub
@@ -19,9 +20,9 @@ class NotifEvent(BaseSchema):
 
 
 class LevelUpEvent(NotifEvent):
-    event_type: NotifEventType = Field(NotifEventType.LEVEL_UP, const=NotifEventType.LEVEL_UP)
+    event_type: NotifEventType = Const(NotifEventType.LEVEL_UP)
     new_level: int
 
 
 class AchievementUnlockedEvent(NotifEvent, AchievementData):
-    event_type: NotifEventType = Field(NotifEventType.ACHIEVEMENT_UNLOCKED, const=NotifEventType.ACHIEVEMENT_UNLOCKED)
+    event_type: NotifEventType = Const(NotifEventType.ACHIEVEMENT_UNLOCKED)

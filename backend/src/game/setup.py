@@ -4,7 +4,7 @@ from src.game.achievement import Achievement, AchievementData
 from src.game.achievement_unlocker import AchievementUnlocker
 from src.game.event import GameEvent, GameEventType
 from src.game.event_hub import EventHub
-from typing_extensions import Literal
+from src.util.extended_types import Const
 
 """
 EVENTS
@@ -12,12 +12,12 @@ EVENTS
 
 # TODO replace other const field with this
 class LevelUpEvent(GameEvent):
-    event_type: GameEventType = Field(GameEventType.LEVEL_UP, const=GameEventType.LEVEL_UP)
+    event_type: GameEventType = Const(GameEventType.LEVEL_UP)
     new_level: int
 
 
 class AchievementUnlockedEvent(GameEvent, AchievementData):
-    event_type: GameEventType = Field(GameEventType.ACHIEVEMENT_UNLOCKED, const=GameEventType.ACHIEVEMENT_UNLOCKED)
+    event_type: GameEventType = Const(GameEventType.ACHIEVEMENT_UNLOCKED)
 
 
 """

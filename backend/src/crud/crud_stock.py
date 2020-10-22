@@ -3,6 +3,7 @@ from datetime import date, datetime
 from typing import Any, Dict, List, Optional
 
 from pydantic import ValidationError
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
@@ -87,12 +88,14 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         Batch insert historical daily timeseries candle stock data, continue insertion even
         if 1 entry fails convention.
         """
+
         for row in time_series_in:
             tsc = None
             try:
                 # @Even Tang
                 # Change this later
                 # dt = datetime.strptime(row["datetime"], "%Y-%m-%d")
+                # dt_str = dt.strftime("%Y-%m-%d")
                 # dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
                 # print(dt.strftime("%Y-%m-%d %H:%M:%S"))
                 tsc = TimeSeriesCreate(
@@ -108,18 +111,20 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
                 # Check if currently exists
                 entry = (
                     db.query(TimeSeries)
-                    .filter(TimeSeries.datetime == row["datetime"] and TimeSeries.symbol == obj_in.symbol)
+                    .filter(and_(TimeSeries.datetime == row["datetime"], TimeSeries.symbol == obj_in.symbol))
                     .first()
                 )
-                if not entry:
+
+                tsc = TimeSeries(**tsc.dict())
+                # print(tsc.__dict__)
+                if entry:
                     entry = tsc  # Replace if found
                 else:
                     obj_in.timeseries.append(tsc)  # Otherwise, add row
+
             except ValidationError as e:
                 log_msg(f"Failed to insert time series {row.__str__}.", "ERROR")
                 continue
-
-            tsc = TimeSeries(**tsc.dict())
 
         db.commit()
         db.refresh(obj_in)

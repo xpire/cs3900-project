@@ -1,12 +1,13 @@
-import logging
 import csv
-
+import logging
 from os import path
-from src.core.config import settings, proj_root
+
 from sqlalchemy.orm import Session
-from src.db.session import SessionLocal
+from src.core.config import proj_root, settings
 from src.crud.crud_stock import stock
 from src.db import base_model_import_all as base_model  # noqa: F401
+from src.db.session import SessionLocal
+from src.models.stock import Stock
 
 # make sure all SQL Alchemy models are imported (app.db.base) before initializing DB
 # otherwise, SQL Alchemy might fail to initialize relationships properly

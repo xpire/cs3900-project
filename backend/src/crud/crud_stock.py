@@ -1,4 +1,5 @@
 import json
+from datetime import date, datetime
 from typing import Any, Dict, List, Optional
 
 from pydantic import ValidationError
@@ -69,7 +70,7 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
             return obj_in
 
         # BUG: Below could be computationally expensive, optimize later maybe
-        tsc = TimeSeries(**tsc.dict)
+        tsc = TimeSeries(**tsc.dict())
 
         l = len(obj_in.timeseries)
         newest = obj_in.timeseries[l]
@@ -89,9 +90,14 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         for row in time_series_in:
             tsc = None
             try:
+                # @Even Tang
+                # Change this later
+                dt = datetime.strptime(row["datetime"], "%Y-%m-%d")
+                dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
+                # print(dt.strftime("%Y-%m-%d %H:%M:%S"))
                 tsc = TimeSeriesCreate(
-                    datetime=row["datetime"],
-                    symbol=Stock.symbol,
+                    datetime=dt_str,
+                    symbol=obj_in.symbol,
                     low=row["low"],
                     high=row["high"],
                     open_p=row["open"],
@@ -102,8 +108,20 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
                 log_msg(f"Failed to insert time series {row.__str__}.", "ERROR")
                 continue
 
-            tsc = TimeSeries(**tsc.dict)
-            Stock.timeseries.append(tsc)
+            tsc = TimeSeries(**tsc.dict())
+
+            print(tsc)
+            # Check if already exists
+            entry = (
+                db.query(TimeSeries)
+                .filter(TimeSeries.datetime == dt_str and TimeSeries.symbol == obj_in.symbol)
+                .first()
+            )
+
+            if not entry:
+                print("FOUND")
+
+                obj_in.timeseries.append(tsc)
 
         db.commit()
         db.refresh(obj_in)

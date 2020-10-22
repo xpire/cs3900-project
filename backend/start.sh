@@ -135,6 +135,15 @@ elif [ $# -eq 1 ]; then
             upgrade-db;
             init-data;
         ;;
+
+        "nuke-db") # be in backend
+            print-line;
+            rm ../database/testdb.sqlite3 # change this later
+            echo "Nuking database from the orbit ..."
+        
+            python src/db/init_db.py
+        echo "Database destroyed" 
+        ;;
         *) echo "Please provide the correct path.";;
     esac
 else

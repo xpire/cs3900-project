@@ -75,9 +75,7 @@ class Notifier:
         await wait_until_exit(self.has_event.wait())
 
         for event in self.events:
-            msg = event.dict()
-            del msg["user"]
-
+            msg = event.to_msg().dict()
             await ws.send_json(dict(msg=msg, is_error=False, type="notif"))
 
         self.events = []

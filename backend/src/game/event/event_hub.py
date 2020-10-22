@@ -1,8 +1,6 @@
-# May merge with achievement unlocker
 from abc import ABC, abstractmethod
-from typing import List
 
-from src.game.event import GameEvent
+from src.game.event.event import GameEvent
 
 
 class EventObserver(ABC):

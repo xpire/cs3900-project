@@ -17,8 +17,8 @@ from src.api.deps import (
 )
 from src.core.async_exit import AppStatus
 from src.domain_models import UserDM
-from src.game.achievement import UserAchievement
-from src.game.setup import TransactionEvent
+from src.game.achievement.achievement import UserAchievement
+from src.game.event.sub_events import TransactionEvent
 from src.notification.notifier import Notifier, notif_hub
 from src.schemas.transaction import ClosingTransaction, OpeningTransaction, OrderType, TradeType, Transaction
 
@@ -196,7 +196,7 @@ async def market_buy(symbol: str, quantity: int, user: UserDM = Depends(get_curr
         profit_percentage=10,
     )
 
-    from src.game.setup import event_hub
+    from src.game.setup.setup import event_hub
 
     event_hub.publish(TransactionEvent(user=user, transaction=t))
     return user.schema

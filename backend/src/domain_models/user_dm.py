@@ -9,6 +9,8 @@ from src.game.setup.setup import achievements_list, level_manager
 from src.models import UnlockedAchievement
 from src.schemas import User, UserInDB
 
+import src.api.endpoints.stocks as stocks_api
+from src.api.endpoints.stocks import latest_close_price_provider
 
 # TODO move this and relevant imports somewhere
 def update(model: BaseModel, db: Session):
@@ -32,7 +34,9 @@ class UserDM:
             log_msg("Achievement is already unlocked by the user", "ERROR")
             return
 
-        self.user.unlocked_achievements.append(UnlockedAchievement(achievement_id=achievement_id))
+        self.user.unlocked_achievements.append(
+            UnlockedAchievement(achievement_id=achievement_id)
+        )
         self.save_to_db()
 
     def save_to_db(self):
@@ -69,7 +73,10 @@ class UserDM:
     @property
     def achievements(self):
         unlocked = self.unlocked_achievement_ids
-        return [UserAchievement(**x.dict(), is_unlocked=x.id in unlocked) for x in achievements_list]
+        return [
+            UserAchievement(**x.dict(), is_unlocked=x.id in unlocked)
+            for x in achievements_list
+        ]
 
     @property
     def uid(self):
@@ -87,15 +94,57 @@ class UserDM:
     def model(self):
         return self.user
 
+    def get_postions(self, p_type: str):
+        if p_type != "long" and p_type != "short":
+            log_msg(
+                "No such position. allowed are 'long' or'short'.",
+                "ERROR",
+            )
+            return
+
+        portfolio = (
+            self.model.long_positions
+            if p_type == "long"
+            else self.model.short_positions
+        )
+
+        ret = []
+
+        for position in portfolio:
+            entry = {}
+            entry["price"] = float(
+                stocks_api.latest_close_price_provider.data[position.symbol][0]
+            )
+            entry["previous_price"] = float(
+                stocks_api.latest_close_price_provider.data[position.symbol][1]
+            )
+            entry["symbol"] = position.symbol
+            entry["name"] = position.stock_info.name
+            entry["owned"] = position.amount
+            entry["average_paid"] = position.avg
+            entry["total_paid"] = position.avg * position.amount
+            entry["value"] = entry["price"] * position.amount
+            entry["gain"] = entry["value"] - entry["total_paid"]
+            entry["day_gain"] = entry["price"] - entry["previous_price"]
+            entry["return"] = entry["gain"] / entry["total_paid"]
+
+            ret.append(entry)
+
+        return ret
+
     def watchlist_create(self, wl_sys: str):
-        self.user = user.add_to_watch_list(db=self.db, user_in=self.user, w_symbol=wl_sys)
+        self.user = user.add_to_watch_list(
+            db=self.db, user_in=self.user, w_symbol=wl_sys
+        )
         return self.user
 
     def watchlist_delete(self, wl_sys: str):
-        self.user = user.delete_from_watch_list(db=self.db, user_in=self.user, w_symbol=wl_sys)
+        self.user = user.delete_from_watch_list(
+            db=self.db, user_in=self.user, w_symbol=wl_sys
+        )
         return self.user
 
-    def get_gross_portfolio_value(self):
+    def get_gross_value(self):
         """
         Available balance + value of longs
         """
@@ -119,4 +168,4 @@ class UserDM:
         """
         Returns amount the investor can still short sell for
         """
-        return self.get_gross_portfolio_value() * 0.25 - self.get_shorts_owing()
+        return self.get_gross_value() * 0.25 - self.get_shorts_owing()

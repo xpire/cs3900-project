@@ -1,3 +1,4 @@
+from datetime import datetime
 from json.decoder import JSONDecodeError
 from typing import List
 
@@ -6,11 +7,20 @@ from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm
 from src import models, schemas
-from src.api.deps import decode_token, get_current_user_dm, get_current_user_m, get_db
+from src.api.deps import (
+    check_uid_email,
+    check_user_exists,
+    decode_token,
+    get_current_user_dm,
+    get_current_user_m,
+    get_db,
+)
 from src.core.async_exit import AppStatus
 from src.domain_models import UserDM
 from src.game.achievement import UserAchievement
+from src.game.setup import TransactionEvent
 from src.notification.notifier import Notifier, notif_hub
+from src.schemas.transaction import ClosingTransaction, OpeningTransaction, OrderType, TradeType, Transaction
 
 router = APIRouter()
 
@@ -23,9 +33,8 @@ async def check_user(id_token: str = Header(None)) -> schemas.user:
     return uid
 
 
-@router.get("/delete")
+@router.delete("")
 async def delete_user(
-    *,
     email: str,
     db: Session = Depends(get_db),
 ) -> bool:
@@ -36,46 +45,25 @@ async def delete_user(
     return crud.user.delete_user_by_email(db, email=email)
 
 
-# TODO:
-# - change to post again
-# - current doesn't check whether the email matches the user's uid
-@router.get("/create")
+@router.post("")
 async def create_user(
-    *,
-    id_token: str = Header(None),
     email: str,
+    id_token: str = Header(None),
     db: Session = Depends(get_db),
 ) -> schemas.user:
 
-    # TODO @GeorgeBai:
-    # - change to post again
-    # - current doesn't check whether the email matches the user's uid
-
     uid = decode_token(id_token)
-    user = crud.user.get_user_by_uid(db, uid=uid)
 
-    if not user:
-        user = crud.user.create(db, obj_in=schemas.UserCreate(email=email, uid=uid, username=email))
+    # Check if email matches
+    check_uid_email(email, uid)
 
-    # TODO @GeorgeBai
-    # raise error if already created
+    # Check if user exists
+    check_user_exists(uid, db)
+
+    # Create if doesn't exist
+    user = crud.user.create(db, obj_in=schemas.UserCreate(email=email, uid=uid, username=email))
 
     return dm.UserDM(user, db).schema
-
-
-# @router.post("", status_code=201)
-# async def create_user(
-#     db=Depends(get_db),
-#     id_token: str = Header(None),
-#     username: str = Query(None),
-#     email: str = Query(None),
-# ):
-#     uid = decode_token(id_token)
-#     return {
-#         "username": username,
-#         "email": email,
-#         "uid": uid,
-#     }
 
 
 @router.get("/balance")
@@ -162,37 +150,65 @@ async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
         print("USER DISCONNECTED")
 
 
-# NOTE: fastapi provides sample code that maybe used to notify
-# the same user connected using multiple clients
-# @router.websocket("/notifications")
-# async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
-#     await ws.accept()
-#     try:
-#         print("VALIDATE USER")
-#         id_token = await receive_json(ws)
+"""
+TEST APIS
+"""
 
-#         try:
-#             uid = decode_token(id_token)
-#         except:
-#             print("INVALID AUTH MESSAGE RECEIVED:", id_token)
-#             uid = None
 
-#         user = crud.user.get_user_by_uid(db, uid=uid)
+@router.post("/reset")
+async def market_buy(user: UserDM = Depends(get_current_user_dm)) -> schemas.User:
+    user.exp = 0
+    user.level = 1
+    user.user.unlocked_achievements = []
+    user.save_to_db()
+    return user.schema
 
-#         if user:
-#             print("AUTHORISED")
-#             # print(schemas.UserInDB.from_orm(user))
-#             await ws.send_json(dict(is_error=False, msg="User authorised", type="auth"))
-#         else:
-#             print("NOT AUTHORISED")
-#             await ws.send_json(dict(is_error=True, msg="User not authorised", type="auth"))
-#             await ws.close()
-#             return
 
-#         while True:
-#             data = await receive_json(ws)
-#             await ws.send_json(dict(is_error=False, msg={"message": "hi", "recieved": data}, type="notif"))
+@router.post("/market/buy")
+async def market_buy(symbol: str, quantity: int, user: UserDM = Depends(get_current_user_dm)) -> schemas.User:
+    t = OpeningTransaction(
+        user=user,
+        order_type=OrderType.MARKET,
+        trade_type=TradeType.BUY,
+        symbol=symbol,
+        quantity=quantity,
+        brokerage_fee=10,
+        trade_timestamp=datetime.now(),
+    )
 
-#             # await ws.send_json(json.dumps({"message": "hi", "recieved": data}))
-#     except WebSocketDisconnect:
-#         print("USER DISCONNECTED")
+    from src.game.setup import event_hub
+
+    event_hub.publish(TransactionEvent(user=user, transaction=t))
+    return user.schema
+
+
+@router.post("/market/sell")
+async def market_buy(symbol: str, quantity: int, user: UserDM = Depends(get_current_user_dm)) -> schemas.User:
+    t = ClosingTransaction(
+        user=user,
+        order_type=OrderType.MARKET,
+        trade_type=TradeType.SELL,
+        symbol=symbol,
+        quantity=quantity,
+        brokerage_fee=10,
+        trade_timestamp=datetime.now(),
+        profit=1000,
+        profit_percentage=10,
+    )
+
+    from src.game.setup import event_hub
+
+    event_hub.publish(TransactionEvent(user=user, transaction=t))
+    return user.schema
+
+
+"""
+class Transaction(BaseSchema):
+    user: Any  # UserDM
+    order_type: OrderType
+    trade_type: TradeType
+    symbol: str
+    quantity: int
+    brokerage_fee: float
+    trade_timestamp: datetime
+    """

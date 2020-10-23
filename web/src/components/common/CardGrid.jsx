@@ -2,6 +2,7 @@ import React from "react";
 import { Grid } from "@material-ui/core";
 
 import StockCard from "./StockCard";
+import { format2dp } from "../../utils/formatter";
 
 const CardGrid = ({ data }) => {
   return (
@@ -40,8 +41,8 @@ const CardGrid = ({ data }) => {
                 symbol={symbol}
                 name={name}
                 category={exchange}
-                price={curr_close_price?.toFixed(2)}
-                delta={delta?.toFixed(2)}
+                price={format2dp(curr_close_price)} //{curr_close_price?.toFixed(2)}
+                delta={format2dp(delta)} //{delta?.toFixed(2)}
                 key={index}
                 skeleton={skeleton}
               />

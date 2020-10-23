@@ -6,6 +6,7 @@ import SortableTable from "../../components/common/SortableTable";
 import axios from "../../utils/api";
 import { useSnackbar } from "notistack";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
+import { format2dp } from "../../utils/formatter";
 
 const headCells = [
   { id: "symbol", numeric: false, disablePadding: false, label: "Symbol" },
@@ -43,11 +44,10 @@ const Watchlist = () => {
         price: curr_close_price,
         open: 1111,
         close: prev_close_price,
-        daily: (curr_close_price - prev_close_price).toFixed(2),
-        dailyPercentage: (
-          (100 * (curr_close_price - prev_close_price)) /
-          prev_close_price
-        ).toFixed(2),
+        daily: format2dp(curr_close_price - prev_close_price),
+        dailyPercentage: format2dp(
+          (100 * (curr_close_price - prev_close_price)) / prev_close_price
+        ),
       };
     }
   );

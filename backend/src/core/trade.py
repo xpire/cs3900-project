@@ -2,11 +2,11 @@ from src.domain_models.user_dm import UserDM
 from src.crud import crud_user, crud_stock
 from sqlalchemy.orm import Session
 
+import src.api.endpoints.stocks as stocks_api
+
 
 def get_stock_price(db: Session, symbol: str):
-    # stock_obj = crud_stock.stock.get_stock_by_symbol(db, symbol)
-    # return crud_stock.stock.get_time_series(db, stock_obj)[-1]
-    return 100
+    return float(stocks_api.latest_close_price_provider.data[symbol][0])
 
 
 def apply_commission(price: float, buy: bool = True):
@@ -23,7 +23,7 @@ def check_owned_longs(user: UserDM, quantity: int, symbol: str):
 
 def check_owned_shorts(user: UserDM, quantity: int, symbol: str):
     for position in user.model.short_positions:
-        if postion.symbol == symbol:
+        if position.symbol == symbol:
             return False if position.amount < quantity else True
 
     return False

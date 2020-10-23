@@ -1,8 +1,10 @@
 import json
 import time
 from abc import ABC, abstractmethod, abstractproperty
-from datetime import datetime, timedelta
-from threading import Timer, Lock, Thread
+from datetime import date, datetime, timedelta
+from threading import Lock, Thread, Timer
+
+from src import crud
 from twelvedata import TDClient
 
 
@@ -49,34 +51,63 @@ class CompositeDataProvider(DataProvider):
 
 
 class LatestClosingPriceProvider(DataProvider):
-    def __init__(self, apikey, symbols):
+    def __init__(self, apikey, symbols, db):
         super().__init__()
 
         self.TD = TDClient(apikey=apikey)
         self.symbols = symbols
+        self.db = db
+        self.n = 0  # Number of times we've polled
 
-        self.request = self.TD.time_series(
-            symbol=symbols,
-            interval="1day",
-            outputsize=2,
-            timezone="Australia/Sydney",  # output all timestamps in Sydney's timezone
-        )
+        self.request = None
+
         self._data = {}
         self.lock = Lock()
 
     def _start(self):
+
         self.update()
+
         RepeatScheduler(self, seconds_until_next_minute).start()
 
+    # Close sqlalchemy session
+    def close(self):
+        self.db.close()
+
     def update(self):
+
+        if self.n == 0:
+            self.request = self.TD.time_series(
+                symbol=self.symbols,
+                interval="1day",
+                outputsize=90,
+                timezone="Australia/Sydney",  # output all timestamps in Sydney's timezone
+            )
+
+            self.startup = False
+        if self.n == 1:
+            self.request = self.TD.time_series(
+                symbol=self.symbols,
+                interval="1day",
+                outputsize=2,
+                timezone="Australia/Sydney",  # output all timestamps in Sydney's timezone
+            )
+
         message = self.request.as_json()
         if len(self.symbols) == 1:
             message = {self.symbols[0]: message}
+
+        # Insert into sqlite database
+        for symbol, data in message.items():
+            stock = crud.stock.get_stock_by_symbol(self.db, symbol.split(":")[0])
+            crud.stock.batch_add_daily_time_series(self.db, stock, data)
 
         with self.lock:
             for symbol, data in message.items():
                 symbol = symbol.split(":")[0]
                 self._data[symbol] = [data[0]["close"], data[1]["close"]]
+
+        self.n += 1
 
     @property
     def data(self):
@@ -112,9 +143,7 @@ class RealTimeDataProvider(DataProvider):
         with self.lock:
             for symbol, data in message.items():
                 symbol = symbol.split(":")[0]
-                self._data[symbol] = dict(
-                    close=data[0]["close"], datetime=data[0]["datetime"]
-                )
+                self._data[symbol] = dict(close=data[0]["close"], datetime=data[0]["datetime"])
 
     @property
     def data(self):
@@ -200,11 +229,11 @@ class RepeatScheduler(Thread):
 
     def run(self):
         while True:
-            self.provider.update()
-
             if callable(self.wait_for_x_seconds):
                 x = self.wait_for_x_seconds()
             else:
                 x = self.wait_for_x_seconds
 
             time.sleep(x)
+
+            self.provider.update()

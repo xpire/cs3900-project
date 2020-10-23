@@ -9,6 +9,7 @@ from src.game.setup.setup import achievements_list, level_manager
 from src.models import UnlockedAchievement
 from src.schemas import User, UserInDB
 
+import src.api.endpoints.stocks as stocks_api
 
 # TODO move this and relevant imports somewhere
 def update(model: BaseModel, db: Session):
@@ -32,7 +33,9 @@ class UserDM:
             log_msg("Achievement is already unlocked by the user", "ERROR")
             return
 
-        self.user.unlocked_achievements.append(UnlockedAchievement(achievement_id=achievement_id))
+        self.user.unlocked_achievements.append(
+            UnlockedAchievement(achievement_id=achievement_id)
+        )
         self.save_to_db()
 
     def save_to_db(self):
@@ -69,7 +72,10 @@ class UserDM:
     @property
     def achievements(self):
         unlocked = self.unlocked_achievement_ids
-        return [UserAchievement(**x.dict(), is_unlocked=x.id in unlocked) for x in achievements_list]
+        return [
+            UserAchievement(**x.dict(), is_unlocked=x.id in unlocked)
+            for x in achievements_list
+        ]
 
     @property
     def uid(self):
@@ -87,36 +93,165 @@ class UserDM:
     def model(self):
         return self.user
 
-    def watchlist_create(self, wl_sys: str):
-        self.user = user.add_to_watch_list(db=self.db, user_in=self.user, w_symbol=wl_sys)
-        return self.user
+    def get_positions(self, p_type: str):
+        if p_type != "long" and p_type != "short":
+            log_msg(
+                "No such position. allowed are 'long' or'short'.",
+                "ERROR",
+            )
+            return
 
-    def watchlist_delete(self, wl_sys: str):
-        self.user = user.delete_from_watch_list(db=self.db, user_in=self.user, w_symbol=wl_sys)
-        return self.user
+        portfolio = (
+            self.model.long_positions
+            if p_type == "long"
+            else self.model.short_positions
+        )
 
-    def get_gross_portfolio_value(self):
+        ret = []
+
+        for position in portfolio:
+            entry = {}
+            entry["price"] = float(
+                stocks_api.latest_close_price_provider.data[position.symbol][0]
+            )
+            entry["previous_price"] = float(
+                stocks_api.latest_close_price_provider.data[position.symbol][1]
+            )
+            entry["symbol"] = position.symbol
+            entry["name"] = position.stock_info.name
+            entry["owned"] = position.amount
+            entry["average_paid"] = position.avg
+            entry["total_paid"] = position.avg * position.amount
+            entry["value"] = entry["price"] * position.amount
+            entry["gain"] = entry["value"] - entry["total_paid"]
+            entry["day_gain"] = entry["price"] - entry["previous_price"]
+            entry["return"] = entry["gain"] / entry["total_paid"]
+
+            ret.append(entry)
+
+        return ret
+
+    def get_total_opening_values(self, p_type: str):
+        """
+        Returns total amount paid for long_positions or
+        total amount gained for short_positions
+        """
+        if p_type != "long" and p_type != "short":
+            log_msg(
+                "No such position. allowed are 'long' or'short'.",
+                "ERROR",
+            )
+            return
+
+        portfolio = (
+            self.model.long_positions
+            if p_type == "long"
+            else self.model.short_positions
+        )
+
+        value = 0
+        for position in portfolio:
+            value += position.amount * position.avg
+
+        return value
+
+    def get_total_closing_values(self, p_type: str):
+        """
+        Returns total current value of long_positions or
+        total current cost to cover short_positions
+        """
+        if p_type != "long" and p_type != "short":
+            log_msg(
+                "No such position. allowed are 'long' or'short'.",
+                "ERROR",
+            )
+            return
+
+        portfolio = (
+            self.model.long_positions
+            if p_type == "long"
+            else self.model.short_positions
+        )
+
+        value = 0
+        for position in portfolio:
+            curr_price = float(
+                stocks_api.latest_close_price_provider.data[position.symbol][0]
+            )
+            value += position.amount * curr_price
+
+        return value
+
+    def get_long_profit(self):
+        """
+        Returns total profit if all long positions were closed
+        """
+        return self.get_total_closing_values("long") - self.get_total_opening_values(
+            "long"
+        )
+
+    def get_short_profit(self):
+        """
+        Returns total profit if all short positions were closed
+        """
+        return self.get_total_opening_values("short") - self.get_total_closing_values(
+            "short"
+        )
+
+    def get_overall_profit(self):
+        """
+        Returns total profit if all positions were closed
+        """
+        return self.get_long_profit() + self.get_short_profit()
+
+    def get_net_portfolio_value(self):
+        """
+        Returns total current value of long and short positions
+        """
+        return self.get_total_closing_values("long") + self.get_total_closing_values(
+            "short"
+        )
+
+    def get_net_value(self):
+        """
+        Returns total current value of the user
+        """
+        return self.get_net_portfolio_value() + self.model.balance
+
+    def get_gross_value(self):
         """
         Available balance + value of longs
         """
-        value = self.user.balance
-        for position in self.user.long_positions:
-            value += position.amount * position.avg
-
-        return value
-
-    def get_shorts_owing(self):
-        """
-        Returns amount user has currently short sold for
-        """
-        value = 0
-        for position in self.user.short_positions:
-            value += position.amount * position.avg
-
-        return value
+        return self.model.balance + self.get_total_closing_values("long")
 
     def get_short_balance(self):
         """
         Returns amount the investor can still short sell for
         """
-        return self.get_gross_portfolio_value() * 0.25 - self.get_shorts_owing()
+        return self.get_gross_value() * 0.25 - self.get_total_opening_values("short")
+
+    def compile_portfolio_stats(self):
+        stats = {}
+        stats["total_long_value"] = self.get_total_closing_values("long")
+        stats["total_short_value"] = self.get_total_closing_values("short")
+        stats["total_long_profit"] = self.get_long_profit()
+        stats["total_short_profit"] = self.get_short_profit()
+        stats["total_portfolio_value"] = self.get_net_portfolio_value()
+        stats["total_portfolio_profit"] = self.get_overall_profit()
+        stats["total_value"] = self.get_net_value()
+        stats["balance"] = self.model.balance
+        stats["short_balance"] = self.get_short_balance()
+
+        return stats
+
+    def watchlist_create(self, wl_sys: str):
+        self.user = user.add_to_watch_list(
+            db=self.db, user_in=self.user, w_symbol=wl_sys
+        )
+        return self.user
+
+    def watchlist_delete(self, wl_sys: str):
+        self.user = user.delete_from_watch_list(
+            db=self.db, user_in=self.user, w_symbol=wl_sys
+        )
+        return self.user

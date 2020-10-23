@@ -99,7 +99,6 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         Batch insert historical daily timeseries candle stock data, continue insertion even
         if 1 entry fails convention.
         """
-
         for row in time_series_in:
             tsc = None
             try:

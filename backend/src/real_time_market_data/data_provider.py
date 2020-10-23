@@ -75,7 +75,6 @@ class LatestClosingPriceProvider(DataProvider):
         self.db.close()
 
     def batch_init(self):
-        print(self.symbols)
         self.request = self.TD.time_series(
             symbol=self.symbols,
             interval="1day",
@@ -88,8 +87,7 @@ class LatestClosingPriceProvider(DataProvider):
             message = {self.symbols[0]: message}
 
         for symbol, data in message.items():
-            print(symbol)
-            stock = crud.stock.get_stock_by_symbol(self.db, symbol.split(":")[0])
+            stock = crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=symbol.split(":")[0])
             crud.stock.batch_add_daily_time_series(db=self.db, obj_in=stock, time_series_in=data)
 
     def update(self):

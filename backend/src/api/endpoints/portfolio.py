@@ -20,11 +20,17 @@ async def get_portfolio(
     db: Session = Depends(get_db),
 ):
 
-    ret = {}
-    ret["balance"] = user.model.balance
-    ret["long"] = user.get_positions("long")
-    ret["short"] = user.get_positions("short")
-    ret["total_long_val"] = user.get_total_closing_values("long")
-    ret["total_short_val"] = user.get_total_closing_values("short")
+    ret = {
+        "long": user.get_positions("long"),
+        "short": user.get_positions("short"),
+    }
 
     return ret
+
+
+@router.get("/stats")
+async def get_portfolio_stats(
+    user: domain_models.UserDM = Depends(get_current_user_dm),
+    db: Session = Depends(get_db),
+):
+    return user.compile_portfolio_stats()

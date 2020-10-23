@@ -151,7 +151,7 @@ class UserDM:
 
         value = 0
         for position in portfolio:
-            value += position.amount * postion.avg
+            value += position.amount * position.avg
 
         return value
 
@@ -178,9 +178,71 @@ class UserDM:
             curr_price = float(
                 stocks_api.latest_close_price_provider.data[position.symbol][0]
             )
-            value += position.avg * curr_price
+            value += position.amount * curr_price
 
         return value
+
+    def get_long_profit(self):
+        """
+        Returns total profit if all long positions were closed
+        """
+        return self.get_total_closing_values("long") - self.get_total_opening_values(
+            "long"
+        )
+
+    def get_short_profit(self):
+        """
+        Returns total profit if all short positions were closed
+        """
+        return self.get_total_opening_values("short") - self.get_total_closing_values(
+            "short"
+        )
+
+    def get_overall_profit(self):
+        """
+        Returns total profit if all positions were closed
+        """
+        return self.get_long_profit() + self.get_short_profit()
+
+    def get_net_portfolio_value(self):
+        """
+        Returns total current value of long and short positions
+        """
+        return self.get_total_closing_values("long") + self.get_total_closing_values(
+            "short"
+        )
+
+    def get_net_value(self):
+        """
+        Returns total current value of the user
+        """
+        return self.get_net_portfolio_value() + self.model.balance
+
+    def get_gross_value(self):
+        """
+        Available balance + value of longs
+        """
+        return self.model.balance + self.get_total_closing_values("long")
+
+    def get_short_balance(self):
+        """
+        Returns amount the investor can still short sell for
+        """
+        return self.get_gross_value() * 0.25 - self.get_total_opening_values("short")
+
+    def compile_portfolio_stats(self):
+        stats = {}
+        stats["total_long_value"] = self.get_total_closing_values("long")
+        stats["total_short_value"] = self.get_total_closing_values("short")
+        stats["total_long_profit"] = self.get_long_profit()
+        stats["total_short_profit"] = self.get_short_profit()
+        stats["total_portfolio_value"] = self.get_net_portfolio_value()
+        stats["total_portfolio_profit"] = self.get_overall_profit()
+        stats["total_value"] = self.get_net_value()
+        stats["balance"] = self.model.balance
+        stats["short_balance"] = self.get_short_balance()
+
+        return stats
 
     def watchlist_create(self, wl_sys: str):
         self.user = user.add_to_watch_list(
@@ -193,29 +255,3 @@ class UserDM:
             db=self.db, user_in=self.user, w_symbol=wl_sys
         )
         return self.user
-
-    def get_gross_value(self):
-        """
-        Available balance + value of longs
-        """
-        value = self.user.balance
-        for position in self.user.long_positions:
-            value += position.amount * position.avg
-
-        return value
-
-    def get_shorts_owing(self):
-        """
-        Returns amount user has currently short sold for
-        """
-        value = 0
-        for position in self.user.short_positions:
-            value += position.amount * position.avg
-
-        return value
-
-    def get_short_balance(self):
-        """
-        Returns amount the investor can still short sell for
-        """
-        return self.get_gross_value() * 0.25 - self.get_shorts_owing()

@@ -50,7 +50,7 @@ def startup_event():
     global latest_close_price_provider
 
     db = SessionLocal()
-    STOCKS = crud.stock.get_all_stocks(db)[:10]  # Change this slice later
+    STOCKS = crud.stock.get_all_stocks(db=db)[:10]  # Change this slice later
 
     stock_names = [f"{stock.symbol}:{stock.exchange}" for stock in STOCKS]
 
@@ -82,7 +82,10 @@ async def get_symbols(db: Session = Depends(get_db)):
 
     for stock in STOCKS:
         ret.append(
-            {"symbol": stock.symbol, "exchange": stock.exchange,}
+            {
+                "symbol": stock.symbol,
+                "exchange": stock.exchange,
+            }
         )
 
     return ret

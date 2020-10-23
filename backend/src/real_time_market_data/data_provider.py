@@ -66,7 +66,7 @@ class LatestClosingPriceProvider(DataProvider):
 
     def _start(self):
 
-        self.update()
+        self.batch_init()
 
         RepeatScheduler(self, seconds_until_next_minute).start()
 
@@ -74,24 +74,29 @@ class LatestClosingPriceProvider(DataProvider):
     def close(self):
         self.db.close()
 
+    def batch_init(self):
+        self.request = self.TD.time_series(
+            symbol=self.symbols,
+            interval="1day",
+            outputsize=90,
+            timezone="Australia/Sydney",  # output all timestamps in Sydney's timezone
+        )
+
+        message = self.request.as_json()
+        if len(self.symbols) == 1:
+            message = {self.symbols[0]: message}
+
+        for symbol, data in message.items():
+            stock = crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=symbol.split(":")[0])
+            crud.stock.batch_add_daily_time_series(db=self.db, obj_in=stock, time_series_in=data)
+
     def update(self):
-
-        if self.n == 0:
-            self.request = self.TD.time_series(
-                symbol=self.symbols,
-                interval="1day",
-                outputsize=90,
-                timezone="Australia/Sydney",  # output all timestamps in Sydney's timezone
-            )
-
-            self.startup = False
-        if self.n == 1:
-            self.request = self.TD.time_series(
-                symbol=self.symbols,
-                interval="1day",
-                outputsize=2,
-                timezone="Australia/Sydney",  # output all timestamps in Sydney's timezone
-            )
+        self.request = self.TD.time_series(
+            symbol=self.symbols,
+            interval="1day",
+            outputsize=2,
+            timezone="Australia/Sydney",  # output all timestamps in Sydney's timezone
+        )
 
         message = self.request.as_json()
         if len(self.symbols) == 1:
@@ -100,14 +105,13 @@ class LatestClosingPriceProvider(DataProvider):
         # Insert into sqlite database
         for symbol, data in message.items():
             stock = crud.stock.get_stock_by_symbol(self.db, symbol.split(":")[0])
-            crud.stock.batch_add_daily_time_series(self.db, stock, data)
+            crud.stock.update_time_series(db=self.db, obj_in=stock, u_time_series=data)
 
         with self.lock:
-            for symbol, data in message.items():
-                symbol = symbol.split(":")[0]
-                self._data[symbol] = [data[0]["close"], data[1]["close"]]
-
-        self.n += 1
+            pass
+        #     for symbol, data in message.items():
+        #         symbol = symbol.split(":")[0]
+        #         self._data[symbol] = [data[0]["close"], data[1]["close"]]
 
     @property
     def data(self):

@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime, time
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -123,3 +124,35 @@ async def get_stock_data(symbol: str = Depends(check_symbol), db: Session = Depe
     #     timezone="Australia/Sydney",
     # ).as_json()
     return data
+
+
+@router.get("/trading_hours")
+async def get_trading_hours(symbol: str = Depends(check_symbol), db: Session = Depends(get_db)):
+
+    # Trading hours retrieved from
+    # https://www.thebalance.com/stock-market-hours-4773216#:~:text=Toronto%20Stock%20Exchange-,9%3A30%20a.m.%20to%204%20p.m.,30%20p.m.%20to%209%20p.m.&text=8%3A30%20a.m.%20to%203%20p.m.
+
+    stock = crud.stock.get_stock_by_symbol(db, symbol)
+    curr_time = datetime.now().time()  # UTC time
+
+    res = False
+    time_range = None
+    # Australian is 10am - 4pm (AEDT)
+    if stock.exchange == "ASX":
+        if curr_time >= time(23, 0) or curr_time <= time(5, 0):
+            res = True
+        time_range = f"{time(23,0)} - {time(5,0)}"
+    if stock.exchange == "NYSE":  # NYSE is 9:30 am - 4 pm (New York Eastern time (UTC-4))
+        if curr_time >= time(13, 30) and curr_time <= time(20, 0):
+            res = True
+        time_range = f"{time(13, 30)} - {time(20,0)}"
+    if stock.exchange == "NASDAQ":  # NYSE is 9:30 am - 4 pm (New York Eastern time (UTC-4))
+        if curr_time >= time(13, 30) and curr_time <= time(20, 0):
+            res = True
+        time_range = f"{time(13, 30)} - {time(20,0)}"
+    if stock.exchange == "LSE":
+        if curr_time >= time(8, 0) and curr_time <= time(16, 30):
+            res = True
+        time_range = f"{time(8, 0)} - {time(16, 30)}"
+
+    return {"trading": res, "time_range": time_range}

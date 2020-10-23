@@ -94,6 +94,9 @@ elif [ $# -eq 1 ]; then
             title-bar;
             set-python-path;
             check-wake;
+
+            sqlite3 ../database/testdb.sqlite3 "delete from timeseries;"
+            
             echo "Starting...";
             uvicorn src.main:app --reload --ws websockets;
         ;;

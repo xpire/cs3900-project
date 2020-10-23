@@ -146,6 +146,10 @@ async def get_trading_hours(symbol: str = Depends(check_symbol), db: Session = D
         if curr_time >= time(13, 30) and curr_time <= time(20, 0):
             res = True
         time_range = f"{time(13, 30)} - {time(20,0)}"
+    if stock.exchange == "NASDAQ":  # NYSE is 9:30 am - 4 pm (New York Eastern time (UTC-4))
+        if curr_time >= time(13, 30) and curr_time <= time(20, 0):
+            res = True
+        time_range = f"{time(13, 30)} - {time(20,0)}"
     if stock.exchange == "LSE":
         if curr_time >= time(8, 0) and curr_time <= time(16, 30):
             res = True

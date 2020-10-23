@@ -108,10 +108,9 @@ class LatestClosingPriceProvider(DataProvider):
             crud.stock.update_time_series(db=self.db, obj_in=stock, u_time_series=data)
 
         with self.lock:
-            pass
-        #     for symbol, data in message.items():
-        #         symbol = symbol.split(":")[0]
-        #         self._data[symbol] = [data[0]["close"], data[1]["close"]]
+            for symbol, data in message.items():
+                symbol = symbol.split(":")[0]
+                self._data[symbol] = [data[0]["close"], data[1]["close"]]
 
     @property
     def data(self):

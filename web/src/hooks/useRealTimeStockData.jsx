@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "../utils/api";
 
 const useRealTimeStockData = (
-  path = "stocks/symbols",
+  path = "/stocks/symbols",
   update = [],
   initialData = [...Array(12)].map((_) => {
     return { skeleton: true };

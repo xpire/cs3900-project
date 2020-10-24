@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Typography, Tab, Tabs, Grid, CardContent } from "@material-ui/core";
+import { Skeleton } from "@material-ui/lab";
 
 import { AuthContext } from "../../utils/authentication";
 import Page from "../../components/page/Page";
@@ -8,6 +9,7 @@ import CardGrid from "../../components/common/CardGrid";
 import ApexCandlestick from "../../components/graph/ApexCandlestick";
 import axios from "../../utils/api";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
+import { format2dp } from "../../utils/formatter";
 
 import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
 
@@ -21,7 +23,6 @@ const StatCard = ({ name, value, stat, today }) => {
   return (
     <StandardCard style={{ minHeight: "130px" }}>
       <CardContent>
-        {/* TODO: make this not hardcoded somehow */}
         <Grid
           container
           direction="row"
@@ -32,9 +33,12 @@ const StatCard = ({ name, value, stat, today }) => {
             <Typography variant="button">{name}</Typography>
           </Grid>
           <Grid item container alignItems="flex-end" spacing={1}>
-            <Grid item>
-              <Typography variant="h4">{value}</Typography>
+            <Grid item xs={12}>
+              <Typography variant="h4">
+                {value ? value : <Skeleton />}
+              </Typography>
             </Grid>
+            {/* TODO: implement these when backend is ready */}
             {stat && (
               <Grid item>
                 <ColoredText color={stat > 0 ? "green" : "red"} variant="h5">
@@ -64,13 +68,6 @@ const StatCard = ({ name, value, stat, today }) => {
   );
 };
 
-const StatisticsData = [
-  { name: "Portfolio Value", value: 21123.33, stat: 5.3, today: -1.4 },
-  { name: "Net Value", value: 26992.23, stat: 23, today: 2 },
-  { name: "Profit", value: 1992.23, stat: 4.3, today: 10.4 },
-  // { name: "Available Balance", value: 5001.22 },
-];
-
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
   const [myValue, setValue] = useState(0);
@@ -91,30 +88,27 @@ const Dashboard = () => {
     (d) => d.short
   );
   const [watchData] = useRealTimeStockData("/watchlist", [myValue]);
-  const [balance, setBalance] = useState(0);
+  // const [balance, setBalance] = useState(0);
 
-  const getBalance = () => {
-    axios
-      .get("/user/balance")
-      .then((response) => {
-        setBalance(response.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
+  const [stats, setStats] = useState([
+    { name: "Portfolio Value", valueKey: "total_portfolio_value" },
+    { name: "Net Value", valueKey: "total_value" },
+    { name: "Profit", valueKey: "total_portfolio_profit" },
+    { name: "Available Balance", valueKey: "balance" },
+    // { name: "Net Value", value: 26992.23, stat: 23, today: 2 }, e.g. format
+  ]);
   useEffect(() => {
-    user &&
-      user
-        .getIdToken()
-        .then((token) => {
-          getBalance(token);
-        })
-        .catch((e) => {});
+    axios
+      .get("/portfolio/stats")
+      .then((response) => {
+        setStats(
+          stats.map(({ valueKey, name }) => {
+            return { name: name, value: format2dp(response.data[valueKey]) };
+          })
+        );
+      })
+      .catch((err) => console.log(err));
   }, [user]);
-
-  const balance_card = { name: "Available Balance", value: balance };
 
   return (
     <Page>
@@ -124,14 +118,11 @@ const Dashboard = () => {
         justify="flex-start"
         alignItems="flex-start"
       >
-        {StatisticsData.map((data, index) => (
+        {stats.map((data, index) => (
           <Grid key={index} item md={3} sm={6} xs={12}>
             <StatCard {...data} />
           </Grid>
         ))}
-        <Grid key={4} item md={3} sm={6} xs={12}>
-          <StatCard {...balance_card} />
-        </Grid>
         <Grid item xs={12}>
           <StandardCard>
             <CardContent>
@@ -146,7 +137,6 @@ const Dashboard = () => {
               onChange={(_event, newValue) => {
                 console.log("setting value to", newValue);
                 setValue(newValue);
-                // setData(stockData.slice(myValue * 3, myValue * 3 + 3));
               }}
               indicatorColor="primary"
               textColor="primary"

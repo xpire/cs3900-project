@@ -14,6 +14,8 @@ import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
 import { useLocation } from "react-router-dom";
 
 import Page from "../../components/page/Page";
+import axios from "../../utils/api";
+import AutoCompleteTextField from "../../components/common/AutoCompleteTextField";
 
 const Trading = () => {
   const search = useLocation().search;
@@ -27,7 +29,10 @@ const Trading = () => {
 
   const [state, setState] = useState(defaultState);
   // const set = (stateString) => (value) => setState({ ...state, [stateString]: value})
-  const setSymbol = (value) => setState({ ...state, symbol: value });
+  const setSymbol = (value) => {
+    setState({ ...state, symbol: value });
+    console.log({ state });
+  };
   const setTradeType = (value) => setState({ ...state, tradeType: value });
   const setPurchaseBy = (value) => setState({ ...state, purchaseBy: value });
   const setOrderType = (value) => setState({ ...state, orderType: value });
@@ -46,6 +51,7 @@ const Trading = () => {
   };
 
   const valuetext = (t) => `t`;
+
   return (
     <Page>
       <Card style={{ padding: "25px" }}>
@@ -60,12 +66,7 @@ const Trading = () => {
             Symbol:
           </Grid>
           <Grid item xs={9}>
-            <TextField
-              variant="outlined"
-              label="Symbol"
-              defaultValue={state.symbol}
-              onChange={(_event, newValue) => setSymbol(newValue)}
-            />
+            <AutoCompleteTextField value={state.symbol} setValue={setSymbol} />
           </Grid>
           <Grid item xs={3}>
             Trade Type:
@@ -196,6 +197,12 @@ const Trading = () => {
                   console.log(
                     `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`
                   );
+                  axios
+                    .post(
+                      `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`
+                    )
+                    .then((response) => console.log(response))
+                    .catch((err) => console.log("err", err)); //todo send notification
                 }}
               >
                 Submit

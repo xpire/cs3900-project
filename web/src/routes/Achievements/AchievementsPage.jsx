@@ -13,20 +13,23 @@ import {
 import { AuthContext } from "../../utils/authentication";
 import Page from "../../components/page/Page";
 import { StandardCard } from "../../components/common/styled";
-import axios from "../../utils/api";
+import useApi from "../../hooks/useApi";
 
 const Achievements = () => {
   const { user } = useContext(AuthContext);
 
   // const [lastJsonMessage, messageHistory, connectionStatus] = useSockets();
-  const [achievements, setAchievements] = useState([]);
+  // const [achievements, setAchievements] = useState([]);
 
-  useEffect(() => {
-    axios.get("/user/achievements").then((response) => {
-      setAchievements(response.data);
-      console.log(response.data);
-    });
-  }, []);
+  // useEffect(() => {
+  //   axios.get("/user/achievements").then((response) => {
+  //     setAchievements(response.data);
+  //     console.log(response.data);
+  //   });
+  // }, []);
+
+  const [data] = useApi("/user/achievements");
+
   return (
     <Page>
       <StandardCard>
@@ -40,13 +43,13 @@ const Achievements = () => {
         <CardContent>
           <Typography variant="h3">
             Unlocked Achievements: (
-            {achievements.filter(({ is_unlocked }) => is_unlocked).length}/
-            {achievements.length})
+            {data.filter(({ is_unlocked }) => is_unlocked).length}/{data.length}
+            )
           </Typography>
         </CardContent>
       </StandardCard>
       <Grid container direction="row">
-        {achievements.map(({ id, name, description, is_unlocked, exp }) => {
+        {data.map(({ id, name, description, is_unlocked, exp }) => {
           return (
             <Grid item xs={12} sm={6} md={4} key={id}>
               <StandardCard>

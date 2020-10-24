@@ -32,7 +32,7 @@ const useSockets = () => {
     if (readyState === ReadyState.OPEN) {
       user &&
         user
-          .getIdToken(true)
+          .getIdToken()
           .then((token) => {
             sendJsonMessage(token);
           })

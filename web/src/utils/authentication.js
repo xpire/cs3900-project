@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import app from "./firebase";
 import { Typography, CircularProgress, useTheme } from "@material-ui/core";
 import { motion, AnimatePresence } from "framer-motion";
@@ -35,6 +35,7 @@ export const AuthProvider = ({ children }) => {
   const { enqueueSnackbar } = useSnackbar();
   const [lastJsonMessage, messageHistory, connectionStatus] = useSockets();
   useEffect(() => {
+    console.log({ lastJsonMessage });
     switch (lastJsonMessage?.type) {
       case "auth":
         enqueueSnackbar(`${lastJsonMessage.msg}`, {

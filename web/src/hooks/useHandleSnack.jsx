@@ -4,7 +4,8 @@ import { useSnackbar } from "notistack";
 const useHandleSnack = () => {
   const { enqueueSnackbar } = useSnackbar();
   return (lastJsonMessage) => {
-    switch (lastJsonMessage) {
+    console.log(`Inside handleSnack: ${JSON.stringify(lastJsonMessage)}`);
+    switch (lastJsonMessage?.type) {
       case "auth":
         enqueueSnackbar(`${lastJsonMessage.msg}`, {
           variant: "info",

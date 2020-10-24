@@ -34,7 +34,7 @@ const AutoCompleteTextField = ({ value, setValue }) => {
   }, []);
   return (
     <Autocomplete
-      style={{ width: 300 }}
+      // style={{ width: 300 }}
       open={open}
       onOpen={() => {
         setOpen(true);

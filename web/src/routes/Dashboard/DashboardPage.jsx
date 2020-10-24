@@ -9,7 +9,7 @@ import CardGrid from "../../components/common/CardGrid";
 import ApexCandlestick from "../../components/graph/ApexCandlestick";
 import axios from "../../utils/api";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
-import { format2dp } from "../../utils/formatter";
+import { format } from "../../utils/formatter";
 
 import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
 
@@ -103,7 +103,7 @@ const Dashboard = () => {
       .then((response) => {
         setStats(
           stats.map(({ valueKey, name }) => {
-            return { name: name, value: format2dp(response.data[valueKey]) };
+            return { name: name, value: format(response.data[valueKey]) };
           })
         );
       })

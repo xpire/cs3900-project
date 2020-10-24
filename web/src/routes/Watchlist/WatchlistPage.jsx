@@ -6,7 +6,7 @@ import SortableTable from "../../components/common/SortableTable";
 import axios from "../../utils/api";
 import { useSnackbar } from "notistack";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
-import { format2dp } from "../../utils/formatter";
+import { format } from "../../utils/formatter";
 
 const headCells = [
   { id: "symbol", numeric: false, disablePadding: false, label: "Symbol" },
@@ -44,8 +44,8 @@ const Watchlist = () => {
         price: curr_close_price,
         open: 1111,
         close: prev_close_price,
-        daily: format2dp(curr_close_price - prev_close_price),
-        dailyPercentage: format2dp(
+        daily: format(curr_close_price - prev_close_price),
+        dailyPercentage: format(
           (100 * (curr_close_price - prev_close_price)) / prev_close_price
         ),
       };
@@ -69,11 +69,11 @@ const Watchlist = () => {
                   ? enqueueSnackbar(
                       `${response.data.result}! ${symbol} deleted from watchlist`,
                       {
-                        variant: "Success",
+                        variant: "success",
                       }
                     )
                   : enqueueSnackbar(`${response.data.result}`, {
-                      variant: "Warning",
+                      variant: "warning",
                     });
                 setDeleted(deleted + 1);
                 console.log({ response });
@@ -81,7 +81,7 @@ const Watchlist = () => {
               })
               .catch((err) =>
                 enqueueSnackbar(`${err}`, {
-                  variant: "Error",
+                  variant: "error",
                 })
               );
           }}

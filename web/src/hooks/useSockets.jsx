@@ -29,16 +29,18 @@ const useSockets = () => {
   }[readyState];
 
   useEffect(() => {
+    console.log({ readyState, user });
     if (readyState === ReadyState.OPEN) {
       user &&
         user
           .getIdToken()
           .then((token) => {
+            console.log(`I am sending token now: ${token}`);
             sendJsonMessage(token);
           })
           .catch((e) => console.log(e));
     }
-  }, [readyState]);
+  }, [readyState, user]);
 
   const [messageHistory, setMessageHistory] = useState([]);
   useEffect(() => {

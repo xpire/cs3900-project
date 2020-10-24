@@ -110,18 +110,18 @@ const StockCard = ({
                         ? enqueueSnackbar(
                             `${response.data.result}! ${symbol} added to watchlist`,
                             {
-                              variant: "Success",
+                              variant: "success",
                             }
                           )
                         : enqueueSnackbar(`${response.data.result}`, {
-                            variant: "Warning",
+                            variant: "warning",
                           });
                       console.log({ response });
                       console.log(response.data.result === "success");
                     })
                     .catch((err) =>
                       enqueueSnackbar(`${err}`, {
-                        variant: "Error",
+                        variant: "error",
                       })
                     );
                 }}

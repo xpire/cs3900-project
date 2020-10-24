@@ -2,6 +2,7 @@ import React from "react";
 import { render } from "@testing-library/react";
 import TradingPage from "./TradingPage";
 import routeData from "react-router";
+import { SnackbarProvider } from "notistack";
 
 const mockLocation = {
   symbol: "FB",
@@ -13,7 +14,11 @@ beforeEach(() => {
 });
 describe("Trading Page", () => {
   it("Contains important buttons", () => {
-    const { getByText } = render(<TradingPage />);
+    const { getByText } = render(
+      <SnackbarProvider>
+        <TradingPage />
+      </SnackbarProvider>
+    );
     [
       /Buy/i,
       /Sell/i,

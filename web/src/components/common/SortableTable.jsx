@@ -20,6 +20,7 @@ import TradingIcon from "@material-ui/icons/MonetizationOn";
 import { Link } from "react-router-dom";
 
 import { ColoredText } from "../common/styled";
+import { format } from "../../utils/formatter";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -142,7 +143,7 @@ export default function EnhancedTable({
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
                     {header.map(({ id, numeric, disablePadding, color }) => {
                       const value = numeric
-                        ? Number(row[id]).toFixed(2)
+                        ? format(row[id]) // Number(row[id]).toFixed(2)
                         : row[id];
                       return (
                         <TableCell
@@ -212,7 +213,7 @@ export default function EnhancedTable({
                       <Tooltip title="Trade">
                         <IconButton
                           component={Link}
-                          to={`/trading?symbol=${row.symbol}`}
+                          to={`/trade?symbol=${row.symbol}`}
                         >
                           <TradingIcon />
                         </IconButton>

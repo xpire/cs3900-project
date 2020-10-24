@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "Good start",
+    "description": "Reach level 3",
+    "exp": 0,
+    "is_unlocked": true
+  },
+  {
+    "id": 2,
+    "name": "Halfway there!",
+    "description": "Reach level 5",
+    "exp": 0,
+    "is_unlocked": true
+  },
+  {
+    "id": 3,
+    "name": "Max Level!",
+    "description": "Reach level 10",
+    "exp": 0,
+    "is_unlocked": false
+  }
+]

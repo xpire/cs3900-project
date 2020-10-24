@@ -26,6 +26,7 @@ import Candlestick from "../../components/graph/Candlestick";
 import { Skeleton } from "@material-ui/lab";
 import axios from "../../utils/api";
 // import ApexCandlestick from "../../components/graph/ApexCandlestick";
+import { format } from "../../utils/formatter";
 
 function createData(name, value) {
   return { name, value };
@@ -166,7 +167,7 @@ const StockDetails = () => {
                         variant="h2"
                         align="right"
                       >
-                        {loading ? <Skeleton /> : `${dayGain?.toFixed(2)}%`}
+                        {loading ? <Skeleton /> : `${format(dayGain)}%`}
                       </ColoredText>
                     </Grid>
                     <Grid item>
@@ -175,7 +176,7 @@ const StockDetails = () => {
                         variant="h3"
                         align="right"
                       >
-                        {loading ? <Skeleton /> : `$${latestPrice?.toFixed(2)}`}
+                        {loading ? <Skeleton /> : `$${format(latestPrice)}`}
                       </ColoredText>
                     </Grid>
                   </Grid>
@@ -216,7 +217,7 @@ const StockDetails = () => {
                 <Button
                   variant="outlined"
                   color="primary"
-                  onClick={() => history.push(`/trading?symbol=${symbol}`)}
+                  onClick={() => history.push(`/trade?symbol=${symbol}`)}
                 >
                   Trade
                 </Button>

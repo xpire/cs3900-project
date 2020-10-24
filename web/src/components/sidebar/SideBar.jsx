@@ -6,6 +6,9 @@ import {
   ListItemText,
   Typography,
   Grid,
+  CardActionArea,
+  Card,
+  CardContent,
 } from "@material-ui/core";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import { Link } from "react-router-dom";
@@ -25,19 +28,25 @@ const SideBar = ({ isOpen, handleChange, variant }) => {
   return (
     <Drawer open={isOpen} onClose={handleChange} variant={variant}>
       <StyledSideBar>
-        <Grid container justify="space-evenly">
-          <Grid item xs={12} container direction="row">
-            <Grid item>
-              <img src={Logo} alt="Execute the Deal Logo" height="48px" />
-            </Grid>
-            <Grid item>
-              <Typography variant="h3">ecute</Typography>
-            </Grid>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="subtitle2">the Deal</Typography>
-          </Grid>
-        </Grid>
+        <Card elevation={0}>
+          <CardActionArea>
+            <CardContent onClick={handleChange}>
+              <Grid container justify="space-evenly">
+                <Grid item xs={12} container direction="row">
+                  <Grid item>
+                    <img src={Logo} alt="Execute the Deal Logo" height="48px" />
+                  </Grid>
+                  <Grid item>
+                    <Typography variant="h3">ecute</Typography>
+                  </Grid>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2">the Deal</Typography>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </CardActionArea>
+        </Card>
       </StyledSideBar>
       <List onClick={handleChange} onKeyDown={handleChange}>
         {Routes.filter(

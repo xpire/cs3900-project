@@ -12,6 +12,7 @@ import Page from "../../components/page/Page";
 import CardGrid from "../../components/common/CardGrid";
 // import axios from "../../utils/api";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
+import AutoCompleteTextField from "../../components/common/AutoCompleteTextField";
 
 const Market = () => {
   const [search, setSearch] = useState("");

@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import app from "./firebase";
 import { Typography, CircularProgress, useTheme } from "@material-ui/core";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthState } from "react-firebase-hooks/auth";
 import styled from "styled-components";
+// import { useSnackbar } from "notistack";
 
 import axios from "./api";
 import { CenteredMotionDiv } from "../components/common/styled";
+import useSockets from "../hooks/useSockets";
+import useHandleSnack from "../hooks/useHandleSnack";
 const StyledCenteredMotionDiv = styled(CenteredMotionDiv)({
   background: (props) => props.theme.palette.background.default || "#303030",
 });
@@ -29,6 +32,42 @@ export const AuthProvider = ({ children }) => {
           delete axios.defaults.headers.common["id-token"];
         });
   }, [user]);
+
+  const handleSnack = useHandleSnack();
+
+  // const { enqueueSnackbar } = useSnackbar();
+  const [lastJsonMessage, messageHistory, connectionStatus] = useSockets();
+  useEffect(() => {
+    console.log({ lastJsonMessage });
+    handleSnack(lastJsonMessage);
+    // switch (lastJsonMessage?.type) {
+    //   case "auth":
+    //     enqueueSnackbar(`${lastJsonMessage.msg}`, {
+    //       variant: "info",
+    //     });
+    //     break;
+    //   case "notif":
+    //     if (lastJsonMessage.msg.event_type === `LEVEL_UP`) {
+    //       enqueueSnackbar(`${lastJsonMessage.msg.title}`, {
+    //         variant: "success",
+    //       });
+    //     } else if (lastJsonMessage.msg.event_type === `ACHIEVEMENT_UNLOCKED`) {
+    //       enqueueSnackbar(
+    //         `${lastJsonMessage.msg.title} (${lastJsonMessage.msg.content}xp)`,
+    //         {
+    //           variant: "success",
+    //         }
+    //       );
+    //     } else {
+    //       enqueueSnackbar(`${JSON.stringify(lastJsonMessage)}`, {
+    //         variant: "success",
+    //       });
+    //     }
+
+    //     break;
+    //   default:
+    // }
+  }, [lastJsonMessage]);
   return (
     <div style={{ background: theme.palette.background.default }}>
       <AnimatePresence exitBeforeEnter>

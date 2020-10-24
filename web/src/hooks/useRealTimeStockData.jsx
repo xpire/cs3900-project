@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "../utils/api";
 
 const useRealTimeStockData = (
-  path = "stocks/symbols",
+  path = "/stocks/symbols",
   update = [],
   initialData = [...Array(12)].map((_) => {
     return { skeleton: true };
@@ -33,14 +33,20 @@ const useRealTimeStockData = (
     }
 
     const s = symbols.map(({ symbol }) => symbol).join("&symbols=");
-    axios
-      .get(`/stocks/stocks?symbols=${s}`)
-      .then((response) => {
-        const data = response.data;
-        setStockData(data);
-        setLoading(false);
-      })
-      .catch((err) => console.log(err));
+    if (symbols.length > 0) {
+      axios
+        .get(`/stocks/stocks?symbols=${s}`)
+        .then((response) => {
+          const data = response.data;
+          setStockData(data);
+          setLoading(false);
+        })
+        .catch((err) => console.log(err));
+    } else {
+      // fix error when attempting to GET `/stocks/stocks?symbolss=`
+      setStockData([]);
+      setLoading(false);
+    }
   };
 
   useEffect(() => {

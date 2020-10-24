@@ -59,7 +59,8 @@ if [ $# -eq 3 ]; then
             title-bar;
             echo "uwu, Starting first time population"
             print-line;
-
+            set-python-path
+            
             echo "Copying secrets...";
 
             cp $2 ${PROOT}/src/core/.secrets/; 

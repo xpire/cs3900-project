@@ -233,16 +233,28 @@ class UserDM:
         return self.get_gross_value() * 0.25 - self.get_total_opening_values("short")
 
     def get_long_return(self):
-        return self.get_long_profit() / self.get_total_opening_values("long")
+        total_spent = self.get_total_opening_values("long")
+        if total_spent == 0:
+            return 0
+
+        return self.get_long_profit() / total_spent
 
     def get_short_return(self):
-        return self.get_short_profit() / self.get_total_closing_values("short")
+        total_spent = self.get_total_closing_values("short")
+        if total_spent == 0:
+            return 0
+
+        return self.get_short_profit() / total_spent
 
     def get_portfolio_return(self):
-        return self.get_portfolio_profit() / (
-            self.get_total_opening_values("long")
-            + self.get_total_closing_values("short")
-        )
+        total_spent = self.get_total_opening_values(
+            "long"
+        ) + self.get_total_closing_values("short")
+
+        if total_spent == 0:
+            return 0
+
+        return self.get_portfolio_profit() / total_spent
 
     def get_daily_profit(self, p_type: str):
         if p_type != "long" and p_type != "short":
@@ -274,16 +286,27 @@ class UserDM:
         return self.get_daily_profit("long") + self.get_daily_profit("short")
 
     def get_daily_long_return(self):
-        return self.get_daily_profit("long") / self.get_total_opening_values("long")
+        total_spent = self.get_total_opening_values("long")
+        if total_spent == 0:
+            return 0
+
+        return self.get_daily_profit("long") / total_spent
 
     def get_daily_short_return(self):
-        return self.get_daily_profit("short") / self.get_total_closing_values("short")
+        total_spent = self.get_total_closing_values("short")
+        if total_spent == 0:
+            return 0
+
+        return self.get_daily_profit("short") / total_spent
 
     def get_daily_total_return(self):
-        return self.get_daily_total_profit() / (
-            self.get_total_opening_values("long")
-            + self.get_total_closing_values("short")
-        )
+        total_spent = self.get_total_opening_values(
+            "long"
+        ) + self.get_total_closing_values("short")
+        if total_spent == 0:
+            return 0
+
+        return self.get_daily_total_profit() / total_spent
 
     def compile_portfolio_stats(self):
         stats = {}

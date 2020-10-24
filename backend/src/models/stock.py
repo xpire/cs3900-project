@@ -11,5 +11,5 @@ class Stock(BaseModel):
     currency = Column(String, nullable=True)
     type = Column(String, nullable=True)
     timeseries = relationship(
-        "TimeSeries", backref="stock", cascade="save-update, merge", lazy="dynamic", order_by="TimeSeries.datetime"
+        "TimeSeries", backref="stock", cascade="save-update, merge", lazy="dynamic", order_by="TimeSeries.date"
     )

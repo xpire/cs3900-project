@@ -31,16 +31,14 @@ title-bar() {
 set-python-path() {
     print-line;
     echo "Set python path...";
-    export PYTHONPATH=${PROOT}:$PYTHONPATH;
-    echo "Cool..."
+    export PYTHONPATH=${PROOT}:$PYTHONPATH && echo "Cool..."
     print-line;
 }
 
 check-wake() {
     print-line;
     echo "Checking if database is awake...create one if its missing...";
-    python3 ${PROOT}/src/db/wake_db.py;
-    echo "Cool...";
+    python3 ${PROOT}/src/db/wake_db.py && echo "Cool...";
     print-line;
 }
 
@@ -48,7 +46,7 @@ check-wake() {
 init-db() {
     print-line;
     echo "Creating initial data...";
-    python3 ${PROOT}/src/db/init_db.py;
+    python3 ${PROOT}/src/db/init_db.py && echo "Cool...";
     print-line;
 }
 
@@ -94,8 +92,6 @@ elif [ $# -eq 1 ]; then
             title-bar;
             set-python-path;
             check-wake;
-
-            sqlite3 ../database/testdb.sqlite3 "delete from timeseries;"
             
             echo "Starting...";
             uvicorn src.main:app --reload --ws websockets;
@@ -114,8 +110,8 @@ elif [ $# -eq 1 ]; then
             set-python-path
             if [ $res=="yes" ]; then 
                 echo "Nuking database from the orbit..."
-                rm ../database/testdb.sqlite3 # change this later
-                echo "Recreating it now..."
+                rm ../database/testdb.sqlite3 && echo "BOOM!!!!!!!";# change this later
+                echo "Recreating it now...";
                 check-wake;
                 init-db;
             else

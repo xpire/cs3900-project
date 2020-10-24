@@ -9,6 +9,7 @@ from src import crud
 from src.api.deps import check_symbol, get_db
 from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
+from src.crud.crud_stock import stock
 from src.db.session import SessionLocal
 from src.real_time_market_data.data_provider import (
     CompositeDataProvider,
@@ -56,7 +57,7 @@ def startup_event():
 
     if stock_names:
         latest_close_price_provider = LatestClosingPriceProvider(
-            symbols=stock_names, apikey=API_KEY, db=db
+            symbols=stock_names, apikey=API_KEY, db=db, crud_obj=stock
         )
         latest_close_price_provider.start()
     else:
@@ -119,9 +120,7 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
 
 
 @router.get("/time_series")
-async def get_stock_data(
-    symbol: str = Depends(check_symbol), db: Session = Depends(get_db), days: int = 90
-):
+async def get_stock_data(symbol: str = Depends(check_symbol), db: Session = Depends(get_db), days: int = 90):
     stock = crud.stock.get_stock_by_symbol(db, symbol)
 
     data = crud.stock.get_time_series(db, stock)
@@ -135,9 +134,7 @@ async def get_stock_data(
 
 
 @router.get("/trading_hours")
-async def get_trading_hours(
-    symbol: str = Depends(check_symbol), db: Session = Depends(get_db)
-):
+async def get_trading_hours(symbol: str = Depends(check_symbol), db: Session = Depends(get_db)):
 
     # Trading hours retrieved from
     # https://www.thebalance.com/stock-market-hours-4773216#:~:text=Toronto%20Stock%20Exchange-,9%3A30%20a.m.%20to%204%20p.m.,30%20p.m.%20to%209%20p.m.&text=8%3A30%20a.m.%20to%203%20p.m.
@@ -152,15 +149,11 @@ async def get_trading_hours(
         if curr_time >= time(23, 0) or curr_time <= time(5, 0):
             res = True
         time_range = f"{time(23,0)} - {time(5,0)}"
-    if (
-        stock.exchange == "NYSE"
-    ):  # NYSE is 9:30 am - 4 pm (New York Eastern time (UTC-4))
+    if stock.exchange == "NYSE":  # NYSE is 9:30 am - 4 pm (New York Eastern time (UTC-4))
         if curr_time >= time(13, 30) and curr_time <= time(20, 0):
             res = True
         time_range = f"{time(13, 30)} - {time(20,0)}"
-    if (
-        stock.exchange == "NASDAQ"
-    ):  # NYSE is 9:30 am - 4 pm (New York Eastern time (UTC-4))
+    if stock.exchange == "NASDAQ":  # NYSE is 9:30 am - 4 pm (New York Eastern time (UTC-4))
         if curr_time >= time(13, 30) and curr_time <= time(20, 0):
             res = True
         time_range = f"{time(13, 30)} - {time(20,0)}"

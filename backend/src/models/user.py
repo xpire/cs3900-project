@@ -11,8 +11,10 @@ class User(BaseModel):
     level = Column(Integer, nullable=False)
     exp = Column(Float, nullable=False)
     watchlist = relationship("WatchList", backref="user", cascade="save-update, merge, delete, delete-orphan")
-    long_positions = relationship("Portfolio", backref="user", cascade="save-update, merge, delete, delete-orphan")
-    short_positions = relationship("ShortSell", backref="user", cascade="save-update, merge, delete, delete-orphan")
+    long_positions = relationship("LongPosition", backref="user", cascade="save-update, merge, delete, delete-orphan")
+    short_positions = relationship("ShortPosition", backref="user", cascade="save-update, merge, delete, delete-orphan")
     unlocked_achievements = relationship(
         "UnlockedAchievement", backref="user", cascade="save-update, merge, delete, delete-orphan"
     )
+    limit_orders = relationship("LimitOrder", backref="user", cascade="save-update, merge, delete, delete-orphan")
+    transaction_hist = relationship("Transaction", backref="user", cascade="save-update, merge, delete, delete-orphan")

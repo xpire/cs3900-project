@@ -8,8 +8,8 @@ from src.crud.crud_stock import stock
 from src.db import base_model_import_all as base_model  # noqa: F401
 from src.db.base_model_import_all import (
     BaseModel,
-    Portfolio,
-    ShortSell,
+    LongPosition,
+    ShortPosition,
     Stock,
     TimeSeries,
     UnlockedAchievement,
@@ -23,9 +23,9 @@ metadatas = [
     Stock.metadata,
     TimeSeries.metadata,
     WatchList.metadata,
-    Portfolio.metadata,
+    LongPosition.metadata,
     UnlockedAchievement.metadata,
-    ShortSell.metadata,
+    ShortPosition.metadata,
 ]
 
 

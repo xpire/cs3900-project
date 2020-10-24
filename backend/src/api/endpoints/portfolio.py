@@ -1,7 +1,6 @@
 from typing import Any, List
 
 import numpy as np
-
 import src.api.endpoints.stocks as stocks_api
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session

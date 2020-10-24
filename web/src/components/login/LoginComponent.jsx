@@ -1,5 +1,5 @@
 import React from "react";
-import { TextField, Grid, Button } from "@material-ui/core";
+import { TextField, Grid, Button, LinearProgress } from "@material-ui/core";
 
 const Login = ({
   buttonText,
@@ -7,6 +7,7 @@ const Login = ({
   repeat = false,
   email = true,
   username = false,
+  loading = false,
 }) => {
   return (
     <form noValidate onSubmit={submitHandler}>
@@ -64,7 +65,14 @@ const Login = ({
           </Grid>
         )}
         <Grid item xs={12}>
-          <Button type="submit" fullWidth variant="contained" color="primary">
+          {loading && <LinearProgress />}
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            disabled={loading}
+          >
             {buttonText}
           </Button>
         </Grid>

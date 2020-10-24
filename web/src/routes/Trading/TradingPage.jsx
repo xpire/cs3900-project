@@ -12,9 +12,11 @@ import {
 import TradingIcon from "@material-ui/icons/LocalAtm";
 import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
 import { useLocation } from "react-router-dom";
+import { useSnackbar } from "notistack";
 
 import Page from "../../components/page/Page";
 import axios from "../../utils/api";
+import useApi from "../../hooks/useApi";
 import AutoCompleteTextField from "../../components/common/AutoCompleteTextField";
 
 const Trading = () => {
@@ -50,7 +52,29 @@ const Trading = () => {
     }
   };
 
-  const valuetext = (t) => `t`;
+  // const [price] = useApi('/trade/') // TODO: fetch API to calculate trading price
+
+  // const valuetext = (t) => `t`;
+  const { enqueueSnackbar } = useSnackbar();
+
+  const handleSubmit = () => {
+    axios
+      .post(
+        `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`
+      )
+      .then((response) => {
+        console.log(response);
+        enqueueSnackbar(`${response.data.result}`, {
+          variant: "Success",
+        });
+      })
+      .catch((err) => {
+        console.log("err", err);
+        enqueueSnackbar(`${err}`, {
+          variant: "Error",
+        });
+      }); //todo send notification
+  };
 
   return (
     <Page>
@@ -113,7 +137,7 @@ const Trading = () => {
                 // defaultValue={quantity}
                 value={state.quantity}
                 onChange={(_event, newValue) => setQuantity(newValue)}
-                getAriaValueText={valuetext}
+                getAriaValueText={(t) => `t`}
                 aria-labelledby="discrete-slider"
                 step={1}
                 // marks
@@ -192,21 +216,7 @@ const Trading = () => {
               <Button onClick={() => setState(defaultState)}>clear</Button>
             </Grid>
             <Grid item>
-              <Button
-                onClick={() => {
-                  console.log(
-                    `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`
-                  );
-                  axios
-                    .post(
-                      `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`
-                    )
-                    .then((response) => console.log(response))
-                    .catch((err) => console.log("err", err)); //todo send notification
-                }}
-              >
-                Submit
-              </Button>
+              <Button onClick={handleSubmit}>Submit</Button>
             </Grid>
           </Grid>
         </Grid>

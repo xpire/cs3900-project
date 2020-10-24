@@ -4,6 +4,7 @@ import {
   TextField,
   Grid,
   Button,
+  LinearProgress,
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
 
@@ -13,15 +14,19 @@ import Page from "../../components/page/Page";
 
 const ForgotPasswordPage = () => {
   const [finished, setFinished] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const ForgotPassword = async (event) => {
     event.preventDefault();
+    setLoading(true);
     const { email } = event.target.elements;
     try {
       await app.auth().sendPasswordResetEmail(email.value, ActionCodeSettings);
       setFinished(true);
+      setLoading(false);
     } catch (error) {
       alert(error);
+      setLoading(false);
     }
   };
 
@@ -50,11 +55,13 @@ const ForgotPasswordPage = () => {
                   />
                 </Grid>
                 <Grid item xs={12}>
+                  {loading && <LinearProgress />}
                   <Button
                     type="submit"
                     fullWidth
                     variant="contained"
                     color="primary"
+                    disabled={loading}
                   >
                     Submit
                   </Button>

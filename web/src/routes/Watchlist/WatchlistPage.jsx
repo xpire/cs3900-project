@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardContent } from "@material-ui/core";
+import React, { useState } from "react";
+import { Card } from "@material-ui/core";
 
 import Page from "../../components/page/Page";
 import SortableTable from "../../components/common/SortableTable";

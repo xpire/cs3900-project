@@ -90,6 +90,10 @@ class LatestClosingPriceProvider(DataProvider):
             stock = crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=symbol.split(":")[0])
             crud.stock.batch_add_daily_time_series(db=self.db, obj_in=stock, time_series_in=data)
 
+        for symbol, data in message.items():
+            symbol = symbol.split(":")[0]
+            self._data[symbol] = [data[0]["close"], data[1]["close"]]
+
     def update(self):
         self.request = self.TD.time_series(
             symbol=self.symbols,

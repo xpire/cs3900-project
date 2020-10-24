@@ -55,7 +55,9 @@ def startup_event():
     stock_names = [f"{stock.symbol}:{stock.exchange}" for stock in STOCKS]
 
     if stock_names:
-        latest_close_price_provider = LatestClosingPriceProvider(symbols=stock_names, apikey=API_KEY, db=db)
+        latest_close_price_provider = LatestClosingPriceProvider(
+            symbols=stock_names, apikey=API_KEY, db=db
+        )
         latest_close_price_provider.start()
     else:
         log_msg("There are no stocks in the database, not polling for data.", "WARNING")
@@ -110,13 +112,16 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
                 exchange=stock.exchange,
                 curr_close_price=float(latest_close_price_provider.data[symbol][0]),
                 prev_close_price=float(latest_close_price_provider.data[symbol][1]),
+                commission=0.005,
             )
         )
     return ret
 
 
 @router.get("/time_series")
-async def get_stock_data(symbol: str = Depends(check_symbol), db: Session = Depends(get_db), days: int = 90):
+async def get_stock_data(
+    symbol: str = Depends(check_symbol), db: Session = Depends(get_db), days: int = 90
+):
     stock = crud.stock.get_stock_by_symbol(db, symbol)
 
     data = crud.stock.get_time_series(db, stock)
@@ -130,7 +135,9 @@ async def get_stock_data(symbol: str = Depends(check_symbol), db: Session = Depe
 
 
 @router.get("/trading_hours")
-async def get_trading_hours(symbol: str = Depends(check_symbol), db: Session = Depends(get_db)):
+async def get_trading_hours(
+    symbol: str = Depends(check_symbol), db: Session = Depends(get_db)
+):
 
     # Trading hours retrieved from
     # https://www.thebalance.com/stock-market-hours-4773216#:~:text=Toronto%20Stock%20Exchange-,9%3A30%20a.m.%20to%204%20p.m.,30%20p.m.%20to%209%20p.m.&text=8%3A30%20a.m.%20to%203%20p.m.
@@ -145,11 +152,15 @@ async def get_trading_hours(symbol: str = Depends(check_symbol), db: Session = D
         if curr_time >= time(23, 0) or curr_time <= time(5, 0):
             res = True
         time_range = f"{time(23,0)} - {time(5,0)}"
-    if stock.exchange == "NYSE":  # NYSE is 9:30 am - 4 pm (New York Eastern time (UTC-4))
+    if (
+        stock.exchange == "NYSE"
+    ):  # NYSE is 9:30 am - 4 pm (New York Eastern time (UTC-4))
         if curr_time >= time(13, 30) and curr_time <= time(20, 0):
             res = True
         time_range = f"{time(13, 30)} - {time(20,0)}"
-    if stock.exchange == "NASDAQ":  # NYSE is 9:30 am - 4 pm (New York Eastern time (UTC-4))
+    if (
+        stock.exchange == "NASDAQ"
+    ):  # NYSE is 9:30 am - 4 pm (New York Eastern time (UTC-4))
         if curr_time >= time(13, 30) and curr_time <= time(20, 0):
             res = True
         time_range = f"{time(13, 30)} - {time(20,0)}"

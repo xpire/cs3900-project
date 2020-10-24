@@ -114,6 +114,7 @@ class UserDM:
             entry["price"] = float(
                 stocks_api.latest_close_price_provider.data[position.symbol][0]
             )
+            # TODO: update this to get daily opening price, rather than prev day closing
             entry["previous_price"] = float(
                 stocks_api.latest_close_price_provider.data[position.symbol][1]
             )
@@ -123,9 +124,10 @@ class UserDM:
             entry["average_paid"] = position.avg
             entry["total_paid"] = position.avg * position.amount
             entry["value"] = entry["price"] * position.amount
-            entry["gain"] = entry["value"] - entry["total_paid"]
-            entry["day_gain"] = entry["price"] - entry["previous_price"]
-            entry["return"] = entry["gain"] / entry["total_paid"]
+            entry["profit"] = entry["value"] - entry["total_paid"]
+            entry["day_profit"] = entry["price"] - entry["previous_price"]
+            entry["day_return"] = entry["day_profit"] / entry["total_paid"]
+            entry["total_return"] = entry["profit"] / entry["total_paid"]
 
             ret.append(entry)
 
@@ -198,7 +200,7 @@ class UserDM:
             "short"
         )
 
-    def get_overall_profit(self):
+    def get_portfolio_profit(self):
         """
         Returns total profit if all positions were closed
         """
@@ -206,15 +208,15 @@ class UserDM:
 
     def get_net_portfolio_value(self):
         """
-        Returns total current value of long and short positions
+        Returns total current value of long and short positions combined
         """
-        return self.get_total_closing_values("long") + self.get_total_closing_values(
+        return self.get_total_closing_values("long") - self.get_total_closing_values(
             "short"
         )
 
     def get_net_value(self):
         """
-        Returns total current value of the user
+        Returns total current value of the investor
         """
         return self.get_net_portfolio_value() + self.model.balance
 
@@ -230,17 +232,79 @@ class UserDM:
         """
         return self.get_gross_value() * 0.25 - self.get_total_opening_values("short")
 
+    def get_long_return(self):
+        return self.get_long_profit() / self.get_total_opening_values("long")
+
+    def get_short_return(self):
+        return self.get_short_profit() / self.get_total_closing_values("short")
+
+    def get_portfolio_return(self):
+        return self.get_portfolio_profit() / (
+            self.get_total_opening_values("long")
+            + self.get_total_closing_values("short")
+        )
+
+    def get_daily_profit(self, p_type: str):
+        if p_type != "long" and p_type != "short":
+            log_msg(
+                "No such position. allowed are 'long' or'short'.",
+                "ERROR",
+            )
+            return
+
+        portfolio = (
+            self.model.long_positions
+            if p_type == "long"
+            else self.model.short_positions
+        )
+
+        profit = 0
+        for position in portfolio:
+            curr_price = float(
+                stocks_api.latest_close_price_provider.data[position.symbol][0]
+            )
+            opening_price = float(
+                stocks_api.latest_close_price_provider.data[position.symbol][1]
+            )
+            profit += curr_price - opening_price
+
+        return profit if p_type == "long" else -profit
+
+    def get_daily_total_profit(self):
+        return self.get_daily_profit("long") + self.get_daily_profit("short")
+
+    def get_daily_long_return(self):
+        return self.get_daily_profit("long") / self.get_total_opening_values("long")
+
+    def get_daily_short_return(self):
+        return self.get_daily_profit("short") / self.get_total_closing_values("short")
+
+    def get_daily_total_return(self):
+        return self.get_daily_total_profit() / (
+            self.get_total_opening_values("long")
+            + self.get_total_closing_values("short")
+        )
+
     def compile_portfolio_stats(self):
         stats = {}
         stats["total_long_value"] = self.get_total_closing_values("long")
         stats["total_short_value"] = self.get_total_closing_values("short")
+        stats["total_portfolio_value"] = self.get_net_portfolio_value()
         stats["total_long_profit"] = self.get_long_profit()
         stats["total_short_profit"] = self.get_short_profit()
-        stats["total_portfolio_value"] = self.get_net_portfolio_value()
-        stats["total_portfolio_profit"] = self.get_overall_profit()
-        stats["total_value"] = self.get_net_value()
+        stats["total_portfolio_profit"] = self.get_portfolio_profit()
+        stats["total_long_return"] = self.get_long_return()
+        stats["total_short_return"] = self.get_short_return()
+        stats["total_portfolio_return"] = self.get_portfolio_return()
+        stats["daily_long_profit"] = self.get_daily_profit("long")
+        stats["daily_short_profit"] = self.get_daily_profit("short")
+        stats["daily_total_profit"] = self.get_daily_total_profit()
+        stats["daily_long_return"] = self.get_daily_long_return()
+        stats["daily_short_return"] = self.get_daily_short_return()
+        stats["total_daily_return"] = self.get_daily_total_return()
         stats["balance"] = self.model.balance
         stats["short_balance"] = self.get_short_balance()
+        stats["total_value"] = self.get_net_value()
 
         return stats
 

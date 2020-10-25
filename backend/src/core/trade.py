@@ -5,7 +5,7 @@ from src.domain_models.user_dm import UserDM
 
 
 def get_stock_price(db: Session, symbol: str):
-    return float(stocks_api.market_data_provider.data[symbol]["curr_day_close"])
+    return stocks_api.market_data_provider.get_curr_day_close(symbol)
 
 
 def apply_commission(price: float, is_buying: bool = True):

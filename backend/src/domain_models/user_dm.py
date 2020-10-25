@@ -113,11 +113,11 @@ class UserDM:
         for position in portfolio:
             entry = {}
             entry["price"] = float(
-                stocks_api.latest_close_price_provider.data[position.symbol][0]
+                stocks_api.market_data_provider.get_curr_day_close(position.symbol)
             )
             # TODO: update this to get daily opening price, rather than prev day closing
             entry["previous_price"] = float(
-                stocks_api.latest_close_price_provider.data[position.symbol][1]
+                stocks_api.market_data_provider.get_prev_day_close(position.symbol)
             )
             entry["symbol"] = position.symbol
             entry["name"] = position.stock_info.name
@@ -177,7 +177,7 @@ class UserDM:
         value = 0
         for position in portfolio:
             curr_price = float(
-                stocks_api.latest_close_price_provider.data[position.symbol][0]
+                stocks_api.market_data_provider.get_curr_day_close(position.symbol)
             )
             value += position.amount * curr_price
 
@@ -271,10 +271,10 @@ class UserDM:
         profit = 0
         for position in portfolio:
             curr_price = float(
-                stocks_api.latest_close_price_provider.data[position.symbol][0]
+                stocks_api.market_data_provider.get_curr_day_close(position.symbol)
             )
             opening_price = float(
-                stocks_api.latest_close_price_provider.data[position.symbol][1]
+                stocks_api.market_data_provider.get_prev_day_close(position.symbol)
             )
             profit += curr_price - opening_price
 

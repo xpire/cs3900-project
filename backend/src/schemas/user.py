@@ -11,7 +11,7 @@ class UserBase(BaseSchema):
     balance: float
     level: int
     exp: float
-    last_reset: datetime
+    last_reset: Optional[datetime]
     resets: int
 
 
@@ -61,8 +61,10 @@ class LimitOrderBase(BaseSchema):
     t_type: str
     price: float
 
+
 class LimitOrderCreate(LimitOrderBase):
     pass
 
-class LimitOrderDelete(LimitOrderBase): 
+
+class LimitOrderDelete(LimitOrderBase):
     pass

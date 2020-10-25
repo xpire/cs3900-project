@@ -7,14 +7,18 @@ import {
   LinearProgress,
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
+import { useSnackbar } from "notistack";
 
 import { CenteredCard, CardHeading } from "../../components/common/styled";
 import app, { ActionCodeSettings } from "../../utils/firebase";
 import Page from "../../components/page/Page";
+import Alert, { useAlert } from "../../components/common/Alert";
 
 const ForgotPasswordPage = () => {
   const [finished, setFinished] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showAlert, alertDetails, createAlert, closeAlert] = useAlert();
+  const { enqueueSnackbar } = useSnackbar();
 
   const ForgotPassword = async (event) => {
     event.preventDefault();
@@ -22,10 +26,11 @@ const ForgotPasswordPage = () => {
     const { email } = event.target.elements;
     try {
       await app.auth().sendPasswordResetEmail(email.value, ActionCodeSettings);
+      enqueueSnackbar("Reset Email has been sent.", { variant: "success" });
       setFinished(true);
       setLoading(false);
     } catch (error) {
-      alert(error);
+      createAlert(error);
       setLoading(false);
     }
   };
@@ -74,6 +79,14 @@ const ForgotPasswordPage = () => {
           </>
         )}
       </CenteredCard>
+      <Alert
+        title={alertDetails.code}
+        text={alertDetails.message}
+        open={showAlert}
+        handleClose={closeAlert}
+        handleCancel={closeAlert}
+        isError={true}
+      />
     </Page>
   );
 };

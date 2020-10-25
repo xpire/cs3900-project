@@ -84,7 +84,7 @@ const Trading = () => {
   };
 
   // API calls
-  const [locked, lockedLoading] = useApi(`/user`, [update]); // check if functionality is locked
+  const [locked, lockedLoading] = useApi(`/user`, []); // check if functionality is locked
   const [portfolioData, portfolioLoading] = useApi(`/portfolio`, [update]); // check owned stock for sell and cover
   const [portfolioStats, portfolioStatsLoading] = useApi(`/portfolio/stats`, [
     update,
@@ -110,7 +110,7 @@ const Trading = () => {
   );
 
   // state inaccessible to user
-  const [maxValue, setMaxValue] = useState(100);
+  const [maxValue, setMaxValue] = useState(0);
   const [portfolioAllocation, setPortfolioAllocation] = useState(0);
   const [commission, setCommission] = useState(1.005);
   const [price, setPrice] = useState(0);
@@ -369,6 +369,7 @@ const Trading = () => {
             <TableHead>
               <TableRow>
                 <TableCell>Order Summary:</TableCell>
+                <TableCell />
               </TableRow>
             </TableHead>
             <TableBody>
@@ -388,10 +389,10 @@ const Trading = () => {
               </TableRow>
               <TableRow>
                 <TableCell>
-                  <Typography variant="h6">Total</Typography>
+                  <Typography variant="h5">Total</Typography>
                 </TableCell>
                 <TableCell align="right">
-                  <Typography variant="h6"> {`$${format(price)}`}</Typography>
+                  <Typography variant="h5"> {`$${format(price)}`}</Typography>
                 </TableCell>
               </TableRow>
             </TableBody>

@@ -119,6 +119,7 @@ async def get_trading_hours(symbol: str = Depends(check_symbol), db: Session = D
         raise HTTPException(status_code=400, detail="Exchange for the given symbol not found.")
 
     hours = trading_hours[stock.exchange]
+    start, end = hours["start"], hours["end"]
     is_weekday = datetime.now(hours["timezone"]).weekday() <= 4
-    is_in_range = hours["start"] <= curr_time and curr_time <= hours["end"]
-    return is_weekday and is_in_range
+    is_trading = is_weekday and (start <= curr_time and curr_time <= end)
+    return dict(is_trading=is_trading, start=start, end=end)

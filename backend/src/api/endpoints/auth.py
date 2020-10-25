@@ -24,6 +24,7 @@ from src.schemas.transaction import ClosingTransaction, OpeningTransaction, Orde
 
 router = APIRouter()
 
+STARTING_BALANCE = 10000
 
 # @router.get("")
 # async def check_user(id_token: str = Header(None)) -> schemas.user:
@@ -35,10 +36,7 @@ async def get_user(user: UserDM = Depends(get_current_user_dm)) -> schemas.User:
 
 
 @router.delete("")
-async def delete_user(
-    email: str,
-    db: Session = Depends(get_db),
-) -> bool:
+async def delete_user(email: str, db: Session = Depends(get_db),) -> bool:
     """
     Just a helper api for testing
     """
@@ -47,11 +45,7 @@ async def delete_user(
 
 
 @router.post("")
-async def create_user(
-    email: str,
-    id_token: str = Header(None),
-    db: Session = Depends(get_db),
-) -> schemas.user:
+async def create_user(email: str, id_token: str = Header(None), db: Session = Depends(get_db),) -> schemas.user:
 
     uid = decode_token(id_token)
 
@@ -62,9 +56,21 @@ async def create_user(
     check_user_exists(uid, db)
 
     # Create if doesn't exist
-    user = crud.user.create(db, obj_in=schemas.UserCreate(email=email, uid=uid, username=email))
+    user = crud.user.create(
+        db, obj_in=schemas.UserCreate(email=email, uid=uid, username=email, balance=STARTING_BALANCE)
+    )
 
     return dm.UserDM(user, db).schema
+
+
+@router.get("/reset_portfolio")
+async def reset_user_portfolio(user_m: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)):
+
+    crud.user.update_balance(db, user_m, STARTING_BALANCE)
+
+    crud.user.reset_user_portfolio(user_m, db)
+
+    return {"result": "reset success"}
 
 
 @router.get("/balance")
@@ -77,9 +83,7 @@ async def get_user_balance(user_m: models.User = Depends(get_current_user_m)) ->
 
 @router.get("/add_exp")
 async def add_exp(
-    amount: float,
-    user: UserDM = Depends(get_current_user_dm),
-    db: Session = Depends(get_db),
+    amount: float, user: UserDM = Depends(get_current_user_dm), db: Session = Depends(get_db),
 ) -> schemas.User:
     """
     Give user [amount] exp

@@ -104,30 +104,8 @@ const StockCard = ({
               <Button
                 size="small"
                 color="primary"
-                onClick={
-                  () => handleSnack(`/watchlist?symbol=${symbol}`, "post")
-                  // axios
-                  //   .post(`/watchlist?symbol=${symbol}`)
-                  //   .then((response) => {
-                  //     console.log({ response });
-                  //     response.data?.result === "success"
-                  //       ? enqueueSnackbar(
-                  //           `${response.data.result}! ${symbol} added to watchlist`,
-                  //           {
-                  //             variant: "success",
-                  //           }
-                  //         )
-                  //       : enqueueSnackbar(`${response.data.result}`, {
-                  //           variant: "warning",
-                  //         });
-                  //     console.log({ response });
-                  //     console.log(response.data.result === "success");
-                  //   })
-                  //   .catch((err) =>
-                  //     enqueueSnackbar(`${err}`, {
-                  //       variant: "error",
-                  //     })
-                  //   );
+                onClick={() =>
+                  handleSnack(`/watchlist?symbol=${symbol}`, "post")
                 }
               >
                 watch

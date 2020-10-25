@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  TextField,
   Button,
   Grid,
   Slider,
@@ -20,13 +19,11 @@ import QuantityIcon from "@material-ui/icons/LocalAtm";
 import ValueIcon from "@material-ui/icons/MonetizationOn";
 import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
 import { useLocation, useHistory } from "react-router-dom";
-import { useSnackbar } from "notistack";
 import { useDebounce } from "react-use";
 // import { DateTimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 // import DateFnsUtils from "@date-io/date-fns";
 
 import Page from "../../components/page/Page";
-import axios from "../../utils/api";
 import useApi from "../../hooks/useApi";
 import AutoCompleteTextField from "../../components/common/AutoCompleteTextField";
 import { format } from "../../utils/formatter";
@@ -44,7 +41,7 @@ const Trading = () => {
     tradeType: "buy",
     purchaseBy: "quantity",
     orderType: "market",
-    quantity: 20,
+    quantity: 0,
     // date: new Date(),
   };
 
@@ -54,32 +51,50 @@ const Trading = () => {
     history.push(`?symbol=${value}`);
     console.log({ state });
   };
-  const setTradeType = (value) => setState({ ...state, tradeType: value });
-  const setPurchaseBy = (value) => setState({ ...state, purchaseBy: value });
+  const setTradeType = (value) => {
+    setState({ ...state, tradeType: value, quantity: 0 });
+    console.log({ state, type: "trade" });
+  };
+  const setPurchaseBy = (value) => {
+    setState({ ...state, purchaseBy: value, quantity: 0 });
+    console.log({ state, type: "purchase" });
+  };
   const setQuantity = (value) => setState({ ...state, quantity: value });
   const setOrderType = (value) => setState({ ...state, orderType: value });
+  const [update, setUpdate] = useState(0);
 
   const handleInputChange = (event) => {
-    setQuantity(event.target.value === "" ? "" : Number(event.target.value));
+    if (event.target.value === "") {
+      setQuantity("");
+    } else if (Number(event.target.value) > maxValue) {
+      setQuantity(maxValue);
+    } else {
+      setQuantity(Number(event.target.value));
+    }
+    setUpdate(update + 1);
   };
 
   const handleBlur = () => {
     if (state.quantity < 0) {
       setQuantity(0);
-    } else if (state.quantity > 100) {
-      setQuantity(100);
+    } else if (state.quantity > maxValue) {
+      setQuantity(maxValue);
     }
+    setUpdate(update + 1);
   };
 
   // API calls
-  const [locked, lockedLoading] = useApi(`/user`); // check if functionality is locked
-  const [portfolioData, portfolioLoading] = useApi(`/portfolio`); // check owned stock for sell and cover
-  const [portfolioStats, portfolioStatsLoading] = useApi(`/portfolio/stats`); // check overall stats
+  const [locked, lockedLoading] = useApi(`/user`, [update]); // check if functionality is locked
+  const [portfolioData, portfolioLoading] = useApi(`/portfolio`, [update]); // check owned stock for sell and cover
+  const [portfolioStats, portfolioStatsLoading] = useApi(`/portfolio/stats`, [
+    update,
+  ]); // check overall stats
   const [rawCommission, rawCommissionLoading] = useApi(
     `/stocks/stocks?symbols=${state.symbol}`,
     [
       //check current close price for stock
       state.symbol,
+      update,
     ],
     0.005,
     (data) => data[0].commission
@@ -96,10 +111,10 @@ const Trading = () => {
 
   // state inaccessible to user
   const [maxValue, setMaxValue] = useState(100);
-  const [portfolioAllocation, setPortfolioAllocation] = useState(50);
+  const [portfolioAllocation, setPortfolioAllocation] = useState(0);
   const [commission, setCommission] = useState(1.005);
-  const [price, setPrice] = useState(1000);
-  const [finalQuantity, setFinalQuantity] = useState(20);
+  const [price, setPrice] = useState(0);
+  const [finalQuantity, setFinalQuantity] = useState(0);
   const [previousBalance, setPreviousBalance] = useState(100);
 
   const loading =
@@ -112,6 +127,7 @@ const Trading = () => {
   // update state for user input
   useEffect(() => {
     if (!loading) {
+      setPreviousBalance(portfolioStats.total_long_value);
       setCommission(
         state.tradeType === "buy" || state.tradeType === "short"
           ? 1 + rawCommission // buy  and short
@@ -131,12 +147,13 @@ const Trading = () => {
           const longData = portfolioData.long.find(
             ({ symbol }) => symbol === state.symbol
           );
-          longData?.owned &&
-            setMaxValue(
-              state.purchaseBy === "quantity"
-                ? longData.owned
-                : longData.owned * closePrice
-            );
+          longData?.owned
+            ? setMaxValue(
+                state.purchaseBy === "quantity"
+                  ? longData.owned
+                  : longData.owned * closePrice
+              )
+            : setMaxValue(0);
           break;
         case "short":
           setMaxValue(
@@ -151,12 +168,13 @@ const Trading = () => {
           const shortData = portfolioData.short.find(
             ({ symbol }) => symbol === state.symbol
           );
-          shortData?.owned &&
-            setMaxValue(
-              state.purchaseBy === "quantity"
-                ? shortData.owned
-                : shortData.owned * closePrice
-            );
+          shortData?.owned
+            ? setMaxValue(
+                state.purchaseBy === "quantity"
+                  ? shortData.owned
+                  : shortData.owned * closePrice
+              )
+            : setMaxValue(0);
           break;
         default:
       }
@@ -167,47 +185,42 @@ const Trading = () => {
             : state.quantity / closePrice
         )
       );
-      setPrice(closePrice * finalQuantity * commission);
-      setPreviousBalance(portfolioStats.total_long_value);
+      // setPrice(closePrice * finalQuantity * commission);
     }
-  }, [loading, state]);
+  }, [loading, state, update]);
+  useEffect(() => setPrice(closePrice * finalQuantity * commission), [
+    closePrice,
+    finalQuantity,
+    commission,
+  ]);
   // debounced portfolio allocation
   const [] = useDebounce(
     () => {
       setPortfolioAllocation((100 * price) / (price + previousBalance));
+      finalQuantity === 0 && setPortfolioAllocation(0); // bug with changing state once not updating portfolio allocation
     },
     50,
-    [price]
+    [state, price]
   );
 
   // handle submit
-  const { enqueueSnackbar } = useSnackbar();
-
   const handleSnack = useHandleSnack();
 
   const handleSubmit = () => {
     setSubmitLoading(true);
     handleSnack(
-      `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`,
+      `/trade/${state.orderType}/${state.tradeType}?symbol=${
+        state.symbol
+      }&quantity=${state.quantity}${
+        state.orderType === "limit" ? `&limit=${closePrice}` : ""
+      }`,
       "post"
-    ).then(() => setSubmitLoading(false));
-    // axios
-    //   .post(
-    //     `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`
-    //   )
-    //   .then((response) => {
-    //     console.log(response);
-    //     enqueueSnackbar(`${response.data.result}`, {
-    //       variant: "Success",
-    //     });
-    //   })
-    //   .catch((err) => {
-    //     console.log("err", err);
-    //     enqueueSnackbar(`${err}`, {
-    //       variant: "Error",
-    //     });
-    //   })
-    // .then(() => setSubmitLoading(false)); //todo send notification
+    ).then(() => {
+      setSubmitLoading(false);
+      setUpdate(update + 1);
+      setState(defaultState);
+    });
+    // TODO: update trade page
   };
 
   return (
@@ -245,7 +258,7 @@ const Trading = () => {
                 <ToggleButton value="sell">Sell</ToggleButton>
                 <ToggleButton
                   value="short"
-                  disabled={lockedLoading ? true : locked.level <= 3}
+                  disabled={lockedLoading ? true : locked.level <= 5}
                 >
                   Short
                 </ToggleButton>
@@ -325,7 +338,12 @@ const Trading = () => {
                 }
               >
                 <ToggleButton value="market">Market</ToggleButton>
-                <ToggleButton value="limit">Limit</ToggleButton>
+                <ToggleButton
+                  value="limit"
+                  disabled={lockedLoading ? true : locked.level <= 3}
+                >
+                  Limit
+                </ToggleButton>
               </ToggleButtonGroup>
             </Grid>
             {(state.tradeType === "buy" || state.tradeType === "sell") && (

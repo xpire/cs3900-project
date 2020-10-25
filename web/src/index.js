@@ -5,20 +5,14 @@ import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import { BrowserRouter as Router } from "react-router-dom";
 
-import { AuthProvider } from "./utils/authentication";
 import ThemeProvider from "./utils/ThemeProvider";
-import { SnackbarProvider } from "notistack";
 
 ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider>
-      <SnackbarProvider>
-        <Router>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </Router>
-      </SnackbarProvider>
+      <Router>
+        <App />
+      </Router>
     </ThemeProvider>
   </React.StrictMode>,
   document.getElementById("root")

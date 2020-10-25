@@ -42,6 +42,15 @@ class UserDM:
         update(self.user, self.db)
 
     @property
+    def balance(self):
+        return self.user.balance
+
+    @balance.setter
+    def balance(self, balance):
+        self.user.balance = balance
+        self.save_to_db()
+
+    @property
     def exp(self):
         return self.user.exp
 
@@ -90,6 +99,14 @@ class UserDM:
     def model(self):
         return self.user
 
+    @property
+    def short_allowance_balance(self):
+        if self.level >= 5:
+            return 0.25
+        elif self.level >= 10:
+            return 0.5
+        return 0
+
     def get_positions(self, p_type: str):
         if p_type != "long" and p_type != "short":
             log_msg(
@@ -114,7 +131,9 @@ class UserDM:
             entry["total_paid"] = position.avg * position.amount
             entry["value"] = entry["price"] * position.amount
             entry["profit"] = entry["value"] - entry["total_paid"]
-            entry["day_profit"] = entry["price"] - entry["previous_price"]
+            entry["day_profit"] = (
+                entry["price"] - entry["previous_price"]
+            ) * position.amount  # TODO: fix, returns daily profit, but not for the portfolio
             entry["day_return"] = entry["day_profit"] / entry["total_paid"]
             entry["total_return"] = entry["profit"] / entry["total_paid"]
 
@@ -203,7 +222,7 @@ class UserDM:
         """
         Returns amount the investor can still short sell for
         """
-        return self.get_gross_value() * 0.25 - self.get_total_opening_values("short")
+        return self.get_gross_value() * self.short_allowance_balance - self.get_total_opening_values("short")
 
     def get_long_return(self):
         total_spent = self.get_total_opening_values("long")

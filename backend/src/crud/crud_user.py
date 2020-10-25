@@ -22,9 +22,10 @@ from src.models.short_position import ShortPosition
 from src.models.transaction import Transaction
 from src.models.user import User
 from src.models.watch_list import WatchList
+
 from src.schemas.transaction import TradeType
-from src.schemas.user import (LimitOrderCreate, TransactionCreate, UserCreate,
-                              UserUpdate)
+from src.schemas.user import LimitOrderCreate, TransactionCreate, UserCreate, UserUpdate
+
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):

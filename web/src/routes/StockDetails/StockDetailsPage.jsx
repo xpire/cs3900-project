@@ -27,6 +27,7 @@ import { Skeleton } from "@material-ui/lab";
 import axios from "../../utils/api";
 // import ApexCandlestick from "../../components/graph/ApexCandlestick";
 import { format } from "../../utils/formatter";
+import useHandleSnack from "../../hooks/useHandleSnack";
 
 function createData(name, value) {
   return { name, value };
@@ -136,6 +137,8 @@ const StockDetails = () => {
 
   useEffect(pollStockData, []);
 
+  const handleSnack = useHandleSnack();
+
   return (
     <Page>
       {!error ? (
@@ -187,28 +190,29 @@ const StockDetails = () => {
                   variant="outlined"
                   color="primary"
                   onClick={() => {
-                    axios
-                      .post(`/watchlist?symbol=${symbol}`)
-                      .then((response) => {
-                        console.log({ response });
-                        response.data?.result === "success"
-                          ? enqueueSnackbar(
-                              `${response.data.result}! ${symbol} added to watchlist`,
-                              {
-                                variant: "Success",
-                              }
-                            )
-                          : enqueueSnackbar(`${response.data.result}`, {
-                              variant: "Warning",
-                            });
-                        console.log({ response });
-                        console.log(response.data.result === "success");
-                      })
-                      .catch((err) =>
-                        enqueueSnackbar(`${err}`, {
-                          variant: "Error",
-                        })
-                      );
+                    handleSnack(`/watchlist?symbol=${symbol}`, "post");
+                    // axios
+                    //   .post(`/watchlist?symbol=${symbol}`)
+                    //   .then((response) => {
+                    //     console.log({ response });
+                    //     response.data?.result === "success"
+                    //       ? enqueueSnackbar(
+                    //           `${response.data.result}! ${symbol} added to watchlist`,
+                    //           {
+                    //             variant: "Success",
+                    //           }
+                    //         )
+                    //       : enqueueSnackbar(`${response.data.result}`, {
+                    //           variant: "Warning",
+                    //         });
+                    //     console.log({ response });
+                    //     console.log(response.data.result === "success");
+                    //   })
+                    //   .catch((err) =>
+                    //     enqueueSnackbar(`${err}`, {
+                    //       variant: "Error",
+                    //     })
+                    //   );
                   }}
                 >
                   Watch

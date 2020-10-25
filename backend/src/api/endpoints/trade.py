@@ -74,7 +74,7 @@ async def market_buy(
     new_balance = user.model.balance - trade_price
     crud_user.user.update_balance(db, user.model, new_balance)
 
-    return Response("Trade successful")
+    return Response(msg="Trade successful")
 
 
 @router.post("/market/sell")
@@ -99,7 +99,7 @@ async def market_sell(
     new_balance = user.model.balance + trade_price
     crud_user.user.update_balance(db, user.model, new_balance)
 
-    return Response("Trade successful")
+    return Response(msg="Trade successful")
 
 
 @router.post("/market/short")
@@ -125,7 +125,7 @@ async def market_short(
     new_balance = user.model.balance + final_trade_price
     crud_user.user.update_balance(db, user.model, new_balance)
 
-    return Response("Trade successful")
+    return Response(msg="Trade successful")
 
 
 @router.post("/market/cover")
@@ -152,7 +152,7 @@ async def market_cover(
     new_balance = user.model.balance - trade_price
     crud_user.user.update_balance(db, user.model, new_balance)
 
-    return Response("Trade successful")
+    return Response(msg="Trade successful")
 
 
 async def place_limit_order(
@@ -173,7 +173,7 @@ async def place_limit_order(
         db=db, user_in=user.model, trade_type=t_type, symbol=symbol, quantity=quantity, limit=limit
     )
 
-    return Response("Order placed successfully")
+    return Response(msg="Order placed successfully")
 
 
 @router.post("/limit/buy")

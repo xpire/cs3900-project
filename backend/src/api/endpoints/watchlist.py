@@ -36,9 +36,9 @@ async def update_watchlist(
     if user.check_exists_watchlist(symbol):
         raise HTTPException(status_code=400, detail=f"Symbol {symbol} already exists in watchlist.")
 
-    crud.user.add_to_watch_list(db, user.model, symbol)
+    user.watchlist_create(symbol)
 
-    return Response(f"{symbol} added to watchlist")
+    return Response(msg=f"{symbol} added to watchlist")
 
 
 @router.delete("")
@@ -51,6 +51,6 @@ async def delete_watchlist(
     if not user.check_exists_watchlist(symbol):
         raise HTTPException(status_code=400, detail=f"Symbol {symbol} does not exist in watchlist.")
 
-    crud.user.delete_from_watch_list(db, user.model, symbol)
+    user.watchlist_delete(symbol)
 
-    return Response(f"{symbol} removed from watchlist")
+    return Response(msg=f"{symbol} removed from watchlist")

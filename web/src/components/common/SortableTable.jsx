@@ -138,13 +138,10 @@ export default function EnhancedTable({
             {stableSort(data, getComparator(order, orderBy)).map(
               (row, index) => {
                 const labelId = `enhanced-table-checkbox-${index}`;
-                // const polarity = row.close > row.open;
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
                     {header.map(({ id, numeric, disablePadding, color }) => {
-                      const value = numeric
-                        ? format(row[id]) // Number(row[id]).toFixed(2)
-                        : row[id];
+                      const value = numeric ? format(row[id]) : row[id];
                       return (
                         <TableCell
                           component="th"
@@ -165,40 +162,6 @@ export default function EnhancedTable({
                         </TableCell>
                       );
                     })}
-                    {/* <TableCell
-                      component="th"
-                      id={labelId}
-                      scope="row"
-                      padding="none"
-                    >
-                      {row.symbol}
-                    </TableCell>
-                    <TableCell>{row.name}</TableCell>
-                    <TableCell align="right">
-                      <ColoredText color={polarity ? "green" : "red"}>
-                        {row.price}
-                      </ColoredText>
-                    </TableCell>
-                    <TableCell align="right">
-                      <ColoredText color={polarity ? "green" : "red"}>
-                        {row.open}
-                      </ColoredText>
-                    </TableCell>
-                    <TableCell align="right">
-                      <ColoredText color={polarity ? "green" : "red"}>
-                        {row.close}
-                      </ColoredText>
-                    </TableCell>
-                    <TableCell align="right">
-                      <ColoredText color={polarity ? "green" : "red"}>
-                        {row.daily}
-                      </ColoredText>
-                    </TableCell>
-                    <TableCell align="right">
-                      <ColoredText color={polarity ? "green" : "red"}>
-                        {row.dailyPercentage}
-                      </ColoredText>
-                    </TableCell> */}
                     <TableCell padding="checkbox">
                       <Tooltip title="Stock Details">
                         <IconButton

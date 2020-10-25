@@ -1,6 +1,5 @@
 import src.api.endpoints.stocks as stocks_api
 from sqlalchemy.orm import Session
-from src.crud import crud_stock, crud_user
 from src.domain_models.user_dm import UserDM
 
 

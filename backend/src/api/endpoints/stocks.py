@@ -8,6 +8,8 @@ from src.api.deps import check_symbol, get_db
 from src.core.config import settings
 from src.core.utilities import log_msg
 from src.db.session import SessionLocal
+from src.game.event.sub_events import StatUpdateEvent
+from src.game.stat_update_publisher import StatUpdatePublisher
 from src.real_time_market_data.data_provider import MarketDataProvider
 from twelvedata import TDClient
 
@@ -37,6 +39,8 @@ def startup_event():
 
     if symbols:
         market_data_provider = MarketDataProvider(symbols=symbols, apikey=API_KEY, db=db, crud_obj=crud.stock)
+        market_data_provider.subscribe_with_update(StatUpdatePublisher(db))
+        # TODO @Song, place the order execution below the above subscribe
         market_data_provider.start()
     else:
         log_msg("There are no stocks in the database, not polling for data.", "WARNING")
@@ -92,7 +96,7 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
 @router.get("/time_series")  # TODO days param is not currently being used
 async def get_stock_data(symbol: str = Depends(check_symbol), db: Session = Depends(get_db), days: int = 90):
     stock = crud.stock.get_stock_by_symbol(db=db, stock_symbol=symbol)
-    return crud.stock.get_time_series(db= db, stock_in=stock)
+    return crud.stock.get_time_series(db=db, stock_in=stock)
 
 
 # TODO move this somehwere else

@@ -100,7 +100,7 @@ async def market_cover(
     symbol: str = Depends(check_symbol),
     user: domain_models.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
-) -> Reponse:
+) -> Response:
     if quantity < 0:
         raise HTTPException(status_code=400, detail="Cannot cover negative quantity")
 
@@ -137,7 +137,14 @@ async def place_limit_order(
     if limit < 0:
         raise HTTPException(status_code=400, detail="Limit value cannot be negative")
 
-    crud_user.user.create_order(db=db, user_in=user.model, trade_type=t_type, symbol=symbol, quantity=quantity,limit=limit)
+    crud_user.user.create_order(
+        db=db,
+        user_in=user.model,
+        trade_type=t_type,
+        symbol=symbol,
+        quantity=quantity,
+        limit=limit,
+    )
 
     return Response("Order placed successfully")
 

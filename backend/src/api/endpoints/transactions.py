@@ -1,13 +1,7 @@
-from typing import Any, List
-
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from src import domain_models
-from src.api.deps import check_symbol, get_current_user_dm, get_db
-from src.core.config import settings
-from src.db.session import SessionLocal
-
-from src.schemas.response import Respons
+from src.api.deps import get_current_user_dm, get_db
 
 router = APIRouter()
 

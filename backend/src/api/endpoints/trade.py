@@ -1,25 +1,63 @@
-from typing import Any, List
-
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from src import domain_models, schemas
+from src import domain_models as dm
 from src.api.deps import check_symbol, get_current_user_dm, get_db
 from src.core import trade
-from src.core.config import settings
-from src.crud import crud_stock, crud_user
-from src.db.session import SessionLocal
+from src.crud import crud_user
 from src.schemas.response import Response
 
 router = APIRouter()
 
-# TODO: enforce trading hours
+
+@router.post("/v2/market/buy")
+async def market_buy(
+    quantity: int,
+    symbol: str = Depends(check_symbol),
+    user: dm.UserDM = Depends(get_current_user_dm),
+    db: Session = Depends(get_db),
+):
+    price = trade.get_stock_price(db, symbol)
+    return dm.BuyTrade(symbol, quantity, price, db, user)
+
+
+@router.post("/v2/market/sell")
+async def market_sell(
+    quantity: int,
+    symbol: str = Depends(check_symbol),
+    user: dm.UserDM = Depends(get_current_user_dm),
+    db: Session = Depends(get_db),
+):
+    price = trade.get_stock_price(db, symbol)
+    return dm.SellTrade(symbol, quantity, price, db, user)
+
+
+@router.post("/v2/market/short")
+async def market_short(
+    quantity: int,
+    symbol: str = Depends(check_symbol),
+    user: dm.UserDM = Depends(get_current_user_dm),
+    db: Session = Depends(get_db),
+):
+    price = trade.get_stock_price(db, symbol)
+    return dm.ShortTrade(symbol, quantity, price, db, user)
+
+
+@router.post("/v2/market/cover")
+async def market_cover(
+    quantity: int,
+    symbol: str = Depends(check_symbol),
+    user: dm.UserDM = Depends(get_current_user_dm),
+    db: Session = Depends(get_db),
+):
+    price = trade.get_stock_price(db, symbol)
+    return dm.Cover(symbol, quantity, price, db, user)
 
 
 @router.post("/market/buy")
 async def market_buy(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user=Depends(get_current_user_dm),
+    user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
     if quantity < 0:
@@ -43,7 +81,7 @@ async def market_buy(
 async def market_sell(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user=Depends(get_current_user_dm),
+    user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
 
@@ -68,7 +106,7 @@ async def market_sell(
 async def market_short(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user=Depends(get_current_user_dm),
+    user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
     if quantity < 0:
@@ -94,7 +132,7 @@ async def market_short(
 async def market_cover(
     quantity: int,
     symbol: str = Depends(check_symbol),
-    user=Depends(get_current_user_dm),
+    user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
     if quantity < 0:
@@ -122,7 +160,7 @@ async def place_limit_order(
     limit: float,
     symbol: str,
     t_type: str,
-    user,
+    user: dm.UserDM,
     db: Session,
 ) -> Response:
     if quantity < 0:
@@ -143,7 +181,7 @@ async def limit_buy(
     quantity: int,
     limit: float,
     symbol: str = Depends(check_symbol),
-    user=Depends(get_current_user_dm),
+    user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
     return place_limit_order(db, user, "buy", symbol, quantity, limit)
@@ -154,7 +192,7 @@ async def limit_sell(
     quantity: int,
     limit: float,
     symbol: str = Depends(check_symbol),
-    user=Depends(get_current_user_dm),
+    user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
     return place_limit_order(db, user, "sell", symbol, quantity, limit)
@@ -165,7 +203,7 @@ async def limit_short(
     quantity: int,
     limit: float,
     symbol: str = Depends(check_symbol),
-    user=Depends(get_current_user_dm),
+    user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
     return place_limit_order(db, user, "short", symbol, quantity, limit)
@@ -176,7 +214,7 @@ async def limit_cover(
     quantity: int,
     limit: float,
     symbol: str = Depends(check_symbol),
-    user=Depends(get_current_user_dm),
+    user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
     return place_limit_order(db, user, "cover", symbol, quantity, limit)

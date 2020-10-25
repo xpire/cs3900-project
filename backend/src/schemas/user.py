@@ -11,6 +11,8 @@ class UserBase(BaseSchema):
     balance: float
     level: int
     exp: float
+    last_reset: Optional[datetime]
+    resets: int
 
 
 class UserCreate(UserBase):

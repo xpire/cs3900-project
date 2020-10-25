@@ -87,7 +87,9 @@ class MarketDataProvider(DataProvider):
             for symbol, data in msg.items():
                 symbol = self.without_exchange(symbol)
                 self._data[symbol] = dict(
-                    curr_day_open=data[0]["open"], curr_day_close=data[0]["close"], prev_day_close=data[1]["close"]
+                    curr_day_open=float(data[0]["open"]),
+                    curr_day_close=float(data[0]["close"]),
+                    prev_day_close=float(data[1]["close"]),
                 )
 
     def create_request(self, days):
@@ -112,6 +114,15 @@ class MarketDataProvider(DataProvider):
     def data(self):
         with self.lock:
             return self._data
+
+    def get_curr_day_close(self, symbol):
+        return self.data[symbol]["curr_day_close"]
+
+    def get_curr_day_open(self, symbol):
+        return self.data[symbol]["curr_day_open"]
+
+    def get_prev_day_close(self, symbol):
+        return self.data[symbol]["prev_day_close"]
 
 
 def seconds_until_next_minute(poll_at_second=15):

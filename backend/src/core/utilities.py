@@ -11,7 +11,10 @@ import logging
 import os
 from collections import defaultdict
 
+from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
+
+HTTP400 = lambda detail: HTTPException(status_code=400, detail=detail)
 
 
 def find_path_curr_f() -> str:

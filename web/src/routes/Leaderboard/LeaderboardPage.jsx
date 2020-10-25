@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Typography, Card } from "@material-ui/core";
+import React, { useEffect, useState } from "react";
+import { Card } from "@material-ui/core";
 
-import { AuthContext } from "../../utils/authentication";
 import SortableTable from "../../components/common/SortableTable";
 import Page from "../../components/page/Page";
 import axios from "../../utils/api";
@@ -24,7 +23,6 @@ const headCells = [
 ];
 
 const Leaderboard = () => {
-  const { user } = useContext(AuthContext);
   const [data, setData] = useState([]);
   useEffect(() => {
     axios

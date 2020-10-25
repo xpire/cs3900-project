@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  TextField,
   Button,
   Grid,
   Slider,
@@ -20,9 +19,7 @@ import QuantityIcon from "@material-ui/icons/LocalAtm";
 import ValueIcon from "@material-ui/icons/MonetizationOn";
 import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
 import { useLocation, useHistory } from "react-router-dom";
-import { useSnackbar } from "notistack";
 import { useDebounce } from "react-use";
-import NumberFormat from "react-number-format";
 // import { DateTimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 // import DateFnsUtils from "@date-io/date-fns";
 
@@ -86,30 +83,6 @@ const Trading = () => {
     setUpdate(update + 1);
   };
 
-  function NumberFormatCustom(props) {
-    const { inputRef, onChange, ...other } = props;
-
-    return (
-      <NumberFormat
-        {...other}
-        getInputRef={inputRef}
-        onValueChange={(values) => {
-          onChange({
-            target: {
-              name: props.name,
-              value: values.value,
-            },
-          });
-        }}
-        isNumericString
-        isAllowed={(values) => {
-          const { floatValue } = values;
-          return floatValue >= 5 && floatValue <= 10000;
-        }}
-      />
-    );
-  }
-
   // API calls
   const [locked, lockedLoading] = useApi(`/user`, [update]); // check if functionality is locked
   const [portfolioData, portfolioLoading] = useApi(`/portfolio`, [update]); // check owned stock for sell and cover
@@ -141,7 +114,7 @@ const Trading = () => {
   const [portfolioAllocation, setPortfolioAllocation] = useState(0);
   const [commission, setCommission] = useState(1.005);
   const [price, setPrice] = useState(0);
-  const [finalQuantity, setFinalQuantity] = useState(20);
+  const [finalQuantity, setFinalQuantity] = useState(0);
   const [previousBalance, setPreviousBalance] = useState(100);
 
   const loading =
@@ -212,9 +185,14 @@ const Trading = () => {
             : state.quantity / closePrice
         )
       );
-      setPrice(closePrice * finalQuantity * commission);
+      // setPrice(closePrice * finalQuantity * commission);
     }
   }, [loading, state, update]);
+  useEffect(() => setPrice(closePrice * finalQuantity * commission), [
+    closePrice,
+    finalQuantity,
+    commission,
+  ]);
   // debounced portfolio allocation
   const [] = useDebounce(
     () => {
@@ -340,7 +318,6 @@ const Trading = () => {
                     min: 0,
                     max: maxValue,
                     type: "number",
-                    inputComponent: NumberFormatCustom,
                   }}
                 />
               </Grid>

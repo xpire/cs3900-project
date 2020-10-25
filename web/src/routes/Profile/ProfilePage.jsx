@@ -17,10 +17,17 @@ import axios from "../../utils/api";
 import Page from "../../components/page/Page";
 import { StandardCard } from "../../components/common/styled";
 import useApi from "../../hooks/useApi";
+import { format } from "../../utils/formatter";
 
 const Profile = () => {
   const { user } = useContext(AuthContext);
   const [data] = useApi("/user");
+  const [rank] = useApi(
+    "/leaderboard",
+    [],
+    1,
+    ({ user_ranking }) => user_ranking
+  );
   // const [data, setData] = useState({});
   // useEffect(() => {
   //   axios.get("/user").then((response) => {
@@ -37,13 +44,18 @@ const Profile = () => {
               <CardContent>
                 <Typography variant="h3">{data.username}</Typography>
                 <Typography variant="subtitle2">{user.email}</Typography>
-                {/* <Typography variant="h5">Rank: #{5}</Typography> */}
-                <Typography variant="h5">Net: ${data.balance}</Typography>
+                <Typography variant="h5">Rank: #{rank}</Typography>
+                <Typography variant="h5">
+                  Net: ${format(data.balance)}
+                </Typography>
                 <Typography variant="h5">
                   Level {data.level} (
                   {data.exp_until_next_level === null
                     ? 100
-                    : (data.exp / (data.exp_until_next_level + data.exp)) * 100}
+                    : format(
+                        (data.exp / (data.exp_until_next_level + data.exp)) *
+                          100
+                      )}
                   %)
                 </Typography>
                 <LinearProgress

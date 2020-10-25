@@ -1,7 +1,6 @@
-// import React from "react";
 import { useSnackbar } from "notistack";
 
-const useHandleSnack = () => {
+const useHandleSocketSnack = () => {
   const { enqueueSnackbar } = useSnackbar();
   return (lastJsonMessage) => {
     console.log(`Inside handleSnack: ${JSON.stringify(lastJsonMessage)}`);
@@ -35,4 +34,4 @@ const useHandleSnack = () => {
   };
 };
 
-export default useHandleSnack;
+export default useHandleSocketSnack;

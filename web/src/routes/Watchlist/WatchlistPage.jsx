@@ -14,7 +14,6 @@ const headCells = [
   { id: "exchange", numeric: false, disablePadding: false, label: "Exchange" },
   { id: "price", numeric: true, disablePadding: false, label: "Price" },
   { id: "open", numeric: true, disablePadding: false, label: "Open" },
-  { id: "close", numeric: true, disablePadding: false, label: "Close" },
   {
     id: "daily",
     numeric: true,
@@ -42,8 +41,7 @@ const Watchlist = () => {
         name: name,
         exchange: exchange,
         price: curr_close_price,
-        open: 1111,
-        close: prev_close_price,
+        open: prev_close_price,
         daily: format(curr_close_price - prev_close_price),
         dailyPercentage: format(
           (100 * (curr_close_price - prev_close_price)) / prev_close_price

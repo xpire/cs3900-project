@@ -65,18 +65,6 @@ const MyHeader = ({ toggleMenu }) => {
             <img src={Logo} alt="X" height="40px" />
           </IconButton>
           <HeaderTitle variant="h4">{headerTitle}</HeaderTitle>
-          {/* <Grid container direction="row" justify="flex-end" spacing={2}>
-            {Routes.filter(
-              ({ isPublic, isShown }) =>
-                isShown && (user ? !isPublic : isPublic)
-            ).map(({ text, path }) => (
-              <Grid item>
-                <StyledLink component={Link} to={path} variant="outlined">
-                  {text}
-                </StyledLink>
-              </Grid>
-            ))}
-          </Grid> */}
           {user ? (
             <HeaderButton
               variant="contained"

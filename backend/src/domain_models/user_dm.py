@@ -99,6 +99,13 @@ class UserDM:
     def model(self):
         return self.user
 
+    @property
+    def short_allowance_balance(self):
+        if self.level >= 5:
+            return 0.25
+        elif self.level >= 10:
+            return 0.5
+
     def get_positions(self, p_type: str):
         if p_type != "long" and p_type != "short":
             log_msg(
@@ -212,7 +219,7 @@ class UserDM:
         """
         Returns amount the investor can still short sell for
         """
-        return self.get_gross_value() * 0.25 - self.get_total_opening_values("short")
+        return self.get_gross_value() * self.short_allowance_balance - self.get_total_opening_values("short")
 
     def get_long_return(self):
         total_spent = self.get_total_opening_values("long")

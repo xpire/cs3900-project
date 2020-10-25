@@ -11,8 +11,6 @@ class UserBase(BaseSchema):
     balance: float
     level: int
     exp: float
-    last_reset: datetime
-    resets: int
 
 
 class UserCreate(UserBase):
@@ -20,7 +18,6 @@ class UserCreate(UserBase):
     balance: float = Const(10000)
     level: int = Const(1)
     exp: float = Const(0)
-    resets: int = Const(0)
 
 
 class UserUpdate(UserBase):
@@ -61,8 +58,10 @@ class LimitOrderBase(BaseSchema):
     t_type: str
     price: float
 
+
 class LimitOrderCreate(LimitOrderBase):
     pass
 
-class LimitOrderDelete(LimitOrderBase): 
+
+class LimitOrderDelete(LimitOrderBase):
     pass

@@ -7,6 +7,7 @@ import axios from "../../utils/api";
 import { useSnackbar } from "notistack";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import { format } from "../../utils/formatter";
+import useHandleSnack from "../../hooks/useHandleSnack";
 
 const headCells = [
   { id: "symbol", numeric: false, disablePadding: false, label: "Symbol" },
@@ -51,6 +52,8 @@ const Watchlist = () => {
   );
   console.log(data);
   const { enqueueSnackbar } = useSnackbar();
+  const handleSnack = useHandleSnack();
+
   return (
     <Page>
       <Card>
@@ -59,29 +62,32 @@ const Watchlist = () => {
           header={headCells}
           title="Watch List"
           handleDelete={(symbol) => {
-            axios
-              .delete(`/watchlist?symbol=${symbol}`)
-              .then((response) => {
-                console.log({ response });
-                response.data?.result === "success"
-                  ? enqueueSnackbar(
-                      `${response.data.result}! ${symbol} deleted from watchlist`,
-                      {
-                        variant: "success",
-                      }
-                    )
-                  : enqueueSnackbar(`${response.data.result}`, {
-                      variant: "warning",
-                    });
-                setDeleted(deleted + 1);
-                console.log({ response });
-                console.log(response.data.result === "success");
-              })
-              .catch((err) =>
-                enqueueSnackbar(`${err}`, {
-                  variant: "error",
-                })
-              );
+            handleSnack(`/watchlist?symbol=${symbol}`, "delete").then(() =>
+              setDeleted(deleted + 1)
+            );
+            // axios
+            //   .delete(`/watchlist?symbol=${symbol}`)
+            //   .then((response) => {
+            //     console.log({ response });
+            //     response.data?.result === "success"
+            //       ? enqueueSnackbar(
+            //           `${response.data.result}! ${symbol} deleted from watchlist`,
+            //           {
+            //             variant: "success",
+            //           }
+            //         )
+            //       : enqueueSnackbar(`${response.data.result}`, {
+            //           variant: "warning",
+            //         });
+            //     setDeleted(deleted + 1);
+            //     console.log({ response });
+            //     console.log(response.data.result === "success");
+            //   })
+            //   .catch((err) =>
+            //     enqueueSnackbar(`${err}`, {
+            //       variant: "error",
+            //     })
+            //   );
           }}
         />
       </Card>

@@ -31,6 +31,7 @@ import useApi from "../../hooks/useApi";
 import AutoCompleteTextField from "../../components/common/AutoCompleteTextField";
 import { format } from "../../utils/formatter";
 import { StandardCard } from "../../components/common/styled";
+import useHandleSnack from "../../hooks/useHandleSnack";
 
 const Trading = () => {
   const search = useLocation().search;
@@ -182,25 +183,31 @@ const Trading = () => {
   // handle submit
   const { enqueueSnackbar } = useSnackbar();
 
+  const handleSnack = useHandleSnack();
+
   const handleSubmit = () => {
     setSubmitLoading(true);
-    axios
-      .post(
-        `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`
-      )
-      .then((response) => {
-        console.log(response);
-        enqueueSnackbar(`${response.data.result}`, {
-          variant: "Success",
-        });
-      })
-      .catch((err) => {
-        console.log("err", err);
-        enqueueSnackbar(`${err}`, {
-          variant: "Error",
-        });
-      })
-      .then(() => setSubmitLoading(false)); //todo send notification
+    handleSnack(
+      `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`,
+      "post"
+    ).then(() => setSubmitLoading(false));
+    // axios
+    //   .post(
+    //     `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`
+    //   )
+    //   .then((response) => {
+    //     console.log(response);
+    //     enqueueSnackbar(`${response.data.result}`, {
+    //       variant: "Success",
+    //     });
+    //   })
+    //   .catch((err) => {
+    //     console.log("err", err);
+    //     enqueueSnackbar(`${err}`, {
+    //       variant: "Error",
+    //     });
+    //   })
+    // .then(() => setSubmitLoading(false)); //todo send notification
   };
 
   return (

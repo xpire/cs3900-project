@@ -17,6 +17,7 @@ import { useSnackbar } from "notistack";
 
 import { ColoredText, StandardCard } from "./styled";
 import axios from "../../utils/api";
+import useHandleSnack from "../../hooks/useHandleSnack";
 
 const StyledCard = styled(Card)({ margin: "10px" });
 
@@ -42,6 +43,8 @@ const StockCard = ({
 }) => {
   let history = useHistory();
   const { enqueueSnackbar } = useSnackbar();
+  const handleSnack = useHandleSnack();
+
   return (
     <StyledCard>
       <CardActionArea component={Link} to={`/stock/${symbol}`}>
@@ -101,30 +104,31 @@ const StockCard = ({
               <Button
                 size="small"
                 color="primary"
-                onClick={() => {
-                  axios
-                    .post(`/watchlist?symbol=${symbol}`)
-                    .then((response) => {
-                      console.log({ response });
-                      response.data?.result === "success"
-                        ? enqueueSnackbar(
-                            `${response.data.result}! ${symbol} added to watchlist`,
-                            {
-                              variant: "success",
-                            }
-                          )
-                        : enqueueSnackbar(`${response.data.result}`, {
-                            variant: "warning",
-                          });
-                      console.log({ response });
-                      console.log(response.data.result === "success");
-                    })
-                    .catch((err) =>
-                      enqueueSnackbar(`${err}`, {
-                        variant: "error",
-                      })
-                    );
-                }}
+                onClick={
+                  () => handleSnack(`/watchlist?symbol=${symbol}`, "post")
+                  // axios
+                  //   .post(`/watchlist?symbol=${symbol}`)
+                  //   .then((response) => {
+                  //     console.log({ response });
+                  //     response.data?.result === "success"
+                  //       ? enqueueSnackbar(
+                  //           `${response.data.result}! ${symbol} added to watchlist`,
+                  //           {
+                  //             variant: "success",
+                  //           }
+                  //         )
+                  //       : enqueueSnackbar(`${response.data.result}`, {
+                  //           variant: "warning",
+                  //         });
+                  //     console.log({ response });
+                  //     console.log(response.data.result === "success");
+                  //   })
+                  //   .catch((err) =>
+                  //     enqueueSnackbar(`${err}`, {
+                  //       variant: "error",
+                  //     })
+                  //   );
+                }
               >
                 watch
               </Button>

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Float, Integer, String
+from sqlalchemy import Column, DateTime, Float, Integer, String
 from sqlalchemy.orm import relationship
 from src.db.base_model import BaseModel
 
@@ -10,6 +10,8 @@ class User(BaseModel):
     balance = Column(Float, nullable=False)
     level = Column(Integer, nullable=False)
     exp = Column(Float, nullable=False)
+    reset = Column(Integer)
+    last_reset = Column(DateTime)
     watchlist = relationship("WatchList", backref="user", cascade="save-update, merge, delete, delete-orphan")
     long_positions = relationship("LongPosition", backref="user", cascade="save-update, merge, delete, delete-orphan")
     short_positions = relationship("ShortPosition", backref="user", cascade="save-update, merge, delete, delete-orphan")

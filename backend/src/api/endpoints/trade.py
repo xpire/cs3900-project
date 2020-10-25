@@ -9,50 +9,6 @@ from src.schemas.response import Response
 router = APIRouter()
 
 
-@router.post("/v2/market/buy")
-async def market_buy(
-    quantity: int,
-    symbol: str = Depends(check_symbol),
-    user: dm.UserDM = Depends(get_current_user_dm),
-    db: Session = Depends(get_db),
-):
-    price = trade.get_stock_price(db, symbol)
-    return dm.BuyTrade(symbol, quantity, price, db, user)
-
-
-@router.post("/v2/market/sell")
-async def market_sell(
-    quantity: int,
-    symbol: str = Depends(check_symbol),
-    user: dm.UserDM = Depends(get_current_user_dm),
-    db: Session = Depends(get_db),
-):
-    price = trade.get_stock_price(db, symbol)
-    return dm.SellTrade(symbol, quantity, price, db, user)
-
-
-@router.post("/v2/market/short")
-async def market_short(
-    quantity: int,
-    symbol: str = Depends(check_symbol),
-    user: dm.UserDM = Depends(get_current_user_dm),
-    db: Session = Depends(get_db),
-):
-    price = trade.get_stock_price(db, symbol)
-    return dm.ShortTrade(symbol, quantity, price, db, user)
-
-
-@router.post("/v2/market/cover")
-async def market_cover(
-    quantity: int,
-    symbol: str = Depends(check_symbol),
-    user: dm.UserDM = Depends(get_current_user_dm),
-    db: Session = Depends(get_db),
-):
-    price = trade.get_stock_price(db, symbol)
-    return dm.Cover(symbol, quantity, price, db, user)
-
-
 @router.post("/market/buy")
 async def market_buy(
     quantity: int,
@@ -60,21 +16,8 @@ async def market_buy(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    if quantity < 0:
-        raise HTTPException(status_code=400, detail="Cannot buy negative quantity")
-
-    curr_stock_price = trade.get_stock_price(db, symbol)
-    trade_price = trade.apply_commission(curr_stock_price * quantity)
-
-    if user.model.balance < trade_price:
-        raise HTTPException(status_code=400, detail="Insufficient balance")
-
-    crud_user.user.add_transaction(db, user.model, "long", symbol, quantity, curr_stock_price)
-
-    new_balance = user.model.balance - trade_price
-    crud_user.user.update_balance(db, user.model, new_balance)
-
-    return Response(msg="Trade successful")
+    price = trade.get_stock_price(db, symbol)
+    return dm.BuyTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
 
 
 @router.post("/market/sell")
@@ -83,23 +26,9 @@ async def market_sell(
     symbol: str = Depends(check_symbol),
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
-) -> Response:
-
-    if quantity < 0:
-        raise HTTPException(status_code=400, detail="Cannot sell negative quantity")
-
-    if not trade.check_owned_longs(user, quantity, symbol):
-        raise HTTPException(status_code=400, detail="Cannot sell more than owned")
-
-    curr_stock_price = trade.get_stock_price(db, symbol)
-    trade_price = trade.apply_commission(curr_stock_price * quantity, False)
-
-    crud_user.user.deduct_transaction(db, user.model, "long", symbol, quantity)
-
-    new_balance = user.model.balance + trade_price
-    crud_user.user.update_balance(db, user.model, new_balance)
-
-    return Response(msg="Trade successful")
+):
+    price = trade.get_stock_price(db, symbol)
+    return dm.SellTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
 
 
 @router.post("/market/short")
@@ -108,24 +37,9 @@ async def market_short(
     symbol: str = Depends(check_symbol),
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
-) -> Response:
-    if quantity < 0:
-        raise HTTPException(status_code=400, detail="Cannot short negative quantity")
-
-    curr_stock_price = trade.get_stock_price(db, symbol)
-    trade_price = curr_stock_price * quantity
-
-    if not trade.check_short_balance(user, trade_price):
-        raise HTTPException(status_code=400, detail="Insufficient short balance")
-
-    final_trade_price = trade.apply_commission(trade_price, False)
-
-    crud_user.user.add_transaction(db, user.model, "short", symbol, quantity, curr_stock_price)
-
-    new_balance = user.model.balance + final_trade_price
-    crud_user.user.update_balance(db, user.model, new_balance)
-
-    return Response(msg="Trade successful")
+):
+    price = trade.get_stock_price(db, symbol)
+    return dm.ShortTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
 
 
 @router.post("/market/cover")
@@ -134,28 +48,12 @@ async def market_cover(
     symbol: str = Depends(check_symbol),
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
-) -> Response:
-    if quantity < 0:
-        raise HTTPException(status_code=400, detail="Cannot cover negative quantity")
-
-    curr_stock_price = trade.get_stock_price(db, symbol)
-    trade_price = trade.apply_commission(curr_stock_price * quantity)
-
-    if not trade.check_owned_shorts(user, quantity, symbol):
-        raise HTTPException(status_code=400, detail="Cannot cover more than owed")
-
-    if user.model.balance < trade_price:
-        raise HTTPException(status_code=400, detail="Insufficient balance")
-
-    crud_user.user.deduct_transaction(db, user.model, "short", symbol, quantity)
-
-    new_balance = user.model.balance - trade_price
-    crud_user.user.update_balance(db, user.model, new_balance)
-
-    return Response(msg="Trade successful")
+):
+    price = trade.get_stock_price(db, symbol)
+    return dm.CoverTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
 
 
-async def place_limit_order(
+def place_limit_order(
     quantity: int,
     limit: float,
     symbol: str,
@@ -184,7 +82,7 @@ async def limit_buy(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    return place_limit_order(db, user, "buy", symbol, quantity, limit)
+    return place_limit_order(quantity, limit, symbol, "buy", user, db)
 
 
 @router.post("/limit/sell")
@@ -195,7 +93,7 @@ async def limit_sell(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    return place_limit_order(db, user, "sell", symbol, quantity, limit)
+    return place_limit_order(quantity, limit, symbol, "sell", user, db)
 
 
 @router.post("/limit/short")
@@ -206,7 +104,7 @@ async def limit_short(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    return place_limit_order(db, user, "short", symbol, quantity, limit)
+    return place_limit_order(quantity, limit, symbol, "short", user, db)
 
 
 @router.post("/limit/cover")
@@ -217,4 +115,4 @@ async def limit_cover(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    return place_limit_order(db, user, "cover", symbol, quantity, limit)
+    return place_limit_order(quantity, limit, symbol, "cover", user, db)

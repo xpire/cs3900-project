@@ -15,26 +15,26 @@ from src.schemas.time_series import TimeSeriesCreate
 
 
 class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
-    def get_stock_by_symbol(self, db: Session, stock_symbol: str) -> Optional[Stock]:
+    def get_stock_by_symbol(self, *, db: Session, stock_symbol: str) -> Optional[Stock]:
         """
         Get a single stock information
         """
         return db.query(self.model).filter(self.model.symbol == stock_symbol).first()
 
-    def get_stock_by_symbols(self, db: Session, stock_symbols: List[str]) -> Optional[List[Stock]]:
+    def get_stock_by_symbols(self, *, db: Session, stock_symbols: List[str]) -> Optional[List[Stock]]:
         """
         Get multiple stock information by multiple symbols.
         """
         return db.query(self.model).filter(self.model.symbol.in_(stock_symbols)).all()
 
-    def get_all_stocks(self, db: Session) -> Optional[List[Stock]]:
+    def get_all_stocks(self, *, db: Session) -> Optional[List[Stock]]:
         """
         Get multiple stock information by multiple symbols.
         """
         return db.query(self.model).all()
 
     @fail_save
-    def csv_batch_insert(self, db: Session, csv_stocks: List[Dict]) -> Any:
+    def csv_batch_insert(self, *, db: Session, csv_stocks: List[Dict]) -> Any:
         """
         Insert batch amount of basic stock data from existing model. Note that no type
         checks as the file is pretty much static.
@@ -44,67 +44,65 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         db.commit()
         return ds
 
-    def get_time_series(self, db: Session, obj_in: Stock) -> List[Optional[Dict]]:
+    def get_time_series(self, *, db: Session, stock_in: Stock) -> List[Optional[Dict]]:
         """
         Retieve the sorted time series of the obj_in. Returns latest date first.
         """
         # Need to reverse the order, since db returns in reverse order
-        return [x.__dict__ for x in obj_in.timeseries][::-1]
+        return [x.__dict__ for x in stock_in.timeseries][::-1]
 
     @fail_save
-    def update_time_series(self, db: Session, obj_in: Stock, u_time_series: Dict) -> Stock:
+    def update_time_series(self, *, db: Session, stock_in: Stock, u_time_series: Dict) -> Stock:
         """
         Update the newest entry of time series. Update last 2 entries u_time_series.
         """
-
-        # only 2 entries
-        for e in u_time_series:
-            tsc = None
+        for entry in u_time_series:
+            attempt_entry = None
             try:
-                tsc = TimeSeriesCreate(
-                    date=e["datetime"],
-                    symbol=obj_in.symbol,
-                    low=e["low"],
-                    high=e["high"],
-                    open=e["open"],
-                    close=e["close"],
-                    volume=e["volume"],
+                attempt_entry = TimeSeriesCreate(
+                    date=entry["datetime"],
+                    symbol=stock_in.symbol,
+                    low=entry["low"],
+                    high=entry["high"],
+                    open=entry["open"],
+                    close=entry["close"],
+                    volume=entry["volume"],
                 )
             except ValidationError as e:
                 log_msg(f"Failed to update time series {e.__str__}.", "ERROR")
-                return obj_in
+                return stock_in
 
-            tsc = TimeSeries(**tsc.dict())
+            attempt_entry = TimeSeries(**attempt_entry.dict())
 
             found = False
-            for t in obj_in.timeseries:
-                if t.date == tsc.date:
+            for t in stock_in.timeseries:
+                if t.date == attempt_entry.date:
                     found = True
-                    t.low = tsc.low
-                    t.high = tsc.high
-                    t.open = tsc.open
-                    t.close = tsc.close
+                    t.low = attempt_entry.low
+                    t.high = attempt_entry.high
+                    t.open = attempt_entry.open
+                    t.close = attempt_entry.close
 
             if not found:
-                obj_in.timeseries.append(tsc)
+                stock_in.timeseries.append(attempt_entry)
 
         db.commit()
-        db.refresh(obj_in)
+        db.refresh(stock_in)
 
-        return obj_in
+        return stock_in
 
     @fail_save
-    def batch_add_daily_time_series(self, db: Session, obj_in: Stock, time_series_in: List[Dict]) -> Stock:
+    def batch_add_daily_time_series(self, *, db: Session, stock_in: Stock, time_series_in: List[Dict]) -> Stock:
         """
         Batch insert historical daily timeseries candle stock data, continue insertion even
         if 1 entry fails convention.
         """
         for row in time_series_in:
-            tsc = None
+            attempt_entry = None
             try:
-                tsc = TimeSeriesCreate(
+                attempt_entry = TimeSeriesCreate(
                     date=row["datetime"],
-                    symbol=obj_in.symbol,
+                    symbol=stock_in.symbol,
                     low=row["low"],
                     high=row["high"],
                     open=row["open"],
@@ -112,17 +110,17 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
                     volume=row["volume"],
                 )
 
-                tsc = TimeSeries(**tsc.dict())
-                obj_in.timeseries.append(tsc)  # Otherwise, add row
+                attempt_entry = TimeSeries(**attempt_entry.dict())
+                stock_in.timeseries.append(attempt_entry)  # Otherwise, add row
 
             except ValidationError as e:
                 log_msg(f"Failed to insert time series {row.__str__}.", "ERROR")
                 continue
 
         db.commit()
-        db.refresh(obj_in)
+        db.refresh(stock_in)
 
-        return obj_in
+        return stock_in
 
     @fail_save
     def remove_all_hist(self, *, db: Session) -> None:

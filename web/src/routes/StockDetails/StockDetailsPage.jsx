@@ -118,9 +118,9 @@ const StockDetails = () => {
       .then((response) => {
         let data = response.data;
         data = data
-          .map(({ datetime, open, close, high, low, volume }) => {
+          .map(({ date, open, close, high, low, volume }) => {
             return {
-              date: new Date(datetime),
+              date: new Date(date),
               open: +open,
               high: +high,
               low: +low,
@@ -191,28 +191,6 @@ const StockDetails = () => {
                   color="primary"
                   onClick={() => {
                     handleSnack(`/watchlist?symbol=${symbol}`, "post");
-                    // axios
-                    //   .post(`/watchlist?symbol=${symbol}`)
-                    //   .then((response) => {
-                    //     console.log({ response });
-                    //     response.data?.result === "success"
-                    //       ? enqueueSnackbar(
-                    //           `${response.data.result}! ${symbol} added to watchlist`,
-                    //           {
-                    //             variant: "Success",
-                    //           }
-                    //         )
-                    //       : enqueueSnackbar(`${response.data.result}`, {
-                    //           variant: "Warning",
-                    //         });
-                    //     console.log({ response });
-                    //     console.log(response.data.result === "success");
-                    //   })
-                    //   .catch((err) =>
-                    //     enqueueSnackbar(`${err}`, {
-                    //       variant: "Error",
-                    //     })
-                    //   );
                   }}
                 >
                   Watch

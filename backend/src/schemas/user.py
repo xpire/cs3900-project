@@ -20,6 +20,7 @@ class UserCreate(UserBase):
     balance: float = Const(10000)
     level: int = Const(1)
     exp: float = Const(0)
+    resets: int = Const(0)
 
 
 class UserUpdate(UserBase):
@@ -67,3 +68,10 @@ class LimitOrderCreate(LimitOrderBase):
 
 class LimitOrderDelete(LimitOrderBase):
     pass
+
+class TransactionHistoryCreate(BaseSchema): 
+    user_id: str
+    price: float
+    action: str
+    symbol: str
+    amount: int

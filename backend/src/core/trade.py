@@ -11,20 +11,20 @@ def apply_commission(price: float, is_buying: bool = True):
     return price * 1.005 if is_buying else price * 0.995
 
 
-def check_owned_longs(user: UserDM, qty: int, symbol: str):
-    for position in user.model.long_positions:
-        if position.symbol == symbol:
-            return qty <= position.amount
+def check_owned(user: UserDM, qty: int, symbol: str, positions):
+    pos = next((x for x in positions if x.symbol == symbol), None)
+    if pos is None:
+        return False
 
-    return False
+    return pos is not None and qty <= pos.amount
+
+
+def check_owned_longs(user: UserDM, qty: int, symbol: str):
+    return check_owned(user, qty, symbol, user.model.long_positions)
 
 
 def check_owned_shorts(user: UserDM, qty: int, symbol: str):
-    for position in user.model.short_positions:
-        if position.symbol == symbol:
-            return qty <= position.amount
-
-    return False
+    return check_owned(user, qty, symbol, user.model.short_positions)
 
 
 def check_short_balance(user: UserDM, total_price: float):

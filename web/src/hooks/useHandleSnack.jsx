@@ -27,7 +27,10 @@ const useHandleSnack = () => {
           case 500:
           default:
         }
-      });
+      })
+      .catch(() =>
+        enqueueSnackbar(`Sorry, please try again.`, { variant: "error" })
+      );
   };
 };
 

@@ -12,8 +12,6 @@ from typing import List, Optional
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
-
-# from src.core import trade
 from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
 from src.crud.base import CRUDBase
@@ -21,9 +19,13 @@ from src.crud.crud_stock import stock
 from src.models.limit_order import LimitOrder
 from src.models.long_position import LongPosition
 from src.models.short_position import ShortPosition
+from src.models.transaction import Transaction
 from src.models.user import User
 from src.models.watch_list import WatchList
+
+from src.schemas.transaction import TradeType
 from src.schemas.user import LimitOrderCreate, TransactionCreate, UserCreate, UserUpdate
+
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -34,43 +36,38 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def get_all_users(self, db: Session) -> List[User]:
         return db.query(self.model.uid).distinct()
 
-    def get_user_by_uid(self, db: Session, uid: str) -> Optional[User]:
+    def get_user_by_uid(self, *, db: Session, uid: str) -> Optional[User]:
         """
         Return the corresponding user by token.
         """
         return db.query(self.model).filter(self.model.uid == uid).first()  # Field is unique
 
     @fail_save
-    def update_balance(self, db: Session, db_obj: User, u_balance: float) -> User:
+    def update_balance(self, *, db: Session, user_in: User, balance_in: float) -> User:
         """
         Only update the balance of the user.
         """
-        db_obj.balance = u_balance
+        user_in.balance = balance_in
         db.commit()
-        db.refresh(db_obj)
-        return db_obj
+        db.refresh(user_in)
+        return user_in
 
-    def authenticate(self, db: Session, email: str, password: str) -> Optional[User]:
-        pass
-
-    def symbol_exist(self, db: Session, c_symbol: str):
+    def symbol_exist(self, db: Session, symbol_in: str):
         """
         Return True if the symbol exists
         """
-        check = stock.get_stock_by_symbol(db=db, stock_symbol=c_symbol)
-
-        return check != None
+        return  stock.get_stock_by_symbol(db=db, stock_symbol=symbol_in) != None
 
     @fail_save
-    def add_to_watch_list(self, db: Session, user_in: User, w_symbol: str) -> User:
+    def add_to_watch_list(self, *, db: Session, user_in: User, symbol_in: str) -> User:
         """
         Add a watchlist to the user_in's watchlist.
         """
         # BUG: adding existing stocks breaks the code, handle it
-        if self.symbol_exist(db=db, c_symbol=w_symbol):
-            a_wl = WatchList(user_id=user_in.uid, symbol=w_symbol)
+        if self.symbol_exist(db=db, symbol_in=symbol_in):
+            requested_watchlist_entry = WatchList(user_id=user_in.uid, symbol=symbol_in)
 
-            user_in.watchlist.append(a_wl)
+            user_in.watchlist.append(requested_watchlist_entry)
             db.commit()
             db.refresh(user_in)
             return user_in
@@ -79,27 +76,27 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
                 f"Adding a non-existent symbol to watchlist of User(uid = {user_in.uid}).",
                 "WARNING",
             )
-            return user_in
-
+            return user_in 
+     
     @fail_save
-    def delete_from_watch_list(self, db: Session, user_in: User, w_symbol: str) -> User:
+    def delete_from_watch_list(self, *, db: Session, user_in: User, symbol_in: str) -> User:
         """
         Delete a watchlist for user_in.
         """
-        if self.symbol_exist(db=db, c_symbol=w_symbol):
-            tbr = None
-            for s in user_in.watchlist:
-                if s.symbol == w_symbol:
-                    tbr = s
+        if self.symbol_exist(db=db, symbol_in=symbol_in):            
+            search_result = None
+            for entry in user_in.watchlist:
+                if entry.symbol == symbol_in:
+                    search_result = entry
                     break
 
-            if tbr == None:
+            if search_result == None:
                 log_msg(
                     f"Deleting a non-existent stock from watchlist of User(uid = {user_in.uid})",
                     "WARNING",
                 )
             else:
-                user_in.watchlist.remove(tbr)
+                user_in.watchlist.remove(search_result)
                 db.commit()
                 db.refresh(user_in)
 
@@ -114,111 +111,78 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     @fail_save
     def add_transaction(
         self,
+        *, 
         db: Session,
         user_in: User,
-        t_type: str,
-        p_symbol: str,
-        p_amount: int,
-        price: float,
+        is_long: bool,
+        symbol_in: str,
+        amount_in: int,
+        price_in: float,
     ) -> User:
         """
         Add amount and price to portfolio
         """
-        if t_type != "long" and t_type != "short":
-            log_msg(
-                "No such type of transaction allowed, allowed are 'long' or'short'.",
-                "ERROR",
-            )
-            return user_in
-
-        if self.symbol_exist(db=db, c_symbol=p_symbol):
-
-            ex = None
-            ca = user_in.long_positions if t_type == "long" else user_in.short_positions
-
-            # Compact portfolio
-            for x in ca:
-                if x.symbol == p_symbol:
-                    ex = x
-                    break
-
-            if ex == None:
-                a_wl = (
-                    LongPosition(user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price)
-                    if t_type == "long"
-                    else ShortPosition(user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price)
-                )
-                user_in.long_positions.append(a_wl) if t_type == "long" else user_in.short_positions.append(a_wl)
-            else:
-                # running average used here
-                new_avg = (ex.avg * ex.amount + p_amount * price) / (ex.amount + p_amount)
-                new_amount = ex.amount + p_amount
-
-                ex.avg, ex.amount = new_avg, new_amount
-
-            db.commit()
-            db.refresh(user_in)
-            return user_in
-
-        else:
+        if not self.symbol_in_exist(db=db, symbol_in=symbol_in):
             log_msg(
                 f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).",
                 "WARNING",
             )
             return user_in
 
+        positions = user_in.long_positions if is_long else user_in.short_positions
+        pos = next((x for x in positions if x.symbol == symbol_in), None)
+
+        if pos is None:
+            Position = LongPosition if is_long else ShortPosition
+            positions.append(Position(user_id=user_in.uid, symbol=symbol_in, amount=amount_in, avg=price_in))
+        else:
+            # running average used here
+            new_avg = (pos.avg * pos.amount + amount_in * price_in) / (pos.amount + amount_in)
+            new_amount = pos.amount + amount_in
+
+            pos.avg, pos.amount = new_avg, new_amount
+
+        db.commit()
+        db.refresh(user_in)
+        return user_in
+
     @fail_save
-    def deduct_transaction(self, db: Session, user_in: User, t_type: str, p_symbol: str, p_amount: int) -> User:
+    def deduct_transaction(self, *, db: Session, user_in: User, is_long: bool, symbol_in: str, amount_in: int) -> User:
         """
         Remove a stock from portfolio (selling). For type specify 'long' or 'short'
         """
-        if t_type != "long" and t_type != "short":
-            log_msg(
-                "No such type of transaction allowed, allowed are 'long' or'short'.",
-                "ERROR",
-            )
-            return user_in
 
-        if self.symbol_exist(db=db, c_symbol=p_symbol):
-            ex = None
-
-            ca = user_in.long_positions if t_type == "long" else user_in.short_positions
-
-            for x in ca:
-                if x.symbol == p_symbol:
-                    ex = x
-                    break
-
-            if ex == None:
-                log_msg(
-                    f"Deducting a non-existent stock of User(uid = {user_in.uid}).",
-                    "WARNING",
-                )
-                return user_in
-            else:
-
-                new_amount = ex.amount - p_amount
-
-                if new_amount < 0:
-                    log_msg(
-                        f"Deducting more than owned of User(uid = {user_in.uid}).",
-                        "WARNING",
-                    )
-                elif new_amount == 0:
-                    user_in.long_positions.remove(ex) if t_type == "long" else user_in.short_positions.remove(ex)
-                else:
-                    ex.amount = new_amount
-
-                db.commit()
-                db.refresh(user_in)
-                return user_in
-
-        else:
+        if not self.symbol_exist(db=db, symbol_in=symbol_in):
             log_msg(
                 f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).",
                 "WARNING",
             )
             return user_in
+
+        positions = user_in.long_positions if is_long else user_in.short_positions
+        pos = next((x for x in positions if x.symbol == symbol_in), None)
+
+        if pos is None:
+            log_msg(
+                f"Deducting a non-existent stock of User(uid = {user_in.uid}).",
+                "WARNING",
+            )
+            return user_in
+
+        new_amount = pos.amount - amount_in
+        if new_amount < 0:
+            log_msg(
+                f"Deducting more than owned of User(uid = {user_in.uid}).",
+                "WARNING",
+            )
+        elif new_amount == 0:
+            positions.remove(pos) if is_long else positions.remove(pos)
+        else:
+            pos.amount = new_amount
+
+        db.commit()
+        db.refresh(user_in)
+        return user_in
 
     @fail_save
     def delete_user_by_email(self, db: Session, *, email: str) -> bool:
@@ -231,21 +195,15 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     @fail_save
     def create_order(
-        self, *, db: Session, user_in: User, trade_type: str, symbol: str, quantity: int, limit: float
+        self, *, db: Session, user_in: User, trade_type: TradeType, symbol: str, quantity: int, limit: float
     ) -> User:
-
-        allowed_types = ["buy", "sell", "short", "cover"]
-        if self.symbol_exist(db=db, c_symbol=symbol):
-
-            if trade_type not in allowed_types:
-                log_msg(f"Trade type {trade_type} is not allowed", "ERROR")
-                return user_in
+        if self.symbol_exist(db=db, symbol_in=symbol):
 
             stc = LimitOrderCreate(
                 user_id=user_in.uid,
                 symbol=symbol,
                 amount=quantity,
-                t_type=trade_type,
+                t_type=trade_type.name,
                 price=limit,
             )
 
@@ -279,7 +237,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
         return user_in
 
-    def reset_user_portfolio(self, user_in: User, db: Session) -> User:
+    def reset_user_portfolio(self, *, user_in: User, db: Session) -> User:
 
         # Reset portfolio and transaction history
         user_in.long_positions = []
@@ -295,5 +253,22 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
         return user_in
 
+    def add_history(self, *, db: Session, user_in: User, price_in: float, trade_type_in: TradeType, amount_in: int, symbol_in: str) -> User:
+        '''
+        Add to the historical transaction.
+        '''
+        requested_record = TransactionCreate(
+            user_id=user_in.uid, 
+            price=price_in,
+            action=trade_type_in.name, 
+            symbol=symbol_in, 
+            amount=amount_in
+        )
+        user_in.transaction_hist.append(Transaction(**requested_record.__dict__))
+        db.commit()
+        db.refresh(user_in)
+        return user_in
+
+        
 
 user = CRUDUser(User)

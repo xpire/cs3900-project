@@ -7,20 +7,15 @@ from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm
 from src import models, schemas
-from src.api.deps import (
-    check_uid_email,
-    check_user_exists,
-    decode_token,
-    get_current_user_dm,
-    get_current_user_m,
-    get_db,
-)
+from src.api.deps import (check_uid_email, check_user_exists, decode_token,
+                          get_current_user_dm, get_current_user_m, get_db)
 from src.core.async_exit import AppStatus
 from src.domain_models import UserDM
 from src.game.achievement.achievement import UserAchievement
 from src.game.event.sub_events import TransactionEvent
 from src.notification.notifier import Notifier, notif_hub
-from src.schemas.transaction import ClosingTransaction, OpeningTransaction, OrderType, TradeType, Transaction
+from src.schemas.transaction import (ClosingTransaction, OpeningTransaction,
+                                     OrderType, TradeType, Transaction)
 
 router = APIRouter()
 
@@ -78,9 +73,9 @@ async def reset_user_portfolio(user_dm=Depends(get_current_user_dm), db: Session
             "current_time": datetime.now(),
         }
 
-    crud.user.update_balance(db, user_dm.model, STARTING_BALANCE)
+    crud.user.update_balance(db=db, user_in=user_dm.model, balance_in=STARTING_BALANCE)
 
-    crud.user.reset_user_portfolio(user_dm.model, db)
+    crud.user.reset_user_portfolio(user_in=user_dm.model, db=db)
     # TODO: Keep track of resets and reset timestamp
 
     return {"result": "reset success."}
@@ -149,7 +144,7 @@ async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
             print("INVALID AUTH MESSAGE RECEIVED:", id_token)
             uid = None
 
-        user = crud.user.get_user_by_uid(db, uid=uid)
+        user = crud.user.get_user_by_uid(db=db, uid=uid)
 
         if user:
             print("AUTHORISED")

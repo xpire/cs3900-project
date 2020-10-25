@@ -10,7 +10,7 @@ class User(BaseModel):
     balance = Column(Float, nullable=False)
     level = Column(Integer, nullable=False)
     exp = Column(Float, nullable=False)
-    num_reset = Column(Integer,nullable=True)
+    num_reset = Column(Integer,nullable=True, default=0)
     last_reset = Column(DateTime, nullable=True)
     watchlist = relationship("WatchList", backref="user", cascade="save-update, merge, delete, delete-orphan")
     long_positions = relationship("LongPosition", backref="user", cascade="save-update, merge, delete, delete-orphan")

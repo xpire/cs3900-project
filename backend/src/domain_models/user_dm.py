@@ -130,7 +130,9 @@ class UserDM:
             entry["total_paid"] = position.avg * position.amount
             entry["value"] = entry["price"] * position.amount
             entry["profit"] = entry["value"] - entry["total_paid"]
-            entry["day_profit"] = entry["price"] - entry["previous_price"]
+            entry["day_profit"] = (
+                entry["price"] - entry["previous_price"]
+            ) * position.amount  # TODO: fix, returns daily profit, but not for the portfolio
             entry["day_return"] = entry["day_profit"] / entry["total_paid"]
             entry["total_return"] = entry["profit"] / entry["total_paid"]
 

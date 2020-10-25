@@ -91,13 +91,13 @@ const EnhancedTableToolbar = ({ title }) => {
             {title}
           </Typography>
         </Grid>
-        <Grid item>
+        {/* <Grid item>
           <Tooltip title="Filter list">
             <IconButton aria-label="filter list">
               <FilterListIcon />
             </IconButton>
           </Tooltip>
-        </Grid>
+        </Grid> */}
       </Grid>
     </Toolbar>
   );
@@ -108,6 +108,7 @@ export default function EnhancedTable({
   header,
   title,
   handleDelete = null,
+  buttons = true,
 }) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
@@ -162,26 +163,30 @@ export default function EnhancedTable({
                         </TableCell>
                       );
                     })}
-                    <TableCell padding="checkbox">
-                      <Tooltip title="Stock Details">
-                        <IconButton
-                          component={Link}
-                          to={`/stock/${row.symbol}`}
-                        >
-                          <OpenInNewIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                    <TableCell padding="checkbox">
-                      <Tooltip title="Trade">
-                        <IconButton
-                          component={Link}
-                          to={`/trade?symbol=${row.symbol}`}
-                        >
-                          <TradingIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
+                    {buttons && (
+                      <>
+                        <TableCell padding="checkbox">
+                          <Tooltip title="Stock Details">
+                            <IconButton
+                              component={Link}
+                              to={`/stock/${row.symbol}`}
+                            >
+                              <OpenInNewIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell padding="checkbox">
+                          <Tooltip title="Trade">
+                            <IconButton
+                              component={Link}
+                              to={`/trade?symbol=${row.symbol}`}
+                            >
+                              <TradingIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
+                      </>
+                    )}
                     {handleDelete && (
                       <TableCell padding="checkbox">
                         <Tooltip title="Remove">

@@ -3,7 +3,6 @@ import { Card } from "@material-ui/core";
 
 import Page from "../../components/page/Page";
 import SortableTable from "../../components/common/SortableTable";
-import axios from "../../utils/api";
 import { useSnackbar } from "notistack";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import { format } from "../../utils/formatter";
@@ -65,29 +64,6 @@ const Watchlist = () => {
             handleSnack(`/watchlist?symbol=${symbol}`, "delete").then(() =>
               setDeleted(deleted + 1)
             );
-            // axios
-            //   .delete(`/watchlist?symbol=${symbol}`)
-            //   .then((response) => {
-            //     console.log({ response });
-            //     response.data?.result === "success"
-            //       ? enqueueSnackbar(
-            //           `${response.data.result}! ${symbol} deleted from watchlist`,
-            //           {
-            //             variant: "success",
-            //           }
-            //         )
-            //       : enqueueSnackbar(`${response.data.result}`, {
-            //           variant: "warning",
-            //         });
-            //     setDeleted(deleted + 1);
-            //     console.log({ response });
-            //     console.log(response.data.result === "success");
-            //   })
-            //   .catch((err) =>
-            //     enqueueSnackbar(`${err}`, {
-            //       variant: "error",
-            //     })
-            //   );
           }}
         />
       </Card>

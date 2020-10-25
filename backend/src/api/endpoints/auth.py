@@ -26,10 +26,7 @@ router = APIRouter()
 
 STARTING_BALANCE = 10000
 
-# @router.get("")
-# async def check_user(id_token: str = Header(None)) -> schemas.user:
-#     uid = decode_token(id_token)
-#     return uid
+
 @router.get("")
 async def get_user(user: UserDM = Depends(get_current_user_dm)) -> schemas.User:
     return user.schema
@@ -64,13 +61,22 @@ async def create_user(email: str, id_token: str = Header(None), db: Session = De
 
 
 @router.get("/reset_portfolio")
-async def reset_user_portfolio(user_m: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)):
+async def reset_user_portfolio(user_dm: UserDM = Depends(get_current_user_dm), db: Session = Depends(get_db)):
 
-    crud.user.update_balance(db, user_m, STARTING_BALANCE)
+    # Check if it can be reset
+    if not user_dm.can_reset_portfolio():
+        return {
+            "result": "failed, you have reset too recently.",
+            "last_reset_time": user_dm.model.last_reset,
+            "current_time": datetime.now(),
+        }
 
-    crud.user.reset_user_portfolio(user_m, db)
+    crud.user.update_balance(db, user_dm.model, STARTING_BALANCE)
 
-    return {"result": "reset success"}
+    crud.user.reset_user_portfolio(user_dm.model, db)
+    # TODO: Keep track of resets and reset timestamp
+
+    return {"result": "reset success."}
 
 
 @router.get("/balance")

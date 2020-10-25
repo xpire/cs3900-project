@@ -7,7 +7,8 @@
 """
 
 
-from typing import Optional, List
+from datetime import datetime
+from typing import List, Optional
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -217,6 +218,10 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         user_in.long_positions = []
         user_in.short_positions = []
         user_in.transactions = []
+
+        # Set new reset time and amount
+        user_in.resets += 1
+        user_in.last_reset = datetime.now()
 
         db.commit()
         db.refresh(user_in)

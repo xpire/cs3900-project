@@ -5,14 +5,7 @@ from typing import Any, List
 import yaml
 from fastapi import HTTPException
 from firebase_admin import auth, credentials, initialize_app
-from pydantic import (
-    AnyHttpUrl,
-    AnyUrl,
-    BaseSettings,
-    PostgresDsn,
-    ValidationError,
-    validator,
-)
+from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, PostgresDsn, ValidationError, validator
 from src.core.utilities import find_path_curr_f
 
 
@@ -45,8 +38,7 @@ with open(path.join(abs_path, ".secrets", "env.yaml")) as e:
         DEV_NAME=env["DEV_NAME"],
         COURSE_NAME=env["COURSE_NAME"],
         TD_API_KEY=env["TD_API_KEY"],
-        SQLITE_DB_URI="sqlite:///"
-        + path.join(str(proj_root), "database", env["SQLITE_DB_NAME"] + ".sqlite3"),
+        SQLITE_DB_URI="sqlite:///" + path.join(str(proj_root), "database", env["SQLITE_DB_NAME"] + ".sqlite3"),
         BACKEND_CORS_ORIGIN=[x for x in env["BACKEND_CORS_ORIGINS"]],
         CRED_FB=cred,
     )

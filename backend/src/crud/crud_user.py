@@ -15,8 +15,8 @@ from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
 from src.crud.base import CRUDBase
 from src.crud.crud_stock import stock
-from src.models.portfolio import Portfolio
-from src.models.short_sell import ShortSell
+from src.models.long_position import LongPosition
+from src.models.short_position import ShortPosition
 from src.models.user import User
 from src.models.watch_list import WatchList
 from src.schemas.user import UserCreate, UserUpdate
@@ -137,9 +137,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
             if ex == None:
                 a_wl = (
-                    Portfolio(user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price)
+                    LongPosition(user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price)
                     if t_type == "long"
-                    else ShortSell(user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price)
+                    else ShortPosition(user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price)
                 )
                 user_in.long_positions.append(a_wl) if t_type == "long" else user_in.short_positions.append(a_wl)
             else:

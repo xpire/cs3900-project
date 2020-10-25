@@ -25,10 +25,11 @@ class Trade(ABC):
 
         total_price = self.price * self.qty
         trade_price = trade.apply_commission(total_price, self.is_buying)
-        fee = abs(trade_price - total_price)
-        self.user.add_exp(fee)
         self.check(total_price, trade_price)
         self.apply_trade(trade_price)
+
+        fee = abs(trade_price - total_price)
+        self.user.add_exp(fee)
         return Response(msg="success")
 
     def apply_trade(self, trade_price):
@@ -70,8 +71,16 @@ class ShortTrade(Trade):
         super().__init__(**kwargs, is_buying=False, is_long=False, is_opening=True, trade_type=TradeType.SHORT)
 
     def check(self, total_price, trade_price):
+        if self.user.level < 5:
+            raise HTTP400(f"Insufficient level. Reach level 5 to short sell")
+
         if not trade.check_short_balance(self.user, total_price):
-            raise HTTP400("Insufficient short balance")
+            if self.user.level < 10:
+                raise HTTP400(
+                    f"Insufficient short balance. Reach level 10, buy to cover or increase net worth to short more."
+                )
+            else:
+                raise HTTP400(f"Insufficient short balance. Buy to cover or increase net worth to short more.")
 
 
 class CoverTrade(Trade):
@@ -79,6 +88,9 @@ class CoverTrade(Trade):
         super().__init__(**kwargs, is_buying=True, is_long=False, is_opening=False, trade_type=TradeType.COVER)
 
     def check(self, total_price, trade_price):
+        if self.user.level < 5:
+            raise HTTP400(f"Insufficient level. Reach level 5 to buy-to-cover")
+
         if not trade.check_owned_shorts(self.user, self.qty, self.symbol):
             raise HTTP400("Cannot cover more than owed")
 

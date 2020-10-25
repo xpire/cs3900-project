@@ -12,6 +12,14 @@ from src.util.extended_types import Const
 class NotifEventType(str, AutoName):
     LEVEL_UP = auto()
     ACHIEVEMENT_UNLOCKED = auto()
+    FEATURE_UNLOCKED = auto()
+
+
+# TODO move to separate directly
+class UnlockableFeatureType(str, AutoName):
+    LIMIT_ORDER = auto()
+    SHORT_25 = auto()
+    SHORT_50 = auto()
 
 
 class NotifMsg(BaseSchema):
@@ -43,3 +51,12 @@ class AchievementUnlockedEvent(NotifEvent):
 
     def to_msg(self) -> NotifMsg:
         return NotifMsg(event_type=self.event_type, title=self.achievement.name, content=str(self.achievement.exp))
+
+
+class FeatureUnlockedEvent(NotifEvent):
+    event_type: NotifEventType = Const(NotifEventType.FEATURE_UNLOCKED)
+    feature_type: UnlockableFeatureType
+    msg: str
+
+    def to_msg(self) -> NotifMsg:
+        return NotifMsg(event_type=self.event_type, title=self.msg, content=self.feature_type.name)

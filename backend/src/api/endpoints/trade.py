@@ -10,8 +10,6 @@ from src.core.config import settings
 from src.db.session import SessionLocal
 from src.schemas.response import Response
 
-import datetime
-
 router = APIRouter()
 
 # TODO: enforce trading hours
@@ -76,9 +74,7 @@ async def market_short(
     db: Session = Depends(get_db),
 ) -> Response:
     if quantity < 0:
-        raise HTTPException(
-            status_code=400, detail="Cannot short sell negative quantity"
-        )
+        raise HTTPException(status_code=400, detail="Cannot short negative quantity")
 
     curr_stock_price = trade.get_stock_price(db, symbol)
     trade_price = curr_stock_price * quantity
@@ -125,59 +121,66 @@ async def market_cover(
     return Response("Trade successful")
 
 
-@router.post("/limit/buy")
-async def limit_buy(
+async def place_limit_order(
     quantity: int,
     limit: float,
-    expiry_date: str,
-    expiry_time: str,
-    symbol: str = Depends(check_symbol),
-    user: domain_models.UserDM = Depends(get_current_user_dm),
-    db: Session = Depends(get_db),
+    symbol: str,
+    t_type: str,
+    user: domain_models.UserDM,
+    db: Session,
 ) -> Response:
     if quantity < 0:
-        raise HTTPException(status_code=400, detail="Cannot buy negative quantity")
+        raise HTTPException(
+            status_code=400, detail=f"Cannot {t_type} negative quantity"
+        )
 
     if limit < 0:
         raise HTTPException(status_code=400, detail="Limit value cannot be negative")
 
-    return {"result": "success"}
+    crud_user.user.create_order(db, user.model, t_type, symbol, quantity, limit)
+
+    return Response("Order placed successfully")
+
+
+@router.post("/limit/buy")
+async def limit_buy(
+    quantity: int,
+    limit: float,
+    symbol: str = Depends(check_symbol),
+    user: domain_models.UserDM = Depends(get_current_user_dm),
+    db: Session = Depends(get_db),
+) -> Response:
+    return place_limit_order(db, user, "buy", symbol, quantity, limit)
 
 
 @router.post("/limit/sell")
 async def limit_sell(
     quantity: int,
     limit: float,
-    expiry_date: str,
-    expiry_time: str,
     symbol: str = Depends(check_symbol),
     user: domain_models.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    return {"result": "success"}
+    return place_limit_order(db, user, "sell", symbol, quantity, limit)
 
 
 @router.post("/limit/short")
 async def limit_short(
     quantity: int,
     limit: float,
-    expiry_date: str,
-    expiry_time: str,
     symbol: str = Depends(check_symbol),
     user: domain_models.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    return {"result": "success"}
+    return place_limit_order(db, user, "short", symbol, quantity, limit)
 
 
 @router.post("/limit/cover")
 async def limit_cover(
     quantity: int,
     limit: float,
-    expiry_date: str,
-    expiry_time: str,
     symbol: str = Depends(check_symbol),
     user: domain_models.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    return {"result": "success"}
+    return place_limit_order(db, user, "cover", symbol, quantity, limit)

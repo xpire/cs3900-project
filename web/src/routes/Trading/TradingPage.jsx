@@ -26,7 +26,6 @@ import { useDebounce } from "react-use";
 // import DateFnsUtils from "@date-io/date-fns";
 
 import Page from "../../components/page/Page";
-import axios from "../../utils/api";
 import useApi from "../../hooks/useApi";
 import AutoCompleteTextField from "../../components/common/AutoCompleteTextField";
 import { format } from "../../utils/formatter";
@@ -191,23 +190,6 @@ const Trading = () => {
       `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`,
       "post"
     ).then(() => setSubmitLoading(false));
-    // axios
-    //   .post(
-    //     `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`
-    //   )
-    //   .then((response) => {
-    //     console.log(response);
-    //     enqueueSnackbar(`${response.data.result}`, {
-    //       variant: "Success",
-    //     });
-    //   })
-    //   .catch((err) => {
-    //     console.log("err", err);
-    //     enqueueSnackbar(`${err}`, {
-    //       variant: "Error",
-    //     });
-    //   })
-    // .then(() => setSubmitLoading(false)); //todo send notification
   };
 
   return (

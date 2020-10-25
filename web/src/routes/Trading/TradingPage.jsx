@@ -209,7 +209,11 @@ const Trading = () => {
   const handleSubmit = () => {
     setSubmitLoading(true);
     handleSnack(
-      `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`,
+      `/trade/${state.orderType}/${state.tradeType}?symbol=${
+        state.symbol
+      }&quantity=${state.quantity}${
+        state.orderType === "limit" ? `&limit=${closePrice}` : ""
+      }`,
       "post"
     ).then(() => {
       setSubmitLoading(false);
@@ -254,7 +258,7 @@ const Trading = () => {
                 <ToggleButton value="sell">Sell</ToggleButton>
                 <ToggleButton
                   value="short"
-                  disabled={lockedLoading ? true : locked.level <= 3}
+                  disabled={lockedLoading ? true : locked.level <= 5}
                 >
                   Short
                 </ToggleButton>
@@ -334,7 +338,12 @@ const Trading = () => {
                 }
               >
                 <ToggleButton value="market">Market</ToggleButton>
-                <ToggleButton value="limit">Limit</ToggleButton>
+                <ToggleButton
+                  value="limit"
+                  disabled={lockedLoading ? true : locked.level <= 3}
+                >
+                  Limit
+                </ToggleButton>
               </ToggleButtonGroup>
             </Grid>
             {(state.tradeType === "buy" || state.tradeType === "sell") && (

@@ -7,7 +7,7 @@ from src.api.deps import check_symbol, get_current_user_dm, get_current_user_m, 
 from src.core.config import settings
 from src.db.session import SessionLocal
 
-from schemas.response import Response
+from src.schemas.response import Response
 
 router = APIRouter()
 

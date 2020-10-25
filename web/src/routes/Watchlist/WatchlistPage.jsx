@@ -60,7 +60,7 @@ const Watchlist = () => {
           data={mappedData}
           header={headCells}
           title="Watch List"
-          handleDelete={(symbol) => {
+          handleDelete={({ symbol }) => {
             handleSnack(`/watchlist?symbol=${symbol}`, "delete").then(() =>
               setDeleted(deleted + 1)
             );

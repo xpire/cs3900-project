@@ -39,7 +39,7 @@ async def market_short(
     db: Session = Depends(get_db),
 ):
     price = trade.get_stock_price(db, symbol)
-    return dm.ShortTrade(symbol, quantity, price, db, user).execute()
+    return dm.ShortTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
 
 
 @router.post("/market/cover")
@@ -50,10 +50,10 @@ async def market_cover(
     db: Session = Depends(get_db),
 ):
     price = trade.get_stock_price(db, symbol)
-    return dm.CoverTrade(symbol, quantity, price, db, user).execute()
+    return dm.CoverTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
 
 
-async def place_limit_order(
+def place_limit_order(
     quantity: int,
     limit: float,
     symbol: str,
@@ -82,7 +82,7 @@ async def limit_buy(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    return place_limit_order(db, user, "buy", symbol, quantity, limit)
+    return place_limit_order(quantity, limit, symbol, "buy", user, db)
 
 
 @router.post("/limit/sell")
@@ -93,7 +93,7 @@ async def limit_sell(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    return place_limit_order(db, user, "sell", symbol, quantity, limit)
+    return place_limit_order(quantity, limit, symbol, "sell", user, db)
 
 
 @router.post("/limit/short")
@@ -104,7 +104,7 @@ async def limit_short(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    return place_limit_order(db, user, "short", symbol, quantity, limit)
+    return place_limit_order(quantity, limit, symbol, "short", user, db)
 
 
 @router.post("/limit/cover")
@@ -115,4 +115,4 @@ async def limit_cover(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    return place_limit_order(db, user, "cover", symbol, quantity, limit)
+    return place_limit_order(quantity, limit, symbol, "cover", user, db)

@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from src.api.endpoints import auth, portfolio, stocks, watchlist, trade, leaderboard
+from src.api.endpoints import auth, leaderboard, orders, portfolio, stocks, trade, watchlist
 from src.db import base_model_import_all as base_model
 from src.db.session import engine
 
@@ -12,3 +12,4 @@ api_router.include_router(watchlist.router, prefix="/watchlist", tags=["watchlis
 api_router.include_router(portfolio.router, prefix="/portfolio", tags=["portfolio"])
 api_router.include_router(trade.router, prefix="/trade", tags=["trade"])
 api_router.include_router(leaderboard.router, prefix="/leaderboard", tags=["leaderboard"])
+api_router.include_router(orders.router, prefix="/orders", tags=["orders"])

@@ -261,7 +261,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
         return user_in
 
-    def add_rec_to_hist_trans(self, *, db: Session, user_in: User, price_in: float, trade_type_in: TradeType, amount_in: int, symbol_in: str) -> User:
+    def add_history(self, *, db: Session, user_in: User, price_in: float, trade_type_in: TradeType, amount_in: int, symbol_in: str) -> User:
         '''
         Add to the historical transaction.
         '''

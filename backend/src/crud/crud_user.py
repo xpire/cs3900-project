@@ -7,7 +7,7 @@
 """
 
 
-from typing import Optional
+from typing import Optional, List
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -26,6 +26,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     """
     Module for user/auth related CRUD operations
     """
+
+    def get_all_users(self, db: Session) -> List[User]:
+        return db.query(self.model.uid).distinct()
 
     def get_user_by_uid(self, db: Session, uid: str) -> Optional[User]:
         """

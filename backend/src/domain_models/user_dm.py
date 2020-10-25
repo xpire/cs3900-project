@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List
 
 import src.api.endpoints.stocks as stocks_api
 from sqlalchemy.orm import Session
@@ -35,7 +34,9 @@ class UserDM:
             log_msg("Achievement is already unlocked by the user", "ERROR")
             return
 
-        self.user.unlocked_achievements.append(UnlockedAchievement(achievement_id=achievement_id))
+        self.user.unlocked_achievements.append(
+            UnlockedAchievement(achievement_id=achievement_id)
+        )
         self.save_to_db()
 
     def save_to_db(self):
@@ -72,7 +73,10 @@ class UserDM:
     @property
     def achievements(self):
         unlocked = self.unlocked_achievement_ids
-        return [UserAchievement(**x.dict(), is_unlocked=x.id in unlocked) for x in achievements_list]
+        return [
+            UserAchievement(**x.dict(), is_unlocked=x.id in unlocked)
+            for x in achievements_list
+        ]
 
     @property
     def uid(self):
@@ -98,15 +102,23 @@ class UserDM:
             )
             return
 
-        portfolio = self.model.long_positions if p_type == "long" else self.model.short_positions
+        portfolio = (
+            self.model.long_positions
+            if p_type == "long"
+            else self.model.short_positions
+        )
 
         ret = []
 
         for position in portfolio:
             entry = {}
-            entry["price"] = float(stocks_api.market_data_provider.get_curr_day_close(position.symbol))
+            entry["price"] = float(
+                stocks_api.market_data_provider.get_curr_day_close(position.symbol)
+            )
             # TODO: update this to get daily opening price, rather than prev day closing
-            entry["previous_price"] = float(stocks_api.market_data_provider.get_prev_day_close(position.symbol))
+            entry["previous_price"] = float(
+                stocks_api.market_data_provider.get_prev_day_close(position.symbol)
+            )
             entry["symbol"] = position.symbol
             entry["name"] = position.stock_info.name
             entry["owned"] = position.amount
@@ -134,7 +146,11 @@ class UserDM:
             )
             return
 
-        portfolio = self.model.long_positions if p_type == "long" else self.model.short_positions
+        portfolio = (
+            self.model.long_positions
+            if p_type == "long"
+            else self.model.short_positions
+        )
 
         value = 0
         for position in portfolio:
@@ -154,11 +170,17 @@ class UserDM:
             )
             return
 
-        portfolio = self.model.long_positions if p_type == "long" else self.model.short_positions
+        portfolio = (
+            self.model.long_positions
+            if p_type == "long"
+            else self.model.short_positions
+        )
 
         value = 0
         for position in portfolio:
-            curr_price = float(stocks_api.market_data_provider.get_curr_day_close(position.symbol))
+            curr_price = float(
+                stocks_api.market_data_provider.get_curr_day_close(position.symbol)
+            )
             value += position.amount * curr_price
 
         return value
@@ -167,13 +189,17 @@ class UserDM:
         """
         Returns total profit if all long positions were closed
         """
-        return self.get_total_closing_values("long") - self.get_total_opening_values("long")
+        return self.get_total_closing_values("long") - self.get_total_opening_values(
+            "long"
+        )
 
     def get_short_profit(self):
         """
         Returns total profit if all short positions were closed
         """
-        return self.get_total_opening_values("short") - self.get_total_closing_values("short")
+        return self.get_total_opening_values("short") - self.get_total_closing_values(
+            "short"
+        )
 
     def get_portfolio_profit(self):
         """
@@ -185,7 +211,9 @@ class UserDM:
         """
         Returns total current value of long and short positions combined
         """
-        return self.get_total_closing_values("long") - self.get_total_closing_values("short")
+        return self.get_total_closing_values("long") - self.get_total_closing_values(
+            "short"
+        )
 
     def get_net_value(self):
         """
@@ -220,7 +248,9 @@ class UserDM:
         return self.get_short_profit() / total_spent
 
     def get_portfolio_return(self):
-        total_spent = self.get_total_opening_values("long") + self.get_total_closing_values("short")
+        total_spent = self.get_total_opening_values(
+            "long"
+        ) + self.get_total_closing_values("short")
 
         if total_spent == 0:
             return 0
@@ -235,12 +265,20 @@ class UserDM:
             )
             return
 
-        portfolio = self.model.long_positions if p_type == "long" else self.model.short_positions
+        portfolio = (
+            self.model.long_positions
+            if p_type == "long"
+            else self.model.short_positions
+        )
 
         profit = 0
         for position in portfolio:
-            curr_price = float(stocks_api.market_data_provider.get_curr_day_close(position.symbol))
-            opening_price = float(stocks_api.market_data_provider.get_prev_day_close(position.symbol))
+            curr_price = float(
+                stocks_api.market_data_provider.get_curr_day_close(position.symbol)
+            )
+            opening_price = float(
+                stocks_api.market_data_provider.get_prev_day_close(position.symbol)
+            )
             profit += curr_price - opening_price
 
         return profit if p_type == "long" else -profit
@@ -263,7 +301,9 @@ class UserDM:
         return self.get_daily_profit("short") / total_spent
 
     def get_daily_total_return(self):
-        total_spent = self.get_total_opening_values("long") + self.get_total_closing_values("short")
+        total_spent = self.get_total_opening_values(
+            "long"
+        ) + self.get_total_closing_values("short")
         if total_spent == 0:
             return 0
 

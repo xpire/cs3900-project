@@ -8,6 +8,7 @@ from src.api.deps import check_symbol, get_db
 from src.core.config import settings
 from src.core.utilities import log_msg
 from src.db.session import SessionLocal
+from src.domain_models.orders_dm import PendingOrder
 from src.real_time_market_data.data_provider import MarketDataProvider
 from twelvedata import TDClient
 
@@ -36,7 +37,11 @@ def startup_event():
     symbols = [f"{stock.symbol}:{stock.exchange}" for stock in stocks]
 
     if symbols:
-        market_data_provider = MarketDataProvider(symbols=symbols, apikey=API_KEY, db=db, crud_obj=crud.stock)
+        market_data_provider = MarketDataProvider(
+            symbols=symbols, apikey=API_KEY, db=db, crud_obj=crud.stock
+        )
+        execute_limit_orders = PendingOrder(db)
+        market_data_provider.subscribe(execute_limit_orders)
         market_data_provider.start()
     else:
         log_msg("There are no stocks in the database, not polling for data.", "WARNING")
@@ -91,7 +96,9 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
 
 
 @router.get("/time_series")  # TODO days param is not currently being used
-async def get_stock_data(symbol: str = Depends(check_symbol), db: Session = Depends(get_db), days: int = 90):
+async def get_stock_data(
+    symbol: str = Depends(check_symbol), db: Session = Depends(get_db), days: int = 90
+):
     stock = crud.stock.get_stock_by_symbol(db, symbol)
     return crud.stock.get_time_series(db, stock)
 
@@ -101,14 +108,20 @@ from pytz import timezone
 
 trading_hours = dict(
     ASX=dict(start=time(23, 0), end=time(5, 0), timezone=timezone("Australia/Sydney")),
-    NYSE=dict(start=time(13, 30), end=time(20, 0), timezone=timezone("America/New_York")),
-    NASDAQ=dict(start=time(13, 30), end=time(20, 0), timezone=timezone("America/New_York")),
+    NYSE=dict(
+        start=time(13, 30), end=time(20, 0), timezone=timezone("America/New_York")
+    ),
+    NASDAQ=dict(
+        start=time(13, 30), end=time(20, 0), timezone=timezone("America/New_York")
+    ),
     LSE=dict(start=time(8, 0), end=time(16, 30), timezone=timezone("Europe/London")),
 )
 
 # TODO change check_symbol to get_symbol
 @router.get("/trading_hours")
-async def get_trading_hours(symbol: str = Depends(check_symbol), db: Session = Depends(get_db)):
+async def get_trading_hours(
+    symbol: str = Depends(check_symbol), db: Session = Depends(get_db)
+):
     global trading_hours
 
     # Trading hours retrieved from
@@ -117,7 +130,9 @@ async def get_trading_hours(symbol: str = Depends(check_symbol), db: Session = D
     curr_time = datetime.now().time()  # UTC time
 
     if stock.exchange not in trading_hours:  # TODO maybe create util HTTP400(msg)
-        raise HTTPException(status_code=400, detail="Exchange for the given symbol not found.")
+        raise HTTPException(
+            status_code=400, detail="Exchange for the given symbol not found."
+        )
 
     hours = trading_hours[stock.exchange]
     start, end = hours["start"], hours["end"]

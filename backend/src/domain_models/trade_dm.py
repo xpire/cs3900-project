@@ -37,6 +37,7 @@ class Trade(ABC):
         update_portfolio(self.db, self.model, self.is_long(), self.symbol, self.qty, self.price)
         new_balance = self.model.balance + trade_price * (-1 if self.is_buying() else 1)
         crud_user.user.update_balance(self.db, self.model, new_balance)
+        # TODO: add to history
 
     @abstractmethod
     def check(self, total_price, trade_price):

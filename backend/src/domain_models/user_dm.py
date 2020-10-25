@@ -3,7 +3,7 @@ from typing import List
 import src.api.endpoints.stocks as stocks_api
 from sqlalchemy.orm import Session
 from src.core.utilities import log_msg
-from src.crud.crud_user import user
+# from src.crud.crud_user import user
 from src.db.base_model import BaseModel
 from src.game.achievement.achievement import UserAchievement
 from src.game.setup.setup import achievements_list, level_manager

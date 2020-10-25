@@ -158,7 +158,7 @@ const Trading = () => {
         case "short":
           setMaxValue(
             Math.floor(
-              state.purchase === "quantity"
+              state.purchaseBy === "quantity"
                 ? portfolioStats.short_balance / closePrice
                 : portfolioStats.short_balance
             )

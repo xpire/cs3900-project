@@ -41,11 +41,17 @@ const Profile = () => {
                 <Typography variant="h5">Net: ${data.balance}</Typography>
                 <Typography variant="h5">
                   Level {data.level} (
-                  {(data.exp / (data.exp_until_next_level + data.exp)) * 100}%)
+                  {data.exp_until_next_level === null
+                    ? 100
+                    : (data.exp / (data.exp_until_next_level + data.exp)) * 100}
+                  %)
                 </Typography>
                 <LinearProgress
                   value={
-                    (data.exp / (data.exp_until_next_level + data.exp)) * 100
+                    data.exp_until_next_level === null
+                      ? 100
+                      : (data.exp / (data.exp_until_next_level + data.exp)) *
+                        100
                   }
                   variant="determinate"
                 />

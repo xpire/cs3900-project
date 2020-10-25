@@ -1,6 +1,8 @@
+import React from "react";
 import { useSnackbar } from "notistack";
+import DetailedSnackbar from "../components/common/DetailedSnackbar";
 
-const useHandleSocketSnack = () => {
+const useHandleSocketSnack = (setCelebration) => {
   const { enqueueSnackbar } = useSnackbar();
   return (lastJsonMessage) => {
     console.log(`Inside handleSnack: ${JSON.stringify(lastJsonMessage)}`);
@@ -11,23 +13,16 @@ const useHandleSocketSnack = () => {
         });
         break;
       case "notif":
-        if (lastJsonMessage.msg.event_type === `LEVEL_UP`) {
-          enqueueSnackbar(`${lastJsonMessage.msg.title}`, {
-            variant: "success",
-          });
-        } else if (lastJsonMessage.msg.event_type === `ACHIEVEMENT_UNLOCKED`) {
-          enqueueSnackbar(
-            `${lastJsonMessage.msg.title} (${lastJsonMessage.msg.content}xp)`,
-            {
-              variant: "success",
-            }
-          );
-        } else {
-          enqueueSnackbar(`${JSON.stringify(lastJsonMessage)}`, {
-            variant: "success",
-          });
-        }
-
+        enqueueSnackbar(lastJsonMessage.msg, {
+          variant: "success",
+          content: (key, message) => (
+            <DetailedSnackbar
+              id={key}
+              message={message}
+              celebrate={setCelebration}
+            />
+          ),
+        });
         break;
       default:
     }

@@ -20,6 +20,7 @@ class UserCreate(UserBase):
     balance: float = Const(10000)
     level: int = Const(1)
     exp: float = Const(0)
+    resets: int = Const(0)
 
 
 class UserUpdate(UserBase):

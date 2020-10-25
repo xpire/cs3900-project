@@ -190,7 +190,7 @@ export default function EnhancedTable({
                     {handleDelete && (
                       <TableCell padding="checkbox">
                         <Tooltip title="Remove">
-                          <IconButton onClick={() => handleDelete(row.symbol)}>
+                          <IconButton onClick={() => handleDelete(row)}>
                             <DeleteIcon />
                           </IconButton>
                         </Tooltip>

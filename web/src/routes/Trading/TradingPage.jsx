@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Card,
   TextField,
   Button,
   Grid,
@@ -10,38 +9,55 @@ import {
   LinearProgress,
   CardActions,
   CardContent,
+  Typography,
+  Table,
+  TableRow,
+  TableCell,
+  TableHead,
+  TableBody,
 } from "@material-ui/core";
-import TradingIcon from "@material-ui/icons/LocalAtm";
+import QuantityIcon from "@material-ui/icons/LocalAtm";
+import ValueIcon from "@material-ui/icons/MonetizationOn";
 import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
-import { useLocation } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
 import { useSnackbar } from "notistack";
+import { useDebounce } from "react-use";
+// import { DateTimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
+// import DateFnsUtils from "@date-io/date-fns";
 
 import Page from "../../components/page/Page";
 import axios from "../../utils/api";
-// import useApi from "../../hooks/useApi";
+import useApi from "../../hooks/useApi";
 import AutoCompleteTextField from "../../components/common/AutoCompleteTextField";
+import { format } from "../../utils/formatter";
+import { StandardCard } from "../../components/common/styled";
+import useHandleSnack from "../../hooks/useHandleSnack";
 
 const Trading = () => {
   const search = useLocation().search;
-  const [loading, setLoading] = useState(false);
+  let history = useHistory();
+  const [submitLoading, setSubmitLoading] = useState(false);
+
+  // State accessible to users
   const defaultState = {
     symbol: new URLSearchParams(search).get("symbol"),
     tradeType: "buy",
     purchaseBy: "quantity",
     orderType: "market",
     quantity: 20,
+    // date: new Date(),
   };
 
   const [state, setState] = useState(defaultState);
-  // const set = (stateString) => (value) => setState({ ...state, [stateString]: value})
   const setSymbol = (value) => {
     setState({ ...state, symbol: value });
+    history.push(`?symbol=${value}`);
     console.log({ state });
   };
   const setTradeType = (value) => setState({ ...state, tradeType: value });
   const setPurchaseBy = (value) => setState({ ...state, purchaseBy: value });
-  const setOrderType = (value) => setState({ ...state, orderType: value });
   const setQuantity = (value) => setState({ ...state, quantity: value });
+  const setOrderType = (value) => setState({ ...state, orderType: value });
 
   const handleInputChange = (event) => {
     setQuantity(event.target.value === "" ? "" : Number(event.target.value));
@@ -55,35 +71,148 @@ const Trading = () => {
     }
   };
 
-  // const [price] = useApi('/trade/') // TODO: fetch API to calculate trading price
+  // API calls
+  const [locked, lockedLoading] = useApi(`/user`); // check if functionality is locked
+  const [portfolioData, portfolioLoading] = useApi(`/portfolio`); // check owned stock for sell and cover
+  const [portfolioStats, portfolioStatsLoading] = useApi(`/portfolio/stats`); // check overall stats
+  const [rawCommission, rawCommissionLoading] = useApi(
+    `/stocks/stocks?symbols=${state.symbol}`,
+    [
+      //check current close price for stock
+      state.symbol,
+    ],
+    0.005,
+    (data) => data[0].commission
+  );
+  const [closePrice, closePriceLoading] = useApi(
+    `/stocks/stocks?symbols=${state.symbol}`,
+    [
+      //check current close price for stock
+      state.symbol,
+    ],
+    100,
+    (data) => data[0].curr_close_price
+  );
 
-  // const valuetext = (t) => `t`;
+  // state inaccessible to user
+  const [maxValue, setMaxValue] = useState(100);
+  const [portfolioAllocation, setPortfolioAllocation] = useState(50);
+  const [commission, setCommission] = useState(1.005);
+  const [price, setPrice] = useState(1000);
+  const [finalQuantity, setFinalQuantity] = useState(20);
+  const [previousBalance, setPreviousBalance] = useState(100);
+
+  const loading =
+    lockedLoading ||
+    portfolioLoading ||
+    portfolioStatsLoading ||
+    rawCommissionLoading ||
+    closePriceLoading;
+
+  // update state for user input
+  useEffect(() => {
+    if (!loading) {
+      setCommission(
+        state.tradeType === "buy" || state.tradeType === "short"
+          ? 1 + rawCommission // buy  and short
+          : 1 - rawCommission // sell and cover
+      );
+      switch (state.tradeType) {
+        case "buy":
+          setMaxValue(
+            Math.floor(
+              state.purchaseBy === "quantity"
+                ? portfolioStats.balance / closePrice
+                : portfolioStats.balance
+            )
+          );
+          break;
+        case "sell":
+          const longData = portfolioData.long.find(
+            ({ symbol }) => symbol === state.symbol
+          );
+          longData?.owned &&
+            setMaxValue(
+              state.purchaseBy === "quantity"
+                ? longData.owned
+                : longData.owned * closePrice
+            );
+          break;
+        case "short":
+          setMaxValue(
+            Math.floor(
+              state.purchase === "quantity"
+                ? portfolioStats.short_balance / closePrice
+                : portfolioStats.short_balance
+            )
+          );
+          break;
+        case "cover":
+          const shortData = portfolioData.short.find(
+            ({ symbol }) => symbol === state.symbol
+          );
+          shortData?.owned &&
+            setMaxValue(
+              state.purchaseBy === "quantity"
+                ? shortData.owned
+                : shortData.owned * closePrice
+            );
+          break;
+        default:
+      }
+      setFinalQuantity(
+        Math.floor(
+          state.purchaseBy === "quantity"
+            ? state.quantity
+            : state.quantity / closePrice
+        )
+      );
+      setPrice(closePrice * finalQuantity * commission);
+      setPreviousBalance(portfolioStats.total_long_value);
+    }
+  }, [loading, state]);
+  // debounced portfolio allocation
+  const [] = useDebounce(
+    () => {
+      setPortfolioAllocation((100 * price) / (price + previousBalance));
+    },
+    50,
+    [price]
+  );
+
+  // handle submit
   const { enqueueSnackbar } = useSnackbar();
 
+  const handleSnack = useHandleSnack();
+
   const handleSubmit = () => {
-    setLoading(true);
-    axios
-      .post(
-        `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`
-      )
-      .then((response) => {
-        console.log(response);
-        enqueueSnackbar(`${response.data.result}`, {
-          variant: "Success",
-        });
-      })
-      .catch((err) => {
-        console.log("err", err);
-        enqueueSnackbar(`${err}`, {
-          variant: "Error",
-        });
-      })
-      .then(() => setLoading(false)); //todo send notification
+    setSubmitLoading(true);
+    handleSnack(
+      `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`,
+      "post"
+    ).then(() => setSubmitLoading(false));
+    // axios
+    //   .post(
+    //     `/trade/${state.orderType}/${state.tradeType}?symbol=${state.symbol}&quantity=${state.quantity}`
+    //   )
+    //   .then((response) => {
+    //     console.log(response);
+    //     enqueueSnackbar(`${response.data.result}`, {
+    //       variant: "Success",
+    //     });
+    //   })
+    //   .catch((err) => {
+    //     console.log("err", err);
+    //     enqueueSnackbar(`${err}`, {
+    //       variant: "Error",
+    //     });
+    //   })
+    // .then(() => setSubmitLoading(false)); //todo send notification
   };
 
   return (
     <Page>
-      <Card>
+      <StandardCard>
         <CardContent>
           <Grid
             container
@@ -114,10 +243,16 @@ const Trading = () => {
               >
                 <ToggleButton value="buy">Buy</ToggleButton>
                 <ToggleButton value="sell">Sell</ToggleButton>
-                <ToggleButton value="short" disabled>
+                <ToggleButton
+                  value="short"
+                  disabled={lockedLoading ? true : locked.level <= 3}
+                >
                   Short
                 </ToggleButton>
-                <ToggleButton value="cover" disabled>
+                <ToggleButton
+                  value="cover"
+                  disabled={lockedLoading ? true : locked.level <= 5}
+                >
                   Cover
                 </ToggleButton>
               </ToggleButtonGroup>
@@ -137,13 +272,10 @@ const Trading = () => {
                 <ToggleButton value="value">Value</ToggleButton>
               </ToggleButtonGroup>
             </Grid>
-            <Grid item xs={3}>
-              number:
-            </Grid>
-            <Grid item container direction="row" xs={9}>
+
+            <Grid item container direction="row" xs={12}>
               <Grid item xs={7} sm={10}>
                 <Slider
-                  // defaultValue={quantity}
                   value={state.quantity}
                   onChange={(_event, newValue) => setQuantity(newValue)}
                   getAriaValueText={(t) => `t`}
@@ -152,7 +284,7 @@ const Trading = () => {
                   // marks
                   valueLabelDisplay="on"
                   min={0}
-                  max={110}
+                  max={maxValue}
                   style={{ marginTop: "20px" }}
                 />
               </Grid>
@@ -165,29 +297,21 @@ const Trading = () => {
                   disableUnderline={true}
                   startAdornment={
                     <InputAdornment position="start">
-                      <TradingIcon />
+                      {state.purchaseBy === "quantity" ? (
+                        <QuantityIcon />
+                      ) : (
+                        <ValueIcon />
+                      )}
                     </InputAdornment>
                   }
                   inputProps={{
                     step: 1,
                     min: 0,
-                    max: 100,
+                    max: maxValue,
                     type: "number",
                   }}
                 />
               </Grid>
-            </Grid>
-            <Grid item xs={12}>
-              Portfolio Allocation:
-            </Grid>
-            <Grid item xs={12}>
-              <LinearProgress
-                variant="determinate"
-                style={{ height: "20px" }}
-                value={state.quantity}
-                // valueBuffer={state.quantity + 4}
-                // variant="buffer"
-              />
             </Grid>
             <Grid item xs={3}>
               Order Type:
@@ -204,47 +328,70 @@ const Trading = () => {
                 <ToggleButton value="limit">Limit</ToggleButton>
               </ToggleButtonGroup>
             </Grid>
-            <Grid item xs={3} />
-            <Grid item xs={9}>
-              <TextField
-                label="Estimated Price"
-                value={`$${123 * state.quantity}`}
-                InputProps={{
-                  readOnly: true,
-                }}
-                variant="outlined"
-              />
-            </Grid>
-            {/* <Grid
-            container
-            direction="row"
-            justify="flex-end"
-            alignItems="flex-end"
-            >
-            <Grid>{loading && <LinearProgress />}</Grid>
-            <Grid item>
-              <Button onClick={() => setState(defaultState)} disabled={loading}>
-                clear
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button onClick={handleSubmit} disabled={loading}>
-                Submit
-              </Button>
-            </Grid>
-          </Grid> */}
+            {(state.tradeType === "buy" || state.tradeType === "sell") && (
+              <>
+                <Grid item xs={12}>
+                  Portfolio Allocation:
+                </Grid>
+                <Grid item xs={12}>
+                  <LinearProgress
+                    variant="determinate"
+                    style={{ height: "20px" }}
+                    value={portfolioAllocation}
+                  />
+                </Grid>
+              </>
+            )}
           </Grid>
         </CardContent>
-        {loading && <LinearProgress />}
+      </StandardCard>
+      <StandardCard>
+        <CardContent>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Order Summary:</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow>
+                <TableCell>Price per share</TableCell>
+                <TableCell align="right">{`$${format(closePrice)}`}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Shares</TableCell>
+                <TableCell align="right">{`${finalQuantity}`}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Commission</TableCell>
+                <TableCell align="right">{`$${format(
+                  rawCommission * closePrice * finalQuantity
+                )}`}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
+                  <Typography variant="h6">Total</Typography>
+                </TableCell>
+                <TableCell align="right">
+                  <Typography variant="h6"> {`$${format(price)}`}</Typography>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+        {submitLoading && <LinearProgress />}
         <CardActions>
-          <Button onClick={() => setState(defaultState)} disabled={loading}>
+          <Button
+            onClick={() => setState(defaultState)}
+            disabled={submitLoading}
+          >
             clear
           </Button>
-          <Button onClick={handleSubmit} disabled={loading}>
+          <Button onClick={handleSubmit} disabled={submitLoading}>
             Submit
           </Button>
         </CardActions>
-      </Card>
+      </StandardCard>
     </Page>
   );
 };

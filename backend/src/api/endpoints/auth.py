@@ -28,12 +28,15 @@ STARTING_BALANCE = 10000
 
 
 @router.get("")
-async def get_user(user: UserDM = Depends(get_current_user_dm)) -> schemas.User:
+async def get_user(user=Depends(get_current_user_dm)) -> schemas.User:
     return user.schema
 
 
 @router.delete("")
-async def delete_user(email: str, db: Session = Depends(get_db),) -> bool:
+async def delete_user(
+    email: str,
+    db: Session = Depends(get_db),
+) -> bool:
     """
     Just a helper api for testing
     """
@@ -42,7 +45,11 @@ async def delete_user(email: str, db: Session = Depends(get_db),) -> bool:
 
 
 @router.post("")
-async def create_user(email: str, id_token: str = Header(None), db: Session = Depends(get_db),) -> schemas.user:
+async def create_user(
+    email: str,
+    id_token: str = Header(None),
+    db: Session = Depends(get_db),
+) -> schemas.user:
 
     uid = decode_token(id_token)
 
@@ -61,7 +68,7 @@ async def create_user(email: str, id_token: str = Header(None), db: Session = De
 
 
 @router.get("/reset_portfolio")
-async def reset_user_portfolio(user_dm: UserDM = Depends(get_current_user_dm), db: Session = Depends(get_db)):
+async def reset_user_portfolio(user_dm=Depends(get_current_user_dm), db: Session = Depends(get_db)):
 
     # Check if it can be reset
     if not user_dm.can_reset_portfolio():
@@ -89,7 +96,9 @@ async def get_user_balance(user_m: models.User = Depends(get_current_user_m)) ->
 
 @router.get("/add_exp")
 async def add_exp(
-    amount: float, user: UserDM = Depends(get_current_user_dm), db: Session = Depends(get_db),
+    amount: float,
+    user=Depends(get_current_user_dm),
+    db: Session = Depends(get_db),
 ) -> schemas.User:
     """
     Give user [amount] exp
@@ -100,7 +109,7 @@ async def add_exp(
 
 
 @router.get("/reset_level")
-async def reset_level(user: UserDM = Depends(get_current_user_dm), db: Session = Depends(get_db)) -> schemas.User:
+async def reset_level(user=Depends(get_current_user_dm), db: Session = Depends(get_db)) -> schemas.User:
     """
     Reset user's level and exp
     - exposed for testing purposes
@@ -112,7 +121,7 @@ async def reset_level(user: UserDM = Depends(get_current_user_dm), db: Session =
 
 
 @router.get("/achievements")
-async def achievements(user: UserDM = Depends(get_current_user_dm)) -> List[UserAchievement]:
+async def achievements(user=Depends(get_current_user_dm)) -> List[UserAchievement]:
     """
     List of achievements and whether or not they are unlocked by the user
     """
@@ -167,7 +176,7 @@ TEST APIS
 
 
 @router.post("/reset")
-async def market_buy(user: UserDM = Depends(get_current_user_dm)) -> schemas.User:
+async def market_buy(user=Depends(get_current_user_dm)) -> schemas.User:
     user.exp = 0
     user.level = 1
     user.user.unlocked_achievements = []
@@ -176,7 +185,7 @@ async def market_buy(user: UserDM = Depends(get_current_user_dm)) -> schemas.Use
 
 
 @router.post("/market/buy")
-async def market_buy(symbol: str, quantity: int, user: UserDM = Depends(get_current_user_dm)) -> schemas.User:
+async def market_buy(symbol: str, quantity: int, user=Depends(get_current_user_dm)) -> schemas.User:
     t = OpeningTransaction(
         user=user,
         order_type=OrderType.MARKET,
@@ -194,7 +203,7 @@ async def market_buy(symbol: str, quantity: int, user: UserDM = Depends(get_curr
 
 
 @router.post("/market/sell")
-async def market_buy(symbol: str, quantity: int, user: UserDM = Depends(get_current_user_dm)) -> schemas.User:
+async def market_buy(symbol: str, quantity: int, user=Depends(get_current_user_dm)) -> schemas.User:
     t = ClosingTransaction(
         user=user,
         order_type=OrderType.MARKET,

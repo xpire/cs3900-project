@@ -12,7 +12,6 @@ from typing import List, Optional
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
-
 # from src.core import trade
 from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
@@ -23,7 +22,8 @@ from src.models.long_position import LongPosition
 from src.models.short_position import ShortPosition
 from src.models.user import User
 from src.models.watch_list import WatchList
-from src.schemas.user import LimitOrderCreate, TransactionCreate, UserCreate, UserUpdate
+from src.schemas.user import (LimitOrderCreate, TransactionCreate, UserCreate,
+                              UserUpdate)
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -295,5 +295,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
         return user_in
 
+    def add_transaction_history(self, db: Session, user_in: User, price_in: float ): 
+        
 
 user = CRUDUser(User)

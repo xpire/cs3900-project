@@ -21,7 +21,7 @@ async def get_orders(
     for order in user.limit_orders:
         ret.append(
             {
-                "id" = order.id,
+                "id" = order.identity,
                 "name" = order.stock_info.name,
                 "symbol" = order.symbol,
                 "type" = order.t_type,
@@ -35,12 +35,12 @@ async def get_orders(
 
 @router.delete("")
 async def delete_order(
-    id: int,
+    identity: int,
     user: domain_models.UserDM=Depends(get_current_user_dm),
     db: Session = Depends(get_db),
-)->Response:
-    if not user.check_order_exists(id):
-        raise HTTPException(status_code=400, detail=f"Order {id} does not exist")
+) -> Response:
+    if not user.check_order_exists(identity):
+        raise HTTPException(status_code=400, detail=f"Order {identity} does not exist")
 
     crud_user.user.delete_order(db, user.model, id)
 

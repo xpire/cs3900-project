@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 
 import src.api.endpoints.stocks as stocks_api
@@ -10,6 +11,7 @@ from src.game.setup.setup import achievements_list, level_manager
 from src.models import UnlockedAchievement
 from src.schemas import User, UserInDB
 
+RESET_WAIT_PERIOD_DAYS = 1
 
 # TODO move this and relevant imports somewhere
 def update(model: BaseModel, db: Session):
@@ -96,8 +98,7 @@ class UserDM:
     def get_positions(self, p_type: str):
         if p_type != "long" and p_type != "short":
             log_msg(
-                "No such position. allowed are 'long' or'short'.",
-                "ERROR",
+                "No such position. allowed are 'long' or'short'.", "ERROR",
             )
             return
 
@@ -140,8 +141,7 @@ class UserDM:
         """
         if p_type != "long" and p_type != "short":
             log_msg(
-                "No such position. allowed are 'long' or'short'.",
-                "ERROR",
+                "No such position. allowed are 'long' or'short'.", "ERROR",
             )
             return
 
@@ -164,8 +164,7 @@ class UserDM:
         """
         if p_type != "long" and p_type != "short":
             log_msg(
-                "No such position. allowed are 'long' or'short'.",
-                "ERROR",
+                "No such position. allowed are 'long' or'short'.", "ERROR",
             )
             return
 
@@ -259,8 +258,7 @@ class UserDM:
     def get_daily_profit(self, p_type: str):
         if p_type != "long" and p_type != "short":
             log_msg(
-                "No such position. allowed are 'long' or'short'.",
-                "ERROR",
+                "No such position. allowed are 'long' or'short'.", "ERROR",
             )
             return
 
@@ -355,3 +353,12 @@ class UserDM:
                 return True
 
         return False
+
+    def can_reset_portfolio(self):
+
+        if not self.model.last_reset:
+            return True
+
+        curr_dt = datetime.now()
+        return (curr_dt - self.model.last_reset).days >= RESET_WAIT_PERIOD_DAYS
+

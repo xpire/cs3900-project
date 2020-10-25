@@ -1,5 +1,3 @@
-import json
-import os
 from datetime import datetime, time
 from typing import Any, List
 
@@ -8,16 +6,9 @@ from sqlalchemy.orm import Session
 from src import crud
 from src.api.deps import check_symbol, get_db
 from src.core.config import settings
-from src.core.utilities import fail_save, log_msg
-from src.crud.crud_stock import stock
+from src.core.utilities import log_msg
 from src.db.session import SessionLocal
-from src.real_time_market_data.data_provider import (
-    CompositeDataProvider,
-    LatestClosingPriceProvider,
-    RealTimeDataProvider,
-    SimulatedDataProvider,
-    SimulatedStock,
-)
+from src.real_time_market_data.data_provider import MarketDataProvider
 from twelvedata import TDClient
 
 API_URL = "https://api.twelvedata.com"
@@ -30,63 +21,42 @@ router = APIRouter()
 # Can change to a different structure later
 
 # Retrieve all stocks
-STOCKS = []
-
 TD = TDClient(apikey=API_KEY)
-
-
-# data_provider = RealTimeDataProvider(
-#     symbols=stock_names,
-#     apikey=API_KEY,
-# )
-latest_close_price_provider = None
-# data_provider.start()
+market_data_provider = None
 
 
 # We can't use deps to get the database here, on_event is not part of FastAPI so it can't use depends apparently
 # https://github.com/tiangolo/fastapi/issues/425
 @router.on_event("startup")
 def startup_event():
-    global STOCKS
-    global latest_close_price_provider
+    global market_data_provider
 
     db = SessionLocal()
-    STOCKS = crud.stock.get_all_stocks(db=db)[:10]  # Change this slice later
+    stocks = crud.stock.get_all_stocks(db=db)[:10]  # TODO change this slice later
+    symbols = [f"{stock.symbol}:{stock.exchange}" for stock in stocks]
 
-    stock_names = [f"{stock.symbol}:{stock.exchange}" for stock in STOCKS]
-
-    if stock_names:
-        latest_close_price_provider = LatestClosingPriceProvider(
-            symbols=stock_names, apikey=API_KEY, db=db, crud_obj=stock
-        )
-        latest_close_price_provider.start()
+    if symbols:
+        market_data_provider = MarketDataProvider(symbols=symbols, apikey=API_KEY, db=db, crud_obj=crud.stock)
+        market_data_provider.start()
     else:
         log_msg("There are no stocks in the database, not polling for data.", "WARNING")
 
 
 @router.on_event("shutdown")
 def startup_event():
-    latest_close_price_provider.close()
-
-
-# @router.get("/real_time")
-# async def get_real_time_data():
-#     return data_provider.data
-
-
-# @router.get("/real_times")
-# async def get_real_time_data(symbol: str):
-#     return data_provider.data[symbol]
+    market_data_provider.close()
 
 
 @router.get("/symbols")
 async def get_symbols(db: Session = Depends(get_db)):
     ret = []
 
-    for stock in STOCKS:
+    stocks = crud.stock.get_all_stocks(db=db)[:10]
+    for stock in stocks:
         ret.append(
             {
                 "symbol": stock.symbol,
+                "name": stock.name,
                 "exchange": stock.exchange,
             }
         )
@@ -111,55 +81,45 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
                 symbol=symbol,
                 name=stock.name,
                 exchange=stock.exchange,
-                curr_close_price=float(latest_close_price_provider.data[symbol][0]),
-                prev_close_price=float(latest_close_price_provider.data[symbol][1]),
-                commission=0.005,
+                curr_close_price=float(market_data_provider.data[symbol]["curr_day_close"]),
+                prev_close_price=float(market_data_provider.data[symbol]["prev_day_close"]),
+                commission=0.005,  # TODO move to a config
             )
         )
     return ret
 
 
-@router.get("/time_series")
+@router.get("/time_series")  # TODO days param is not currently being used
 async def get_stock_data(symbol: str = Depends(check_symbol), db: Session = Depends(get_db), days: int = 90):
     stock = crud.stock.get_stock_by_symbol(db, symbol)
-
-    data = crud.stock.get_time_series(db, stock)
-    # data = TD.time_series(
-    #     symbol=f"{stock.symbol}:{stock.exchange}",
-    #     interval="1day",
-    #     outputsize=days,  # TODO there seems to be a bug
-    #     timezone="Australia/Sydney",
-    # ).as_json()
-    return data
+    return crud.stock.get_time_series(db, stock)
 
 
+# TODO move this somehwere else
+from pytz import timezone
+
+trading_hours = dict(
+    ASX=dict(start=time(23, 0), end=time(5, 0), timezone=timezone("Australia/Sydney")),
+    NYSE=dict(start=time(13, 30), end=time(20, 0), timezone=timezone("America/New_York")),
+    NASDAQ=dict(start=time(13, 30), end=time(20, 0), timezone=timezone("America/New_York")),
+    LSE=dict(start=time(8, 0), end=time(16, 30), timezone=timezone("Europe/London")),
+)
+
+# TODO change check_symbol to get_symbol
 @router.get("/trading_hours")
 async def get_trading_hours(symbol: str = Depends(check_symbol), db: Session = Depends(get_db)):
+    global trading_hours
 
     # Trading hours retrieved from
     # https://www.thebalance.com/stock-market-hours-4773216#:~:text=Toronto%20Stock%20Exchange-,9%3A30%20a.m.%20to%204%20p.m.,30%20p.m.%20to%209%20p.m.&text=8%3A30%20a.m.%20to%203%20p.m.
-
     stock = crud.stock.get_stock_by_symbol(db, symbol)
     curr_time = datetime.now().time()  # UTC time
 
-    res = False
-    time_range = None
-    # Australian is 10am - 4pm (AEDT)
-    if stock.exchange == "ASX":
-        if curr_time >= time(23, 0) or curr_time <= time(5, 0):
-            res = True
-        time_range = f"{time(23,0)} - {time(5,0)}"
-    if stock.exchange == "NYSE":  # NYSE is 9:30 am - 4 pm (New York Eastern time (UTC-4))
-        if curr_time >= time(13, 30) and curr_time <= time(20, 0):
-            res = True
-        time_range = f"{time(13, 30)} - {time(20,0)}"
-    if stock.exchange == "NASDAQ":  # NYSE is 9:30 am - 4 pm (New York Eastern time (UTC-4))
-        if curr_time >= time(13, 30) and curr_time <= time(20, 0):
-            res = True
-        time_range = f"{time(13, 30)} - {time(20,0)}"
-    if stock.exchange == "LSE":
-        if curr_time >= time(8, 0) and curr_time <= time(16, 30):
-            res = True
-        time_range = f"{time(8, 0)} - {time(16, 30)}"
+    if stock.exchange not in trading_hours:  # TODO maybe create util HTTP400(msg)
+        raise HTTPException(status_code=400, detail="Exchange for the given symbol not found.")
 
-    return {"trading": res, "time_range": time_range}
+    hours = trading_hours[stock.exchange]
+    start, end = hours["start"], hours["end"]
+    is_weekday = datetime.now(hours["timezone"]).weekday() <= 4
+    is_trading = is_weekday and (start <= curr_time and curr_time <= end)
+    return dict(is_trading=is_trading, start=start, end=end)

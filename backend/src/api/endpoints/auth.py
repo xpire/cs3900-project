@@ -24,21 +24,16 @@ from src.schemas.transaction import ClosingTransaction, OpeningTransaction, Orde
 
 router = APIRouter()
 
+STARTING_BALANCE = 10000
 
-# @router.get("")
-# async def check_user(id_token: str = Header(None)) -> schemas.user:
-#     uid = decode_token(id_token)
-#     return uid
+
 @router.get("")
 async def get_user(user: UserDM = Depends(get_current_user_dm)) -> schemas.User:
     return user.schema
 
 
 @router.delete("")
-async def delete_user(
-    email: str,
-    db: Session = Depends(get_db),
-) -> bool:
+async def delete_user(email: str, db: Session = Depends(get_db),) -> bool:
     """
     Just a helper api for testing
     """
@@ -47,11 +42,7 @@ async def delete_user(
 
 
 @router.post("")
-async def create_user(
-    email: str,
-    id_token: str = Header(None),
-    db: Session = Depends(get_db),
-) -> schemas.user:
+async def create_user(email: str, id_token: str = Header(None), db: Session = Depends(get_db),) -> schemas.user:
 
     uid = decode_token(id_token)
 
@@ -62,9 +53,30 @@ async def create_user(
     check_user_exists(uid, db)
 
     # Create if doesn't exist
-    user = crud.user.create(db, obj_in=schemas.UserCreate(email=email, uid=uid, username=email))
+    user = crud.user.create(
+        db, obj_in=schemas.UserCreate(email=email, uid=uid, username=email, balance=STARTING_BALANCE)
+    )
 
     return dm.UserDM(user, db).schema
+
+
+@router.get("/reset_portfolio")
+async def reset_user_portfolio(user_dm: UserDM = Depends(get_current_user_dm), db: Session = Depends(get_db)):
+
+    # Check if it can be reset
+    if not user_dm.can_reset_portfolio():
+        return {
+            "result": "failed, you have reset too recently.",
+            "last_reset_time": user_dm.model.last_reset,
+            "current_time": datetime.now(),
+        }
+
+    crud.user.update_balance(db, user_dm.model, STARTING_BALANCE)
+
+    crud.user.reset_user_portfolio(user_dm.model, db)
+    # TODO: Keep track of resets and reset timestamp
+
+    return {"result": "reset success."}
 
 
 @router.get("/balance")
@@ -77,9 +89,7 @@ async def get_user_balance(user_m: models.User = Depends(get_current_user_m)) ->
 
 @router.get("/add_exp")
 async def add_exp(
-    amount: float,
-    user: UserDM = Depends(get_current_user_dm),
-    db: Session = Depends(get_db),
+    amount: float, user: UserDM = Depends(get_current_user_dm), db: Session = Depends(get_db),
 ) -> schemas.User:
     """
     Give user [amount] exp

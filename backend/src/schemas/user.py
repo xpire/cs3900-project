@@ -67,3 +67,10 @@ class LimitOrderCreate(LimitOrderBase):
 
 class LimitOrderDelete(LimitOrderBase):
     pass
+
+class TransactionHistoryCreate(BaseSchema): 
+    user_id: str
+    price: float
+    action: str
+    symbol: str
+    amount: int

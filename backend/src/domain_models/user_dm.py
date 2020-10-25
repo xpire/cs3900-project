@@ -312,10 +312,10 @@ class UserDM:
         return stats
 
     def watchlist_create(self, wl_sys: str):
-        user.add_to_watch_list(db=self.db, user_in=self.user, w_symbol=wl_sys)
+        user.add_to_watch_list(db=self.db, user_in=self.user, symbol_in=wl_sys)
 
     def watchlist_delete(self, wl_sys: str):
-        user.delete_from_watch_list(db=self.db, user_in=self.user, w_symbol=wl_sys)
+        user.delete_from_watch_list(db=self.db, user_in=self.user, symbol_in=wl_sys)
 
     def check_exists_watchlist(self, symbol: str):
         for entry in self.user.watchlist:

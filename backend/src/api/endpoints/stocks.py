@@ -72,7 +72,7 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
 
     # Can make for efficient later
     for symbol in symbols:
-        stock = crud.stock.get_stock_by_symbol(db, symbol)
+        stock = crud.stock.get_stock_by_symbol(db=db, stock_symbol=symbol)
         if stock is None:
             raise HTTPException(status_code=404, detail="Item not found")
 
@@ -91,8 +91,8 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
 
 @router.get("/time_series")  # TODO days param is not currently being used
 async def get_stock_data(symbol: str = Depends(check_symbol), db: Session = Depends(get_db), days: int = 90):
-    stock = crud.stock.get_stock_by_symbol(db, symbol)
-    return crud.stock.get_time_series(db, stock)
+    stock = crud.stock.get_stock_by_symbol(db=db, stock_symbol=symbol)
+    return crud.stock.get_time_series(db= db, stock_in=stock)
 
 
 # TODO move this somehwere else
@@ -112,7 +112,7 @@ async def get_trading_hours(symbol: str = Depends(check_symbol), db: Session = D
 
     # Trading hours retrieved from
     # https://www.thebalance.com/stock-market-hours-4773216#:~:text=Toronto%20Stock%20Exchange-,9%3A30%20a.m.%20to%204%20p.m.,30%20p.m.%20to%209%20p.m.&text=8%3A30%20a.m.%20to%203%20p.m.
-    stock = crud.stock.get_stock_by_symbol(db, symbol)
+    stock = crud.stock.get_stock_by_symbol(db=db, stock_symbol=symbol)
     curr_time = datetime.now().time()  # UTC time
 
     if stock.exchange not in trading_hours:  # TODO maybe create util HTTP400(msg)

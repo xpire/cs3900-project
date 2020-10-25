@@ -1,0 +1,42 @@
+[
+  {
+    "symbol": "TLS",
+    "exchange": "ASX"
+  },
+  {
+    "symbol": "SVW",
+    "exchange": "ASX"
+  },
+  {
+    "symbol": "TPG",
+    "exchange": "ASX"
+  },
+  {
+    "symbol": "APT",
+    "exchange": "ASX"
+  },
+  {
+    "symbol": "CBA",
+    "exchange": "ASX"
+  },
+  {
+    "symbol": "IAG",
+    "exchange": "ASX"
+  },
+  {
+    "symbol": "WBC",
+    "exchange": "ASX"
+  },
+  {
+    "symbol": "COH",
+    "exchange": "ASX"
+  },
+  {
+    "symbol": "FPH",
+    "exchange": "ASX"
+  },
+  {
+    "symbol": "SHL",
+    "exchange": "ASX"
+  }
+]

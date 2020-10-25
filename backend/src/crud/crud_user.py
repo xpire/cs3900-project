@@ -7,11 +7,13 @@
 """
 
 
-from typing import Optional
+from datetime import datetime
+from typing import List, Optional
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
-from src.core import trade
+
+# from src.core import trade
 from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
 from src.crud.base import CRUDBase
@@ -21,14 +23,16 @@ from src.models.long_position import LongPosition
 from src.models.short_position import ShortPosition
 from src.models.user import User
 from src.models.watch_list import WatchList
-from src.schemas.user import (LimitOrderCreate, TransactionCreate, UserCreate,
-                              UserUpdate)
+from src.schemas.user import LimitOrderCreate, TransactionCreate, UserCreate, UserUpdate
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     """
     Module for user/auth related CRUD operations
     """
+
+    def get_all_users(self, db: Session) -> List[User]:
+        return db.query(self.model.uid).distinct()
 
     def get_user_by_uid(self, db: Session, uid: str) -> Optional[User]:
         """
@@ -226,22 +230,24 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return False
 
     @fail_save
-    def create_order(self, *, db: Session, user_in: User, trade_type: str, symbol: str, quantity: int, limit: float) -> User: 
-        
-        allowed_types = ['buy', 'sell', 'short', 'cover']
+    def create_order(
+        self, *, db: Session, user_in: User, trade_type: str, symbol: str, quantity: int, limit: float
+    ) -> User:
+
+        allowed_types = ["buy", "sell", "short", "cover"]
         if self.symbol_exist(db=db, c_symbol=symbol):
-            
-            if (trade_type not in allowed_types): 
+
+            if trade_type not in allowed_types:
                 log_msg(f"Trade type {trade_type} is not allowed", "ERROR")
                 return user_in
-            
+
             stc = LimitOrderCreate(
-                user_id = user_in.uid, 
-                symbol = symbol,  
-                amount = quantity,
-                t_type = trade_type, 
-                price = limit, 
-            ) 
+                user_id=user_in.uid,
+                symbol=symbol,
+                amount=quantity,
+                t_type=trade_type,
+                price=limit,
+            )
 
             user_in.limit_orders.append(LimitOrder(**stc.__dict__))
         else:
@@ -256,21 +262,38 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return user_in
 
     @fail_save
-    def delete_order(self, *, db:Session, user_in: User, identity: int) -> User:
+    def delete_order(self, *, db: Session, user_in: User, identity: int) -> User:
         std = None
         for order in user_in.limit_orders:
-            if (order.id == identity):
+            if order.id == identity:
                 std = order
-        
-        if (std == None): 
+
+        if std == None:
             log_msg(f"No limit order of id {identity} exists. ", "ERROR")
             return user_in
-        else: 
+        else:
             user_in.limit_orders.remove(std)
 
         db.commit()
         db.refresh(user_in)
-        
+
         return user_in
+
+    def reset_user_portfolio(self, user_in: User, db: Session) -> User:
+
+        # Reset portfolio and transaction history
+        user_in.long_positions = []
+        user_in.short_positions = []
+        user_in.transactions = []
+
+        # Set new reset time and amount
+        user_in.resets += 1
+        user_in.last_reset = datetime.now()
+
+        db.commit()
+        db.refresh(user_in)
+
+        return user_in
+
 
 user = CRUDUser(User)

@@ -3,19 +3,17 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from src import crud, domain_models, models, schemas
-from src.api.deps import check_symbol, get_current_user_dm, get_current_user_m, get_db
+from src.api.deps import (check_symbol, get_current_user_dm,
+                          get_current_user_m, get_db)
 from src.core.config import settings
 from src.db.session import SessionLocal
-
 from src.schemas.response import Response
 
 router = APIRouter()
 
 
 @router.get("")
-async def get_watchlist(
-    user: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)
-):
+async def get_watchlist(user: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)):
     ret = []
     for entry in user.watchlist:
         ret += [
@@ -37,13 +35,11 @@ async def update_watchlist(
 ) -> Response:
     # Check if already exists
     if user.check_exists_watchlist(symbol):
-        raise HTTPException(
-            status_code=400, detail=f"Symbol {symbol} already exists in watchlist."
-        )
+        raise HTTPException(status_code=400, detail=f"Symbol {symbol} already exists in watchlist.")
 
-    crud.user.add_to_watch_list(db, user.model, symbol)
+    user.watchlist_create(symbol)
 
-    return Response(f"{symbol} added to watchlist")
+    return Response(msg=f"{symbol} added to watchlist")
 
 
 @router.delete("")
@@ -54,10 +50,8 @@ async def delete_watchlist(
 ) -> Response:
     # Check if already exists
     if not user.check_exists_watchlist(symbol):
-        raise HTTPException(
-            status_code=400, detail=f"Symbol {symbol} does not exist in watchlist."
-        )
+        raise HTTPException(status_code=400, detail=f"Symbol {symbol} does not exist in watchlist.")
 
-    crud.user.delete_from_watch_list(db, user.model, symbol)
+    user.watchlist_delete(symbol)
 
-    return Response(f"{symbol} removed from watchlist")
+    return Response(msg=f"{symbol} removed from watchlist")

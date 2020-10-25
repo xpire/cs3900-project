@@ -1,37 +1,33 @@
-// import React from "react";
 import { useSnackbar } from "notistack";
+import axios from "../utils/api";
 
 const useHandleSnack = () => {
   const { enqueueSnackbar } = useSnackbar();
-  return (lastJsonMessage) => {
-    console.log(`Inside handleSnack: ${JSON.stringify(lastJsonMessage)}`);
-    switch (lastJsonMessage?.type) {
-      case "auth":
-        enqueueSnackbar(`${lastJsonMessage.msg}`, {
-          variant: "info",
-        });
-        break;
-      case "notif":
-        if (lastJsonMessage.msg.event_type === `LEVEL_UP`) {
-          enqueueSnackbar(`${lastJsonMessage.msg.title}`, {
-            variant: "success",
-          });
-        } else if (lastJsonMessage.msg.event_type === `ACHIEVEMENT_UNLOCKED`) {
-          enqueueSnackbar(
-            `${lastJsonMessage.msg.title} (${lastJsonMessage.msg.content}xp)`,
-            {
+  return async (path, method = "post") => {
+    await axios
+      .request({ url: path, method: method })
+      .then((response) => {
+        switch (response.status) {
+          case 200:
+            enqueueSnackbar(`${response.data.msg}`, {
               variant: "success",
-            }
-          );
-        } else {
-          enqueueSnackbar(`${JSON.stringify(lastJsonMessage)}`, {
-            variant: "success",
-          });
+            });
+            break;
+          default:
         }
-
-        break;
-      default:
-    }
+      })
+      .catch((err) => {
+        console.log("handlesnack", err.response.status);
+        switch (err.response.status) {
+          case 400:
+            enqueueSnackbar(`${err.response.data.detail}`, {
+              variant: "warning", //"error",
+            });
+            break;
+          case 500:
+          default:
+        }
+      });
   };
 };
 

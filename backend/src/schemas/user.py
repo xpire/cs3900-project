@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel as BaseSchema
@@ -10,6 +11,8 @@ class UserBase(BaseSchema):
     balance: float
     level: int
     exp: float
+    last_reset: Optional[datetime]
+    resets: int
 
 
 class UserCreate(UserBase):
@@ -57,8 +60,10 @@ class LimitOrderBase(BaseSchema):
     t_type: str
     price: float
 
+
 class LimitOrderCreate(LimitOrderBase):
     pass
 
-class LimitOrderDelete(LimitOrderBase): 
+
+class LimitOrderDelete(LimitOrderBase):
     pass

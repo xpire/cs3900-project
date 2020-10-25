@@ -9,7 +9,7 @@ import styled from "styled-components";
 import axios from "./api";
 import { CenteredMotionDiv } from "../components/common/styled";
 import useSockets from "../hooks/useSockets";
-import useHandleSnack from "../hooks/useHandleSnack";
+import useHandleSocketSnack from "../hooks/useHandleSocketSnack";
 const StyledCenteredMotionDiv = styled(CenteredMotionDiv)({
   background: (props) => props.theme.palette.background.default || "#303030",
 });
@@ -33,40 +33,12 @@ export const AuthProvider = ({ children }) => {
         });
   }, [user]);
 
-  const handleSnack = useHandleSnack();
+  const handleSnack = useHandleSocketSnack();
 
-  // const { enqueueSnackbar } = useSnackbar();
-  const [lastJsonMessage, messageHistory, connectionStatus] = useSockets();
+  const [lastJsonMessage] = useSockets();
   useEffect(() => {
     console.log({ lastJsonMessage });
     handleSnack(lastJsonMessage);
-    // switch (lastJsonMessage?.type) {
-    //   case "auth":
-    //     enqueueSnackbar(`${lastJsonMessage.msg}`, {
-    //       variant: "info",
-    //     });
-    //     break;
-    //   case "notif":
-    //     if (lastJsonMessage.msg.event_type === `LEVEL_UP`) {
-    //       enqueueSnackbar(`${lastJsonMessage.msg.title}`, {
-    //         variant: "success",
-    //       });
-    //     } else if (lastJsonMessage.msg.event_type === `ACHIEVEMENT_UNLOCKED`) {
-    //       enqueueSnackbar(
-    //         `${lastJsonMessage.msg.title} (${lastJsonMessage.msg.content}xp)`,
-    //         {
-    //           variant: "success",
-    //         }
-    //       );
-    //     } else {
-    //       enqueueSnackbar(`${JSON.stringify(lastJsonMessage)}`, {
-    //         variant: "success",
-    //       });
-    //     }
-
-    //     break;
-    //   default:
-    // }
   }, [lastJsonMessage]);
   return (
     <div style={{ background: theme.palette.background.default }}>

@@ -70,6 +70,7 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
     if not symbols:
         return ret
 
+    print(symbols)
     # Can make for efficient later
     for symbol in symbols:
         stock = crud.stock.get_stock_by_symbol(db, symbol)
@@ -81,8 +82,8 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
                 symbol=symbol,
                 name=stock.name,
                 exchange=stock.exchange,
-                curr_close_price=float(market_data_provider.data[symbol]["curr_day_close"]),
-                prev_close_price=float(market_data_provider.data[symbol]["prev_day_close"]),
+                curr_close_price=market_data_provider.get_curr_day_close(symbol),
+                prev_close_price=market_data_provider.get_prev_day_close(symbol),
                 commission=0.005,  # TODO move to a config
             )
         )

@@ -16,6 +16,7 @@ from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
 from src.crud.base import CRUDBase
 from src.crud.crud_stock import stock
+from src.models.limit_order import LimitOrder
 from src.models.long_position import LongPosition
 from src.models.short_position import ShortPosition
 from src.models.user import User
@@ -234,15 +235,15 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
                 log_msg(f"Trade type {trade_type} is not allowed", "ERROR")
                 return user_in
             
-            stc = TransactionCreate(
+            stc = LimitOrderCreate(
                 user_id = user_in.uid, 
-                price = limit, 
-                action = trade_type, 
                 symbol = symbol,  
-                amount = quantity
-            )
+                amount = quantity,
+                t_type = trade_type, 
+                price = limit, 
+            ) 
 
-            user_in.limit_orders.append(stc)
+            user_in.limit_orders.append(LimitOrder(**stc.__dict__))
         else:
             log_msg(
                 f"Adding a non-existent symbol on limit order of User(uid = {user_in.uid}).",

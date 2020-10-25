@@ -42,6 +42,15 @@ class UserDM:
         update(self.user, self.db)
 
     @property
+    def balance(self):
+        return self.user.balance
+
+    @balance.setter
+    def balance(self, balance):
+        self.user.balance = balance
+        self.save_to_db()
+
+    @property
     def exp(self):
         return self.user.exp
 

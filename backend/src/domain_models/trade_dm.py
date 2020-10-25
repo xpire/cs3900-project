@@ -26,7 +26,7 @@ class Trade(ABC):
         total_price = self.price * self.qty
         trade_price = trade.apply_commission(total_price, self.is_buying)
         fee = abs(trade_price - total_price)
-        print(fee)
+        self.user.add_exp(fee)
         self.check(total_price, trade_price)
         self.apply_trade(trade_price)
         return Response(msg="success")
@@ -36,8 +36,7 @@ class Trade(ABC):
             crud_user.user.add_transaction(self.db, self.model, self.is_long, self.symbol, self.qty, self.price)
         else:
             crud_user.user.deduct_transaction(self.db, self.model, self.is_long, self.symbol, self.qty)
-        new_balance = self.model.balance + trade_price * (-1 if self.is_buying else 1)
-        crud_user.user.update_balance(self.db, self.model, new_balance)
+        self.user.balance = self.model.balance + trade_price * (-1 if self.is_buying else 1)
 
     @abstractmethod
     def check(self, total_price, trade_price):

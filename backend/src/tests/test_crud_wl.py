@@ -10,7 +10,7 @@ from src.schemas.transaction import TradeType
 
 # INSERT INTO user (uid, email, username, balance, exp, level) values (1, 'admin@admin.com', 'admin', 10000, 0, 1)
 ins = SessionLocal()
-t_u = user.get_user_by_uid(ins, uid="1")
+t_u = user.get_user_by_uid(db=ins, uid="1")
 
 
 # user.create_order(db=ins, user_in=t_u, trade_type='buy', symbol="AAPL", quantity=50, limit=0.56)

@@ -33,11 +33,11 @@ class Trade(ABC):
 
     def apply_trade(self, trade_price):
         if self.is_opening:
-            crud_user.user.add_transaction(self.db, self.model, self.is_long, self.symbol, self.qty, self.price)
+            crud_user.user.add_transaction(db=self.db, user_in=self.model, is_long=self.is_long, symbol_in=self.symbol, quantity_in=self.qty, price_in=self.price)
         else:
-            crud_user.user.deduct_transaction(self.db, self.model, self.is_long, self.symbol, self.qty)
+            crud_user.user.deduct_transaction(db=self.db, user_in=self.model, is_long=self.is_long, symbol_in=self.symbol, amount_in=self.qty)
         new_balance = self.model.balance + trade_price * (-1 if self.is_buying else 1)
-        crud_user.user.update_balance(self.db, self.model, new_balance)
+        crud_user.user.update_balance(db=self.db, user_in=self.model, balance=new_balance)
 
     @abstractmethod
     def check(self, total_price, trade_price):

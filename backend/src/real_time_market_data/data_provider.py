@@ -62,7 +62,7 @@ class MarketDataProvider(DataProvider):
 
         for symbol, data in msg.items():
             stock = crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=self.without_exchange(symbol))
-            crud.stock.batch_add_daily_time_series(db=self.db, obj_in=stock, time_series_in=data)
+            crud.stock.batch_add_daily_time_series(db=self.db, stock_in=stock, time_series_in=data)
 
         self.cache_latest_data(msg)
 
@@ -71,8 +71,8 @@ class MarketDataProvider(DataProvider):
 
         # Insert into sqlite database
         for symbol, data in msg.items():
-            stock = crud.stock.get_stock_by_symbol(self.db, self.without_exchange(symbol))
-            crud.stock.update_time_series(db=self.db, obj_in=stock, u_time_series=data)
+            stock = crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=self.without_exchange(symbol))
+            crud.stock.update_time_series(db=self.db, stock_in=stock, u_time_series=data)
 
         self.cache_latest_data(msg)
 

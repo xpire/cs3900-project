@@ -91,8 +91,7 @@ class UserDM:
     def get_positions(self, p_type: str):
         if p_type != "long" and p_type != "short":
             log_msg(
-                "No such position. allowed are 'long' or'short'.",
-                "ERROR",
+                "No such position. allowed are 'long' or'short'.", "ERROR",
             )
             return
 
@@ -127,8 +126,7 @@ class UserDM:
         """
         if p_type != "long" and p_type != "short":
             log_msg(
-                "No such position. allowed are 'long' or'short'.",
-                "ERROR",
+                "No such position. allowed are 'long' or'short'.", "ERROR",
             )
             return
 
@@ -147,8 +145,7 @@ class UserDM:
         """
         if p_type != "long" and p_type != "short":
             log_msg(
-                "No such position. allowed are 'long' or'short'.",
-                "ERROR",
+                "No such position. allowed are 'long' or'short'.", "ERROR",
             )
             return
 
@@ -228,8 +225,7 @@ class UserDM:
     def get_daily_profit(self, p_type: str):
         if p_type != "long" and p_type != "short":
             log_msg(
-                "No such position. allowed are 'long' or'short'.",
-                "ERROR",
+                "No such position. allowed are 'long' or'short'.", "ERROR",
             )
             return
 

@@ -51,13 +51,14 @@ class CompositeDataProvider(DataProvider):
 
 
 class LatestClosingPriceProvider(DataProvider):
-    def __init__(self, apikey, symbols, db):
+    def __init__(self, apikey, symbols, db, crud_obj):
         super().__init__()
 
         self.TD = TDClient(apikey=apikey)
         self.symbols = symbols
         self.db = db
         self.n = 0  # Number of times we've polled
+        self.crud_obj = crud_obj
 
         self.request = None
 
@@ -82,6 +83,8 @@ class LatestClosingPriceProvider(DataProvider):
             timezone="Australia/Sydney",  # output all timestamps in Sydney's timezone
         )
 
+        self.crud_obj.remove_all_hist(db=self.db)  # removes all line from the db, change if nessecary
+
         message = self.request.as_json()
         if len(self.symbols) == 1:
             message = {self.symbols[0]: message}
@@ -90,7 +93,7 @@ class LatestClosingPriceProvider(DataProvider):
             stock = crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=symbol.split(":")[0])
             crud.stock.batch_add_daily_time_series(db=self.db, obj_in=stock, time_series_in=data)
 
-        for symbol, data in message.items():
+        for symbol, data in message.items():  # populates its data field for access.
             symbol = symbol.split(":")[0]
             self._data[symbol] = [data[0]["close"], data[1]["close"]]
 

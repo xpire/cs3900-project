@@ -3,14 +3,13 @@ from sqlalchemy.orm import relationship
 from src.db.base_model import BaseModel
 
 
-# Requires compactification
-class ShortSell(BaseModel):
+class Transaction(BaseModel):
     user_id = Column(String, ForeignKey("user.uid"), primary_key=True)
+    action = Column(String)  # buy/sell/short/btc
     symbol = Column(String, ForeignKey("stock.symbol"), primary_key=True)
     amount = Column(Integer, nullable=False)
-    avg = Column(Float, nullable=False)
     stock_info = relationship(
         "Stock",
-        backref="shortsell",
+        backref="transactions",
         cascade="save-update, merge",
     )

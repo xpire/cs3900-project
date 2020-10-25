@@ -36,3 +36,25 @@ class User(UserInDBBase):
 # probably not needed?
 class UserInDB(UserInDBBase):
     uid: str
+
+
+class TransactionBase(BaseSchema):
+    user_id: str
+    action: str
+    symbol: str
+    amount: int
+
+
+class TransactionCreate(TransactionBase):
+    pass
+
+
+class LimitOrderBase(BaseSchema):
+    user_id: str
+    symbol: str
+    amount: int
+    type: str
+    price: float
+
+class LimitOrder(LimitOrderBase):
+    pass

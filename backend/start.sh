@@ -50,6 +50,20 @@ init-db() {
     print-line;
 }
 
+explode() {
+    echo "      _.-^^---....,,--          "
+    echo "  _--                  --_     "
+    echo " <                        >)   "
+    echo " |                         |    "
+    echo "  \._                   _./     "
+    echo "     \`\`\`--. . , \; .--'''        "  
+    echo "           | |   |               " 
+    echo "        .-=||  | |=-.      "
+    echo "        \`-=#$%&%\$#=-'      "
+    echo "           | ;  :|        "
+    echo "  _____.,-#%&\$@%#&#~,._____   "
+    echo " !!!!!!!!!BOOOOMMMMMM!!!!!!!!!!!"
+}
 
 if [ $# -eq 3 ]; then
     case $1 in
@@ -109,8 +123,10 @@ elif [ $# -eq 1 ]; then
             read -p "Are you sure you want to nuke it ? you will lose all the data in the database...   "  res
             set-python-path
             if [ $res=="yes" ]; then 
-                echo "Nuking database from the orbit..."
-                rm ../database/testdb.sqlite3 && echo "BOOM!!!!!!!";# change this later
+                db_name=$(grep -A0 'SQLITE_DB_NAME: ' ./src/core/.secrets/env.yaml | cut -d ":" -f2 | cut -c 2-) 
+                echo "Nuking $db_name from the orbit..."
+                rm ../database/$db_name.sqlite3 && explode;
+
                 echo "Recreating it now...";
                 check-wake;
                 init-db;

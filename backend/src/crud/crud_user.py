@@ -7,7 +7,8 @@
 """
 
 
-from typing import Optional
+from datetime import datetime
+from typing import List, Optional
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -26,6 +27,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     """
     Module for user/auth related CRUD operations
     """
+
+    def get_all_users(self, db: Session) -> List[User]:
+        return db.query(self.model.uid).distinct()
 
     def get_user_by_uid(self, db: Session, uid: str) -> Optional[User]:
         """
@@ -69,8 +73,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             return user_in
         else:
             log_msg(
-                f"Adding a non-existent symbol to watchlist of User(uid = {user_in.uid}).",
-                "WARNING",
+                f"Adding a non-existent symbol to watchlist of User(uid = {user_in.uid}).", "WARNING",
             )
             return user_in
 
@@ -88,8 +91,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
             if tbr == None:
                 log_msg(
-                    f"Deleting a non-existent stock from watchlist of User(uid = {user_in.uid})",
-                    "WARNING",
+                    f"Deleting a non-existent stock from watchlist of User(uid = {user_in.uid})", "WARNING",
                 )
             else:
                 user_in.watchlist.remove(tbr)
@@ -99,28 +101,20 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             return user_in
         else:
             log_msg(
-                f"Deleting a non-existent symbol from watchlist of User(uid = {user_in.uid}).",
-                "WARNING",
+                f"Deleting a non-existent symbol from watchlist of User(uid = {user_in.uid}).", "WARNING",
             )
             return user_in
 
     @fail_save
     def add_transaction(
-        self,
-        db: Session,
-        user_in: User,
-        t_type: str,
-        p_symbol: str,
-        p_amount: int,
-        price: float,
+        self, db: Session, user_in: User, t_type: str, p_symbol: str, p_amount: int, price: float,
     ) -> User:
         """
         Add amount and price to portfolio
         """
         if t_type != "long" and t_type != "short":
             log_msg(
-                "No such type of transaction allowed, allowed are 'long' or'short'.",
-                "ERROR",
+                "No such type of transaction allowed, allowed are 'long' or'short'.", "ERROR",
             )
             return user_in
 
@@ -155,8 +149,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
         else:
             log_msg(
-                f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).",
-                "WARNING",
+                f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).", "WARNING",
             )
             return user_in
 
@@ -167,8 +160,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         if t_type != "long" and t_type != "short":
             log_msg(
-                "No such type of transaction allowed, allowed are 'long' or'short'.",
-                "ERROR",
+                "No such type of transaction allowed, allowed are 'long' or'short'.", "ERROR",
             )
             return user_in
 
@@ -184,8 +176,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
             if ex == None:
                 log_msg(
-                    f"Deducting a non-existent stock of User(uid = {user_in.uid}).",
-                    "WARNING",
+                    f"Deducting a non-existent stock of User(uid = {user_in.uid}).", "WARNING",
                 )
                 return user_in
             else:
@@ -194,8 +185,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
                 if new_amount < 0:
                     log_msg(
-                        f"Deducting more than owned of User(uid = {user_in.uid}).",
-                        "WARNING",
+                        f"Deducting more than owned of User(uid = {user_in.uid}).", "WARNING",
                     )
                 elif new_amount == 0:
                     user_in.long_positions.remove(ex) if t_type == "long" else user_in.short_positions.remove(ex)
@@ -208,8 +198,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
         else:
             log_msg(
-                f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).",
-                "WARNING",
+                f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).", "WARNING",
             )
             return user_in
 
@@ -221,6 +210,23 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             db.commit()
             return True
         return False
+
+    @fail_save
+    def reset_user_portfolio(self, user_in: User, db: Session) -> User:
+
+        # Reset portfolio and transaction history
+        user_in.long_positions = []
+        user_in.short_positions = []
+        user_in.transactions = []
+
+        # Set new reset time and amount
+        user_in.resets += 1
+        user_in.last_reset = datetime.now()
+
+        db.commit()
+        db.refresh(user_in)
+
+        return user_in
 
 
 user = CRUDUser(User)

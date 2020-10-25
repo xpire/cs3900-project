@@ -4,8 +4,9 @@ from src.db.base_model import BaseModel
 
 
 class LimitOrder(BaseModel):
-    user_id = Column(String, ForeignKey("user.uid"), primary_key=True)
-    symbol = Column(String, ForeignKey("stock.symbol"), primary_key=True)
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String, ForeignKey("user.uid"))
+    symbol = Column(String, ForeignKey("stock.symbol"))
     amount = Column(Integer, nullable=False)
     t_type = Column(String, nullable=False)  # buy/sell/short/cover
     price = Column(Float, nullable=False)

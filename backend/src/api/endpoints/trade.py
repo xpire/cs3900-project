@@ -3,10 +3,10 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from src import domain_models, schemas
-from src.crud import crud_user, crud_stock
-from src.core import trade
 from src.api.deps import check_symbol, get_current_user_dm, get_db
+from src.core import trade
 from src.core.config import settings
+from src.crud import crud_stock, crud_user
 from src.db.session import SessionLocal
 from src.schemas.response import Response
 
@@ -137,7 +137,7 @@ async def place_limit_order(
     if limit < 0:
         raise HTTPException(status_code=400, detail="Limit value cannot be negative")
 
-    crud_user.user.create_order(db, user.model, t_type, symbol, quantity, limit)
+    crud_user.user.create_order(db=db, user_in=user.model, trade_type=t_type, symbol=symbol, quantity=quantity,limit=limit)
 
     return Response("Order placed successfully")
 

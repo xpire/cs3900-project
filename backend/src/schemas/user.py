@@ -40,6 +40,7 @@ class UserInDB(UserInDBBase):
 
 class TransactionBase(BaseSchema):
     user_id: str
+    price: float
     action: str
     symbol: str
     amount: int
@@ -53,8 +54,11 @@ class LimitOrderBase(BaseSchema):
     user_id: str
     symbol: str
     amount: int
-    type: str
+    t_type: str
     price: float
 
-class LimitOrder(LimitOrderBase):
+class LimitOrderCreate(LimitOrderBase):
+    pass
+
+class LimitOrderDelete(LimitOrderBase): 
     pass

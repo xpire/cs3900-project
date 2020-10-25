@@ -105,6 +105,7 @@ class UserDM:
             return 0.25
         elif self.level >= 10:
             return 0.5
+        return 0
 
     def get_positions(self, p_type: str):
         if p_type != "long" and p_type != "short":

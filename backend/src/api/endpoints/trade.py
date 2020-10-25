@@ -39,7 +39,7 @@ async def market_short(
     db: Session = Depends(get_db),
 ):
     price = trade.get_stock_price(db, symbol)
-    return dm.ShortTrade(symbol, quantity, price, db, user).execute()
+    return dm.ShortTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
 
 
 @router.post("/market/cover")
@@ -50,7 +50,7 @@ async def market_cover(
     db: Session = Depends(get_db),
 ):
     price = trade.get_stock_price(db, symbol)
-    return dm.CoverTrade(symbol, quantity, price, db, user).execute()
+    return dm.CoverTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
 
 
 async def place_limit_order(

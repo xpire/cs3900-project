@@ -12,7 +12,7 @@ def apply_commission(price: float, is_buying: bool = True):
 
 
 def check_owned(user: UserDM, qty: int, symbol: str, positions):
-    pos = next((x in x for x in positions if x.symbol == symbol), None)
+    pos = next((x for x in positions if x.symbol == symbol), None)
     if pos is None:
         return False
 
@@ -20,11 +20,11 @@ def check_owned(user: UserDM, qty: int, symbol: str, positions):
 
 
 def check_owned_longs(user: UserDM, qty: int, symbol: str):
-    return check_owned(user.model.long_positions)
+    return check_owned(user, qty, symbol, user.model.long_positions)
 
 
 def check_owned_shorts(user: UserDM, qty: int, symbol: str):
-    return check_owned(user.model.short_positions)
+    return check_owned(user, qty, symbol, user.model.short_positions)
 
 
 def check_short_balance(user: UserDM, total_price: float):

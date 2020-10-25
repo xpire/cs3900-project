@@ -73,9 +73,3 @@ def fail_save(func):
             return None
 
     return inner
-
-    try:
-        func()
-    except SQLAlchemyError as e:
-        error = str(e.__dict__["orig"])
-        log_msg(error, "ERROR")

@@ -5,7 +5,7 @@ from pydantic import BaseModel as BaseSchema
 
 
 class TimeSeriesBase(BaseSchema):
-    datetime: date
+    date: date
     symbol: str
     low: float
     high: float

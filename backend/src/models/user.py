@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Float, Integer, String
+from sqlalchemy import Column, DateTime, Float, Integer, String
 from sqlalchemy.orm import relationship
 from src.db.base_model import BaseModel
 
@@ -10,9 +10,13 @@ class User(BaseModel):
     balance = Column(Float, nullable=False)
     level = Column(Integer, nullable=False)
     exp = Column(Float, nullable=False)
+    resets = Column(Integer, nullable=False, default=0)
+    last_reset = Column(DateTime, nullable=True)
     watchlist = relationship("WatchList", backref="user", cascade="save-update, merge, delete, delete-orphan")
-    long_positions = relationship("Portfolio", backref="user", cascade="save-update, merge, delete, delete-orphan")
-    short_positions = relationship("ShortSell", backref="user", cascade="save-update, merge, delete, delete-orphan")
+    long_positions = relationship("LongPosition", backref="user", cascade="save-update, merge, delete, delete-orphan")
+    short_positions = relationship("ShortPosition", backref="user", cascade="save-update, merge, delete, delete-orphan")
     unlocked_achievements = relationship(
         "UnlockedAchievement", backref="user", cascade="save-update, merge, delete, delete-orphan"
     )
+    limit_orders = relationship("LimitOrder", backref="user", cascade="save-update, merge, delete, delete-orphan")
+    transaction_hist = relationship("Transaction", backref="user", cascade="save-update, merge, delete, delete-orphan")

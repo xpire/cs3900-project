@@ -1,15 +1,17 @@
+from datetime import datetime
 from typing import List
 
+import src.api.endpoints.stocks as stocks_api
 from sqlalchemy.orm import Session
 from src.core.utilities import log_msg
-from src.crud.crud_user import user
+# from src.crud.crud_user import user
 from src.db.base_model import BaseModel
 from src.game.achievement.achievement import UserAchievement
 from src.game.setup.setup import achievements_list, level_manager
 from src.models import UnlockedAchievement
 from src.schemas import User, UserInDB
 
-import src.api.endpoints.stocks as stocks_api
+RESET_WAIT_PERIOD_DAYS = 1
 
 # TODO move this and relevant imports somewhere
 def update(model: BaseModel, db: Session):
@@ -96,8 +98,7 @@ class UserDM:
     def get_positions(self, p_type: str):
         if p_type != "long" and p_type != "short":
             log_msg(
-                "No such position. allowed are 'long' or'short'.",
-                "ERROR",
+                "No such position. allowed are 'long' or'short'.", "ERROR",
             )
             return
 
@@ -140,8 +141,7 @@ class UserDM:
         """
         if p_type != "long" and p_type != "short":
             log_msg(
-                "No such position. allowed are 'long' or'short'.",
-                "ERROR",
+                "No such position. allowed are 'long' or'short'.", "ERROR",
             )
             return
 
@@ -164,8 +164,7 @@ class UserDM:
         """
         if p_type != "long" and p_type != "short":
             log_msg(
-                "No such position. allowed are 'long' or'short'.",
-                "ERROR",
+                "No such position. allowed are 'long' or'short'.", "ERROR",
             )
             return
 
@@ -259,8 +258,7 @@ class UserDM:
     def get_daily_profit(self, p_type: str):
         if p_type != "long" and p_type != "short":
             log_msg(
-                "No such position. allowed are 'long' or'short'.",
-                "ERROR",
+                "No such position. allowed are 'long' or'short'.", "ERROR",
             )
             return
 
@@ -342,3 +340,25 @@ class UserDM:
             db=self.db, user_in=self.user, w_symbol=wl_sys
         )
         return self.user
+
+    def check_exists_watchlist(self, symbol: str):
+        for entry in self.user.watchlist:
+            if entry.symbol == symbol:
+                return True
+        return False
+
+    def check_order_exists(self, id: int):
+        for order in self.user.limit_orders:
+            if order.id == id:
+                return True
+
+        return False
+
+    def can_reset_portfolio(self):
+
+        if not self.model.last_reset:
+            return True
+
+        curr_dt = datetime.now()
+        return (curr_dt - self.model.last_reset).days >= RESET_WAIT_PERIOD_DAYS
+

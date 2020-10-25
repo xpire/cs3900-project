@@ -46,7 +46,7 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
 
     def get_time_series(self, db: Session, obj_in: Stock) -> List[Optional[Dict]]:
         """
-        Retieve the sorted time series of the obj_in.
+        Retieve the sorted time series of the obj_in. Returns latest date first.
         """
         # Need to reverse the order, since db returns in reverse order
         return [x.__dict__ for x in obj_in.timeseries][::-1]
@@ -62,7 +62,7 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
             tsc = None
             try:
                 tsc = TimeSeriesCreate(
-                    datetime=e["datetime"],
+                    date=e["datetime"],
                     symbol=obj_in.symbol,
                     low=e["low"],
                     high=e["high"],
@@ -78,7 +78,7 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
 
             found = False
             for t in obj_in.timeseries:
-                if t.datetime == tsc.datetime:
+                if t.date == tsc.date:
                     found = True
                     t.low = tsc.low
                     t.high = tsc.high
@@ -102,14 +102,8 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         for row in time_series_in:
             tsc = None
             try:
-                # @Even Tang
-                # Change this later
-                # dt = datetime.strptime(row["datetime"], "%Y-%m-%d")
-                # dt_str = dt.strftime("%Y-%m-%d")
-                # dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
-                # print(dt.strftime("%Y-%m-%d %H:%M:%S"))
                 tsc = TimeSeriesCreate(
-                    datetime=row["datetime"],
+                    date=row["datetime"],
                     symbol=obj_in.symbol,
                     low=row["low"],
                     high=row["high"],
@@ -129,6 +123,16 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         db.refresh(obj_in)
 
         return obj_in
+
+    @fail_save
+    def remove_all_hist(self, *, db: Session) -> None:
+        try:
+            num_rows_deleted = db.query(TimeSeries).delete()
+            log_msg(f"{num_rows_deleted} rows cleared from timeseries.", "INFO")
+            db.commit()
+        except:
+            log_msg("Error clearing historical data.", "ERROR")
+            db.rollback()
 
 
 stock = CRUDStock(Stock)

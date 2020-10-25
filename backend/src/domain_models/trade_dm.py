@@ -18,14 +18,13 @@ class Trade(ABC):
         self.is_long = is_long
         self.is_opening = is_opening
         self.trade_type = trade_type
-        self.execute()
 
     def execute(self):
         if self.qty < 0:
             raise HTTP400("Cannot trade negative quantity")
 
         total_price = self.price * self.qty
-        trade_price = trade.apply_commission(total_price, self.is_buying())
+        trade_price = trade.apply_commission(total_price, self.is_buying)
         fee = abs(trade_price - total_price)
         print(fee)
         self.check(total_price, trade_price)
@@ -33,9 +32,11 @@ class Trade(ABC):
         return Response(msg="success")
 
     def apply_trade(self, trade_price):
-        update_portfolio = crud_user.user.add_transaction if self.is_opening() else crud_user.user.deduct_transaction
-        update_portfolio(self.db, self.model, self.is_long(), self.symbol, self.qty, self.price)
-        new_balance = self.model.balance + trade_price * (-1 if self.is_buying() else 1)
+        if self.is_opening:
+            crud_user.user.add_transaction(self.db, self.model, self.is_long, self.symbol, self.qty, self.price)
+        else:
+            crud_user.user.deduct_transaction(self.db, self.model, self.is_long, self.symbol, self.qty)
+        new_balance = self.model.balance + trade_price * (-1 if self.is_buying else 1)
         crud_user.user.update_balance(self.db, self.model, new_balance)
 
     @abstractmethod
@@ -49,7 +50,7 @@ class Trade(ABC):
 
 class BuyTrade(Trade):
     def __init__(self, **kwargs):
-        super.__init__(**kwargs, is_buying=True, is_long=True, is_opening=True, trade_type=TradeType.BUY)
+        super().__init__(**kwargs, is_buying=True, is_long=True, is_opening=True, trade_type=TradeType.BUY)
 
     def check(self, total_price, trade_price):
         if self.model.balance < trade_price:
@@ -58,7 +59,7 @@ class BuyTrade(Trade):
 
 class SellTrade(Trade):
     def __init__(self, **kwargs):
-        super.__init__(**kwargs, is_buying=False, is_long=True, is_opening=False, trade_type=TradeType.SELL)
+        super().__init__(**kwargs, is_buying=False, is_long=True, is_opening=False, trade_type=TradeType.SELL)
 
     def check(self, total_price, trade_price):
         if not trade.check_owned_longs(self.user, self.qty, self.symbol):
@@ -67,7 +68,7 @@ class SellTrade(Trade):
 
 class ShortTrade(Trade):
     def __init__(self, **kwargs):
-        super.__init__(**kwargs, is_buying=False, is_long=False, is_opening=True, trade_type=TradeType.SHORT)
+        super().__init__(**kwargs, is_buying=False, is_long=False, is_opening=True, trade_type=TradeType.SHORT)
 
     def check(self, total_price, trade_price):
         if not trade.check_short_balance(self.user, total_price):
@@ -76,7 +77,7 @@ class ShortTrade(Trade):
 
 class CoverTrade(Trade):
     def __init__(self, **kwargs):
-        super.__init__(**kwargs, is_buying=True, is_long=False, is_opening=False, trade_type=TradeType.COVER)
+        super().__init__(**kwargs, is_buying=True, is_long=False, is_opening=False, trade_type=TradeType.COVER)
 
     def check(self, total_price, trade_price):
         if not trade.check_owned_shorts(self.user, self.qty, self.symbol):

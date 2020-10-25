@@ -70,7 +70,6 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
     if not symbols:
         return ret
 
-    print(symbols)
     # Can make for efficient later
     for symbol in symbols:
         stock = crud.stock.get_stock_by_symbol(db, symbol)

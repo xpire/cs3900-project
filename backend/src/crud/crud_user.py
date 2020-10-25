@@ -12,7 +12,6 @@ from typing import List, Optional
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
-
 # from src.core import trade
 from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
@@ -23,7 +22,8 @@ from src.models.long_position import LongPosition
 from src.models.short_position import ShortPosition
 from src.models.user import User
 from src.models.watch_list import WatchList
-from src.schemas.user import LimitOrderCreate, TransactionCreate, UserCreate, UserUpdate
+from src.schemas.user import (LimitOrderCreate, TransactionCreate, UserCreate,
+                              UserUpdate)
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -49,9 +49,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db.commit()
         db.refresh(db_obj)
         return db_obj
-
-    def authenticate(self, db: Session, email: str, password: str) -> Optional[User]:
-        pass
 
     def symbol_exist(self, db: Session, c_symbol: str):
         """
@@ -116,109 +113,75 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         self,
         db: Session,
         user_in: User,
-        t_type: str,
-        p_symbol: str,
-        p_amount: int,
+        is_long: bool,
+        symbol: str,
+        amount: int,
         price: float,
     ) -> User:
         """
         Add amount and price to portfolio
         """
-        if t_type != "long" and t_type != "short":
-            log_msg(
-                "No such type of transaction allowed, allowed are 'long' or'short'.",
-                "ERROR",
-            )
-            return user_in
-
-        if self.symbol_exist(db=db, c_symbol=p_symbol):
-
-            ex = None
-            ca = user_in.long_positions if t_type == "long" else user_in.short_positions
-
-            # Compact portfolio
-            for x in ca:
-                if x.symbol == p_symbol:
-                    ex = x
-                    break
-
-            if ex == None:
-                a_wl = (
-                    LongPosition(user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price)
-                    if t_type == "long"
-                    else ShortPosition(user_id=user_in.uid, symbol=p_symbol, amount=p_amount, avg=price)
-                )
-                user_in.long_positions.append(a_wl) if t_type == "long" else user_in.short_positions.append(a_wl)
-            else:
-                # running average used here
-                new_avg = (ex.avg * ex.amount + p_amount * price) / (ex.amount + p_amount)
-                new_amount = ex.amount + p_amount
-
-                ex.avg, ex.amount = new_avg, new_amount
-
-            db.commit()
-            db.refresh(user_in)
-            return user_in
-
-        else:
+        if not self.symbol_exist(db=db, c_symbol=symbol):
             log_msg(
                 f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).",
                 "WARNING",
             )
             return user_in
 
+        positions = user_in.long_positions if is_long else user_in.short_positions
+        pos = next((x for x in positions if x.symbol == symbol), None)
+
+        if pos is None:
+            Position = LongPosition if is_long else ShortPosition
+            positions.append(Position(user_id=user_in.uid, symbol=symbol, amount=amount, avg=price))
+        else:
+            # running average used here
+            new_avg = (pos.avg * pos.amount + amount * price) / (pos.amount + amount)
+            new_amount = pos.amount + amount
+
+            pos.avg, pos.amount = new_avg, new_amount
+
+        db.commit()
+        db.refresh(user_in)
+        return user_in
+
     @fail_save
-    def deduct_transaction(self, db: Session, user_in: User, t_type: str, p_symbol: str, p_amount: int) -> User:
+    def deduct_transaction(self, db: Session, user_in: User, is_long: bool, symbol: str, amount: int) -> User:
         """
         Remove a stock from portfolio (selling). For type specify 'long' or 'short'
         """
-        if t_type != "long" and t_type != "short":
-            log_msg(
-                "No such type of transaction allowed, allowed are 'long' or'short'.",
-                "ERROR",
-            )
-            return user_in
 
-        if self.symbol_exist(db=db, c_symbol=p_symbol):
-            ex = None
-
-            ca = user_in.long_positions if t_type == "long" else user_in.short_positions
-
-            for x in ca:
-                if x.symbol == p_symbol:
-                    ex = x
-                    break
-
-            if ex == None:
-                log_msg(
-                    f"Deducting a non-existent stock of User(uid = {user_in.uid}).",
-                    "WARNING",
-                )
-                return user_in
-            else:
-
-                new_amount = ex.amount - p_amount
-
-                if new_amount < 0:
-                    log_msg(
-                        f"Deducting more than owned of User(uid = {user_in.uid}).",
-                        "WARNING",
-                    )
-                elif new_amount == 0:
-                    user_in.long_positions.remove(ex) if t_type == "long" else user_in.short_positions.remove(ex)
-                else:
-                    ex.amount = new_amount
-
-                db.commit()
-                db.refresh(user_in)
-                return user_in
-
-        else:
+        if not self.symbol_exist(db=db, c_symbol=symbol):
             log_msg(
                 f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).",
                 "WARNING",
             )
             return user_in
+
+        positions = user_in.long_positions if is_long else user_in.short_positions
+        pos = next((x for x in positions if x.symbol == symbol), None)
+
+        if pos is None:
+            log_msg(
+                f"Deducting a non-existent stock of User(uid = {user_in.uid}).",
+                "WARNING",
+            )
+            return user_in
+
+        new_amount = pos.amount - amount
+        if new_amount < 0:
+            log_msg(
+                f"Deducting more than owned of User(uid = {user_in.uid}).",
+                "WARNING",
+            )
+        elif new_amount == 0:
+            positions.remove(pos) if is_long else positions.remove(pos)
+        else:
+            pos.amount = new_amount
+
+        db.commit()
+        db.refresh(user_in)
+        return user_in
 
     @fail_save
     def delete_user_by_email(self, db: Session, *, email: str) -> bool:
@@ -234,6 +197,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         self, *, db: Session, user_in: User, trade_type: str, symbol: str, quantity: int, limit: float
     ) -> User:
 
+        # TODO use TransactionTypes instead of strings
         allowed_types = ["buy", "sell", "short", "cover"]
         if self.symbol_exist(db=db, c_symbol=symbol):
 

@@ -11,7 +11,9 @@ router = APIRouter()
 
 
 @router.get("")
-async def get_watchlist(user: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)):
+async def get_watchlist(
+    user: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)
+):
     ret = []
     for entry in user.watchlist:
         ret += [
@@ -52,6 +54,6 @@ async def delete_watchlist(
         # raise HTTPException(status_code=400, detail="Symbol does not exist in watchlist.")
         return {"result": "Symbol does not exist in watchlist"}
 
-    crud.user.delete_from_watch_list(db, user, symbol)
+    crud.user.delete_from_watch_list(db, user.model, symbol)
 
     return {"result": "success"}

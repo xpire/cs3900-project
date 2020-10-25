@@ -31,21 +31,21 @@ const headCells = [
   { id: "value", numeric: true, disablePadding: false, label: "Value" },
 
   {
-    id: "gain",
+    id: "profit",
     numeric: true,
     disablePadding: false,
     label: "Gain",
     color: true,
   },
   {
-    id: "day_gain",
+    id: "day_profit",
     numeric: true,
     disablePadding: false,
-    label: "Day Gain",
+    label: "Day Profit",
     color: true,
   },
   {
-    id: "return",
+    id: "total_return",
     numeric: true,
     disablePadding: false,
     label: "Return",

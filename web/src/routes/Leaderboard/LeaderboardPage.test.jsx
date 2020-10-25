@@ -24,9 +24,7 @@ describe("Leaderboard Page", () => {
         </BrowserRouter>
       </AuthContext.Provider>
     );
-    const TitleElement = getByText(
-      "Welcome admin@ecksdee.com to the Leaderboard page!"
-    );
+    const TitleElement = getByText("Leaderboard");
     expect(TitleElement).toBeInTheDocument();
   });
 });

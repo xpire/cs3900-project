@@ -20,8 +20,10 @@ from src.crud.crud_stock import stock
 from src.models.limit_order import LimitOrder
 from src.models.long_position import LongPosition
 from src.models.short_position import ShortPosition
+from src.models.transaction import Transaction
 from src.models.user import User
 from src.models.watch_list import WatchList
+from src.schemas.transaction import TradeType
 from src.schemas.user import (LimitOrderCreate, TransactionCreate, UserCreate,
                               UserUpdate)
 
@@ -295,7 +297,22 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
         return user_in
 
-    def add_transaction_history(self, db: Session, user_in: User, price_in: float ): 
+    def add_rec_to_hist_trans(self, *, db: Session, user_in: User, price_in: float, trade_type_in: TradeType, amount_in: int, symbol_in: str) -> User:
+        '''
+        Add to the historical transaction.
+        '''
+        requested_record = TransactionCreate(
+            user_id=user_in.uid, 
+            price=price_in,
+            action=trade_type_in.name, 
+            symbol=symbol_in, 
+            amount=amount_in
+        )
+        user_in.transaction_hist.append(Transaction(**requested_record.__dict__))
+        db.commit()
+        db.refresh(user_in)
+        return user_in
+
         
 
 user = CRUDUser(User)

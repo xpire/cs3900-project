@@ -73,4 +73,4 @@ class TransactionHistoryCreate(BaseSchema):
     price: float
     action: str
     symbol: str
-    amount: int 
+    amount: int

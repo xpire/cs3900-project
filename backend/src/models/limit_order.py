@@ -7,7 +7,7 @@ class LimitOrder(BaseModel):
     user_id = Column(String, ForeignKey("user.uid"), primary_key=True)
     symbol = Column(String, ForeignKey("stock.symbol"), primary_key=True)
     amount = Column(Integer, nullable=False)
-    type = Column(String, nullable=False)  # {long, short}_{buy, sell}
+    t_type = Column(String, nullable=False)  # # buy/sell/short/cover
     price = Column(Float, nullable=False)
     stock_info = relationship(
         "Stock",

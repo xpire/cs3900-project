@@ -30,7 +30,8 @@
     "react-swipeable-views": "^0.13.9",
     "react-use-websocket": "^2.2.0",
     "shortid": "^2.2.8",
-    "styled-components": "^5.2.0"
+    "styled-components": "^5.2.0",
+    "webpack": "^4.42.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^4.2.4",

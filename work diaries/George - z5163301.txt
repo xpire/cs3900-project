@@ -48,3 +48,11 @@ Group To Do:
 - Store stock data in the database
 - Store user data in the database
 - Work on second sprint
+
+
+Week 6
+
+We started the second sprint. My role was in the backend, developing API's for portfolio, watchlist and storing daily closing prices in the database. I collaborated with frontend developers to ensure everything works as intended. I also had to interact a bit with database code to extend some tables and implement my own functions updating the database.
+
+Group To Do:
+- Develop pytests/unittests for the backend 

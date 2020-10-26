@@ -17,8 +17,13 @@ class TradingHoursManager:
         hours = self.trading_hours[stock.exchange]
         start, end = hours["start"], hours["end"]
         is_weekday = datetime.now(hours["timezone"]).weekday() <= 4
-        is_trading = is_weekday and (start <= curr_time and curr_time <= end)
-        print(stock.symbol, curr_time, is_weekday, is_trading)
+
+        if start <= end:
+            is_in_range = start <= curr_time and curr_time <= end
+        else:
+            is_in_range = start <= curr_time or curr_time <= end
+
+        is_trading = is_weekday and is_in_range
         return dict(is_trading=is_trading, start=start, end=end)
 
 

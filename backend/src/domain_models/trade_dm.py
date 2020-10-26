@@ -51,7 +51,7 @@ class Trade(ABC):
                 db=self.db, user_in=self.model, is_long=self.is_long, symbol_in=self.symbol, amount_in=self.qty
             )
         new_balance = self.model.balance + trade_price * (-1 if self.is_buying else 1)
-        crud_user.user.update_balance(db=self.db, user_in=self.model, balance=new_balance)
+        crud_user.user.update_balance(db=self.db, user_in=self.model, balance_in=new_balance)
 
     @abstractmethod
     def check(self, total_price, trade_price):

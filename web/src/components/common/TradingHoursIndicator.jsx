@@ -3,7 +3,8 @@ import { Chip, Tooltip } from "@material-ui/core";
 import OfflineIcon from "@material-ui/icons/NightsStay";
 import OnlineIcon from "@material-ui/icons/Brightness7";
 
-const TradingHoursIndicator = (online = true) => {
+const TradingHoursIndicator = ({ online }) => {
+  console.log(online);
   return (
     <Tooltip
       title={

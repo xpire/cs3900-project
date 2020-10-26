@@ -109,6 +109,15 @@ const Trading = () => {
     100,
     (data) => data[0].curr_close_price
   );
+  const [online, onlineLoading] = useApi(
+    `/stocks/stocks?symbols=${state.symbol}`,
+    [
+      //check current close price for stock
+      state.symbol,
+    ],
+    false,
+    (data) => data[0].is_trading
+  );
 
   // state inaccessible to user
   const [maxValue, setMaxValue] = useState(0);
@@ -123,7 +132,8 @@ const Trading = () => {
     portfolioLoading ||
     portfolioStatsLoading ||
     rawCommissionLoading ||
-    closePriceLoading;
+    closePriceLoading ||
+    onlineLoading;
 
   // update state for user input
   useEffect(() => {
@@ -248,7 +258,7 @@ const Trading = () => {
               Trading hours:
             </Grid>
             <Grid item xs={9}>
-              <TradingHoursIndicator online={false} />
+              <TradingHoursIndicator online={online} />
             </Grid>
             <Grid item xs={3}>
               Trade Type:

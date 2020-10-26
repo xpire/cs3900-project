@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 
 import src.api.endpoints.stocks as stocks_api
@@ -10,6 +11,7 @@ from src.game.setup.setup import achievements_list, level_manager
 from src.models import UnlockedAchievement
 from src.schemas import User, UserInDB
 
+RESET_WAIT_PERIOD_DAYS = 1
 
 # TODO move this and relevant imports somewhere
 def update(model: BaseModel, db: Session):
@@ -38,6 +40,15 @@ class UserDM:
 
     def save_to_db(self):
         update(self.user, self.db)
+
+    @property
+    def balance(self):
+        return self.user.balance
+
+    @balance.setter
+    def balance(self, balance):
+        self.user.balance = balance
+        self.save_to_db()
 
     @property
     def exp(self):
@@ -88,6 +99,14 @@ class UserDM:
     def model(self):
         return self.user
 
+    @property
+    def short_allowance_balance(self):
+        if self.level >= 5:
+            return 0.25
+        elif self.level >= 10:
+            return 0.5
+        return 0
+
     def get_positions(self, p_type: str):
         if p_type != "long" and p_type != "short":
             log_msg(
@@ -102,9 +121,9 @@ class UserDM:
 
         for position in portfolio:
             entry = {}
-            entry["price"] = float(stocks_api.latest_close_price_provider.data[position.symbol][0])
+            entry["price"] = float(stocks_api.market_data_provider.get_curr_day_close(position.symbol))
             # TODO: update this to get daily opening price, rather than prev day closing
-            entry["previous_price"] = float(stocks_api.latest_close_price_provider.data[position.symbol][1])
+            entry["previous_price"] = float(stocks_api.market_data_provider.get_prev_day_close(position.symbol))
             entry["symbol"] = position.symbol
             entry["name"] = position.stock_info.name
             entry["owned"] = position.amount
@@ -112,7 +131,9 @@ class UserDM:
             entry["total_paid"] = position.avg * position.amount
             entry["value"] = entry["price"] * position.amount
             entry["profit"] = entry["value"] - entry["total_paid"]
-            entry["day_profit"] = entry["price"] - entry["previous_price"]
+            entry["day_profit"] = (
+                entry["price"] - entry["previous_price"]
+            ) * position.amount  # TODO: fix, returns daily profit, but not for the portfolio
             entry["day_return"] = entry["day_profit"] / entry["total_paid"]
             entry["total_return"] = entry["profit"] / entry["total_paid"]
 
@@ -156,7 +177,7 @@ class UserDM:
 
         value = 0
         for position in portfolio:
-            curr_price = float(stocks_api.latest_close_price_provider.data[position.symbol][0])
+            curr_price = float(stocks_api.market_data_provider.get_curr_day_close(position.symbol))
             value += position.amount * curr_price
 
         return value
@@ -201,7 +222,7 @@ class UserDM:
         """
         Returns amount the investor can still short sell for
         """
-        return self.get_gross_value() * 0.25 - self.get_total_opening_values("short")
+        return self.get_gross_value() * self.short_allowance_balance - self.get_total_opening_values("short")
 
     def get_long_return(self):
         total_spent = self.get_total_opening_values("long")
@@ -237,8 +258,8 @@ class UserDM:
 
         profit = 0
         for position in portfolio:
-            curr_price = float(stocks_api.latest_close_price_provider.data[position.symbol][0])
-            opening_price = float(stocks_api.latest_close_price_provider.data[position.symbol][1])
+            curr_price = float(stocks_api.market_data_provider.get_curr_day_close(position.symbol))
+            opening_price = float(stocks_api.market_data_provider.get_prev_day_close(position.symbol))
             profit += curr_price - opening_price
 
         return profit if p_type == "long" else -profit
@@ -291,15 +312,28 @@ class UserDM:
         return stats
 
     def watchlist_create(self, wl_sys: str):
-        self.user = user.add_to_watch_list(db=self.db, user_in=self.user, w_symbol=wl_sys)
-        return self.user
+        user.add_to_watch_list(db=self.db, user_in=self.user, symbol_in=wl_sys)
 
     def watchlist_delete(self, wl_sys: str):
-        self.user = user.delete_from_watch_list(db=self.db, user_in=self.user, w_symbol=wl_sys)
-        return self.user
+        user.delete_from_watch_list(db=self.db, user_in=self.user, symbol_in=wl_sys)
 
     def check_exists_watchlist(self, symbol: str):
         for entry in self.user.watchlist:
             if entry.symbol == symbol:
                 return True
         return False
+
+    def check_order_exists(self, id: int):
+        for order in self.user.limit_orders:
+            if order.id == id:
+                return True
+
+        return False
+
+    def can_reset_portfolio(self):
+
+        if not self.model.last_reset:
+            return True
+
+        curr_dt = datetime.now()
+        return (curr_dt - self.model.last_reset).days >= RESET_WAIT_PERIOD_DAYS

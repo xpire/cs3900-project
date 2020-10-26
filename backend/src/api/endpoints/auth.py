@@ -18,19 +18,19 @@ from src.api.deps import (
 from src.core.async_exit import AppStatus
 from src.domain_models import UserDM
 from src.game.achievement.achievement import UserAchievement
-from src.game.event.sub_events import TransactionEvent
+from src.game.event.sub_events import StatUpdateEvent, TransactionEvent
+from src.game.setup.setup import event_hub
 from src.notification.notifier import Notifier, notif_hub
 from src.schemas.transaction import ClosingTransaction, OpeningTransaction, OrderType, TradeType, Transaction
 
 router = APIRouter()
 
+STARTING_BALANCE = 10000
+
 
 @router.get("")
-async def check_user(id_token: str = Header(None)) -> schemas.user:
-
-    uid = decode_token(id_token)
-
-    return uid
+async def get_user(user=Depends(get_current_user_dm)) -> schemas.User:
+    return user.schema
 
 
 @router.delete("")
@@ -61,9 +61,33 @@ async def create_user(
     check_user_exists(uid, db)
 
     # Create if doesn't exist
-    user = crud.user.create(db, obj_in=schemas.UserCreate(email=email, uid=uid, username=email))
+    user = crud.user.create(
+        db, obj_in=schemas.UserCreate(email=email, uid=uid, username=email, balance=STARTING_BALANCE)
+    )
 
     return dm.UserDM(user, db).schema
+
+
+@router.get("/reset_portfolio")
+async def reset_user_portfolio(user=Depends(get_current_user_dm), db: Session = Depends(get_db)):
+
+    # Check if it can be reset
+    if not user.can_reset_portfolio():
+        return {
+            "result": "failed, you have reset too recently.",
+            "last_reset_time": user.model.last_reset,
+            "current_time": datetime.now(),
+        }
+
+    crud.user.update_balance(db=db, user_in=user.model, balance_in=STARTING_BALANCE)
+
+    crud.user.reset_user_portfolio(user_in=user.model, db=db)
+
+    # TODO abstract this function to a separate function
+    # reset_user_portfolio should be name reset_user_account, and set balance there too
+    event_hub.publish(StatUpdateEvent(user=user))
+
+    return {"result": "reset success."}
 
 
 @router.get("/balance")
@@ -77,7 +101,7 @@ async def get_user_balance(user_m: models.User = Depends(get_current_user_m)) ->
 @router.get("/add_exp")
 async def add_exp(
     amount: float,
-    user: UserDM = Depends(get_current_user_dm),
+    user=Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> schemas.User:
     """
@@ -89,7 +113,7 @@ async def add_exp(
 
 
 @router.get("/reset_level")
-async def reset_level(user: UserDM = Depends(get_current_user_dm), db: Session = Depends(get_db)) -> schemas.User:
+async def reset_level(user=Depends(get_current_user_dm), db: Session = Depends(get_db)) -> schemas.User:
     """
     Reset user's level and exp
     - exposed for testing purposes
@@ -101,7 +125,7 @@ async def reset_level(user: UserDM = Depends(get_current_user_dm), db: Session =
 
 
 @router.get("/achievements")
-async def achievements(user: UserDM = Depends(get_current_user_dm)) -> List[UserAchievement]:
+async def achievements(user=Depends(get_current_user_dm)) -> List[UserAchievement]:
     """
     List of achievements and whether or not they are unlocked by the user
     """
@@ -129,7 +153,7 @@ async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
             print("INVALID AUTH MESSAGE RECEIVED:", id_token)
             uid = None
 
-        user = crud.user.get_user_by_uid(db, uid=uid)
+        user = crud.user.get_user_by_uid(db=db, uid=uid)
 
         if user:
             print("AUTHORISED")
@@ -156,7 +180,7 @@ TEST APIS
 
 
 @router.post("/reset")
-async def market_buy(user: UserDM = Depends(get_current_user_dm)) -> schemas.User:
+async def market_buy(user=Depends(get_current_user_dm)) -> schemas.User:
     user.exp = 0
     user.level = 1
     user.user.unlocked_achievements = []
@@ -165,7 +189,7 @@ async def market_buy(user: UserDM = Depends(get_current_user_dm)) -> schemas.Use
 
 
 @router.post("/market/buy")
-async def market_buy(symbol: str, quantity: int, user: UserDM = Depends(get_current_user_dm)) -> schemas.User:
+async def market_buy(symbol: str, quantity: int, user=Depends(get_current_user_dm)) -> schemas.User:
     t = OpeningTransaction(
         user=user,
         order_type=OrderType.MARKET,
@@ -183,7 +207,7 @@ async def market_buy(symbol: str, quantity: int, user: UserDM = Depends(get_curr
 
 
 @router.post("/market/sell")
-async def market_buy(symbol: str, quantity: int, user: UserDM = Depends(get_current_user_dm)) -> schemas.User:
+async def market_buy(symbol: str, quantity: int, user=Depends(get_current_user_dm)) -> schemas.User:
     t = ClosingTransaction(
         user=user,
         order_type=OrderType.MARKET,

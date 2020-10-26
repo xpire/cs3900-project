@@ -21,6 +21,8 @@ import WatchlistIcon from "@material-ui/icons/ViewList";
 // import WatchlistIcon3 from "@material-ui/icons/Book";
 import MarketPage from "../routes/Market/MarketPage";
 import MarketIcon from "@material-ui/icons/TrendingUp";
+import OrderPage from "../routes/Orders/OrdersPage";
+import OrderIcon from "@material-ui/icons/MenuBook";
 import StockDetailsPage from "../routes/StockDetails/StockDetailsPage";
 import StockDetailsIcon from "@material-ui/icons/Assessment";
 import ProfilePage from "../routes/Profile/ProfilePage";
@@ -94,9 +96,18 @@ export const Routes = [
   },
   {
     text: "Trading",
-    path: "/trading",
+    path: "/trade",
     component: TradingPage,
     icon: <TradingIcon />,
+    isPublic: false,
+    exact: false,
+    isShown: true,
+  },
+  {
+    text: "Orders",
+    path: "/orders",
+    component: OrderPage,
+    icon: <OrderIcon />,
     isPublic: false,
     exact: false,
     isShown: true,

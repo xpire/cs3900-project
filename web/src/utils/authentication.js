@@ -4,9 +4,15 @@ import { Typography, CircularProgress, useTheme } from "@material-ui/core";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthState } from "react-firebase-hooks/auth";
 import styled from "styled-components";
+// import { useSnackbar } from "notistack";
+// import Confetti from "react-dom-confetti";
+import useWindowSize from "react-use/lib/useWindowSize";
+import Confetti from "react-confetti";
 
 import axios from "./api";
 import { CenteredMotionDiv } from "../components/common/styled";
+import useSockets from "../hooks/useSockets";
+import useHandleSocketSnack from "../hooks/useHandleSocketSnack";
 const StyledCenteredMotionDiv = styled(CenteredMotionDiv)({
   background: (props) => props.theme.palette.background.default || "#303030",
 });
@@ -29,6 +35,17 @@ export const AuthProvider = ({ children }) => {
           delete axios.defaults.headers.common["id-token"];
         });
   }, [user]);
+
+  const [celebration, setCelebration] = useState(false);
+  const handleSnack = useHandleSocketSnack(setCelebration);
+
+  const [lastJsonMessage] = useSockets();
+  useEffect(() => {
+    console.log({ lastJsonMessage });
+    handleSnack(lastJsonMessage);
+  }, [lastJsonMessage]);
+
+  const { width, height } = useWindowSize();
   return (
     <div style={{ background: theme.palette.background.default }}>
       <AnimatePresence exitBeforeEnter>
@@ -59,6 +76,16 @@ export const AuthProvider = ({ children }) => {
               }}
             >
               {children}
+              {celebration && (
+                <Confetti
+                  width={width}
+                  height={height}
+                  numberOfPieces={200}
+                  recycle={false}
+                  gravity={0.1}
+                  onConfettiComplete={() => setCelebration(false)}
+                />
+              )}
             </AuthContext.Provider>
           </motion.div>
         )}

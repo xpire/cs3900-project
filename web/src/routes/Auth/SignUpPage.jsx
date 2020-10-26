@@ -12,11 +12,13 @@ import Alert, { useAlert } from "../../components/common/Alert";
 const SignUpPage = () => {
   const [showAlert, alertDetails, createAlert, closeAlert] = useAlert();
   const [finished, setFinished] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const SignUp = async (event) => {
     event.preventDefault();
     const { username, email, password, repeatPassword } = event.target.elements;
     try {
+      setLoading(true);
       if (repeatPassword.value !== password.value) {
         throw {
           code: "Passwords don't match!",
@@ -32,6 +34,8 @@ const SignUpPage = () => {
       setFinished(true);
     } catch (error) {
       createAlert(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,6 +54,7 @@ const SignUpPage = () => {
               submitHandler={SignUp}
               repeat={true}
               username={true}
+              loading={loading}
             />
             <MaterialLink to="/signin" component={Link} color="inherit">
               {"Already have an account? Sign in"}
@@ -62,6 +67,7 @@ const SignUpPage = () => {
         text={alertDetails.message}
         open={showAlert}
         handleClose={closeAlert}
+        handleCancel={closeAlert}
         isError={true}
       />
     </Page>

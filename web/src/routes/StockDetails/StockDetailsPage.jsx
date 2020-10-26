@@ -26,6 +26,9 @@ import Candlestick from "../../components/graph/Candlestick";
 import { Skeleton } from "@material-ui/lab";
 import axios from "../../utils/api";
 // import ApexCandlestick from "../../components/graph/ApexCandlestick";
+import { format } from "../../utils/formatter";
+import useHandleSnack from "../../hooks/useHandleSnack";
+import TradingHoursIndicator from "../../components/common/TradingHoursIndicator";
 
 function createData(name, value) {
   return { name, value };
@@ -116,9 +119,9 @@ const StockDetails = () => {
       .then((response) => {
         let data = response.data;
         data = data
-          .map(({ datetime, open, close, high, low, volume }) => {
+          .map(({ date, open, close, high, low, volume }) => {
             return {
-              date: new Date(datetime),
+              date: new Date(date),
               open: +open,
               high: +high,
               low: +low,
@@ -134,6 +137,8 @@ const StockDetails = () => {
   };
 
   useEffect(pollStockData, []);
+
+  const handleSnack = useHandleSnack();
 
   return (
     <Page>
@@ -152,11 +157,20 @@ const StockDetails = () => {
                     <Typography variant="h2">{symbol}</Typography>
                     {/* <Typography variant="h4"> 
                     {loading ? <Skeleton /> : stockData.name}
-                  </Typography> */}{" "}
+                  </Typography> */}
                     {/* Add back when name is here*/}
-                    {!loading && <Chip label={stockData.name} size="small" />}
                     {!loading && (
-                      <Chip label={stockData.exchange} size="small" />
+                      <Grid container spacing={1}>
+                        <Grid item>
+                          <Chip label={stockData.name} size="small" />
+                        </Grid>
+                        <Grid item>
+                          <Chip label={stockData.exchange} size="small" />
+                        </Grid>
+                        <Grid item>
+                          <TradingHoursIndicator online={true} />
+                        </Grid>
+                      </Grid>
                     )}
                   </Grid>
                   <Grid item md={12} sm={6}>
@@ -166,7 +180,7 @@ const StockDetails = () => {
                         variant="h2"
                         align="right"
                       >
-                        {loading ? <Skeleton /> : `${dayGain?.toFixed(2)}%`}
+                        {loading ? <Skeleton /> : `${format(dayGain)}%`}
                       </ColoredText>
                     </Grid>
                     <Grid item>
@@ -175,7 +189,7 @@ const StockDetails = () => {
                         variant="h3"
                         align="right"
                       >
-                        {loading ? <Skeleton /> : `$${latestPrice?.toFixed(2)}`}
+                        {loading ? <Skeleton /> : `$${format(latestPrice)}`}
                       </ColoredText>
                     </Grid>
                   </Grid>
@@ -186,28 +200,7 @@ const StockDetails = () => {
                   variant="outlined"
                   color="primary"
                   onClick={() => {
-                    axios
-                      .post(`/watchlist?symbol=${symbol}`)
-                      .then((response) => {
-                        console.log({ response });
-                        response.data?.result === "success"
-                          ? enqueueSnackbar(
-                              `${response.data.result}! ${symbol} added to watchlist`,
-                              {
-                                variant: "Success",
-                              }
-                            )
-                          : enqueueSnackbar(`${response.data.result}`, {
-                              variant: "Warning",
-                            });
-                        console.log({ response });
-                        console.log(response.data.result === "success");
-                      })
-                      .catch((err) =>
-                        enqueueSnackbar(`${err}`, {
-                          variant: "Error",
-                        })
-                      );
+                    handleSnack(`/watchlist?symbol=${symbol}`, "post");
                   }}
                 >
                   Watch
@@ -216,7 +209,7 @@ const StockDetails = () => {
                 <Button
                   variant="outlined"
                   color="primary"
-                  onClick={() => history.push(`/trading?symbol=${symbol}`)}
+                  onClick={() => history.push(`/trade?symbol=${symbol}`)}
                 >
                   Trade
                 </Button>

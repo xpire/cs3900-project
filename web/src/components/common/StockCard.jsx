@@ -17,6 +17,8 @@ import { useSnackbar } from "notistack";
 
 import { ColoredText, StandardCard } from "./styled";
 import axios from "../../utils/api";
+import useHandleSnack from "../../hooks/useHandleSnack";
+import TradingHoursIndicator from "../common/TradingHoursIndicator";
 
 const StyledCard = styled(Card)({ margin: "10px" });
 
@@ -42,6 +44,8 @@ const StockCard = ({
 }) => {
   let history = useHistory();
   const { enqueueSnackbar } = useSnackbar();
+  const handleSnack = useHandleSnack();
+
   return (
     <StyledCard>
       <CardActionArea component={Link} to={`/stock/${symbol}`}>
@@ -62,6 +66,9 @@ const StockCard = ({
                   <Grid item>{name && <Chip size="small" label={name} />}</Grid>
                   <Grid item>
                     <Chip size="small" label={category} />
+                  </Grid>
+                  <Grid item>
+                    <TradingHoursIndicator online={true} />
                   </Grid>
                 </Grid>
                 <Grid container alignItems="flex-end" justify="space-between">
@@ -101,30 +108,9 @@ const StockCard = ({
               <Button
                 size="small"
                 color="primary"
-                onClick={() => {
-                  axios
-                    .post(`/watchlist?symbol=${symbol}`)
-                    .then((response) => {
-                      console.log({ response });
-                      response.data?.result === "success"
-                        ? enqueueSnackbar(
-                            `${response.data.result}! ${symbol} added to watchlist`,
-                            {
-                              variant: "Success",
-                            }
-                          )
-                        : enqueueSnackbar(`${response.data.result}`, {
-                            variant: "Warning",
-                          });
-                      console.log({ response });
-                      console.log(response.data.result === "success");
-                    })
-                    .catch((err) =>
-                      enqueueSnackbar(`${err}`, {
-                        variant: "Error",
-                      })
-                    );
-                }}
+                onClick={() =>
+                  handleSnack(`/watchlist?symbol=${symbol}`, "post")
+                }
               >
                 watch
               </Button>
@@ -132,7 +118,7 @@ const StockCard = ({
             <Button
               size="small"
               color="primary"
-              to={`/trading?symbol=${symbol}`}
+              to={`/trade?symbol=${symbol}`}
               component={Link}
             >
               trade

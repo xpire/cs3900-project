@@ -120,7 +120,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Add amount and price to portfolio
         """
-        if not self.symbol_in_exist(db=db, symbol_in=symbol_in):
+        if not self.symbol_exist(db=db, symbol_in=symbol_in):
             log_msg(
                 f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).",
                 "WARNING",

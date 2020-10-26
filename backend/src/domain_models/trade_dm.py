@@ -43,7 +43,7 @@ class Trade(ABC):
                 user_in=self.model,
                 is_long=self.is_long,
                 symbol_in=self.symbol,
-                quantity_in=self.qty,
+                amount_in=self.qty,
                 price_in=self.price,
             )
         else:

@@ -2,20 +2,26 @@ from datetime import datetime
 from json.decoder import JSONDecodeError
 from typing import List
 
-from fastapi import APIRouter, Depends, Header, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, Header, HTTPException, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm
 from src import models, schemas
-from src.api.deps import (check_uid_email, check_user_exists, decode_token,
-                          get_current_user_dm, get_current_user_m, get_db)
+from src.api.deps import (
+    check_uid_email,
+    check_user_exists,
+    decode_token,
+    get_current_user_dm,
+    get_current_user_m,
+    get_db,
+)
 from src.core.async_exit import AppStatus
 from src.domain_models import UserDM
 from src.game.achievement.achievement import UserAchievement
 from src.game.event.sub_events import TransactionEvent
 from src.notification.notifier import Notifier, notif_hub
-from src.schemas.transaction import (ClosingTransaction, OpeningTransaction,
-                                     OrderType, TradeType, Transaction)
+from src.schemas.response import Response
+from src.schemas.transaction import ClosingTransaction, OpeningTransaction, OrderType, TradeType, Transaction
 
 router = APIRouter()
 
@@ -67,18 +73,20 @@ async def reset_user_portfolio(user_dm=Depends(get_current_user_dm), db: Session
 
     # Check if it can be reset
     if not user_dm.can_reset_portfolio():
-        return {
-            "result": "failed, you have reset too recently.",
-            "last_reset_time": user_dm.model.last_reset,
-            "current_time": datetime.now(),
-        }
+        # return {
+        #     "result": "failed, you have reset too recently.",
+        #     "last_reset_time": user_dm.model.last_reset,
+        #     "current_time": datetime.now(),
+        # }
+        raise HTTPException(status_code=400, detail=f"Failed to reset, you last resetted {user_dm.model.last_reset}.")
 
     crud.user.update_balance(db=db, user_in=user_dm.model, balance_in=STARTING_BALANCE)
 
     crud.user.reset_user_portfolio(user_in=user_dm.model, db=db)
     # TODO: Keep track of resets and reset timestamp
 
-    return {"result": "reset success."}
+    # return {"result": "reset success."}
+    return Response(msg="Reset successfully.")
 
 
 @router.get("/balance")

@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 from src.core import trade
 from src.core.utilities import HTTP400
 from src.crud import crud_user
+from src.game.event.sub_events import StatUpdateEvent
+from src.game.setup.setup import event_hub
 from src.schemas.response import Response
 from src.schemas.transaction import TradeType
 
@@ -30,13 +32,24 @@ class Trade(ABC):
 
         fee = abs(trade_price - total_price)
         self.user.add_exp(fee)
+
+        event_hub.publish(StatUpdateEvent(user=self.user))
         return Response(msg="success")
 
     def apply_trade(self, trade_price):
         if self.is_opening:
-            crud_user.user.add_transaction(db=self.db, user_in=self.model, is_long=self.is_long, symbol_in=self.symbol, quantity_in=self.qty, price_in=self.price)
+            crud_user.user.add_transaction(
+                db=self.db,
+                user_in=self.model,
+                is_long=self.is_long,
+                symbol_in=self.symbol,
+                quantity_in=self.qty,
+                price_in=self.price,
+            )
         else:
-            crud_user.user.deduct_transaction(db=self.db, user_in=self.model, is_long=self.is_long, symbol_in=self.symbol, amount_in=self.qty)
+            crud_user.user.deduct_transaction(
+                db=self.db, user_in=self.model, is_long=self.is_long, symbol_in=self.symbol, amount_in=self.qty
+            )
         new_balance = self.model.balance + trade_price * (-1 if self.is_buying else 1)
         crud_user.user.update_balance(db=self.db, user_in=self.model, balance=new_balance)
 

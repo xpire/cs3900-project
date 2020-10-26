@@ -22,10 +22,8 @@ from src.models.short_position import ShortPosition
 from src.models.transaction import Transaction
 from src.models.user import User
 from src.models.watch_list import WatchList
-
 from src.schemas.transaction import TradeType
 from src.schemas.user import LimitOrderCreate, TransactionCreate, UserCreate, UserUpdate
-
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -34,7 +32,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     """
 
     def get_all_users(self, db: Session) -> List[User]:
-        return db.query(self.model.uid).distinct()
+        return db.query(self.model).all()
 
     def get_user_by_uid(self, *, db: Session, uid: str) -> Optional[User]:
         """
@@ -56,7 +54,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Return True if the symbol exists
         """
-        return  stock.get_stock_by_symbol(db=db, stock_symbol=symbol_in) != None
+        return stock.get_stock_by_symbol(db=db, stock_symbol=symbol_in) != None
 
     @fail_save
     def add_to_watch_list(self, *, db: Session, user_in: User, symbol_in: str) -> User:
@@ -76,14 +74,14 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
                 f"Adding a non-existent symbol to watchlist of User(uid = {user_in.uid}).",
                 "WARNING",
             )
-            return user_in 
-     
+            return user_in
+
     @fail_save
     def delete_from_watch_list(self, *, db: Session, user_in: User, symbol_in: str) -> User:
         """
         Delete a watchlist for user_in.
         """
-        if self.symbol_exist(db=db, symbol_in=symbol_in):            
+        if self.symbol_exist(db=db, symbol_in=symbol_in):
             search_result = None
             for entry in user_in.watchlist:
                 if entry.symbol == symbol_in:
@@ -111,7 +109,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     @fail_save
     def add_transaction(
         self,
-        *, 
+        *,
         db: Session,
         user_in: User,
         is_long: bool,
@@ -253,22 +251,19 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
         return user_in
 
-    def add_history(self, *, db: Session, user_in: User, price_in: float, trade_type_in: TradeType, amount_in: int, symbol_in: str) -> User:
-        '''
+    def add_history(
+        self, *, db: Session, user_in: User, price_in: float, trade_type_in: TradeType, amount_in: int, symbol_in: str
+    ) -> User:
+        """
         Add to the historical transaction.
-        '''
+        """
         requested_record = TransactionCreate(
-            user_id=user_in.uid, 
-            price=price_in,
-            action=trade_type_in.name, 
-            symbol=symbol_in, 
-            amount=amount_in
+            user_id=user_in.uid, price=price_in, action=trade_type_in.name, symbol=symbol_in, amount=amount_in
         )
         user_in.transaction_hist.append(Transaction(**requested_record.__dict__))
         db.commit()
         db.refresh(user_in)
         return user_in
 
-        
 
 user = CRUDUser(User)

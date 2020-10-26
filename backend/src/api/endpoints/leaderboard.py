@@ -19,7 +19,7 @@ async def get_leaderboard(user: UserDM = Depends(get_current_user_dm), db: Sessi
     rankings = []  # Entries are (uid, net_worth)
     users = crud.user.get_all_users(db)
     for u in users:
-        user_dm = get_current_user_dm(crud.user.get_user_by_uid(db, u[0]), db)
+        user_dm = get_current_user_dm(crud.user.get_user_by_uid(db=db, uid=u.uid), db)
         net_worth = user_dm.get_net_value()
         rankings += [
             {

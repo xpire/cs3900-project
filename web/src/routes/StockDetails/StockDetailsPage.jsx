@@ -28,6 +28,7 @@ import axios from "../../utils/api";
 // import ApexCandlestick from "../../components/graph/ApexCandlestick";
 import { format } from "../../utils/formatter";
 import useHandleSnack from "../../hooks/useHandleSnack";
+import TradingHoursIndicator from "../../components/common/TradingHoursIndicator";
 
 function createData(name, value) {
   return { name, value };
@@ -79,6 +80,7 @@ const StockDetails = () => {
   const [latestPrice, setLatestPrice] = useState(0);
   const [dayGain, setDayGain] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [online, setOnline] = useState(false);
   const [timeSeries, setTimeSeries] = useState(null);
   const [error, setError] = useState(false);
   const { symbol } = useParams();
@@ -109,6 +111,7 @@ const StockDetails = () => {
         (100 * (stockData.curr_close_price - stockData.prev_close_price)) /
         stockData.prev_close_price;
       setDayGain(gain);
+      setOnline(stockData.is_trading);
     }
   }, [stockData]);
 
@@ -156,11 +159,20 @@ const StockDetails = () => {
                     <Typography variant="h2">{symbol}</Typography>
                     {/* <Typography variant="h4"> 
                     {loading ? <Skeleton /> : stockData.name}
-                  </Typography> */}{" "}
+                  </Typography> */}
                     {/* Add back when name is here*/}
-                    {!loading && <Chip label={stockData.name} size="small" />}
                     {!loading && (
-                      <Chip label={stockData.exchange} size="small" />
+                      <Grid container spacing={1}>
+                        <Grid item>
+                          <Chip label={stockData.name} size="small" />
+                        </Grid>
+                        <Grid item>
+                          <Chip label={stockData.exchange} size="small" />
+                        </Grid>
+                        <Grid item>
+                          <TradingHoursIndicator online={online} />
+                        </Grid>
+                      </Grid>
                     )}
                   </Grid>
                   <Grid item md={12} sm={6}>

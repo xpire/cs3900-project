@@ -67,6 +67,7 @@ const SignUpPage = () => {
         text={alertDetails.message}
         open={showAlert}
         handleClose={closeAlert}
+        handleCancel={closeAlert}
         isError={true}
       />
     </Page>

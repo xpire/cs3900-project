@@ -6,9 +6,11 @@ from sqlalchemy.orm import Session
 from src import crud
 from src.api.deps import check_symbol, get_db
 from src.core.config import settings
-from src.core.utilities import log_msg
+from src.core.utilities import HTTP400, log_msg
 from src.db.session import SessionLocal
 from src.domain_models.orders_dm import PendingOrder
+from src.domain_models.trading_hours import trading_hours_manager
+from src.game.stat_update_publisher import StatUpdatePublisher
 from src.real_time_market_data.data_provider import MarketDataProvider
 from twelvedata import TDClient
 
@@ -38,6 +40,8 @@ def startup_event():
 
     if symbols:
         market_data_provider = MarketDataProvider(symbols=symbols, apikey=API_KEY, db=db, crud_obj=crud.stock)
+        market_data_provider.subscribe_with_update(StatUpdatePublisher(db))
+        # TODO @Song, place the order execution below the above subscribe
         execute_limit_orders = PendingOrder(db)
         market_data_provider.subscribe(execute_limit_orders)
         market_data_provider.start()
@@ -87,6 +91,7 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
                 curr_close_price=market_data_provider.get_curr_day_close(symbol),
                 prev_close_price=market_data_provider.get_prev_day_close(symbol),
                 commission=0.005,  # TODO move to a config
+                **trading_hours_manager.get_trading_hours_info(stock),
             )
         )
     return ret
@@ -98,31 +103,8 @@ async def get_stock_data(symbol: str = Depends(check_symbol), db: Session = Depe
     return crud.stock.get_time_series(db=db, stock_in=stock)
 
 
-# TODO move this somehwere else
-from pytz import timezone
-
-trading_hours = dict(
-    ASX=dict(start=time(23, 0), end=time(5, 0), timezone=timezone("Australia/Sydney")),
-    NYSE=dict(start=time(13, 30), end=time(20, 0), timezone=timezone("America/New_York")),
-    NASDAQ=dict(start=time(13, 30), end=time(20, 0), timezone=timezone("America/New_York")),
-    LSE=dict(start=time(8, 0), end=time(16, 30), timezone=timezone("Europe/London")),
-)
-
-# TODO change check_symbol to get_symbol
+# TODO change check_symbol to get_by_symbol
 @router.get("/trading_hours")
 async def get_trading_hours(symbol: str = Depends(check_symbol), db: Session = Depends(get_db)):
-    global trading_hours
-
-    # Trading hours retrieved from
-    # https://www.thebalance.com/stock-market-hours-4773216#:~:text=Toronto%20Stock%20Exchange-,9%3A30%20a.m.%20to%204%20p.m.,30%20p.m.%20to%209%20p.m.&text=8%3A30%20a.m.%20to%203%20p.m.
     stock = crud.stock.get_stock_by_symbol(db=db, stock_symbol=symbol)
-    curr_time = datetime.now().time()  # UTC time
-
-    if stock.exchange not in trading_hours:  # TODO maybe create util HTTP400(msg)
-        raise HTTPException(status_code=400, detail="Exchange for the given symbol not found.")
-
-    hours = trading_hours[stock.exchange]
-    start, end = hours["start"], hours["end"]
-    is_weekday = datetime.now(hours["timezone"]).weekday() <= 4
-    is_trading = is_weekday and (start <= curr_time and curr_time <= end)
-    return dict(is_trading=is_trading, start=start, end=end)
+    return trading_hours_manager.get_trading_hours_info(stock)

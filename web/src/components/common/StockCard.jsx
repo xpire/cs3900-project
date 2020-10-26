@@ -18,6 +18,7 @@ import { useSnackbar } from "notistack";
 import { ColoredText, StandardCard } from "./styled";
 import axios from "../../utils/api";
 import useHandleSnack from "../../hooks/useHandleSnack";
+import TradingHoursIndicator from "../common/TradingHoursIndicator";
 
 const StyledCard = styled(Card)({ margin: "10px" });
 
@@ -38,6 +39,7 @@ const StockCard = ({
   category,
   price,
   delta,
+  online,
   skeleton,
   watchButton = true,
 }) => {
@@ -65,6 +67,9 @@ const StockCard = ({
                   <Grid item>{name && <Chip size="small" label={name} />}</Grid>
                   <Grid item>
                     <Chip size="small" label={category} />
+                  </Grid>
+                  <Grid item>
+                    <TradingHoursIndicator online={online} />
                   </Grid>
                 </Grid>
                 <Grid container alignItems="flex-end" justify="space-between">

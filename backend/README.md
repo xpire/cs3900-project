@@ -10,6 +10,7 @@ $ python = 3.7.3
 
 To install all the python dependencies please do 
 ```
+$ pip install —upgrade pip
 $ pip install -r requirements.txt
 ```
 

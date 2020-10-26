@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@material-ui/core";
 
-const Alert = ({ title, text, open, handleClose, isError }) => {
+const Alert = ({ title, text, open, handleClose, handleCancel, isError }) => {
   return (
     <>
       <Dialog open={open} onClose={handleClose}>
@@ -18,7 +18,7 @@ const Alert = ({ title, text, open, handleClose, isError }) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>OK</Button>
-          {!isError && <Button onClick={handleClose}>cancel</Button>}
+          {!isError && <Button onClick={handleCancel}>cancel</Button>}
         </DialogActions>
       </Dialog>
     </>

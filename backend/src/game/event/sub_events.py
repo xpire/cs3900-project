@@ -21,3 +21,7 @@ class LevelUpEvent(GameEvent):
 class AchievementUnlockedEvent(GameEvent):
     event_type: GameEventType = Const(GameEventType.ACHIEVEMENT_UNLOCKED)
     achievement: Achievement
+
+
+class StatUpdateEvent(GameEvent):
+    event_type: GameEventType = Const(GameEventType.STAT_UPDATE)

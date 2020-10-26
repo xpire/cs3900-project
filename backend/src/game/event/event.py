@@ -8,8 +8,7 @@ from src.util.auto_name_enum import AutoName
 class GameEventType(str, AutoName):
     TRANSACTION = auto()  # when transactions are executed
     LEVEL_UP = auto()  # when levelling up
-    STATISTICS = auto()  # after statistics have been computed
-    # ACTION = auto()  # e.g. read a wiki
+    STAT_UPDATE = auto()  # after statistics have been computed
     ACHIEVEMENT_UNLOCKED = auto()
 
 

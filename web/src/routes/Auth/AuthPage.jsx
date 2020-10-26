@@ -37,7 +37,7 @@ const ResetPasswordPage = () => {
           .auth()
           .applyActionCode(actionCode)
           .then((resp) => {
-            enqueueSnackbar("Email has been Verified.", { variant: "Success" });
+            enqueueSnackbar("Email has been Verified.", { variant: "success" });
             history.push("/");
           });
         break;
@@ -47,7 +47,7 @@ const ResetPasswordPage = () => {
     }
   } catch (error) {
     history.push("/");
-    enqueueSnackbar(error.code, { variant: "Error", preventDuplicate: true });
+    enqueueSnackbar(error.code, { variant: "error", preventDuplicate: true });
   }
 
   const ResetPassword = async (event) => {
@@ -56,7 +56,7 @@ const ResetPasswordPage = () => {
     const { password } = event.target.elements;
     try {
       await app.auth().confirmPasswordReset(actionCode, password.value);
-      enqueueSnackbar("Password has been Reset.", { variant: "Success" });
+      enqueueSnackbar("Password has been Reset.", { variant: "success" });
       history.push("/");
     } catch (error) {
       createAlert(error);
@@ -94,6 +94,7 @@ const ResetPasswordPage = () => {
         text={alertDetails.message}
         open={showAlert}
         handleClose={closeAlert}
+        handleCancel={closeAlert}
         isError={true}
       />
     </Page>

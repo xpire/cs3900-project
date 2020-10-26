@@ -77,9 +77,13 @@ class MarketDataProvider(DataProvider):
         self.cache_latest_data(msg)
 
         for observer in self.observers:
-            observer.update(self.data)
+            observer.update(self.data)  # remove this parameter
 
     def subscribe(self, observer):
+        self.observers.append(observer)
+
+    def subscribe_with_update(self, observer):
+        observer.update(self.data)  # remove this too
         self.observers.append(observer)
 
     def cache_latest_data(self, msg):
@@ -91,6 +95,13 @@ class MarketDataProvider(DataProvider):
                     curr_day_close=float(data[0]["close"]),
                     prev_day_close=float(data[1]["close"]),
                 )
+
+        """
+        TODO
+        Thread-safe version (assuming data is read only...)
+        self.cache[symbol] = dict(...)
+        self._data = self.cache.copy()
+        """
 
     def create_request(self, days):
         return self.TD.time_series(

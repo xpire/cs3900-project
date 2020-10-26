@@ -2,26 +2,23 @@ from datetime import datetime
 from json.decoder import JSONDecodeError
 from typing import List
 
-from fastapi import APIRouter, Depends, Header, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import (APIRouter, Depends, Header, HTTPException, WebSocket,
+                     WebSocketDisconnect)
 from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm
 from src import models, schemas
-from src.api.deps import (
-    check_uid_email,
-    check_user_exists,
-    decode_token,
-    get_current_user_dm,
-    get_current_user_m,
-    get_db,
-)
+from src.api.deps import (check_uid_email, check_user_exists, decode_token,
+                          get_current_user_dm, get_current_user_m, get_db)
 from src.core.async_exit import AppStatus
 from src.domain_models import UserDM
 from src.game.achievement.achievement import UserAchievement
-from src.game.event.sub_events import TransactionEvent
+from src.game.event.sub_events import StatUpdateEvent, TransactionEvent
+from src.game.setup.setup import event_hub
 from src.notification.notifier import Notifier, notif_hub
 from src.schemas.response import Response
-from src.schemas.transaction import ClosingTransaction, OpeningTransaction, OrderType, TradeType, Transaction
+from src.schemas.transaction import (ClosingTransaction, OpeningTransaction,
+                                     OrderType, TradeType, Transaction)
 
 router = APIRouter()
 
@@ -69,7 +66,7 @@ async def create_user(
 
 
 @router.get("/reset_portfolio")
-async def reset_user_portfolio(user_dm=Depends(get_current_user_dm), db: Session = Depends(get_db)):
+async def reset_user_portfolio(user=Depends(get_current_user_dm), db: Session = Depends(get_db)):
 
     # Check if it can be reset
     if not user_dm.can_reset_portfolio():
@@ -80,10 +77,13 @@ async def reset_user_portfolio(user_dm=Depends(get_current_user_dm), db: Session
         # }
         raise HTTPException(status_code=400, detail=f"Failed to reset, you last resetted {user_dm.model.last_reset}.")
 
-    crud.user.update_balance(db=db, user_in=user_dm.model, balance_in=STARTING_BALANCE)
+    crud.user.update_balance(db=db, user_in=user.model, balance_in=STARTING_BALANCE)
 
-    crud.user.reset_user_portfolio(user_in=user_dm.model, db=db)
-    # TODO: Keep track of resets and reset timestamp
+    crud.user.reset_user_portfolio(user_in=user.model, db=db)
+
+    # TODO abstract this function to a separate function
+    # reset_user_portfolio should be name reset_user_account, and set balance there too
+    event_hub.publish(StatUpdateEvent(user=user))
 
     # return {"result": "reset success."}
     return Response(msg="Reset successfully.")

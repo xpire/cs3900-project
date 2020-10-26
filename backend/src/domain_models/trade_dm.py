@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 from src.core import trade
 from src.core.utilities import HTTP400
 from src.crud import crud_user
+from src.game.event.sub_events import StatUpdateEvent
+from src.game.setup.setup import event_hub
 from src.schemas.response import Response
 from src.schemas.transaction import TradeType
 
@@ -30,6 +32,8 @@ class Trade(ABC):
 
         fee = abs(trade_price - total_price)
         self.user.add_exp(fee)
+
+        event_hub.publish(StatUpdateEvent(user=self.user))
         return Response(msg="success")
 
     def apply_trade(self, trade_price):

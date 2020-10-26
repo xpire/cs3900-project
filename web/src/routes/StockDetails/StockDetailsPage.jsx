@@ -80,6 +80,7 @@ const StockDetails = () => {
   const [latestPrice, setLatestPrice] = useState(0);
   const [dayGain, setDayGain] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [online, setOnline] = useState(false);
   const [timeSeries, setTimeSeries] = useState(null);
   const [error, setError] = useState(false);
   const { symbol } = useParams();
@@ -110,6 +111,7 @@ const StockDetails = () => {
         (100 * (stockData.curr_close_price - stockData.prev_close_price)) /
         stockData.prev_close_price;
       setDayGain(gain);
+      setOnline(stockData.is_trading);
     }
   }, [stockData]);
 
@@ -168,7 +170,7 @@ const StockDetails = () => {
                           <Chip label={stockData.exchange} size="small" />
                         </Grid>
                         <Grid item>
-                          <TradingHoursIndicator online={true} />
+                          <TradingHoursIndicator online={online} />
                         </Grid>
                       </Grid>
                     )}

@@ -39,6 +39,7 @@ const StockCard = ({
   category,
   price,
   delta,
+  online,
   skeleton,
   watchButton = true,
 }) => {
@@ -68,7 +69,7 @@ const StockCard = ({
                     <Chip size="small" label={category} />
                   </Grid>
                   <Grid item>
-                    <TradingHoursIndicator online={true} />
+                    <TradingHoursIndicator online={online} />
                   </Grid>
                 </Grid>
                 <Grid container alignItems="flex-end" justify="space-between">

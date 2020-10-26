@@ -9,6 +9,7 @@ from src.core.config import settings
 from src.core.utilities import HTTP400, log_msg
 from src.db.session import SessionLocal
 from src.domain_models.trading_hours import trading_hours_manager
+from src.game.stat_update_publisher import StatUpdatePublisher
 from src.real_time_market_data.data_provider import MarketDataProvider
 from twelvedata import TDClient
 
@@ -38,6 +39,8 @@ def startup_event():
 
     if symbols:
         market_data_provider = MarketDataProvider(symbols=symbols, apikey=API_KEY, db=db, crud_obj=crud.stock)
+        market_data_provider.subscribe_with_update(StatUpdatePublisher(db))
+        # TODO @Song, place the order execution below the above subscribe
         market_data_provider.start()
     else:
         log_msg("There are no stocks in the database, not polling for data.", "WARNING")

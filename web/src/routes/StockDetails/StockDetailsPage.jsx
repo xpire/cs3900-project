@@ -28,6 +28,7 @@ import axios from "../../utils/api";
 // import ApexCandlestick from "../../components/graph/ApexCandlestick";
 import { format } from "../../utils/formatter";
 import useHandleSnack from "../../hooks/useHandleSnack";
+import TradingHoursIndicator from "../../components/common/TradingHoursIndicator";
 
 function createData(name, value) {
   return { name, value };
@@ -156,11 +157,20 @@ const StockDetails = () => {
                     <Typography variant="h2">{symbol}</Typography>
                     {/* <Typography variant="h4"> 
                     {loading ? <Skeleton /> : stockData.name}
-                  </Typography> */}{" "}
+                  </Typography> */}
                     {/* Add back when name is here*/}
-                    {!loading && <Chip label={stockData.name} size="small" />}
                     {!loading && (
-                      <Chip label={stockData.exchange} size="small" />
+                      <Grid container spacing={1}>
+                        <Grid item>
+                          <Chip label={stockData.name} size="small" />
+                        </Grid>
+                        <Grid item>
+                          <Chip label={stockData.exchange} size="small" />
+                        </Grid>
+                        <Grid item>
+                          <TradingHoursIndicator online={true} />
+                        </Grid>
+                      </Grid>
                     )}
                   </Grid>
                   <Grid item md={12} sm={6}>

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../utils/api";
-import { TextField, CircularProgress } from "@material-ui/core";
+import { TextField, CircularProgress, InputAdornment } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
+
+// import TradingHoursIndicator from "../../components/common/TradingHoursIndicator";
 
 const AutoCompleteTextField = ({ value, setValue }) => {
   const [open, setOpen] = useState(false);
@@ -65,6 +67,11 @@ const AutoCompleteTextField = ({ value, setValue }) => {
                 {params.InputProps.endAdornment}
               </React.Fragment>
             ),
+            // startAdornment: (
+            //   <InputAdornment position="start">
+            //     <TradingHoursIndicator online={true} />
+            //   </InputAdornment>
+            // ),
           }}
         />
       )}

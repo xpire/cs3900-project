@@ -29,6 +29,7 @@ import AutoCompleteTextField from "../../components/common/AutoCompleteTextField
 import { format } from "../../utils/formatter";
 import { StandardCard } from "../../components/common/styled";
 import useHandleSnack from "../../hooks/useHandleSnack";
+import TradingHoursIndicator from "../../components/common/TradingHoursIndicator";
 
 const Trading = () => {
   const search = useLocation().search;
@@ -242,6 +243,12 @@ const Trading = () => {
                 value={state.symbol}
                 setValue={setSymbol}
               />
+            </Grid>
+            <Grid item xs={3}>
+              Trading hours:
+            </Grid>
+            <Grid item xs={9}>
+              <TradingHoursIndicator online={false} />
             </Grid>
             <Grid item xs={3}>
               Trade Type:

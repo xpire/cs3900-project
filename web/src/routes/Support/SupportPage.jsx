@@ -47,10 +47,10 @@ const Support = () => {
     setForgotAlert(false);
   };
   const handleRestartGame = () => {
-    alert("hit the reset api"); //TODO: use handleSnack to handle restartGame API
-    // handleSnack(`/reset`, "post")
-    fetch("/this doesnt exist")
-      .catch()
+    // alert("hit the reset api"); //TODO: use handleSnack to handle restartGame API
+    handleSnack(`/user/reset_portfolio`, "get")
+      // fetch("/this doesnt exist")
+      // .catch()
       .then(() => {
         setRestartAlert(false);
       });

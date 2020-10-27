@@ -37,26 +37,55 @@ and portfolio
 
 
 class DataProvider(ABC):
-    def __init__(self):
+    def __init__(self, db, symbols):
+        self.db = db
         self.is_running = False
         self.observers = []
+
+        self.symbols = symbols
+        self.db = db
+
+        self._data = {}
+        self.lock = Lock()
 
     def start(self):
         if not self.is_running:
             self.is_running = True
+            self.init_data()
             self._start()
 
     @abstractmethod
     def _start(self):
         pass
 
+    @abstractmethod
+    def pre_init_data(self):
+        pass
+
+    def init_data(self):
+        msg = self.get_init_data()
+        print("===== INITIALISING MARKET DATA =====")
+        for symbol, data in msg.items():
+            print(f"Number of entries for {symbol}: {len(data)}")
+            crud.stock.batch_add_daily_time_series(db=self.db, stock_in=self.get_stock(symbol), time_series_in=data)
+        print("===== FINISHED INITIALISATION =====")
+        self.cache_latest_data(msg)
+
+    @abstractmethod
+    def get_init_data(self):
+        pass
+
     def update(self):
-        self._update()
+        msg = self.get_update_data()
+        for symbol, data in msg.items():
+            crud.stock.update_time_series(db=self.db, stock_in=self.get_stock(symbol), u_time_series=data)
+        self.cache_latest_data(msg)
+
         for observer in self.observers:
             observer.update(self.data)  # remove this parameter
 
     @abstractmethod
-    def _update(self):
+    def get_update_data(self):
         pass
 
     def subscribe(self, observer):
@@ -65,10 +94,6 @@ class DataProvider(ABC):
     def subscribe_with_update(self, observer):
         observer.update(self.data)  # remove this too
         self.observers.append(observer)
-
-    @abstractproperty
-    def data(self):
-        pass
 
     def get_curr_day_close(self, symbol):
         return self.data[symbol]["curr_day_close"]
@@ -79,68 +104,12 @@ class DataProvider(ABC):
     def get_prev_day_close(self, symbol):
         return self.data[symbol]["prev_day_close"]
 
-
-class CompositeDataProvider(DataProvider):
-    def __init__(self, providers):
-        super().__init__()
-        self.providers = providers
-
-    def _start(self):
-        for p in self.providers:
-            p.start()
-
-    def update(self):
-        pass
-
-    @property
-    def data(self):
-        data = {}
-        for p in self.providers:
-            data = {**data, **p.data}
-        return data
-
-
-class MarketDataProvider(DataProvider):
-    def __init__(self, apikey, symbols, db):
-        super().__init__()
-
-        self.TD = TDClient(apikey=apikey)
-        self.symbols = symbols
-        self.db = db
-
-        self._data = {}
-        self.lock = Lock()
-
-    def _start(self):
-        self.batch_init()
-        RepeatScheduler(self, seconds_until_next_minute).start()
-
-    # Close sqlalchemy session
     def close(self):
         self.db.close()
 
-    def batch_init(self):
-        # Clear db first
-        crud.stock.remove_all_hist(db=self.db)
-
-        msg = self.make_request(days=365)
-
-        print("===== INITIALISING MARKET DATA =====")
-        for symbol, data in msg.items():
-            print(f"Number of entries for {symbol}: {len(data)}")
-            crud.stock.batch_add_daily_time_series(db=self.db, stock_in=self.get_stock(symbol), time_series_in=data)
-
-        print("===== FINISHED INITIALISATION =====")
-        self.cache_latest_data(msg)
-
-    def update(self):
-        msg = self.make_request(days=2)
-
-        # Update db
-        for symbol, data in msg.items():
-            crud.stock.update_time_series(db=self.db, stock_in=self.get_stock(symbol), u_time_series=data)
-
-        self.cache_latest_data(msg)
+    # figure this out
+    def without_exchange(self, symbol):
+        return symbol.split(":")[0]
 
     def get_stock(self, symbol):
         return crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=self.without_exchange(symbol))
@@ -159,6 +128,62 @@ class MarketDataProvider(DataProvider):
         with self.lock:
             self._data = temp
 
+    @property
+    def data(self):
+        with self.lock:
+            return self._data
+
+
+class CompositeDataProvider(DataProvider):
+    def __init__(self, providers, **kwargs):
+        super().__init__()
+        self.providers = providers
+
+    def _start(self):
+        for p in self.providers:
+            p.start()
+
+    def pre_init_data(self):
+        for p in self.providers:
+            p.pre_init_data()
+
+    def get_init_data(self):
+        data = {}
+        for p in self.providers:
+            data.extend(p.get_init_data())
+        return data
+
+    # TODO updates not synced
+    # def get_update_data(self):
+    #     data = {}
+    #     for p in self.providers:
+    #         data.extend(p.get_update_data())
+    #     return data
+
+    # @property
+    # def data(self):
+    #     data = {}
+    #     for p in self.providers:
+    #         data = {**data, **p.data} #TODO use extend instead for efficiency?
+    #     return data
+
+
+class MarketDataProvider(DataProvider):
+    def __init__(self, apikey, symbols, db):
+        super().__init__()
+
+        self.TD = TDClient(apikey=apikey)
+
+    def _start(self):
+        RepeatScheduler(self, seconds_until_next_minute).start()
+
+    def get_init_data(self):
+        # change from days to specifying start time
+        return self.make_request(days=365)
+
+    def get_update_data(self):
+        return self.make_request(days=2)
+
     def make_request(self, days):
         msg = self.TD.time_series(
             symbol=self.symbols,
@@ -171,14 +196,6 @@ class MarketDataProvider(DataProvider):
             return {self.symbols[0]: msg}
 
         return msg
-
-    def without_exchange(self, symbol):
-        return symbol.split(":")[0]
-
-    @property
-    def data(self):
-        with self.lock:
-            return self._data
 
 
 class SimulatedDataProvider(DataProvider):
@@ -200,6 +217,20 @@ class SimulatedDataProvider(DataProvider):
         with self.lock:
             for s in self.stocks:
                 s.update()
+
+    def get_init_data(self):
+        # specify timezone
+        msg = {}
+        for s in self.stocks:
+            msg[s.symbol] = s.make_request()
+        return msg
+
+    def get_update_date(self):
+        # specify timezone
+        msg = {}
+        for s in self.stocks:
+            msg[s.symbol] = s.make_request_by_days()
+        return msg
 
     def add_stock(self, stock):
         self.stocks.append(stock)

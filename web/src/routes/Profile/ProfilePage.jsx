@@ -18,6 +18,21 @@ import Page from "../../components/page/Page";
 import { StandardCard } from "../../components/common/styled";
 import useApi from "../../hooks/useApi";
 import { format } from "../../utils/formatter";
+import SortableTable from "../../components/common/SortableTable";
+
+const headCells = [
+  { id: "t_type", numeric: false, disablePadding: false, label: "Trade Type" },
+  { id: "symbol", numeric: false, disablePadding: false, label: "Symbol" },
+  { id: "name", numeric: false, disablePadding: false, label: "Name" },
+  { id: "amount", numeric: false, disablePadding: false, label: "Quantity" },
+  {
+    id: "price",
+    numeric: true,
+    disablePadding: false,
+    label: "Price",
+  },
+  { id: "value", numeric: true, disablePadding: false, label: "Value" },
+];
 
 const Profile = () => {
   const { user } = useContext(AuthContext);
@@ -28,13 +43,9 @@ const Profile = () => {
     1,
     ({ user_ranking }) => user_ranking
   );
-  // const [data, setData] = useState({});
-  // useEffect(() => {
-  //   axios.get("/user").then((response) => {
-  //     console.log(response.data);
-  //     setData(response.data);
-  //   });
-  // }, []);
+
+  const [transactionData] = useApi("/transactions");
+
   return (
     <Page>
       <Grid container direction="row">
@@ -101,10 +112,15 @@ const Profile = () => {
         </Grid>
         <Grid item xs={12}>
           <StandardCard>
-            <CardContent>
-              <Typography variant="h2">Transaction History</Typography>
-              <Skeleton />
-            </CardContent>
+            {/* <CardContent> */}
+            {/* <Typography variant="h2">Transaction History</Typography> */}
+            {/* <Skeleton /> */}
+            <SortableTable
+              data={transactionData}
+              header={headCells}
+              title="Transaction History"
+            />
+            {/* </CardContent> */}
           </StandardCard>
         </Grid>
       </Grid>

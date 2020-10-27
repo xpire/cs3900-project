@@ -14,13 +14,15 @@ async def get_transactions(
     ret = []
 
     for transaction in user.model.transaction_hist:
-        ret += {
-            "t_type": transaction.action,
-            "symbol": transaction.symbol,
-            "name": transaction.stock_info.name,
-            "amount": transaction.amount,
-            "price": transaction.price,
-            "value": transaction.amount * transaction.price,
-        }
+        ret += [
+            {
+                "t_type": transaction.action,
+                "symbol": transaction.symbol,
+                "name": transaction.stock_info.name,
+                "amount": transaction.amount,
+                "price": transaction.price,
+                "value": transaction.amount * transaction.price,
+            }
+        ]
 
     return ret

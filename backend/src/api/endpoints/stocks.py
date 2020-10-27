@@ -34,7 +34,7 @@ def startup_event():
     global market_data_provider
 
     db = SessionLocal()
-    stocks = crud.stock.get_all_stocks(db=db)[:10]  # TODO change this slice later
+    stocks = crud.stock.get_all_stocks(db=db)[35:]  # TODO change this slice later
     symbols = [f"{stock.symbol}:{stock.exchange}" for stock in stocks]
 
     if symbols:

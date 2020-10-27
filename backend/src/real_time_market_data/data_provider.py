@@ -45,7 +45,6 @@ class DataProvider(ABC):
         self.symbols = symbols
         self.db = db
 
-        self._data = {}
         self.lock = Lock()
 
     def start(self):
@@ -75,19 +74,6 @@ class DataProvider(ABC):
     def get_init_data(self):
         pass
 
-    def update(self):
-        msg = self.get_update_data()
-        for symbol, data in msg.items():
-            crud.stock.update_time_series(db=self.db, stock_in=self.get_stock(symbol), u_time_series=data)
-        self.cache_latest_data(msg)
-
-        for observer in self.observers:
-            observer.update(self.data)  # remove this parameter
-
-    @abstractmethod
-    def get_update_data(self):
-        pass
-
     def subscribe(self, observer):
         self.observers.append(observer)
 
@@ -95,6 +81,11 @@ class DataProvider(ABC):
         observer.update(self.data)  # remove this too
         self.observers.append(observer)
 
+    @abstractproperty
+    def data(self):
+        pass
+
+    # can be made more efficient in the combined
     def get_curr_day_close(self, symbol):
         return self.data[symbol]["curr_day_close"]
 
@@ -107,31 +98,9 @@ class DataProvider(ABC):
     def close(self):
         self.db.close()
 
-    # figure this out
+    # clean this up
     def without_exchange(self, symbol):
         return symbol.split(":")[0]
-
-    def get_stock(self, symbol):
-        return crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=self.without_exchange(symbol))
-
-    def cache_latest_data(self, msg):
-        temp = {**self._data}
-        for symbol, data in msg.items():
-            symbol = self.without_exchange(symbol)
-            temp[symbol] = dict(
-                curr_day_open=float(data[0]["open"]),
-                curr_day_close=float(data[0]["close"]),
-                prev_day_close=float(data[1]["close"]),
-            )
-
-        # switch out referneces
-        with self.lock:
-            self._data = temp
-
-    @property
-    def data(self):
-        with self.lock:
-            return self._data
 
 
 class CompositeDataProvider(DataProvider):
@@ -153,22 +122,56 @@ class CompositeDataProvider(DataProvider):
             data.extend(p.get_init_data())
         return data
 
-    # TODO updates not synced
-    # def get_update_data(self):
-    #     data = {}
-    #     for p in self.providers:
-    #         data.extend(p.get_update_data())
-    #     return data
-
-    # @property
-    # def data(self):
-    #     data = {}
-    #     for p in self.providers:
-    #         data = {**data, **p.data} #TODO use extend instead for efficiency?
-    #     return data
+    # cache, by letting the providers have updated counter (id)
+    @property
+    def data(self):
+        data = {}
+        for p in self.providers:
+            data = {**data, **p.data}  # TODO use extend instead for efficiency?
+        return data
 
 
-class MarketDataProvider(DataProvider):
+class RegularPollingProvider(DataProvider):
+    def __init__(self):
+        self._data = {}
+
+    def update(self):
+        msg = self.get_update_data()
+        for symbol, data in msg.items():
+            crud.stock.update_time_series(db=self.db, stock_in=self.get_stock(symbol), u_time_series=data)
+        self.cache_latest_data(msg)
+
+        for observer in self.observers:
+            observer.update(self.data)  # remove this parameter
+
+    @abstractmethod
+    def get_update_data(self):
+        pass
+
+    def get_stock(self, symbol):
+        return crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=self.without_exchange(symbol))
+
+    def cache_latest_data(self, msg):
+        temp = {**self._data}
+        for symbol, data in msg.items():
+            symbol = self.without_exchange(symbol)
+            temp[symbol] = dict(
+                curr_day_open=float(data[0]["open"]),
+                curr_day_close=float(data[0]["close"]),
+                prev_day_close=float(data[1]["close"]),
+            )
+
+        # switch out references
+        with self.lock:
+            self._data = temp
+
+    @property
+    def data(self):
+        with self.lock:
+            return self._data
+
+
+class MarketDataProvider(RegularPollingProvider):
     def __init__(self, apikey, symbols, db):
         super().__init__()
 
@@ -203,49 +206,25 @@ class SimulatedDataProvider(DataProvider):
         super().__init__()
 
         self.stocks = stocks
-        self.last_update = self.current_time()
-
         self.interval = interval
         self.lock = Lock()
 
     def _start(self):
         RepeatScheduler(self, self.interval).start()
 
-    def update(self):
-        self.last_update = self.current_time()
-
-        with self.lock:
-            for s in self.stocks:
-                s.update()
-
     def get_init_data(self):
         # specify timezone
         msg = {}
         for s in self.stocks:
-            msg[s.symbol] = s.make_request()
+            msg[s.symbol] = s.make_request()  # TODO fill-in
         return msg
 
-    def get_update_date(self):
+    def get_update_data(self):
         # specify timezone
         msg = {}
         for s in self.stocks:
-            msg[s.symbol] = s.make_request_by_days()
+            msg[s.symbol] = s.make_request_by_days()  # TODO fill-in
         return msg
-
-    def add_stock(self, stock):
-        self.stocks.append(stock)
-
-    def current_time(self):
-        return "{0:%Y-%m-%d %H:%M:%S}".format(datetime.now())
-
-    @property
-    def data(self):
-        data = {}
-        with self.lock:
-            for s in self.stocks:
-                price = f"{s.price:.05f}"
-                data[s.symbol] = dict(price=price, datetime=self.last_update)
-        return data
 
 
 trading_hours_manager = None

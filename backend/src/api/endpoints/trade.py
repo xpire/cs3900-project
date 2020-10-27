@@ -70,6 +70,15 @@ def place_limit_order(
     crud_user.user.create_order(
         db=db, user_in=user.model, trade_type=t_type, symbol=symbol, quantity=quantity, limit=limit
     )
+    # price = trade.get_stock_price(db, symbol)
+    # crud_user.user.add_history(
+    #     db=db,
+    #     user_in=user.model,
+    #     price_in=price,
+    #     trade_type_in=t_type,
+    #     symbol_in=symbol,
+    #     amount_in=quantity,
+    # )
 
     return Response(msg="Order placed successfully")
 

@@ -69,6 +69,7 @@ export const AuthProvider = ({ children }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ ease: "easeOut" }}
             key="application"
+            style={{ overflow: "hidden" }}
           >
             <AuthContext.Provider
               value={{

@@ -12,10 +12,6 @@ from twelvedata import TDClient
 
 """
 TODO
-
-BRING BACK THE SIMULATED DATA
-- edit stocks.csv, with exchange name XD-00, XD-06, XD-12, XD-18 (timezones)
-- bring back the simulated data provider, etc.
 - helper functions (crud?/not) to separate between simulated and non-simulated
 - focus on refactoring in the next sprint
 - how to test limit order execution etc.
@@ -31,7 +27,6 @@ in blocks of 5
 and portfolio
 - portfolio - inventory system: hover to see more details, click for even more
 - floaty + button?
-
 
 - change days=365 -> time-start, time-end for yearly data, keep it at days=2 for other
 """

@@ -73,3 +73,8 @@ whos symbol contains the search term
 Week 6:
 - planned last week: notification system, achievement system, and possibly creating a full-fledged simulated stock data
 - implemented notification system using websockets, which came with additional challenges as dealing with it was very different from REST API.
+- implemented the acheivement system using, and I was able to achieve in a clean way through the use of an event-based architecture
+- simulated stock data was planned last week, but we are almost done with all of the user stories in the backlog, so we won't be running behind schedule, I'll just work on it next week
+- technical obstacle 1: there was an issue with TwelveData, where when we polled for 365days' worth of data, we'd only get 7 or 10 entries. I was able to solve this by simply contacting the customer service
+- technical obstacle 2: the existing trading logic (i.e. executing trades, calculating costs, commission fee, updating db, etc.) were spread across the code base and had lots of redundant code. Hence, I focused most of my development effort this week refactoring the trading logic, which in the end was very beneficial, because it allowed me to get my features done very easily (e.g. granting experience points for trading could be implemented in 1 line).
+- plan for next week: work on simulated stock data, refactor the backend codebase even more, start looking at frontend codebase so that I can start working on prettifying the frontend next next week

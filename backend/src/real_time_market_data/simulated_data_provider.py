@@ -1,17 +1,14 @@
+from threading import Lock
+
+from src.real_time_market_data.repeated_update_provider import RepeatedUpdateProvider
 
 
-
-class SimulatedProvider(RepeatedPollingProvider):
-    def __init__(self, stocks, interval=10):
-        super().__init__()
+class SimulatedProvider(RepeatedUpdateProvider):
+    def __init__(self, stocks, repeat_in_x_seconds=10, **kwargs):
+        super().__init__(**kwargs, repeat_in_x_seconds=repeat_in_x_seconds)
 
         self.stocks = stocks
-        self.interval = interval
         self.lock = Lock()
-
-    def on_start(self):
-        super().on_start()
-        RepeatScheduler(self, self.interval).start()
 
     def get_init_data(self):
         # specify timezone

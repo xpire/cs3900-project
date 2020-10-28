@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.util.langhelpers import symbol
 from src.crud.crud_user import user
 from src.schemas import User
 from src import domain_models as dm
@@ -18,9 +19,23 @@ class PendingOrder:
     def execute_limit_orders(investor: User, db: Session):
         for order in investor.limit_orders:
             curr_price = trade.get_stock_price(order.symbol)
-            if order.type == TradeType.BUY and order.price < curr_price:
-                transaction = dm.BuyTrade(order.symbol, order.quantity, order.price, db, investor)
+            if order.type == TradeType.BUY and order.price >= curr_price:
+                transaction = dm.BuyTrade(
+                    symbol=order.symbol, qty=order.quantity, price=order.price, db=db, user=investor
+                )
                 transaction.execute()
-
-    def execute_after_market_orders(investor: User, db: Session):
-        pass
+            elif order.type == TradeType.SELL and order.price <= curr_price:
+                transaction = dm.SellTrade(
+                    symbol=order.symbol, qty=order.quantity, price=order.price, db=db, user=investor
+                )
+                transaction.execute()
+            elif order.type == TradeType.SHORT and order.price <= curr_price:
+                transaction = dm.ShortTrade(
+                    symbol=order.symbol, qty=order.quantity, price=order.price, db=db, user=investor
+                )
+                transaction.execute()
+            elif order.type == TradeType.COVER and order.price >= curr_price:
+                transaction = dm.CoverTrade(
+                    symbol=order.symbol, qty=order.quantity, price=order.price, db=db, user=investor
+                )
+                transaction.execute()

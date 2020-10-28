@@ -41,7 +41,6 @@ def startup_event():
     if symbols:
         market_data_provider = MarketDataProvider(symbols=symbols, apikey=API_KEY, db=db, crud_obj=crud.stock)
         market_data_provider.subscribe_with_update(StatUpdatePublisher(db))
-        # TODO @Song, place the order execution below the above subscribe
         execute_limit_orders = PendingOrder(db)
         market_data_provider.subscribe(execute_limit_orders)
         market_data_provider.start()

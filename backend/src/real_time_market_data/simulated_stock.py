@@ -2,6 +2,12 @@ import datetime as dt
 import itertools as it
 
 
+# https://stackoverflow.com/questions/1060279/iterating-through-a-range-of-dates-in-python
+def daterange(start_date, end_date):
+    for n in range(int((end_date - start_date).days)):
+        yield start_date + dt.timedelta(n)
+
+
 class SimulatedStock:
     """
     Times treated by this class must be in the same timezone
@@ -24,16 +30,12 @@ class SimulatedStock:
         self.pivot_date = pivot_date or dt.datetime(2020, 1, 1)
         self.rise_at_pivot = rise_at_pivot
 
-        # template, TODO may not be needed...
-        self.rise_day = self.rising_data(end_price=day_hi)
-        self.fall_day = self.falling_data(end_price=day_lo)
-
     def make_request_by_days(self, end, days):
         return self.make_request(self, start=end - dt.timedelta(days=days - 1), end=end)
 
     def make_request(self, start, end):
         # TODO if start, end same, what happens?
-        response = self.historical_data(start, end - dt.timedelta(days=1))
+        response = self.historical_data(start, end)
         interday_data = self.interday_data(end)
 
         if interday_data is not None:
@@ -42,21 +44,25 @@ class SimulatedStock:
         return response
 
     def historical_data(self, start, end):
-        days = (end.date() - start.date()).days
-        order = (self.rise_day, self.fall_day) if self.is_rising_day(start) else (self.fall_day, self.rise_day)
-        return it.islice(it.cycle(order), stop=days)
+        start = start.date()
+        end = end.date()
 
-    def interday_data(self, date_time):
-        is_rising = self.is_rising_day(date_time)
+        is_rising = self.is_rising_day(start)
+        data = []
+        for d in daterange(start, end):
+            data.append(self.gen_data(d, is_rising))
+            is_rising = not is_rising
 
-        price = self.market_price_at(date_time.time(), is_rising)
-        if price is None:
+        return data
+
+    def interday_data(self, datetime):
+        is_rising = self.is_rising_day(datetime)
+
+        end_price = self.market_price_at(datetime.time(), is_rising)
+        if end_price is None:
             return None
 
-        if is_rising:
-            return self.rising_data(end_price=price)
-        else:
-            return self.falling_data(end_price=price)
+        return self.gen_data(datetime, is_rising, end_price)
 
     def market_price_at(self, time, is_rising):
         start, end = self.trading_hours
@@ -78,14 +84,33 @@ class SimulatedStock:
 
         return day_change * progress + day_start
 
-    def rising_data(self, end_price):
+    def gen_data(self, datetime, is_rising, end_price=None):
+        end_price = self.day_hi if is_rising else self.day_lo
+        if is_rising:
+            return self.rising_data(self, datetime, end_price)
+        else:
+            return self.falling_data(self, datetime, end_price)
+
+    def rising_data(self, datetime, end_price):
         return dict(
-            symbol=self.symbol, open=self.day_lo, low=self.day_lo, high=end_price, close=end_price, volume=self.volume
+            datetime=datetime,
+            symbol=self.symbol,
+            open=self.day_lo,
+            low=self.day_lo,
+            high=end_price,
+            close=end_price,
+            volume=self.volume,
         )
 
-    def falling_data(self, end_price):
+    def falling_data(self, datetime, end_price):
         return dict(
-            symbol=self.symbol, open=self.day_hi, low=end_price, high=self.day_hi, close=end_price, volume=self.volume
+            datetime=datetime,
+            symbol=self.symbol,
+            open=self.day_hi,
+            low=end_price,
+            high=self.day_hi,
+            close=end_price,
+            volume=self.volume,
         )
 
     def is_rising_day(self, date):

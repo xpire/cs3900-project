@@ -28,6 +28,10 @@ and portfolio
 
 
 class DataProvider(ABC):
+    """
+    Retrieves stock data and provides direct access to cached data
+    """
+
     def __init__(self, db, symbol_to_exchange):
         self.is_running = False
         self.callbacks = []
@@ -37,6 +41,9 @@ class DataProvider(ABC):
         self.db = db
 
     def pre_start(self):
+        """
+        To execute before calling start()
+        """
         pass
 
     def start(self):
@@ -54,31 +61,43 @@ class DataProvider(ABC):
         """
         pass
 
-    def get_stock(self, symbol):
-        return crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=symbol)
-
     def subscribe(self, callback):
         """
         Subscribe [observer] to regular updates
         """
-        callback(self.data)  # remove the argument passed in (?)
+        callback(self)
         self.callbacks.append(callback)
 
     def notify(self):
+        """
+        Notify all observers through callbacks
+        """
         for callback in self.callbacks:
-            callback(self.data)
+            callback(self)
+
+    def get_stock(self, symbol):
+        """
+        Get stock given [symbol]
+        """
+        return crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=symbol)
 
     @property
     def data(self):
+        """
+        Return cached data
+        """
         return self.data_with_id[0]
 
     @abstractproperty
     def data_with_id(self):
         """
-        Return new id for every new data, for caching purposes
+        Return cached data with an id that is updated whenver the data is changed (for caching purposes)
         """
         pass
 
+    # #
+    # Direct gettors for cached data
+    # #
     def get_curr_day_close(self, symbol):
         return self.data[symbol]["curr_day_close"]
 
@@ -87,26 +106,6 @@ class DataProvider(ABC):
 
     def get_prev_day_close(self, symbol):
         return self.data[symbol]["prev_day_close"]
-
-
-class MarketDataProvider(DataProvider):
-    def __init__(self, provider, **kwargs):
-        super().__init__(**kwargs)
-        self.provider = provider
-        provider.subscribe(self.notify)
-        self.is_running = False
-
-    def start(self):
-        # TODO erase db
-
-        if not self.is_running:
-            self.is_running = True
-            self.provider.pre_start()
-            self.provider.start()
-
-    @property
-    def data_with_id(self):
-        return self.provider.data_with_id
 
 
 class RepeatedPollingProvider(DataProvider):

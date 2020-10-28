@@ -14,11 +14,10 @@ class CompositeDataProvider(DataProvider):
         for p in providers:
             p.subscribe(self.notify)
 
-    def pre_start(self):
+    def on_start(self):
         for p in self.providers:
             p.pre_start()
 
-    def on_start(self):
         for p in self.providers:
             p.start()
 

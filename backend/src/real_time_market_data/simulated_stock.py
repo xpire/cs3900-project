@@ -15,7 +15,7 @@ class SimulatedStock:
 
     # TODO include dates in the output
     def __init__(
-        self, symbol, exchange, trading_hours, day_lo, day_hi, pivot_date=None, rise_at_pivot=True, volume=1000
+        self, symbol, exchange, trading_hours, day_lo, day_hi, rise_at_pivot=True, pivot_date=None, volume=1000
     ):
         self.symbol = symbol
         self.exchange = exchange

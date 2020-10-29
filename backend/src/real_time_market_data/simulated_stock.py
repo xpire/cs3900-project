@@ -16,7 +16,6 @@ class StockSimulator:
     Times treated by this class must be in the same timezone
     """
 
-    # TODO include dates in the output
     def __init__(self, stock, day_lo, day_hi, rise_at_pivot=True, pivot_date=None, volume=1000):
         self._symbol = stock.symbol
 
@@ -32,20 +31,27 @@ class StockSimulator:
         self.rise_at_pivot = rise_at_pivot
 
     def make_request_by_days(self, end, days):
-        # TODO this one has bugs if we today's market hasn't started yet
-        # then it will only return 1 entry
-        return self.make_request(start=end - dt.timedelta(days=days - 1), end=end)
+        interday_data = self.interday_data(end)
+
+        if interday_data is None:
+            data = self.historical_data(end - dt.timedelta(days=days), end=end)
+        else:
+            data = self.historical_data(end - dt.timedelta(days=days - 1), end=end)
+            data.append(interday_data)
+
+        data.reverse()
+        return data
 
     def make_request(self, start, end):
         # TODO test what happens when start == end
-        response = self.historical_data(start, end)
+        data = self.historical_data(start, end)
         interday_data = self.interday_data(end)
 
         if interday_data is not None:
-            response.append(interday_data)
+            data.append(interday_data)
 
-        response.reverse()
-        return response
+        data.reverse()
+        return data
 
     def historical_data(self, start, end):
         start = start.date()

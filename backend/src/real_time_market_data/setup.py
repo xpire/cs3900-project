@@ -32,11 +32,11 @@ stock_details = dict(
 )
 
 
-def create_simulators(db, stock_details):
+def create_simulators(db):
+    global stock_details
+
     simulators = []
     for symbol, (lo, hi, rise_at_pivot) in stock_details.items():
         stock = crud.stock.get_stock_by_symbol(db=db, stock_symbol=symbol)
         simulators.append(StockSimulator(stock, lo, hi, rise_at_pivot))
     return simulators
-
-

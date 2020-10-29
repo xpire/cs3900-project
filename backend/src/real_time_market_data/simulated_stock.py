@@ -19,7 +19,7 @@ class StockSimulator:
     def __init__(self, stock, day_lo, day_hi, rise_at_pivot=True, pivot_date=None, volume=1000):
         self._symbol = stock.symbol
 
-        exchange = crud.exchange.get_exchange_by_name(stock.name)
+        exchange = crud.exchange.get_exchange_by_name(stock.exchange)
         self.start = exchange.start
         self.end = exchange.end
 
@@ -29,11 +29,11 @@ class StockSimulator:
         self.volume = volume
 
         # defines on which dates the stock rises/falls
-        self.pivot_date = pivot_date or dt.datetime(2020, 1, 1)
+        self.pivot_date = pivot_date or dt.date(2020, 1, 1)
         self.rise_at_pivot = rise_at_pivot
 
     def make_request_by_days(self, end, days):
-        return self.make_request(self, start=end - dt.timedelta(days=days - 1), end=end)
+        return self.make_request(start=end - dt.timedelta(days=days - 1), end=end)
 
     def make_request(self, start, end):
         # TODO test what happens when start == end
@@ -58,7 +58,7 @@ class StockSimulator:
         return data
 
     def interday_data(self, datetime):
-        is_rising = self.is_rising_day(datetime)
+        is_rising = self.is_rising_day(datetime.date())
 
         end_price = self.market_price_at(datetime.time(), is_rising)
         if end_price is None:
@@ -90,9 +90,9 @@ class StockSimulator:
     def gen_data(self, datetime, is_rising, end_price=None):
         end_price = self.day_hi if is_rising else self.day_lo
         if is_rising:
-            return self.rising_data(self, datetime, end_price)
+            return self.rising_data(datetime, end_price)
         else:
-            return self.falling_data(self, datetime, end_price)
+            return self.falling_data(datetime, end_price)
 
     def rising_data(self, datetime, end_price):
         return dict(
@@ -118,9 +118,9 @@ class StockSimulator:
 
     def is_rising_day(self, date):
         # works for negative numbers too
-        if (date - self.earliest_date).days % 2 == 0:
-            return self.rise_at_start
-        return not self.rise_at_start
+        if (date - self.pivot_date).days % 2 == 0:
+            return self.rise_at_pivot
+        return not self.rise_at_pivot
 
     @property
     def symbol(self):

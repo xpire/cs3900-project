@@ -10,6 +10,8 @@ from src.core.utilities import HTTP400, log_msg
 from src.db.session import SessionLocal
 from src.domain_models.trading_hours import trading_hours_manager
 from src.game.stat_update_publisher import StatUpdatePublisher
+from src.real_time_market_data.setup import create_simulators
+from src.real_time_market_data.simulated_data_provider import SimulatedProvider
 from src.real_time_market_data.td_data_provider import TDProvider
 from twelvedata import TDClient
 
@@ -39,7 +41,10 @@ def startup_event():
     symbol_to_exchange = {stock.symbol: stock.exchange for stock in stocks}
 
     if symbol_to_exchange:
-        market_data_provider = TDProvider(db=db, symbol_to_exchange=symbol_to_exchange, api_key=API_KEY)
+        # market_data_provider = TDProvider(db=db, symbol_to_exchange=symbol_to_exchange, api_key=API_KEY)
+        market_data_provider = SimulatedProvider(
+            db=db, symbol_to_exchange=symbol_to_exchange, simulators=create_simulators(db)
+        )
         market_data_provider.pre_start()
         market_data_provider.subscribe(StatUpdatePublisher(db).update)
         # TODO @Song, place the order execution below the above subscribe

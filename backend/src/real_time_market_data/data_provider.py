@@ -72,12 +72,6 @@ class DataProvider(ABC):
         for callback in self.callbacks:
             callback(self)
 
-    def get_stock(self, symbol):
-        """
-        Get stock given [symbol]
-        """
-        return crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=symbol)
-
     @property
     def data(self):
         """

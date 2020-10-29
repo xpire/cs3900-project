@@ -7,7 +7,7 @@ class TDProvider(RepeatedUpdateProvider):
         super().__init__(**kwargs, repeat_in_x_seconds=seconds_until_next_minute)
 
         self.td = TDClient(api_key=api_key)
-        self.symbols_and_exchanges = [f"{symbol:exchange}" for symbol, exchange in self.symbol_to_exchange.items()]
+        self.symbols_and_exchanges = [f"{symbol}:{exchange}" for symbol, exchange in self.symbol_to_exchange.items()]
 
     def get_init_data(self):
         # TODO change from days to specifying start time

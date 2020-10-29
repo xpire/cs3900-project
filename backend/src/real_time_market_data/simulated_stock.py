@@ -1,6 +1,8 @@
 import datetime as dt
 import itertools as it
 
+from src import crud
+
 
 # https://stackoverflow.com/questions/1060279/iterating-through-a-range-of-dates-in-python
 def daterange(start_date, end_date):
@@ -8,18 +10,18 @@ def daterange(start_date, end_date):
         yield start_date + dt.timedelta(n)
 
 
-class SimulatedStock:
+class StockSimulator:
     """
     Times treated by this class must be in the same timezone
     """
 
     # TODO include dates in the output
-    def __init__(
-        self, symbol, exchange, trading_hours, day_lo, day_hi, rise_at_pivot=True, pivot_date=None, volume=1000
-    ):
-        self.symbol = symbol
-        self.exchange = exchange
-        self.trading_hours = trading_hours
+    def __init__(self, stock, day_lo, day_hi, rise_at_pivot=True, pivot_date=None, volume=1000):
+        self.symbol = stock.symbol
+
+        exchange = crud.exchange.get_exchange_by_name(stock.name)
+        self.start = exchange.start
+        self.end = exchange.end
 
         # daily low, high, and volume
         self.day_lo = day_lo
@@ -34,7 +36,7 @@ class SimulatedStock:
         return self.make_request(self, start=end - dt.timedelta(days=days - 1), end=end)
 
     def make_request(self, start, end):
-        # TODO if start, end same, what happens?
+        # TODO test what happens when start == end
         response = self.historical_data(start, end)
         interday_data = self.interday_data(end)
 
@@ -65,7 +67,8 @@ class SimulatedStock:
         return self.gen_data(datetime, is_rising, end_price)
 
     def market_price_at(self, time, is_rising):
-        start, end = self.trading_hours
+        start = self.start
+        end = self.end
 
         if time < start:
             return None

@@ -40,7 +40,7 @@ class RepeatedUpdateProvider(DataProvider):
         print("===== FINISHED INITIALISATION =====")
         self.cache_latest_data(data)
 
-        RepeatScheduler(self.update, seconds_until_next_minute).start()
+        RepeatScheduler(self.update, self.repeat_in_x_seconds).start()
 
     @abstractmethod
     def get_init_data(self):
@@ -92,6 +92,12 @@ class RepeatedUpdateProvider(DataProvider):
     def data_with_id(self):
         with self.lock:
             return (self._data, self.id)
+
+    def get_stock(self, symbol):
+        """
+        Get stock given [symbol]
+        """
+        return crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=symbol)
 
 
 def seconds_until_next_minute(at_second=15):

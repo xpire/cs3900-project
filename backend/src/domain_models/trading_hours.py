@@ -1,16 +1,21 @@
 from datetime import datetime, time, timedelta
 
+from pytz import timezone
+from src import crud
 from src.core.utilities import HTTP400
 
 
 class TradingHoursManager:
-    def __init__(self, exchange_info):
-        self.exchange_info = exchange_info
+
+    # TODO check if there are any issues with using multiple sessions
+    # or with using one db session for long time
+    def __init__(self, db):
+        self.db = db
 
     def get_trading_hours_info(self, stock):
-        info = self.info(stock.exchange)
+        exchange = self.get_exchange(stock.exchange)
 
-        curr_time = datetime.now(info["timezone"])
+        curr_time = datetime.now(exchange.timezone)
 
         start, end = info["start"], info["end"]
         is_in_range = start <= curr_time <= end
@@ -18,14 +23,15 @@ class TradingHoursManager:
         return dict(is_trading=is_trading, start=start, end=end)
 
     def is_trading_day(self, stock, date):
-        info = self.info(stock.exchange)
-        return info["simulated"] or date.weekday() <= 4
+        exchange = self.get_exchange(stock.exchange)  # TODO this should later return a proper db object
+        return exchange.simulated or date.weekday() <= 4
 
-    def info(self, exchange):
-        if exchange not in self.exchange_info:
+    def get_exchange(self, exchange):
+        exchange = crud.exchange.get_exchange_by_name(exchange)
+        if exchange is None:
             raise HTTP400("Exchange for the given symbol not found.")
 
-        return self.exchange_info[exchange]
+        return exchange
 
 
 def is_weekday(date):
@@ -47,6 +53,9 @@ def next_open(date_time, open_time):
         d = next_weekday(d)
 
     return datetime.combine(d, open_time)
+
+
+trading_hours_manager = TradingHoursManager()
 
 
 # TEST CODE

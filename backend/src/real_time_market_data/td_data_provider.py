@@ -1,3 +1,5 @@
+import datetime as dt
+
 from src.real_time_market_data.repeated_update_provider import RepeatedUpdateProvider, seconds_until_next_minute
 from twelvedata import TDClient
 
@@ -10,19 +12,28 @@ class TDProvider(RepeatedUpdateProvider):
         self.symbols_and_exchanges = [f"{symbol}:{exchange}" for symbol, exchange in self.symbol_to_exchange.items()]
 
     def get_init_data(self):
-        # TODO change from days to specifying start time
-        return self.make_request(days=365)
+        now = dt.datetime.now()
+        start_date = (now - dt.timedelta(days=365)).strftime("%Y-%m-%d %H:%M:%S")
 
-    def get_update_data(self):
-        return self.make_request(days=2)
-
-    def make_request(self, days):
-        msg = self.td.time_series(
+        request = self.td.time_series(
             symbol=self.symbols_and_exchanges,
             interval="1day",
-            outputsize=days,
+            timezone="Australia/Sydney",  # TODO make config, and set datetime timezone using https://stackoverflow.com/questions/1301493/setting-timezone-in-python
+            start_date=start_date,
+        )
+        return self.make_request(request)
+
+    def get_update_data(self):
+        request = self.td.time_series(
+            symbol=self.symbols_and_exchanges,
+            interval="1day",
+            outputsize=2,
             timezone="Australia/Sydney",  # output all timestamps in Sydney's timezone TODO verify if this is desirable
-        ).as_json()
+        )
+        return self.make_request(request)
+
+    def make_request(self, request):
+        msg = request.as_json()
 
         if len(self.symbols) == 1:
             return {self.symbols[0]: msg}

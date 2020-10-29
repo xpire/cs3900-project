@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel as BaseSchema
+from src.schemas.transaction import TradeType
 from src.util.extended_types import Const
 
 
@@ -69,9 +70,18 @@ class LimitOrderCreate(LimitOrderBase):
 class LimitOrderDelete(LimitOrderBase):
     pass
 
-class TransactionHistoryCreate(BaseSchema): 
+
+class TransactionHistoryCreate(BaseSchema):
     user_id: str
     price: float
     action: str
     symbol: str
     amount: int
+
+
+class AfterOrderCreate(BaseSchema):
+    user_id: int
+    symbol: str
+    amount: int
+    t_type: TradeType
+    date_time: datetime

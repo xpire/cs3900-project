@@ -6,6 +6,7 @@
     Purpose: Some utility functions used by core 
         features, maybe it can be used by other modules too 
 """
+import datetime as dt
 import inspect
 import logging
 import os
@@ -76,3 +77,8 @@ def fail_save(func):
             return None
 
     return inner
+
+
+# Modified based on https://stackoverflow.com/questions/35241643/convert-datetime-time-into-datetime-timedelta-in-python-3-4
+def as_delta(time: dt.time):
+    return dt.datetime.combine(dt.datetime.min, time) - dt.datetime.min

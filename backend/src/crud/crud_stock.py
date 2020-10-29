@@ -74,6 +74,7 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
 
             attempt_entry = TimeSeries(**attempt_entry.dict())
 
+            # TODO this looks very inefficient... use other methods, e.g. indexed query
             found = False
             for t in stock_in.timeseries:
                 if t.date == attempt_entry.date:

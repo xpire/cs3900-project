@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from pytz import timezone
 from src import crud
 from src.core.utilities import HTTP400
 
@@ -7,11 +8,18 @@ from src.core.utilities import HTTP400
 class TradingHoursManager:
     def get_trading_hours_info(self, stock):
         exchange = self.get_exchange(stock.exchange)
-        curr_time = datetime.now(exchange.timezone)
+        curr_time = datetime.now(timezone(exchange.timezone))
 
-        is_in_range = exchange.start <= curr_time <= exchange.end
+        start = exchange.start
+        end = exchange.end
+
+        if start <= end:
+            is_in_range = start <= curr_time and curr_time <= end
+        else:
+            is_in_range = start <= curr_time or curr_time <= end
+
         is_trading = is_in_range and self.is_trading_day(stock, curr_time.date())
-        return dict(is_trading=is_trading, start=exchange.start, end=exchange.end)
+        return dict(is_trading=is_trading, start=start, end=end)
 
     def is_trading_day(self, stock, date):
         exchange = self.get_exchange(stock.exchange)  # TODO this should later return a proper db object

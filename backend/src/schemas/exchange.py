@@ -19,13 +19,7 @@ class ExchangeInDBBase(ExchangeBase):
 
 
 class ExchangeFromDB(ExchangeInDBBase):
-    timezone: timezone
-
-    @validator("timezone", pre=True)
-    def as_timezone(cls, v):
-        if isinstance(v, str):
-            return timezone(v)
-        return v
+    pass
 
 
 class ExchangeIntoDB(ExchangeInDBBase):

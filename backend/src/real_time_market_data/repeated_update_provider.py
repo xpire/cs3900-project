@@ -1,7 +1,7 @@
 import time
 from abc import abstractmethod
 from datetime import datetime
-from threading import Thread
+from threading import Lock, Thread
 
 from src import crud
 
@@ -22,9 +22,10 @@ class RepeatedUpdateProvider(DataProvider):
         self._data = {}
         self.id = 0
 
+        self.lock = Lock()
+
     def pre_start(self):
-        # TODO remove history
-        pass
+        crud.stock.remove_all_hist(db=self.db)
 
     def on_start(self):
         """
@@ -58,9 +59,7 @@ class RepeatedUpdateProvider(DataProvider):
             # TODO what is the difference between this one and the one above?
             crud.stock.update_time_series(db=self.db, stock_in=self.get_stock(symbol), u_time_series=stock_data)
         self.cache_latest_data(data)
-
-        for observer in self.observers:
-            observer.update(self.data)  # remove this parameter
+        self.notify()
 
     @abstractmethod
     def get_update_data(self):

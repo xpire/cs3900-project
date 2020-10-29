@@ -39,8 +39,9 @@ def startup_event():
     symbol_to_exchange = {stock.symbol: stock.exchange for stock in stocks}
 
     if symbol_to_exchange:
-        market_data_provider = TDProvider(symbol_to_exchange=symbol_to_exchange, apikey=API_KEY, db=db)
-        market_data_provider.subscribe(StatUpdatePublisher(db))
+        market_data_provider = TDProvider(db=db, symbol_to_exchange=symbol_to_exchange, api_key=API_KEY)
+        market_data_provider.pre_start()
+        market_data_provider.subscribe(StatUpdatePublisher(db).update)
         # TODO @Song, place the order execution below the above subscribe
         market_data_provider.start()
     else:

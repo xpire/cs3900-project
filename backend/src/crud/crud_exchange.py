@@ -19,13 +19,13 @@ from src.schemas.exchange import ExchangeFromDB
 
 exchanges = dict(
     ASX=ExchangeFromDB(name="ASX", start=time(10, 0), end=time(16, 0), timezone="Australia/Sydney"),
-    NYSE=ExchangeFromDB(start=time(9, 30), end=time(16, 0), timezone="America/New_York"),
-    NASDAQ=ExchangeFromDB(start=time(9, 30), end=time(16, 0), timezone="America/New_York"),
-    LSE=ExchangeFromDB(start=time(8, 0), end=time(16, 30), timezone="Europe/London"),
-    XD00=ExchangeFromDB(start=time(0, 0), end=time(6, 0), timezone="Australia/Sydney", simulated=True),
-    XD06=ExchangeFromDB(start=time(6, 0), end=time(12, 0), timezone="Australia/Sydney", simulated=True),
-    XD12=ExchangeFromDB(start=time(12, 0), end=time(18, 0), timezone="Australia/Sydney", simulated=True),
-    XD18=ExchangeFromDB(start=time(18, 0), end=time(24, 0), timezone="Australia/Sydney", simulated=True),
+    NYSE=ExchangeFromDB(name="NYSE", start=time(9, 30), end=time(16, 0), timezone="America/New_York"),
+    NASDAQ=ExchangeFromDB(name="NASDAQ", start=time(9, 30), end=time(16, 0), timezone="America/New_York"),
+    LSE=ExchangeFromDB(name="LSE", start=time(8, 0), end=time(16, 30), timezone="Europe/London"),
+    XD00=ExchangeFromDB(name="XD00", start=time(0, 0), end=time(6, 0), timezone="Australia/Sydney", simulated=True),
+    XD06=ExchangeFromDB(name="XD06", start=time(6, 0), end=time(12, 0), timezone="Australia/Sydney", simulated=True),
+    XD12=ExchangeFromDB(name="XD12", start=time(12, 0), end=time(18, 0), timezone="Australia/Sydney", simulated=True),
+    XD18=ExchangeFromDB(name="XD18", start=time(18, 0), end=time(0, 0), timezone="Australia/Sydney", simulated=True),
 )
 
 

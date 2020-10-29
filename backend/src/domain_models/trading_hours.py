@@ -1,6 +1,5 @@
 from datetime import datetime, time, timedelta
 
-from pytz import timezone
 from src.core.utilities import HTTP400
 
 
@@ -27,21 +26,6 @@ class TradingHoursManager:
             raise HTTP400("Exchange for the given symbol not found.")
 
         return self.exchange_info[exchange]
-
-
-# Trading hours retrieved from https://www.thebalance.com/stock-market-hours-4773216
-# TODO migrate to db
-exchange_info = dict(
-    ASX=dict(start=time(10, 0), end=time(16, 0), timezone=timezone("Australia/Sydney"), simulated=False),
-    NYSE=dict(start=time(9, 30), end=time(16, 0), timezone=timezone("America/New_York"), simulated=False),
-    NASDAQ=dict(start=time(9, 30), end=time(16, 0), timezone=timezone("America/New_York"), simulated=False),
-    LSE=dict(start=time(8, 0), end=time(16, 30), timezone=timezone("Europe/London"), simulated=False),
-    XD00=dict(start=time(0, 0), end=time(6, 0), timezone=timezone("Australia/Sydney"), simulated=True),
-    XD06=dict(start=time(6, 0), end=time(12, 0), timezone=timezone("Australia/Sydney"), simulated=True),
-    XD12=dict(start=time(12, 0), end=time(18, 0), timezone=timezone("Australia/Sydney"), simulated=True),
-    XD18=dict(start=time(18, 0), end=time(24, 0), timezone=timezone("Australia/Sydney"), simulated=True),
-)
-trading_hours_manager = TradingHoursManager(exchange_info)
 
 
 def is_weekday(date):

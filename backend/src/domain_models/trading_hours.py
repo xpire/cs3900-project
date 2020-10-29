@@ -1,26 +1,17 @@
-from datetime import datetime, time, timedelta
+from datetime import datetime, timedelta
 
-from pytz import timezone
 from src import crud
 from src.core.utilities import HTTP400
 
 
 class TradingHoursManager:
-
-    # TODO check if there are any issues with using multiple sessions
-    # or with using one db session for long time
-    def __init__(self, db):
-        self.db = db
-
     def get_trading_hours_info(self, stock):
         exchange = self.get_exchange(stock.exchange)
-
         curr_time = datetime.now(exchange.timezone)
 
-        start, end = info["start"], info["end"]
-        is_in_range = start <= curr_time <= end
+        is_in_range = exchange.start <= curr_time <= exchange.end
         is_trading = is_in_range and self.is_trading_day(stock, curr_time.date())
-        return dict(is_trading=is_trading, start=start, end=end)
+        return dict(is_trading=is_trading, start=exchange.start, end=exchange.end)
 
     def is_trading_day(self, stock, date):
         exchange = self.get_exchange(stock.exchange)  # TODO this should later return a proper db object

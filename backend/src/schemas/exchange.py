@@ -1,7 +1,8 @@
 import datetime as dt
 
 from pydantic import BaseModel as BaseSchema
-from pz import timezone
+from pydantic import validator
+from pytz import timezone
 
 
 class ExchangeBase(BaseSchema):
@@ -20,7 +21,11 @@ class ExchangeInDBBase(ExchangeBase):
 class ExchangeFromDB(ExchangeInDBBase):
     timezone: timezone
 
-    # pre validator
+    @validator("timezone", pre=True)
+    def as_timezone(cls, v):
+        if isinstance(v, str):
+            return timezone(v)
+        return v
 
 
 class ExchangeIntoDB(ExchangeInDBBase):

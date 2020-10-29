@@ -2,14 +2,19 @@ from datetime import datetime
 from json.decoder import JSONDecodeError
 from typing import List
 
-from fastapi import (APIRouter, Depends, Header, HTTPException, WebSocket,
-                     WebSocketDisconnect)
+from fastapi import APIRouter, Depends, Header, HTTPException, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm
 from src import models, schemas
-from src.api.deps import (check_uid_email, check_user_exists, decode_token,
-                          get_current_user_dm, get_current_user_m, get_db)
+from src.api.deps import (
+    check_uid_email,
+    check_user_exists,
+    decode_token,
+    get_current_user_dm,
+    get_current_user_m,
+    get_db,
+)
 from src.core.async_exit import AppStatus
 from src.domain_models import UserDM
 from src.game.achievement.achievement import UserAchievement
@@ -17,8 +22,7 @@ from src.game.event.sub_events import StatUpdateEvent, TransactionEvent
 from src.game.setup.setup import event_hub
 from src.notification.notifier import Notifier, notif_hub
 from src.schemas.response import Response
-from src.schemas.transaction import (ClosingTransaction, OpeningTransaction,
-                                     OrderType, TradeType, Transaction)
+from src.schemas.transaction import ClosingTransaction, OpeningTransaction, OrderType, TradeType, Transaction
 
 router = APIRouter()
 
@@ -142,6 +146,7 @@ async def receive_json(ws: WebSocket):
 async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
     await ws.accept()
 
+    notifier = None
     try:
         print("VALIDATE USER")
         id_token = await receive_json(ws)
@@ -171,6 +176,10 @@ async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
 
     except WebSocketDisconnect:
         print("USER DISCONNECTED")
+
+    finally:
+        if notifier is not None:
+            notif_hub.unsusbscribe(notifier)
 
 
 """

@@ -33,4 +33,16 @@ First demo was this week. Held meetings to prepare for this and finalise the spr
 Held retrospective meeting for the first demo and contributed to that report.
 
 Week 6:
-Implementing trading APIs for front end.
+Implemented market trading APIs. This is buys, sells, short sells, and covers at current market price
+with commission applied to all trades.
+Also implemented APIs for the portfolio page including all of the necessary statistics
+users expect from a trading app.
+
+Week 7:
+Implemented APIs for pending orders and transaction histories.
+Worked with Justin to improve efficiency of existing APIs and better integrate with front end
+Implemented APIs for limit trading. Buys, sells, short sells, and covers to be executed at a limit price.
+Implemented logic to allow for after market hours trading - coverting all transactions to pending orders
+to be executed at opening of next trading day.
+Also discussed with team options to allow 'backtracing' - the recovery of orders during times
+when the server is not running. Ultimately fell through due to limited number of API calls.

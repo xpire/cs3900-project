@@ -17,7 +17,7 @@ class StockSimulator:
 
     # TODO include dates in the output
     def __init__(self, stock, day_lo, day_hi, rise_at_pivot=True, pivot_date=None, volume=1000):
-        self.symbol = stock.symbol
+        self._symbol = stock.symbol
 
         exchange = crud.exchange.get_exchange_by_name(stock.name)
         self.start = exchange.start
@@ -121,3 +121,7 @@ class StockSimulator:
         if (date - self.earliest_date).days % 2 == 0:
             return self.rise_at_start
         return not self.rise_at_start
+
+    @property
+    def symbol(self):
+        return self._symbol

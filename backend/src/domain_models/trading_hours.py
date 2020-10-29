@@ -8,17 +8,17 @@ from src.core.utilities import HTTP400
 class TradingHoursManager:
     def get_trading_hours_info(self, stock):
         exchange = self.get_exchange(stock.exchange)
-        curr_time = datetime.now(timezone(exchange.timezone))
+        curr_datetime = datetime.now(timezone(exchange.timezone))
+        date, time = curr_datetime.date(), curr_datetime.time()
 
         start = exchange.start
         end = exchange.end
-
         if start <= end:
-            is_in_range = start <= curr_time and curr_time <= end
+            is_in_range = start <= time and time <= end
         else:
-            is_in_range = start <= curr_time or curr_time <= end
+            is_in_range = start <= time or time <= end
 
-        is_trading = is_in_range and self.is_trading_day(stock, curr_time.date())
+        is_trading = is_in_range and self.is_trading_day(stock, date)
         return dict(is_trading=is_trading, start=start, end=end)
 
     def is_trading_day(self, stock, date):

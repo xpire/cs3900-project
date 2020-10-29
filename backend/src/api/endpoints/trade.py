@@ -1,13 +1,31 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from src import domain_models as dm
 from src.api.deps import check_symbol, get_current_user_dm, get_db
 from src.core import trade
 from src.core.utilities import HTTP400
-from src.crud import crud_user
+from src.crud import crud_user, stock
 from src.schemas.response import Response
+from src.schemas.transaction import TradeType
+from src.domain_models.trading_hours import trading_hours_manager
+from datetime import datetime
 
 router = APIRouter()
+
+# TODO: after market logic for all trades. export the logic.
+# def place_order(symbol: str, qty: int, price: float, t_type: TradeType, db: Session, user: dm.UserDM):
+#     if trading_hours_manager.is_trading(stock=stock.get_stock_by_symbol(symbol=symbol)):
+#         return dm.BuyTrade(symbol=symbol, qty=qty, price=price, db=db, user=user).execute()
+#     else:
+#         crud_user.user.add_after_order(
+#             db=db,
+#             user_in=user.model,
+#             trade_type_in=t_type,
+#             amount_in=qty,
+#             symbol_in=symbol,
+#             dt_in=datetime.now(),
+#         )
+#         return Response(msg="Success")
 
 
 @router.post("/market/buy")
@@ -18,7 +36,19 @@ async def market_buy(
     db: Session = Depends(get_db),
 ) -> Response:
     price = trade.get_stock_price(db, symbol)
-    return dm.BuyTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
+
+    if trading_hours_manager.is_trading(stock=stock.get_stock_by_symbol(symbol=symbol)):
+        return dm.BuyTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
+    else:
+        crud_user.user.add_after_order(
+            db=db,
+            user_in=user.model,
+            trade_type_in=TradeType.BUY,
+            amount_in=quantity,
+            symbol_in=symbol,
+            dt_in=datetime.now(),
+        )
+        return Response(msg="Success")
 
 
 @router.post("/market/sell")
@@ -63,10 +93,10 @@ def place_limit_order(
     db: Session,
 ) -> Response:
     if quantity < 0:
-        raise HTTPException(status_code=400, detail=f"Cannot {t_type} negative quantity")
+        raise HTTP400(f"Cannot {t_type} negative quantity")
 
     if limit < 0:
-        raise HTTPException(status_code=400, detail="Limit value cannot be negative")
+        raise HTTP400("Limit value cannot be negative")
 
     crud_user.user.create_order(
         db=db, user_in=user.model, trade_type=t_type, symbol=symbol, quantity=quantity, limit=limit

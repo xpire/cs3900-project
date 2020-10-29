@@ -1,12 +1,9 @@
-from typing import Any, List
-
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from src import crud, domain_models, models, schemas
+from src import domain_models, models
 from src.api.deps import check_symbol, get_current_user_dm, get_current_user_m, get_db
-from src.core.config import settings
-from src.db.session import SessionLocal
 from src.schemas.response import Response
+from src.core.utilities import HTTP400
 
 router = APIRouter()
 
@@ -32,9 +29,9 @@ async def update_watchlist(
     user: domain_models.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    # Check if already exists
+
     if user.check_exists_watchlist(symbol):
-        raise HTTPException(status_code=400, detail=f"Symbol {symbol} already exists in watchlist.")
+        raise HTTP400(f"Symbol {symbol} already exists in watchlist.")
 
     user.watchlist_create(symbol)
 
@@ -47,9 +44,9 @@ async def delete_watchlist(
     user: domain_models.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    # Check if already exists
+
     if not user.check_exists_watchlist(symbol):
-        raise HTTPException(status_code=400, detail=f"Symbol {symbol} does not exist in watchlist.")
+        raise HTTP400(f"Symbol {symbol} does not exist in watchlist.")
 
     user.watchlist_delete(symbol)
 

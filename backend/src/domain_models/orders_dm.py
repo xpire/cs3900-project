@@ -39,3 +39,7 @@ class PendingOrder:
                     symbol=order.symbol, qty=order.quantity, price=order.price, db=db, user=investor
                 )
                 transaction.execute()
+
+    def execute_after_orders(invester: User, db: Session):
+        # TODO: do this
+        pass

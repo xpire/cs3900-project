@@ -31,3 +31,22 @@ I added the Execute the Deal Logo and formalised the dark theme.
 I Reorganised the front end layout or routes so that each class of pages had their own test. 
 Spent a few hours debugging a jest issue to complete tests for StockDetails page.
 Finally, I configured the tests to run before every commit and push. 
+
+Week 5
+
+Implement functional search bar over symbols inside Market page, and Dashboard page UI with mocked data
+Properly connected first few APIs for live data from TwelveData for stocks to the market, portfolio and dashboard pages, and calling /user upon user registration
+Most of this week was used to get the frontend and backend to work together.
+Fixed bug with react-stockcharts for chrome, where scrolling in the graph did not prevent default scroll, added an eventListener on mouseover to disable scroll.
+
+Week 6
+
+Focussed on properly implementing the trade page, with full integration with backend API. 
+This included getting the list of symbols, the latest stock price for selected symbol and getting user portfolio to calculate maximum trade limits (how much the user could buy / sell).
+Also implemented other pages (Watchlist, Portfolio, Orders, Leaderboard, Support, and Profile page with sortable table)
+Implemented UI for achievements page, and a trading hours indicator for market, stock details and trade page
+Implemented Notifications with notistack, for better UI/UX, to show response after interacting with watchlist, portfolio and trades
+Connected previously mocked Dashboard to backend API
+
+Week 7
+

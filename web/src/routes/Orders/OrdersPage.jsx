@@ -33,7 +33,7 @@ const Watchlist = () => {
         <SortableTable
           data={data}
           header={headCells}
-          title="Watch List"
+          title="Limit Orders"
           handleDelete={({ id }) => {
             handleSnack(`/orders?identity=${id}`, "delete").then(() =>
               setDeleted(deleted + 1)

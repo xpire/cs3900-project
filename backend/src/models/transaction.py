@@ -4,10 +4,11 @@ from src.db.base_model import BaseModel
 
 
 class Transaction(BaseModel):
-    user_id = Column(String, ForeignKey("user.uid"), primary_key=True)
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String, ForeignKey("user.uid"))
     price = Column(Float, nullable=False)
     action = Column(String)  # buy/sell/short/cover
-    symbol = Column(String, ForeignKey("stock.symbol"), primary_key=True)
+    symbol = Column(String, ForeignKey("stock.symbol"))
     amount = Column(Integer, nullable=False)
     stock_info = relationship(
         "Stock",

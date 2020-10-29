@@ -52,6 +52,14 @@ class Trade(ABC):
             )
         new_balance = self.model.balance + trade_price * (-1 if self.is_buying else 1)
         crud_user.user.update_balance(db=self.db, user_in=self.model, balance_in=new_balance)
+        crud_user.user.add_history(
+            db=self.db,
+            user_in=self.model,
+            price_in=self.price,
+            trade_type_in=self.trade_type,
+            amount_in=self.qty,
+            symbol_in=self.symbol,
+        )
 
     @abstractmethod
     def check(self, total_price, trade_price):

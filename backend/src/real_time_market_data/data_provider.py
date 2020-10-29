@@ -29,13 +29,9 @@ class DataProvider(ABC):
     Retrieves stock data and provides direct access to cached data
     """
 
-    def __init__(self, db, symbol_to_exchange):
+    def __init__(self):
         self.is_running = False
         self.callbacks = []
-
-        self.symbols = list(symbol_to_exchange.keys())
-        self.symbol_to_exchange = symbol_to_exchange
-        self.db = db
 
     def pre_start(self):
         """
@@ -62,7 +58,7 @@ class DataProvider(ABC):
         """
         Subscribe [observer] to regular updates
         """
-        callback(self)
+        callback()
         self.callbacks.append(callback)
 
     def notify(self):
@@ -70,7 +66,7 @@ class DataProvider(ABC):
         Notify all observers through callbacks
         """
         for callback in self.callbacks:
-            callback(self)
+            callback()
 
     @property
     def data(self):

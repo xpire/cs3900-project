@@ -14,8 +14,12 @@ class RepeatedUpdateProvider(DataProvider):
     by [repeat_in_x_seconds] (see RepeatScheduler)
     """
 
-    def __init__(self, repeat_in_x_seconds, **kwargs):
+    def __init__(self, symbol_to_exchange, repeat_in_x_seconds, db, **kwargs):
         super().__init__(**kwargs)
+
+        self.symbols = list(symbol_to_exchange.keys())
+        self.symbol_to_exchange = symbol_to_exchange
+        self.db = db
 
         self.repeat_in_x_seconds = repeat_in_x_seconds
 

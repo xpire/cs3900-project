@@ -5,7 +5,7 @@ class CompositeDataProvider(DataProvider):
     def __init__(self, providers, **kwargs):
         super().__init__(**kwargs)
         self.providers = providers
-        self.last_ids = []
+        self.last_ids = [None] * len(providers)
 
         self._data = {}
         self.id = 0

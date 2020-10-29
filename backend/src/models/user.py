@@ -20,3 +20,6 @@ class User(BaseModel):
     )
     limit_orders = relationship("LimitOrder", backref="user", cascade="save-update, merge, delete, delete-orphan")
     transaction_hist = relationship("Transaction", backref="user", cascade="save-update, merge, delete, delete-orphan")
+    after_hr_orders = relationship(
+        "AfterHourOrder", backref="user", cascade="save-update, merge, delete, delete-orphan"
+    )

@@ -9,11 +9,8 @@ class AfterHourOrder(BaseModel):
     symbol = Column(String, ForeignKey("stock.symbol"))
     amount = Column(Integer, nullable=False)
     t_type = Column(String, nullable=False)  # buy/sell/short/cover
-    zstock_info = relationship(
+    stock_info = relationship(
         "Stock",
         backref="limitorder",
         cascade="save-update, merge",
     )
-
-
-symbol, quantity, trade_type, unique_id, placement_date

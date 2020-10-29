@@ -2,6 +2,7 @@ import datetime as dt
 import itertools as it
 
 from src import crud
+from src.core.utilities import as_delta
 
 
 # https://stackoverflow.com/questions/1060279/iterating-through-a-range-of-dates-in-python
@@ -19,9 +20,7 @@ class StockSimulator:
     def __init__(self, stock, day_lo, day_hi, rise_at_pivot=True, pivot_date=None, volume=1000):
         self._symbol = stock.symbol
 
-        exchange = crud.exchange.get_exchange_by_name(stock.exchange)
-        self.start = exchange.start
-        self.end = exchange.end
+        self.exchange = crud.exchange.get_exchange_by_name(stock.exchange)
 
         # daily low, high, and volume
         self.day_lo = day_lo
@@ -33,6 +32,8 @@ class StockSimulator:
         self.rise_at_pivot = rise_at_pivot
 
     def make_request_by_days(self, end, days):
+        # TODO this one has bugs if we today's market hasn't started yet
+        # then it will only return 1 entry
         return self.make_request(start=end - dt.timedelta(days=days - 1), end=end)
 
     def make_request(self, start, end):
@@ -43,6 +44,7 @@ class StockSimulator:
         if interday_data is not None:
             response.append(interday_data)
 
+        response.reverse()
         return response
 
     def historical_data(self, start, end):
@@ -67,17 +69,17 @@ class StockSimulator:
         return self.gen_data(datetime, is_rising, end_price)
 
     def market_price_at(self, time, is_rising):
-        start = self.start
-        end = self.end
+        time = as_delta(time)
+        start = self.exchange.start
+        end = self.exchange.end
 
         if time < start:
             return None
 
-        if time >= end:
+        if time > end:
             return self.day_hi if is_rising else self.day_lo
 
-        progress = (time - start).minutes / (end - start).minutes
-
+        progress = (time - start).seconds / (end - start).seconds
         if is_rising:
             day_start = self.day_lo
             day_change = self.day_hi - self.day_lo
@@ -88,7 +90,9 @@ class StockSimulator:
         return day_change * progress + day_start
 
     def gen_data(self, datetime, is_rising, end_price=None):
-        end_price = self.day_hi if is_rising else self.day_lo
+        if end_price is None:
+            end_price = self.day_hi if is_rising else self.day_lo
+
         if is_rising:
             return self.rising_data(datetime, end_price)
         else:

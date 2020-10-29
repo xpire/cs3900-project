@@ -2,22 +2,19 @@ from datetime import datetime, timedelta
 
 from pytz import timezone
 from src import crud
-from src.core.utilities import HTTP400
+from src.core.utilities import HTTP400, as_delta
 
 
 class TradingHoursManager:
     def get_trading_hours_info(self, stock):
         exchange = self.get_exchange(stock.exchange)
         curr_datetime = datetime.now(timezone(exchange.timezone))
-        date, time = curr_datetime.date(), curr_datetime.time()
+        date, time = curr_datetime.date(), as_delta(curr_datetime.time())
 
         start = exchange.start
         end = exchange.end
-        if start <= end:
-            is_in_range = start <= time and time <= end
-        else:
-            is_in_range = start <= time or time <= end
 
+        is_in_range = start <= time and time <= end
         is_trading = is_in_range and self.is_trading_day(stock, date)
         return dict(is_trading=is_trading, start=start, end=end)
 
@@ -42,9 +39,9 @@ def next_weekday(date):
     return date + timedelta(days=days)
 
 
-def next_open(date_time, open_time):
-    d = date_time.date()
-    t = date_time.time()
+def next_open(datetime, open_time):
+    d = datetime.date()
+    t = datetime.time()
 
     # if it is weekday and current time is before open, then next open is today at [open_time]
     # otherwise, next open is on next trading day at [open_time]

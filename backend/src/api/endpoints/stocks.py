@@ -28,7 +28,7 @@ router = APIRouter()
 TD = TDClient(apikey=API_KEY)
 market_data_provider = None
 
-
+# TODO move this to a separate place
 # We can't use deps to get the database here, on_event is not part of FastAPI so it can't use depends apparently
 # https://github.com/tiangolo/fastapi/issues/425
 @router.on_event("startup")
@@ -36,7 +36,7 @@ def startup_event():
     global market_data_provider
 
     db = SessionLocal()
-    stocks = crud.stock.get_all_stocks(db=db)[:10]  # TODO change this slice later
+    stocks = crud.stock.get_all_stocks(db=db)[:12]  # TODO change this slice later
     # symbols = [f"{stock.symbol}:{stock.exchange}" for stock in stocks]
     symbol_to_exchange = {stock.symbol: stock.exchange for stock in stocks}
 
@@ -62,7 +62,7 @@ def startup_event():
 async def get_symbols(db: Session = Depends(get_db)):
     ret = []
 
-    stocks = crud.stock.get_all_stocks(db=db)[:10]
+    stocks = crud.stock.get_all_stocks(db=db)[:12]
     for stock in stocks:
         ret.append(
             {

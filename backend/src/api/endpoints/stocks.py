@@ -10,7 +10,7 @@ from src.core.utilities import HTTP400, log_msg
 from src.db.session import SessionLocal
 from src.domain_models.trading_hours import trading_hours_manager
 from src.game.stat_update_publisher import StatUpdatePublisher
-from src.real_time_market_data.data_provider import MarketDataProvider
+from src.real_time_market_data.td_data_provider import TDProvider
 from twelvedata import TDClient
 
 API_URL = "https://api.twelvedata.com"
@@ -34,21 +34,22 @@ def startup_event():
     global market_data_provider
 
     db = SessionLocal()
-    stocks = crud.stock.get_all_stocks(db=db)[35:]  # TODO change this slice later
-    symbols = [f"{stock.symbol}:{stock.exchange}" for stock in stocks]
+    stocks = crud.stock.get_all_stocks(db=db)[:10]  # TODO change this slice later
+    # symbols = [f"{stock.symbol}:{stock.exchange}" for stock in stocks]
+    symbol_to_exchange = {stock.symbol: stock.exchange for stock in stocks}
 
-    if symbols:
-        market_data_provider = MarketDataProvider(symbols=symbols, apikey=API_KEY, db=db, crud_obj=crud.stock)
-        market_data_provider.subscribe_with_update(StatUpdatePublisher(db))
+    if symbol_to_exchange:
+        market_data_provider = TDProvider(symbol_to_exchange=symbol_to_exchange, apikey=API_KEY, db=db)
+        market_data_provider.subscribe(StatUpdatePublisher(db))
         # TODO @Song, place the order execution below the above subscribe
         market_data_provider.start()
     else:
         log_msg("There are no stocks in the database, not polling for data.", "WARNING")
 
 
-@router.on_event("shutdown")
-def startup_event():
-    market_data_provider.close()
+# @router.on_event("shutdown")
+# def startup_event():
+#     market_data_provider.close()
 
 
 @router.get("/symbols")

@@ -1,6 +1,7 @@
 import datetime as dt
 
-from src.real_time_market_data.repeated_update_provider import RepeatedUpdateProvider, seconds_until_next_minute
+from src.real_time_market_data.repeated_update_provider import (
+    RepeatedUpdateProvider, seconds_until_next_minute)
 from twelvedata import TDClient
 
 

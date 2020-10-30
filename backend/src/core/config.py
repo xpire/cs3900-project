@@ -39,6 +39,8 @@ with open(path.join(abs_path, ".secrets", "env.yaml")) as e:
         COURSE_NAME=env["COURSE_NAME"],
         TD_API_KEY=env["TD_API_KEY"],
         SQLITE_DB_URI="sqlite:///" + path.join(str(proj_root), "database", env["SQLITE_DB_NAME"] + ".sqlite3"),
+        SQLITE_TEST_DB_NAME="sqlite:///"
+        + path.join(str(proj_root), "database", env["SQLITE_TEST_DB_NAME"] + ".sqlite3"),
         BACKEND_CORS_ORIGIN=[x for x in env["BACKEND_CORS_ORIGINS"]],
         CRED_FB=cred,
     )

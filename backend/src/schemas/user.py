@@ -43,6 +43,7 @@ class UserInDB(UserInDBBase):
 
 
 class TransactionBase(BaseSchema):
+    date_time: datetime
     user_id: str
     price: float
     action: str
@@ -69,7 +70,8 @@ class LimitOrderCreate(LimitOrderBase):
 class LimitOrderDelete(LimitOrderBase):
     pass
 
-class TransactionHistoryCreate(BaseSchema): 
+
+class TransactionHistoryCreate(BaseSchema):
     user_id: str
     price: float
     action: str

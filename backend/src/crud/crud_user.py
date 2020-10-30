@@ -252,13 +252,26 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return user_in
 
     def add_history(
-        self, *, db: Session, user_in: User, price_in: float, trade_type_in: TradeType, amount_in: int, symbol_in: str
+        self,
+        *,
+        db: Session,
+        user_in: User,
+        date_time_in: float,
+        price_in: float,
+        trade_type_in: TradeType,
+        amount_in: int,
+        symbol_in: str,
     ) -> User:
         """
         Add to the historical transaction.
         """
         requested_record = TransactionCreate(
-            user_id=user_in.uid, price=price_in, action=trade_type_in.name, symbol=symbol_in, amount=amount_in
+            date_time=date_time_in,
+            user_id=user_in.uid,
+            price=price_in,
+            action=trade_type_in.name,
+            symbol=symbol_in,
+            amount=amount_in,
         )
         user_in.transaction_hist.append(Transaction(**requested_record.__dict__))
         db.commit()

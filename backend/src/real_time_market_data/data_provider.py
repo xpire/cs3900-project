@@ -1,131 +1,90 @@
-import time
 from abc import ABC, abstractmethod, abstractproperty
-from datetime import datetime
-from threading import Lock, Thread
 
 from src import crud
-from twelvedata import TDClient
+
+"""
+TODO
+- helper functions (crud?/not) to separate between simulated and non-simulated
+- focus on refactoring in the next sprint
+- how to test limit order execution etc.
+- limit order test: don't use latest data, but use lo and high since we get data
+in blocks of 5
+- need to return open, high. low, close, volume, etc. - define schema
+    - constant volume
+    - high and low update accordingly
+    - make high and low more predictable
+- server needs to tick at much higher speed, e.g. every 15 seconds
+- confirmation message: Executed at ... / positions on the stock?
+- after you trade, we want to see changes to the balance, networth, short/long networths,
+and portfolio
+- portfolio - inventory system: hover to see more details, click for even more
+- floaty + button?
+
+- change days=365 -> time-start, time-end for yearly data, keep it at days=2 for other
+"""
 
 
 class DataProvider(ABC):
+    """
+    Retrieves stock data and provides direct access to cached data
+    """
+
     def __init__(self):
         self.is_running = False
+        self.callbacks = []
+
+    def pre_start(self):
+        """
+        To execute before calling start()
+        """
+        pass
 
     def start(self):
+        """
+        Start retrieving data
+        """
         if not self.is_running:
             self.is_running = True
-            self._start()
+            self.on_start()
 
     @abstractmethod
-    def _start(self):
-        pass
-
-    @abstractmethod
-    def update(self):
-        pass
-
-    @abstractproperty
-    def data(self):
-        pass
-
-
-class MarketDataProvider(DataProvider):
-    def __init__(self, apikey, symbols, db, crud_obj):
-        super().__init__()
-
-        self.TD = TDClient(apikey=apikey)
-        self.symbols = symbols
-        self.db = db
-        self.crud_obj = crud_obj
-
-        self.request = self.create_request(days=2)
-
-        self._data = {}
-        self.lock = Lock()
-
-        # send minutely updates
-        self.observers = []
-
-    def _start(self):
-        self.batch_init()
-        RepeatScheduler(self, seconds_until_next_minute).start()
-
-    # Close sqlalchemy session
-    def close(self):
-        self.db.close()
-
-    def batch_init(self):
-        # Clear db first
-        self.crud_obj.remove_all_hist(db=self.db)
-
-        msg = self.make_request(self.create_request(days=365))
-
-        for symbol, data in msg.items():
-            stock = crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=self.without_exchange(symbol))
-            crud.stock.batch_add_daily_time_series(db=self.db, stock_in=stock, time_series_in=data)
-
-        self.cache_latest_data(msg)
-
-    def update(self):
-        msg = self.make_request(self.request)
-
-        # Insert into sqlite database
-        for symbol, data in msg.items():
-            stock = crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=self.without_exchange(symbol))
-            crud.stock.update_time_series(db=self.db, stock_in=stock, u_time_series=data)
-
-        self.cache_latest_data(msg)
-
-        for observer in self.observers:
-            observer.update(self.data)  # remove this parameter
-
-    def subscribe(self, observer):
-        self.observers.append(observer)
-
-    def subscribe_with_update(self, observer):
-        observer.update(self.data)  # remove this too
-        self.observers.append(observer)
-
-    def cache_latest_data(self, msg):
-        with self.lock:
-            for symbol, data in msg.items():
-                symbol = self.without_exchange(symbol)
-                self._data[symbol] = dict(
-                    curr_day_open=float(data[0]["open"]),
-                    curr_day_close=float(data[0]["close"]),
-                    prev_day_close=float(data[1]["close"]),
-                )
-
+    def on_start(self):
         """
-        TODO
-        Thread-safe version (assuming data is read only...)
-        self.cache[symbol] = dict(...)
-        self._data = self.cache.copy()
+        Executes upon start()
         """
+        pass
 
-    def create_request(self, days):
-        return self.TD.time_series(
-            symbol=self.symbols,
-            interval="1day",
-            outputsize=days,
-            timezone="Australia/Sydney",  # output all timestamps in Sydney's timezone
-        )
+    def subscribe(self, callback):
+        """
+        Subscribe [observer] to regular updates
+        """
+        callback()
+        self.callbacks.append(callback)
 
-    def make_request(self, request):
-        msg = request.as_json()
-        if len(self.symbols) == 1:
-            return {self.symbols[0]: msg}
-
-        return msg
-
-    def without_exchange(self, symbol):
-        return symbol.split(":")[0]
+    def notify(self):
+        """
+        Notify all observers through callbacks
+        """
+        for callback in self.callbacks:
+            callback()
 
     @property
     def data(self):
-        with self.lock:
-            return self._data
+        """
+        Return cached data
+        """
+        return self.data_with_id[0]
 
+    @abstractproperty
+    def data_with_id(self):
+        """
+        Return cached data with an id that is updated whenver the data is changed (for caching purposes)
+        """
+        pass
+
+    # #
+    # Direct gettors for cached data
+    # #
     def get_curr_day_close(self, symbol):
         return self.data[symbol]["curr_day_close"]
 
@@ -134,25 +93,3 @@ class MarketDataProvider(DataProvider):
 
     def get_prev_day_close(self, symbol):
         return self.data[symbol]["prev_day_close"]
-
-
-def seconds_until_next_minute(poll_at_second=15):
-    return 60 + poll_at_second - datetime.now().second
-
-
-class RepeatScheduler(Thread):
-    def __init__(self, provider, wait_for_x_seconds):
-        super().__init__()
-        self.daemon = True
-        self.provider = provider
-        self.wait_for_x_seconds = wait_for_x_seconds
-
-    def run(self):
-        while True:
-            if callable(self.wait_for_x_seconds):
-                x = self.wait_for_x_seconds()
-            else:
-                x = self.wait_for_x_seconds
-
-            time.sleep(x)
-            self.provider.update()

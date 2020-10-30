@@ -6,10 +6,10 @@ from src.db.base_model import BaseModel
 
 class Transaction(BaseModel):
     date_time = Column(DateTime, primary_key=True)
-    user_id = Column(String, ForeignKey("user.uid"))
+    user_id = Column(String, ForeignKey("user.uid"), primary_key=True)
     price = Column(Float, nullable=False)
     action = Column(String)  # buy/sell/short/cover
-    symbol = Column(String, ForeignKey("stock.symbol"))
+    symbol = Column(String, ForeignKey("stock.symbol"), primary_key=True)
     amount = Column(Integer, nullable=False)
     stock_info = relationship(
         "Stock",

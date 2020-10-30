@@ -10,7 +10,10 @@ from src.core.utilities import HTTP400, log_msg
 from src.db.session import SessionLocal
 from src.domain_models.trading_hours import trading_hours_manager
 from src.game.stat_update_publisher import StatUpdatePublisher
-from src.real_time_market_data.data_provider import MarketDataProvider
+from src.real_time_market_data.composite_data_provider import CompositeDataProvider
+from src.real_time_market_data.setup import create_simulators
+from src.real_time_market_data.simulated_data_provider import SimulatedProvider
+from src.real_time_market_data.td_data_provider import TDProvider
 from twelvedata import TDClient
 
 API_URL = "https://api.twelvedata.com"
@@ -26,7 +29,7 @@ router = APIRouter()
 TD = TDClient(apikey=API_KEY)
 market_data_provider = None
 
-
+# TODO move this to a separate place
 # We can't use deps to get the database here, on_event is not part of FastAPI so it can't use depends apparently
 # https://github.com/tiangolo/fastapi/issues/425
 @router.on_event("startup")
@@ -34,28 +37,32 @@ def startup_event():
     global market_data_provider
 
     db = SessionLocal()
-    stocks = crud.stock.get_all_stocks(db=db)[:10]  # TODO change this slice later
-    symbols = [f"{stock.symbol}:{stock.exchange}" for stock in stocks]
+    stocks = crud.stock.get_all_stocks(db=db)[:20]  # TODO change this slice later
+    # symbols = [f"{stock.symbol}:{stock.exchange}" for stock in stocks]
+    symbol_to_exchange = {stock.symbol: stock.exchange for stock in stocks}
 
-    if symbols:
-        market_data_provider = MarketDataProvider(symbols=symbols, apikey=API_KEY, db=db, crud_obj=crud.stock)
-        market_data_provider.subscribe_with_update(StatUpdatePublisher(db))
+    if symbol_to_exchange:
+        p1 = TDProvider(db=db, symbol_to_exchange=symbol_to_exchange, api_key=API_KEY)
+        p2 = SimulatedProvider(db=db, symbol_to_exchange=symbol_to_exchange, simulators=create_simulators(db))
+        market_data_provider = CompositeDataProvider([p1, p2])
+        market_data_provider.pre_start()
+        market_data_provider.subscribe(StatUpdatePublisher(db).update)
         # TODO @Song, place the order execution below the above subscribe
         market_data_provider.start()
     else:
         log_msg("There are no stocks in the database, not polling for data.", "WARNING")
 
 
-@router.on_event("shutdown")
-def startup_event():
-    market_data_provider.close()
+# @router.on_event("shutdown")
+# def startup_event():
+#     market_data_provider.close()
 
 
 @router.get("/symbols")
 async def get_symbols(db: Session = Depends(get_db)):
     ret = []
 
-    stocks = crud.stock.get_all_stocks(db=db)[:10]
+    stocks = crud.stock.get_all_stocks(db=db)[:20]
     for stock in stocks:
         ret.append(
             {

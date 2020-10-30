@@ -8,7 +8,7 @@ class StatUpdatePublisher:
     def __init__(self, db):
         self.db = db
 
-    def update(self, data):
+    def update(self):
         user_models = crud.user.get_all_users(self.db)
 
         for user_m in user_models:

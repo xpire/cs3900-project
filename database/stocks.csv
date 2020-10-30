@@ -1,4 +1,16 @@
 symbol,name,exchange,industry,type,currency
+sim00,Ecksdee UNSW,XD00,Simulated,Private,AUD
+sim01,Ecksdee UNSW,XD00,Simulated,Private,AUD
+sim02,Ecksdee UNSW,XD00,Simulated,Private,AUD
+sim10,Ecksdee UNSW,XD06,Simulated,Private,AUD
+sim11,Ecksdee UNSW,XD06,Simulated,Private,AUD
+sim12,Ecksdee UNSW,XD06,Simulated,Private,AUD
+sim21,Ecksdee UNSW,XD12,Simulated,Private,AUD
+sim22,Ecksdee UNSW,XD12,Simulated,Private,AUD
+sim20,Ecksdee UNSW,XD12,Simulated,Private,AUD
+sim30,Ecksdee UNSW,XD18,Simulated,Private,AUD
+sim31,Ecksdee UNSW,XD18,Simulated,Private,AUD
+sim32,Ecksdee UNSW,XD18,Simulated,Private,AUD
 TLS,Telstra Corporation,ASX,Communication,Private,AUD
 SVW,Seven Group Holdings Ltd,ASX,Communication,Private,AUD
 TPG,TPG Telecom Ltd,ASX,Communication,Private,AUD

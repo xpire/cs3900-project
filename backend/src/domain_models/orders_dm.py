@@ -49,9 +49,9 @@ class PendingOrder:
 
     def execute_after_orders(self, investor: User, db: Session):
         for order in investor.after_orders:
-            stock_obj = stock.get_stock_by_symbol(symbol=order.symbol)
+            stock_obj = stock.get_stock_by_symbol(db=db, stock_symbol=order.symbol)
             exchange = trading_hours.trading_hours_manager.get_exchange(stock_obj.exchange)
-            if trading_hours.next_open(order.date_time, exchange.start) < datetime.now():
+            if trading_hours.next_open(order.date_time, exchange) < datetime.now():
                 stock_data = next((x for x in stock_obj.timeseries if x.date == datetime.date(order.date_time)), None)
                 # TODO: check that data exists for date
                 # if stock_data is None, cancel the order (error)

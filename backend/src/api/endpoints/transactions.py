@@ -22,6 +22,7 @@ async def get_transactions(
                 "amount": transaction.amount,
                 "price": transaction.price,
                 "value": transaction.amount * transaction.price,
+                "timestamp": transaction.date_time,
             }
         ]
 

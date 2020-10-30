@@ -1,9 +1,37 @@
 import datetime as dt
 import itertools as it
+from collections import namedtuple
+from datetime import date
 from typing import List
 
+from pydantic import BaseModel as BaseSchema
 from src import crud
 from src.core.utilities import as_delta
+from src.schemas.exchange import ExchangeFromDB
+
+
+class Pattern(BaseSchema):
+    datetime: dt.datetime
+    open: float
+    close: float
+    exchange: ExchangeFromDB
+
+    def end_price(self, intraday=True):
+        return self.intraday_price() if intraday else self.close
+
+    def intraday_price(self):
+        time = as_delta(self.datetime.time())
+        open = self.exchange.open
+        close = self.exchange.close
+
+        if time < open:
+            return None
+
+        if time > close:
+            return self.close
+
+        progress = (time - open).seconds / (close - open).seconds
+        return (self.close - self.open) * progress + self.open
 
 
 # https://stackoverflow.com/questions/1060279/iterating-through-a-range-of-dates-in-python
@@ -30,13 +58,13 @@ class StockSimulator:
         self.pivot_date = pivot_date or dt.date(2020, 1, 1)
 
     def make_request_by_days(self, end, days):
-        interday_data = self.interday_data(end)
+        intraday_data = self.intraday_data(end)
 
-        if interday_data is None:
+        if intraday_data is None:
             data = self.historical_data(end - dt.timedelta(days=days), end=end)
         else:
             data = self.historical_data(end - dt.timedelta(days=days - 1), end=end)
-            data.append(interday_data)
+            data.append(intraday_data)
 
         data.reverse()
         return data
@@ -44,227 +72,55 @@ class StockSimulator:
     def make_request(self, start, end):
         # TODO test what happens when start == end
         data = self.historical_data(start, end)
-        interday_data = self.interday_data(end)
+        intraday_data = self.intraday_data(end)
 
-        if interday_data is not None:
-            data.append(interday_data)
+        if intraday_data is not None:
+            data.append(intraday_data)
 
         data.reverse()
         return data
 
     def historical_data(self, start, end):
-        start = start.date()
-        end = end.date()
+        return [self.day_data(d) for d in daterange(start.date(), end.date())]
 
-        is_rising = self.is_rising_day(start)
-        data = []
-        for d in daterange(start, end):
-            data.append(self.gen_data(d, is_rising))
-            is_rising = not is_rising
+    def intraday_data(self, datetime):
+        return self.day_data(datetime, intraday=True)
 
-        return data
+    def day_data(self, datetime, intraday=False):
+        return self.generate_data(self.pattern_on_day(datetime), intraday)
 
-    def interday_data(self, datetime):
-        pattern = self.pattern_on_day(datetime.date())
+    def generate_data(self, pattern: Pattern, intraday):
+        end_price = pattern.end_price(intraday)
 
-        end_price = self.market_price_at(datetime.time(), pattern)
         if end_price is None:
             return None
 
-        return self.gen_data(datetime, is_rising, end_price)
-
-    def market_price_at(self, time, is_rising):
-        time = as_delta(time)
-        open = self.exchange.open
-        close = self.exchange.close
-
-        if time < open:
-            return None
-
-        if time > close:
-            return self.day_hi if is_rising else self.day_lo
-
-        progress = (time - open).seconds / (close - open).seconds
-        if is_rising:
-            day_start = self.day_lo
-            day_change = self.day_hi - self.day_lo
+        if pattern.open <= pattern.close:
+            lo = pattern.open
+            hi = end_price
         else:
-            day_start = self.day_hi
-            day_change = self.day_lo - self.day_hi
+            hi = pattern.open
+            lo = end_price
 
-        return day_change * progress + day_start
-
-    def gen_data(self, datetime, is_rising, end_price=None):
-        if end_price is None:
-            end_price = self.day_hi if is_rising else self.day_lo
-
-        if is_rising:
-            return self.rising_data(datetime, end_price)
-        else:
-            return self.falling_data(datetime, end_price)
-
-    def rising_data(self, datetime, end_price):
         return dict(
-            datetime=datetime,
-            symbol=self.symbol,
-            open=self.day_lo,
-            low=self.day_lo,
-            high=end_price,
-            close=end_price,
-            volume=self.volume,
-        )
-
-    def falling_data(self, datetime, end_price):
-        return dict(
-            datetime=datetime,
-            symbol=self.symbol,
-            open=self.day_hi,
-            low=end_price,
-            high=self.day_hi,
-            close=end_price,
-            volume=self.volume,
-        )
-
-    def gen_data(self, datetime, pattern, end_price):
-        return dict(
-            datetime=datetime,
+            datetime=pattern.datetime,
             symbol=self.symbol,
             open=pattern.open,
+            close=pattern.close,
+            volume=self.volume,
+            low=lo,
+            high=hi,
         )
 
-    def pattern_on_day(self, date):
+    def pattern_on_day(self, datetime):
         # works for negative numbers too
-        open_idx = (date - self.pivot_date).days % len(self.patterns)
+        open_idx = (datetime.date() - self.pivot_date).days % len(self.patterns)
         close_idx = (open_idx + 1) % len(self.patterns)
 
-        # TODO wrap this into a named tuple
-        return (self.patterns[open_idx], self.patterns[close_idx])
+        return Pattern(
+            datetime=datetime, open=self.patterns[open_idx], close=self.patterns[close_idx], exchange=self.exchange
+        )
 
     @property
     def symbol(self):
         return self._symbol
-
-
-"""
-class StockSimulator:
-
-    def __init__(self, stock, day_lo, day_hi, rise_at_pivot=True, pivot_date=None, volume=1000):
-        self._symbol = stock.symbol
-
-        self.exchange = crud.exchange.get_exchange_by_name(stock.exchange)
-
-        # daily low, high, and volume
-        self.day_lo = day_lo
-        self.day_hi = day_hi
-        self.volume = volume
-
-        # defines on which dates the stock rises/falls
-        self.pivot_date = pivot_date or dt.date(2020, 1, 1)
-        self.rise_at_pivot = rise_at_pivot
-
-    def make_request_by_days(self, end, days):
-        interday_data = self.interday_data(end)
-
-        if interday_data is None:
-            data = self.historical_data(end - dt.timedelta(days=days), end=end)
-        else:
-            data = self.historical_data(end - dt.timedelta(days=days - 1), end=end)
-            data.append(interday_data)
-
-        data.reverse()
-        return data
-
-    def make_request(self, start, end):
-        # TODO test what happens when start == end
-        data = self.historical_data(start, end)
-        interday_data = self.interday_data(end)
-
-        if interday_data is not None:
-            data.append(interday_data)
-
-        data.reverse()
-        return data
-
-    def historical_data(self, start, end):
-        start = start.date()
-        end = end.date()
-
-        is_rising = self.is_rising_day(start)
-        data = []
-        for d in daterange(start, end):
-            data.append(self.gen_data(d, is_rising))
-            is_rising = not is_rising
-
-        return data
-
-    def interday_data(self, datetime):
-        is_rising = self.is_rising_day(datetime.date())
-
-        end_price = self.market_price_at(datetime.time(), is_rising)
-        if end_price is None:
-            return None
-
-        return self.gen_data(datetime, is_rising, end_price)
-
-    def market_price_at(self, time, is_rising):
-        time = as_delta(time)
-        start = self.exchange.start
-        end = self.exchange.end
-
-        if time < start:
-            return None
-
-        if time > end:
-            return self.day_hi if is_rising else self.day_lo
-
-        progress = (time - start).seconds / (end - start).seconds
-        if is_rising:
-            day_start = self.day_lo
-            day_change = self.day_hi - self.day_lo
-        else:
-            day_start = self.day_hi
-            day_change = self.day_lo - self.day_hi
-
-        return day_change * progress + day_start
-
-    def gen_data(self, datetime, is_rising, end_price=None):
-        if end_price is None:
-            end_price = self.day_hi if is_rising else self.day_lo
-
-        if is_rising:
-            return self.rising_data(datetime, end_price)
-        else:
-            return self.falling_data(datetime, end_price)
-
-    def rising_data(self, datetime, end_price):
-        return dict(
-            datetime=datetime,
-            symbol=self.symbol,
-            open=self.day_lo,
-            low=self.day_lo,
-            high=end_price,
-            close=end_price,
-            volume=self.volume,
-        )
-
-    def falling_data(self, datetime, end_price):
-        return dict(
-            datetime=datetime,
-            symbol=self.symbol,
-            open=self.day_hi,
-            low=end_price,
-            high=self.day_hi,
-            close=end_price,
-            volume=self.volume,
-        )
-
-    def is_rising_day(self, date):
-        # works for negative numbers too
-        if (date - self.pivot_date).days % 2 == 0:
-            return self.rise_at_pivot
-        return not self.rise_at_pivot
-
-    @property
-    def symbol(self):
-        return self._symbol
-"""

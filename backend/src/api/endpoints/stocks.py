@@ -37,7 +37,7 @@ def startup_event():
     global market_data_provider
 
     db = SessionLocal()
-    stocks = crud.stock.get_all_stocks(db=db)[:20]  # TODO change this slice later
+    stocks = crud.stock.get_all_stocks(db=db)[:12]  # TODO change this slice later
     # symbols = [f"{stock.symbol}:{stock.exchange}" for stock in stocks]
     symbol_to_exchange = {stock.symbol: stock.exchange for stock in stocks}
 
@@ -62,7 +62,7 @@ def startup_event():
 async def get_symbols(db: Session = Depends(get_db)):
     ret = []
 
-    stocks = crud.stock.get_all_stocks(db=db)[:20]
+    stocks = crud.stock.get_all_stocks(db=db)[:12]
     for stock in stocks:
         ret.append(
             {

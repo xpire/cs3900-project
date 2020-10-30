@@ -106,7 +106,7 @@ class StockSimulator:
             datetime=pattern.datetime,
             symbol=self.symbol,
             open=pattern.open,
-            close=pattern.close,
+            close=end_price,
             volume=self.volume,
             low=lo,
             high=hi,

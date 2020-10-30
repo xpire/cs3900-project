@@ -231,7 +231,6 @@ const Trading = () => {
       setUpdate(update + 1);
       setState(defaultState);
     });
-    // TODO: update trade page
   };
 
   return (
@@ -275,13 +274,13 @@ const Trading = () => {
                 <ToggleButton value="sell">Sell</ToggleButton>
                 <ToggleButton
                   value="short"
-                  disabled={lockedLoading ? true : locked.level <= 5}
+                  disabled={lockedLoading ? true : locked.level < 5}
                 >
                   Short
                 </ToggleButton>
                 <ToggleButton
                   value="cover"
-                  disabled={lockedLoading ? true : locked.level <= 5}
+                  disabled={lockedLoading ? true : locked.level < 5}
                 >
                   Cover
                 </ToggleButton>
@@ -357,7 +356,7 @@ const Trading = () => {
                 <ToggleButton value="market">Market</ToggleButton>
                 <ToggleButton
                   value="limit"
-                  disabled={lockedLoading ? true : locked.level <= 3}
+                  disabled={lockedLoading ? true : locked.level < 3}
                 >
                   Limit
                 </ToggleButton>

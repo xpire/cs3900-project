@@ -21,6 +21,7 @@ import { format } from "../../utils/formatter";
 import SortableTable from "../../components/common/SortableTable";
 
 const headCells = [
+  { id: "index", numeric: false, disablePadding: false, label: "Index" },
   { id: "t_type", numeric: false, disablePadding: false, label: "Trade Type" },
   { id: "symbol", numeric: false, disablePadding: false, label: "Symbol" },
   { id: "name", numeric: false, disablePadding: false, label: "Name" },
@@ -45,6 +46,10 @@ const Profile = () => {
   );
 
   const [transactionData] = useApi("/transactions");
+
+  const mappedTransactionData = transactionData.map((e, index) => {
+    return { ...e, index: index + 1 };
+  });
 
   return (
     <Page>
@@ -116,7 +121,7 @@ const Profile = () => {
             {/* <Typography variant="h2">Transaction History</Typography> */}
             {/* <Skeleton /> */}
             <SortableTable
-              data={transactionData}
+              data={mappedTransactionData}
               header={headCells}
               title="Transaction History"
             />

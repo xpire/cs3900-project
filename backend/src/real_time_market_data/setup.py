@@ -12,23 +12,31 @@ sim30,Ecksdee UNSW,XD18,Simulated,Private,AUD
 sim31,Ecksdee UNSW,XD18,Simulated,Private,AUD
 sim32,Ecksdee UNSW,XD18,Simulated,Private,AUD
 """
+import itertools as it
+
+import numpy as np
 from src import crud
 from src.real_time_market_data.simulated_stock import StockSimulator
 
+patterns = [
+    list(200 + 100 * np.sin(np.linspace(-np.pi, np.pi - np.pi / 14, 27))),
+    list(np.cos(np.linspace(-np.pi, np.pi - np.pi / 14, 27))),
+    list(np.sin(np.linspace(-np.pi, np.pi - np.pi / 14, 27))),
+]
+
 stock_details = dict(
-    # symbol = (day_lo, day_hi, rise_at_pivot)
-    sim00=(100, 100, True),
-    sim01=(50, 200, True),
-    sim02=(50, 200, False),
-    sim10=(100, 100, True),
-    sim11=(50, 200, True),
-    sim12=(50, 200, False),
-    sim20=(100, 100, True),
-    sim21=(50, 200, True),
-    sim22=(50, 200, False),
-    sim30=(100, 100, True),
-    sim31=(50, 200, True),
-    sim32=(50, 200, False),
+    sim00=patterns[0],
+    sim01=patterns[1],
+    sim02=patterns[2],
+    sim10=patterns[0],
+    sim11=patterns[1],
+    sim12=patterns[2],
+    sim20=patterns[0],
+    sim21=patterns[1],
+    sim22=patterns[2],
+    sim30=patterns[0],
+    sim31=patterns[1],
+    sim32=patterns[2],
 )
 
 
@@ -36,7 +44,7 @@ def create_simulators(db):
     global stock_details
 
     simulators = []
-    for symbol, (lo, hi, rise_at_pivot) in stock_details.items():
+    for symbol, day_patterns in stock_details.items():
         stock = crud.stock.get_stock_by_symbol(db=db, stock_symbol=symbol)
-        simulators.append(StockSimulator(stock, lo, hi, rise_at_pivot))
+        simulators.append(StockSimulator(stock, day_patterns))
     return simulators

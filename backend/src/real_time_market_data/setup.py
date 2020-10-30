@@ -20,8 +20,8 @@ from src.real_time_market_data.simulated_stock import StockSimulator
 
 patterns = [
     list(200 + 100 * np.sin(np.linspace(-np.pi, np.pi - np.pi / 14, 27))),
-    list(np.cos(np.linspace(-np.pi, np.pi - np.pi / 14, 27))),
-    list(np.sin(np.linspace(-np.pi, np.pi - np.pi / 14, 27))),
+    list(200 + 100 * np.cos(np.linspace(-np.pi, np.pi - np.pi / 14, 27))),
+    list(it.chain(range(100, 600, 50), range(600, 100, -100))),
 ]
 
 stock_details = dict(

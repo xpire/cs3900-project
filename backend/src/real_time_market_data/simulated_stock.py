@@ -81,7 +81,7 @@ class StockSimulator:
         return data
 
     def historical_data(self, start, end):
-        return [self.day_data(d) for d in daterange(start.date(), end.date())]
+        return [self.day_data(d) for d in daterange(start, end)]
 
     def intraday_data(self, datetime):
         return self.day_data(datetime, intraday=True)

@@ -19,7 +19,7 @@ class TradingHoursManager:
 
     def get_trading_hours_info(self, stock):
         exchange = self.get_exchange(stock.exchange)
-        is_trading = self.is_trading(self, stock)
+        is_trading = self.is_trading(stock)
         return dict(is_trading=is_trading, open=exchange.open, close=exchange.close)
 
     def is_trading_day(self, stock, date):
@@ -45,7 +45,7 @@ def next_weekday(date):
 
 def next_open(datetime, exchange):
     d = datetime.date()
-    t = datetime.time()
+    t = as_delta(datetime.time())
 
     # if it is weekday and current time is before open, then next open is today at [open_time]
     # otherwise, next open is on next trading day at [open_time]

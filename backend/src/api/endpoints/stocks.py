@@ -42,9 +42,9 @@ def startup_event():
     symbol_to_exchange = {stock.symbol: stock.exchange for stock in stocks}
 
     if symbol_to_exchange:
-        p1 = TDProvider(db=db, symbol_to_exchange=symbol_to_exchange, api_key=API_KEY)
+        # p1 = TDProvider(db=db, symbol_to_exchange=symbol_to_exchange, api_key=API_KEY)
         p2 = SimulatedProvider(db=db, symbol_to_exchange=symbol_to_exchange, simulators=create_simulators(db))
-        market_data_provider = CompositeDataProvider([p1, p2])
+        market_data_provider = CompositeDataProvider([p2])  # p1
         market_data_provider.pre_start()
         market_data_provider.subscribe(StatUpdatePublisher(db).update)
         # TODO @Song, place the order execution below the above subscribe

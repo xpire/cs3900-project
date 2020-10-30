@@ -12,22 +12,31 @@ sim30,Ecksdee UNSW,XD18,Simulated,Private,AUD
 sim31,Ecksdee UNSW,XD18,Simulated,Private,AUD
 sim32,Ecksdee UNSW,XD18,Simulated,Private,AUD
 """
+import itertools as it
+
+import numpy as np
 from src import crud
 from src.real_time_market_data.simulated_stock import StockSimulator
 
+patterns = [
+    list(200 + 100 * np.sin(np.linspace(-np.pi, np.pi - np.pi / 14, 27))),
+    list(np.cos(np.linspace(-np.pi, np.pi - np.pi / 14, 27))),
+    list(np.sin(np.linspace(-np.pi, np.pi - np.pi / 14, 27))),
+]
+
 stock_details = dict(
-    sim00=[100, 200, 300],
-    sim01=[20, 40, 80, 160, 80],
-    sim02=[300, 30, 100, 400],
-    sim10=[100, 200, 300],
-    sim11=[20, 40, 80, 160, 80],
-    sim12=[300, 30, 100, 400],
-    sim20=[100, 200, 300],
-    sim21=[20, 40, 80, 160, 80],
-    sim22=[300, 30, 100, 400],
-    sim30=[100, 200, 300],
-    sim31=[20, 40, 80, 160, 80],
-    sim32=[300, 30, 100, 400],
+    sim00=patterns[0],
+    sim01=patterns[1],
+    sim02=patterns[2],
+    sim10=patterns[0],
+    sim11=patterns[1],
+    sim12=patterns[2],
+    sim20=patterns[0],
+    sim21=patterns[1],
+    sim22=patterns[2],
+    sim30=patterns[0],
+    sim31=patterns[1],
+    sim32=patterns[2],
 )
 
 

@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import List
 
 import src.api.endpoints.stocks as stocks_api
 from sqlalchemy.orm import Session
@@ -323,8 +322,10 @@ class UserDM:
                 return True
         return False
 
-    def check_order_exists(self, id: int):
-        for order in self.user.limit_orders:
+    def check_order_exists(self, id: int, is_limit: bool):
+        order_db = self.user.limit_orders if is_limit else self.user.after_orders
+
+        for order in order_db:
             if order.id == id:
                 return True
 

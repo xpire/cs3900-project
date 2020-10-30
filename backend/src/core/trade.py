@@ -1,9 +1,8 @@
 import src.api.endpoints.stocks as stocks_api
-from sqlalchemy.orm import Session
 from src.domain_models.user_dm import UserDM
 
 
-def get_stock_price(db: Session, symbol: str):
+def get_stock_price(symbol: str):
     return stocks_api.market_data_provider.get_curr_day_close(symbol)
 
 

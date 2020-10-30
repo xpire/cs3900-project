@@ -82,7 +82,7 @@ class TransactionHistoryCreate(BaseSchema):
 
 
 class AfterOrderCreate(BaseSchema):
-    user_id: int
+    user_id: str
     symbol: str
     amount: int
     t_type: TradeType

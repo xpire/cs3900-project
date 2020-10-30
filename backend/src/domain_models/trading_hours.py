@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 from pytz import timezone
 from src import crud
@@ -49,14 +49,14 @@ def next_open(datetime, exchange):
 
     # if it is weekday and current time is before open, then next open is today at [open_time]
     # otherwise, next open is on next trading day at [open_time]
-    if exchange.is_simulated:
+    if exchange.simulated:
         if t >= exchange.open:
             d += timedelta(days=1)
     else:
         if not is_weekday(d) or t >= exchange.open:
             d = next_weekday(d)
 
-    return datetime.combine(d, exchange.open)
+    return datetime.combine(d, time(0)) + exchange.open
 
 
 trading_hours_manager = TradingHoursManager()

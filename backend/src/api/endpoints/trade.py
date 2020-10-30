@@ -12,21 +12,6 @@ from datetime import datetime
 
 router = APIRouter()
 
-# TODO: after market logic for all trades. export the logic.
-# def place_order(symbol: str, qty: int, price: float, t_type: TradeType, db: Session, user: dm.UserDM):
-#     if trading_hours_manager.is_trading(stock=stock.get_stock_by_symbol(symbol=symbol)):
-#         return dm.BuyTrade(symbol=symbol, qty=qty, price=price, db=db, user=user).execute()
-#     else:
-#         crud_user.user.add_after_order(
-#             db=db,
-#             user_in=user.model,
-#             trade_type_in=t_type,
-#             amount_in=qty,
-#             symbol_in=symbol,
-#             dt_in=datetime.now(),
-#         )
-#         return Response(msg="Success")
-
 
 @router.post("/market/buy")
 async def market_buy(
@@ -48,7 +33,7 @@ async def market_buy(
             symbol_in=symbol,
             dt_in=datetime.now(),
         )
-        return Response(msg="Success")
+        return Response(msg="After market order placed")
 
 
 @router.post("/market/sell")
@@ -59,7 +44,19 @@ async def market_sell(
     db: Session = Depends(get_db),
 ):
     price = trade.get_stock_price(db, symbol)
-    return dm.SellTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
+
+    if trading_hours_manager.is_trading(stock=stock.get_stock_by_symbol(symbol=symbol)):
+        return dm.SellTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
+    else:
+        crud_user.user.add_after_order(
+            db=db,
+            user_in=user.model,
+            trade_type_in=TradeType.SELL,
+            amount_in=quantity,
+            symbol_in=symbol,
+            dt_in=datetime.now(),
+        )
+        return Response(msg="After market order placed")
 
 
 @router.post("/market/short")
@@ -70,7 +67,19 @@ async def market_short(
     db: Session = Depends(get_db),
 ):
     price = trade.get_stock_price(db, symbol)
-    return dm.ShortTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
+
+    if trading_hours_manager.is_trading(stock=stock.get_stock_by_symbol(symbol=symbol)):
+        return dm.ShortTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
+    else:
+        crud_user.user.add_after_order(
+            db=db,
+            user_in=user.model,
+            trade_type_in=TradeType.SHORT,
+            amount_in=quantity,
+            symbol_in=symbol,
+            dt_in=datetime.now(),
+        )
+        return Response(msg="After market order placed")
 
 
 @router.post("/market/cover")
@@ -81,7 +90,19 @@ async def market_cover(
     db: Session = Depends(get_db),
 ):
     price = trade.get_stock_price(db, symbol)
-    return dm.CoverTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
+
+    if trading_hours_manager.is_trading(stock=stock.get_stock_by_symbol(symbol=symbol)):
+        return dm.CoverTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
+    else:
+        crud_user.user.add_after_order(
+            db=db,
+            user_in=user.model,
+            trade_type_in=TradeType.COVER,
+            amount_in=quantity,
+            symbol_in=symbol,
+            dt_in=datetime.now(),
+        )
+        return Response(msg="After market order placed")
 
 
 def place_limit_order(

@@ -48,8 +48,8 @@ def startup_event():
         market_data_provider = CompositeDataProvider([p1, p2])
         market_data_provider.pre_start()
         market_data_provider.subscribe(StatUpdatePublisher(db).update)
-        execute_limit_orders = PendingOrder(db)
-        market_data_provider.subscribe(execute_limit_orders)
+        execute_pending_orders = PendingOrder(db)
+        market_data_provider.subscribe(execute_pending_orders)
         market_data_provider.start()
     else:
         log_msg("There are no stocks in the database, not polling for data.", "WARNING")

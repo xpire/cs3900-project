@@ -1,5 +1,4 @@
 import src.api.endpoints.stocks as stocks_api
-from sqlalchemy.orm import Session
 from src.domain_models.user_dm import UserDM
 
 

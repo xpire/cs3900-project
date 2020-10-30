@@ -323,7 +323,6 @@ class UserDM:
         return False
 
     def check_order_exists(self, id: int, is_limit: bool):
-        # TODO: update with db info
         order_db = self.user.limit_orders if is_limit else self.user.after_orders
 
         for order in order_db:

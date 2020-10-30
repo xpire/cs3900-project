@@ -44,6 +44,7 @@ class UserInDB(UserInDBBase):
 
 
 class TransactionBase(BaseSchema):
+    date_time: datetime
     user_id: str
     price: float
     action: str
@@ -77,6 +78,7 @@ class TransactionHistoryCreate(BaseSchema):
     action: str
     symbol: str
     amount: int
+    date_time: datetime
 
 
 class AfterOrderCreate(BaseSchema):

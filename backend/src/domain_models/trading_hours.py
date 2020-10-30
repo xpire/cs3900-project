@@ -43,6 +43,7 @@ def next_open(datetime, open_time):
     d = datetime.date()
     t = datetime.time()
 
+    # BUG for simulated
     # if it is weekday and current time is before open, then next open is today at [open_time]
     # otherwise, next open is on next trading day at [open_time]
     if not (is_weekday(d) and t < open_time):

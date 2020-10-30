@@ -78,6 +78,7 @@ class TransactionHistoryCreate(BaseSchema):
     action: str
     symbol: str
     amount: int
+    date_time: datetime
 
 
 class AfterOrderCreate(BaseSchema):

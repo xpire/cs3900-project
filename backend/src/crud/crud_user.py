@@ -24,7 +24,14 @@ from src.models.transaction import Transaction
 from src.models.user import User
 from src.models.watch_list import WatchList
 from src.schemas.transaction import TradeType
-from src.schemas.user import AfterOrderCreate, LimitOrderCreate, TransactionCreate, TransactionHistoryCreate, UserCreate, UserUpdate
+from src.schemas.user import (
+    AfterOrderCreate,
+    LimitOrderCreate,
+    TransactionCreate,
+    TransactionHistoryCreate,
+    UserCreate,
+    UserUpdate,
+)
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -258,7 +265,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         *,
         db: Session,
         user_in: User,
-        date_time_in: float,
+        date_time_in: datetime,
         price_in: float,
         trade_type_in: TradeType,
         amount_in: int,
@@ -267,18 +274,13 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Add to the historical transaction.
         """
-<<<<<<< HEAD
-        requested_record = TransactionCreate(
+        requested_record = TransactionHistoryCreate(
             date_time=date_time_in,
             user_id=user_in.uid,
             price=price_in,
             action=trade_type_in.name,
             symbol=symbol_in,
             amount=amount_in,
-=======
-        requested_record = TransactionHistoryCreate(
-            user_id=user_in.uid, price=price_in, action=trade_type_in.name, symbol=symbol_in, amount=amount_in
->>>>>>> e2112055ae044bdf93835af926d05eb5133aef94
         )
         user_in.transaction_hist.append(Transaction(**requested_record.__dict__))
         db.commit()

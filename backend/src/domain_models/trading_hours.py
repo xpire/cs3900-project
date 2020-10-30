@@ -6,7 +6,7 @@ from src.core.utilities import HTTP400, as_delta
 
 
 class TradingHoursManager:
-    def get_trading_hours_info(self, stock):
+    def is_trading(self, stock):
         exchange = self.get_exchange(stock.exchange)
         curr_datetime = datetime.now(timezone(exchange.timezone))
         date, time = curr_datetime.date(), as_delta(curr_datetime.time())
@@ -15,8 +15,12 @@ class TradingHoursManager:
         end = exchange.end
 
         is_in_range = start <= time and time <= end
-        is_trading = is_in_range and self.is_trading_day(stock, date)
-        return dict(is_trading=is_trading, start=start, end=end)
+        return is_in_range and self.is_trading_day(stock, date)
+
+    def get_trading_hours_info(self, stock):
+        exchange = self.get_exchange(stock.exchange)
+        is_trading = self.is_trading(self, stock)
+        return dict(is_trading=is_trading, start=exchange.start, end=exchange.end)
 
     def is_trading_day(self, stock, date):
         exchange = self.get_exchange(stock.exchange)  # TODO this should later return a proper db object

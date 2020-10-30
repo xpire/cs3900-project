@@ -16,19 +16,18 @@ from src import crud
 from src.real_time_market_data.simulated_stock import StockSimulator
 
 stock_details = dict(
-    # symbol = (day_lo, day_hi, rise_at_pivot)
-    sim00=(100, 100, True),
-    sim01=(50, 200, True),
-    sim02=(50, 200, False),
-    sim10=(100, 100, True),
-    sim11=(50, 200, True),
-    sim12=(50, 200, False),
-    sim20=(100, 100, True),
-    sim21=(50, 200, True),
-    sim22=(50, 200, False),
-    sim30=(100, 100, True),
-    sim31=(50, 200, True),
-    sim32=(50, 200, False),
+    sim00=[100, 200, 300],
+    sim01=[20, 40, 80, 160, 80],
+    sim02=[300, 30, 100, 400],
+    sim10=[100, 200, 300],
+    sim11=[20, 40, 80, 160, 80],
+    sim12=[300, 30, 100, 400],
+    sim20=[100, 200, 300],
+    sim21=[20, 40, 80, 160, 80],
+    sim22=[300, 30, 100, 400],
+    sim30=[100, 200, 300],
+    sim31=[20, 40, 80, 160, 80],
+    sim32=[300, 30, 100, 400],
 )
 
 
@@ -36,7 +35,7 @@ def create_simulators(db):
     global stock_details
 
     simulators = []
-    for symbol, (lo, hi, rise_at_pivot) in stock_details.items():
+    for symbol, day_patterns in stock_details.items():
         stock = crud.stock.get_stock_by_symbol(db=db, stock_symbol=symbol)
-        simulators.append(StockSimulator(stock, lo, hi, rise_at_pivot))
+        simulators.append(StockSimulator(stock, day_patterns))
     return simulators

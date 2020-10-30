@@ -47,10 +47,9 @@ def startup_event():
         p2 = SimulatedProvider(db=db, symbol_to_exchange=symbol_to_exchange, simulators=create_simulators(db))
         market_data_provider = CompositeDataProvider([p1, p2])
         market_data_provider.pre_start()
-        market_data_provider.subscribe(StatUpdatePublisher(db).update)
-        execute_pending_orders = PendingOrder(db)
-        market_data_provider.subscribe(execute_pending_orders)
         market_data_provider.start()
+        market_data_provider.subscribe(StatUpdatePublisher(db).update)
+        market_data_provider.subscribe(PendingOrder(db).update)
     else:
         log_msg("There are no stocks in the database, not polling for data.", "WARNING")
 

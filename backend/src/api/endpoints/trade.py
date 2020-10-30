@@ -5,6 +5,7 @@ from src.api.deps import check_symbol, get_current_user_dm, get_db
 from src.core import trade
 from src.core.utilities import HTTP400
 from src.crud import crud_user, stock
+from src.domain_models.trade_dm import Trade
 from src.schemas.response import Response
 from src.schemas.transaction import TradeType
 from src.domain_models.trading_hours import trading_hours_manager
@@ -20,9 +21,9 @@ async def market_buy(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    price = trade.get_stock_price(db, symbol)
+    price = trade.get_stock_price(symbol)
 
-    if trading_hours_manager.is_trading(stock=stock.get_stock_by_symbol(symbol=symbol)):
+    if trading_hours_manager.is_trading(stock=stock.get_stock_by_symbol(db=db, stock_symbol=symbol)):
         return dm.BuyTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
     else:
         crud_user.user.add_after_order(
@@ -43,9 +44,9 @@ async def market_sell(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
-    price = trade.get_stock_price(db, symbol)
+    price = trade.get_stock_price(symbol)
 
-    if trading_hours_manager.is_trading(stock=stock.get_stock_by_symbol(symbol=symbol)):
+    if trading_hours_manager.is_trading(stock=stock.get_stock_by_symbol(db=db, stock_symbol=symbol)):
         return dm.SellTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
     else:
         crud_user.user.add_after_order(
@@ -66,9 +67,9 @@ async def market_short(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
-    price = trade.get_stock_price(db, symbol)
+    price = trade.get_stock_price(symbol)
 
-    if trading_hours_manager.is_trading(stock=stock.get_stock_by_symbol(symbol=symbol)):
+    if trading_hours_manager.is_trading(stock=stock.get_stock_by_symbol(db=db, stock_symbol=symbol)):
         return dm.ShortTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
     else:
         crud_user.user.add_after_order(
@@ -89,9 +90,9 @@ async def market_cover(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ):
-    price = trade.get_stock_price(db, symbol)
+    price = trade.get_stock_price(symbol)
 
-    if trading_hours_manager.is_trading(stock=stock.get_stock_by_symbol(symbol=symbol)):
+    if trading_hours_manager.is_trading(stock=stock.get_stock_by_symbol(db=db, stock_symbol=symbol)):
         return dm.CoverTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
     else:
         crud_user.user.add_after_order(
@@ -109,7 +110,7 @@ def place_limit_order(
     quantity: int,
     limit: float,
     symbol: str,
-    t_type: str,
+    t_type: TradeType,
     user: dm.UserDM,
     db: Session,
 ) -> Response:
@@ -134,7 +135,7 @@ async def limit_buy(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    return place_limit_order(quantity, limit, symbol, "buy", user, db)
+    return place_limit_order(quantity, limit, symbol, TradeType.BUY, user, db)
 
 
 @router.post("/limit/sell")
@@ -145,7 +146,7 @@ async def limit_sell(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    return place_limit_order(quantity, limit, symbol, "sell", user, db)
+    return place_limit_order(quantity, limit, symbol, TradeType.SELL, user, db)
 
 
 @router.post("/limit/short")
@@ -156,7 +157,7 @@ async def limit_short(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    return place_limit_order(quantity, limit, symbol, "short", user, db)
+    return place_limit_order(quantity, limit, symbol, TradeType.SHORT, user, db)
 
 
 @router.post("/limit/cover")
@@ -167,4 +168,4 @@ async def limit_cover(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-    return place_limit_order(quantity, limit, symbol, "cover", user, db)
+    return place_limit_order(quantity, limit, symbol, TradeType.COVER, user, db)

@@ -19,7 +19,7 @@ class TradingHoursManager:
 
     def get_trading_hours_info(self, stock):
         exchange = self.get_exchange(stock.exchange)
-        is_trading = self.is_trading(self, stock)
+        is_trading = self.is_trading(stock)
         return dict(is_trading=is_trading, start=exchange.start, end=exchange.end)
 
     def is_trading_day(self, stock, date):

@@ -15,6 +15,8 @@ from collections import defaultdict
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 
+from .config import env_settings
+
 HTTP400 = lambda detail: HTTPException(status_code=400, detail=detail)
 
 
@@ -81,3 +83,10 @@ def fail_save(func):
 # Modified based on https://stackoverflow.com/questions/35241643/convert-datetime-time-into-datetime-timedelta-in-python-3-4
 def as_delta(time: dt.time):
     return dt.datetime.combine(dt.datetime.min, time) - dt.datetime.min
+
+
+def db_uri_generator(db_name: str) -> str:
+    """
+    Generate the URI that sqlalchemy uses for db connection.'
+    """
+    return "sqlite:///" + os.path.join(str(env_settings.proj_root), "database", db_name + ".sqlite3")

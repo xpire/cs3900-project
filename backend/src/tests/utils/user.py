@@ -1,50 +1,83 @@
+import datetime
+import random
 from typing import Dict
 
+import src.models as md
 from fastapi.testclient import TestClient
+from randomtimestamp import randomtimestamp
 from sqlalchemy.orm import Session
+from src.core.config import settings
 
-from app import crud
-from app.core.config import settings
-from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate
-from app.tests.utils.utils import random_email, random_lower_string
+from .utils import random_email, random_float, random_lower_string
 
 
-def user_authentication_headers(
-    *, client: TestClient, email: str, password: str
-) -> Dict[str, str]:
-    data = {'username': email, 'password': password}
-
-    r = client.post(f'{settings.API_V1_STR}/login/access-token', data=data)
-    response = r.json()
-    auth_token = response['access_token']
-    headers = {'Authorization': f'Bearer {auth_token}'}
-    return headers
-
-
-def create_random_user(db: Session) -> User:
-    email = random_email()
-    password = random_lower_string()
-    user_in = UserCreate(username=email, email=email, password=password)
-    user = crud.user.create(db=db, obj_in=user_in)
-    return user
+def generate_random_user(is_init: bool) -> md.User:
+    return {
+        "uid": random_lower_string(l=(1, 128), rand_length=True),
+        "email": random_email(),
+        "username": random_lower_string(l=(1, 32), rand_length=True),  # longest user name be 32 characters
+        "balance": 10000 if is_init else random_float(interval=(0, 1000000)),
+        "level": 0 if is_init else random.randint(0, 10),
+        "exp": 0 if is_init else random_float(interval=(0, 100)),
+        "resets": 0 if is_init else random.randint(0, 10),
+        "last_reset": datetime.datetime.now()
+        if is_init
+        else randomtimestamp(start_year=datetime.datetime.now().year, text=False),
+    }
 
 
-def authentication_token_from_email(
-    *, client: TestClient, email: str, db: Session
-) -> Dict[str, str]:
-    '''
-    Return a valid token for the user with given email.
+# Ignore the below code, just some useless code that might be useful later.
 
-    If the user doesn't exist it is created first.
-    '''
-    password = random_lower_string()
-    user = crud.user.get_by_email(db, email=email)
-    if not user:
-        user_in_create = UserCreate(username=email, email=email, password=password)
-        user = crud.user.create(db, obj_in=user_in_create)
-    else:
-        user_in_update = UserUpdate(password=password)
-        user = crud.user.update(db, db_obj=user, obj_in=user_in_update)
+# user.add_transaction(db=ins, user_in=t_u, t_type="long", p_symbol="AAPL", p_amount=12, price=67.3)
+# user.add_transaction(db=ins, user_in=t_u, t_type="long", p_symbol="AAPL", p_amount=12, price=67.3)
+# user.add_transaction(db=ins, user_in=t_u, t_type="long", p_symbol="AAPL", p_amount=12, price=67.3)
 
-    return user_authentication_headers(client=client, email=email, password=password)
+
+# user.add_transaction(db=ins, user_in=t_u, t_type="short", p_symbol="AAPL", p_amount=12, price=67.3)
+# user.add_transaction(db=ins, user_in=t_u, t_type="short", p_symbol="AAPL", p_amount=12, price=67.3)
+# user.add_transaction(db=ins, user_in=t_u, t_type="short", p_symbol="AAPL", p_amount=12, price=67.3)
+
+
+# user.deduct_transaction(db=ins, user_in=t_u, t_type="long", p_symbol="AAPL", p_amount=24)
+
+
+# user.add_after_order(
+#     db=ins,
+#     user_in=t_u,
+#     trade_type_in=TradeType.BUY,
+#     amount_in=40,
+#     symbol_in="AAPL",
+#     dt_in=dt.now(),
+# )
+
+# user.add_after_order(
+#     db=ins,
+#     user_in=t_u,
+#     trade_type_in=TradeType.BUY,
+#     amount_in=30,
+#     symbol_in="CBA",
+#     dt_in=dt.now(),
+# )
+
+# user.add_after_order(
+#     db=ins,
+#     user_in=t_u,
+#     trade_type_in=TradeType.BUY,
+#     amount_in=50,
+#     symbol_in="AAPL",
+#     dt_in=dt.now(),
+# )
+
+
+# for x in t_u.transaction_hist:
+#     print(x.__dict__)
+
+# user.delete_after_order(db=ins, user_in=t_u, identity=1)
+# user.delete_after_order(db=ins, user_in=t_u, identity=2)
+# user.delete_after_order(db=ins, user_in=t_u, identity=3)
+# user.add_history(db=ins, user_in=t_u, price_in=3.45, trade_type_in=TradeType.BUY, amount_in=34, symbol_in="AAPL")
+# user.add_history(db=ins, user_in=t_u, price_in=6.75, trade_type_in=TradeType.SELL, amount_in=20, symbol_in="CBA")
+
+
+# for x in t_u.transaction_hist:
+#     print(x.__dict__)

@@ -3,10 +3,9 @@ from pathlib import Path
 from typing import Any, List
 
 import yaml
-from fastapi import HTTPException
 from firebase_admin import auth, credentials, initialize_app
-from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, PostgresDsn, ValidationError, validator
-from src.core.utilities import find_path_curr_f
+from pydantic import AnyHttpUrl, BaseSettings
+from src.core.utilities import db_uri_generator, find_path_curr_f
 
 
 class Settings(BaseSettings):
@@ -15,32 +14,39 @@ class Settings(BaseSettings):
     COURSE_NAME: str = "COMP3900"
     TD_API_KEY: str
     SQLITE_DB_URI: str
+    SQLITE_TEST_DB_URI: str
     BACKEND_CORS_ORIGIN: List[AnyHttpUrl] = []
-    CRED_FB: Any
+    FIRE_BASE_CRED: Any
 
 
-# get secret path and needed paths
-_, abs_path = find_path_curr_f()
+class LocalSettings(BaseSettings):
+    # get secret path and needed paths
+    abs_path: str = find_path_curr_f()[1]
+    proj_src: Path = Path(abs_path).parent
+    proj_backend: Path = proj_src.parent
+    proj_root: Path = proj_backend.parent
+    db_src: Path = proj_root / "database"
 
-proj_src = Path(abs_path).parent
-proj_backend_src = proj_src.parent
-proj_root = proj_backend_src.parent
 
-cred = credentials.Certificate(path.join(abs_path, ".secrets", "ecksdee-firebase.json"))
+env_settings = LocalSettings()
+settings = None  # Not changing the name, its used everywhere
+yaml_field = None
+
+# Configure the firebase credentials
+cred = credentials.Certificate(path.join(env_settings.abs_path, ".secrets", "ecksdee-firebase.json"))
 initialize_app(cred)
 
-settings = None
-with open(path.join(abs_path, ".secrets", "env.yaml")) as e:
-    env = yaml.load(e, Loader=yaml.FullLoader)
+# Configure the development environment
+with open(path.join(env_settings.abs_path, ".secrets", "env.yaml")) as e:
+    yaml_field = yaml.load(e, Loader=yaml.FullLoader)
 
     settings = Settings(
-        PROJECT_NAME=env["PROJECT_NAME"],
-        DEV_NAME=env["DEV_NAME"],
-        COURSE_NAME=env["COURSE_NAME"],
-        TD_API_KEY=env["TD_API_KEY"],
-        SQLITE_DB_URI="sqlite:///" + path.join(str(proj_root), "database", env["SQLITE_DB_NAME"] + ".sqlite3"),
-        SQLITE_TEST_DB_NAME="sqlite:///"
-        + path.join(str(proj_root), "database", env["SQLITE_TEST_DB_NAME"] + ".sqlite3"),
-        BACKEND_CORS_ORIGIN=[x for x in env["BACKEND_CORS_ORIGINS"]],
-        CRED_FB=cred,
+        PROJECT_NAME=yaml_field["PROJECT_NAME"],
+        DEV_NAME=yaml_field["DEV_NAME"],
+        COURSE_NAME=yaml_field["COURSE_NAME"],
+        TD_API_KEY=yaml_field["TD_API_KEY"],
+        SQLITE_DB_URI=db_uri_generator(db_name=yaml_field["SQLITE_DB_NAME"]),
+        SQLITE_TEST_DB_NAME=db_uri_generator(db_name=yaml_field["SQLITE_TEST_DB_NAME"]),
+        BACKEND_CORS_ORIGIN=[x for x in yaml_field["BACKEND_CORS_ORIGINS"]],
+        FIRE_BASE_CRED=cred,
     )

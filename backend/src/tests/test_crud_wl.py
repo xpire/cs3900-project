@@ -42,15 +42,15 @@ t_u = user.get_user_by_uid(db=ins, uid="1")
 # )
 
 
-for x in t_u.transaction_hist:
-    print(x.__dict__)
+# for x in t_u.transaction_hist:
+#     print(x.__dict__)
 
-user.delete_after_order(db=ins, user_in=t_u, identity=1)
-user.delete_after_order(db=ins, user_in=t_u, identity=2)
-user.delete_after_order(db=ins, user_in=t_u, identity=3)
-user.add_history(db=ins, user_in=t_u, price_in=3.45, trade_type_in=TradeType.BUY, amount_in=34, symbol_in="AAPL")
-user.add_history(db=ins, user_in=t_u, price_in=6.75, trade_type_in=TradeType.SELL, amount_in=20, symbol_in="CBA")
+# user.delete_after_order(db=ins, user_in=t_u, identity=1)
+# user.delete_after_order(db=ins, user_in=t_u, identity=2)
+# user.delete_after_order(db=ins, user_in=t_u, identity=3)
+# user.add_history(db=ins, user_in=t_u, price_in=3.45, trade_type_in=TradeType.BUY, amount_in=34, symbol_in="AAPL")
+# user.add_history(db=ins, user_in=t_u, price_in=6.75, trade_type_in=TradeType.SELL, amount_in=20, symbol_in="CBA")
 
 
-for x in t_u.transaction_hist:
-    print(x.__dict__)
+# for x in t_u.transaction_hist:
+#     print(x.__dict__)

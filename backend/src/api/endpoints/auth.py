@@ -73,13 +73,13 @@ async def create_user(
 async def reset_user_portfolio(user=Depends(get_current_user_dm), db: Session = Depends(get_db)):
 
     # Check if it can be reset
-    if not user_dm.can_reset_portfolio():
+    if not user.can_reset_portfolio():
         # return {
         #     "result": "failed, you have reset too recently.",
         #     "last_reset_time": user_dm.model.last_reset,
         #     "current_time": datetime.now(),
         # }
-        raise HTTPException(status_code=400, detail=f"Failed to reset, you last resetted {user_dm.model.last_reset}.")
+        raise HTTPException(status_code=400, detail=f"Failed to reset, you last resetted {user.model.last_reset}.")
 
     crud.user.update_balance(db=db, user_in=user.model, balance_in=STARTING_BALANCE)
 

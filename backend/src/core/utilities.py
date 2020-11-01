@@ -75,11 +75,12 @@ def fail_save(func):
             log_msg(str(e._message), "ERROR")
             return None
 
+    # Modified based on https://stackoverflow.com/questions/35241643/convert-datetime-time-into-datetime-timedelta-in-python-3-4
     return inner
 
 
-# Modified based on https://stackoverflow.com/questions/35241643/convert-datetime-time-into-datetime-timedelta-in-python-3-4
 def as_delta(time: dt.time):
+<<<<<<< HEAD
     return dt.datetime.combine(dt.datetime.min, time) - dt.datetime.min
 
 
@@ -88,3 +89,6 @@ def db_uri_generator(*, proj_root: str, db_name: str) -> str:
     Generate the URI that sqlalchemy uses for db connection.'
     """
     return "sqlite:///" + os.path.join(proj_root, "database", db_name + ".sqlite3")
+=======
+    return dt.datetime.combine(dt.datetime.min, time) - dt.datetime.min
+>>>>>>> e4f6442f151e6092da59d599457feaeef6bedac8

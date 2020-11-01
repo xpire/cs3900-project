@@ -7,6 +7,7 @@ from src.game.event.sub_events import StatUpdateEvent
 from src.game.setup.setup import event_hub
 from src.schemas.response import Response
 from src.schemas.transaction import TradeType
+from datetime import datetime
 
 
 class Trade(ABC):
@@ -55,6 +56,7 @@ class Trade(ABC):
         crud_user.user.add_history(
             db=self.db,
             user_in=self.model,
+            date_time_in=datetime.now(),
             price_in=self.price,
             trade_type_in=self.trade_type,
             amount_in=self.qty,

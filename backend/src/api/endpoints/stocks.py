@@ -8,6 +8,7 @@ from src.api.deps import check_symbol, get_db
 from src.core.config import settings
 from src.core.utilities import HTTP400, log_msg
 from src.db.session import SessionLocal
+from src.domain_models.orders_dm import PendingOrder
 from src.domain_models.trading_hours import trading_hours_manager
 from src.game.stat_update_publisher import StatUpdatePublisher
 from src.real_time_market_data.composite_data_provider import CompositeDataProvider
@@ -37,18 +38,18 @@ def startup_event():
     global market_data_provider
 
     db = SessionLocal()
-    stocks = crud.stock.get_all_stocks(db=db)[:20]  # TODO change this slice later
+    stocks = crud.stock.get_all_stocks(db=db)[:12]  # TODO change this slice later
     # symbols = [f"{stock.symbol}:{stock.exchange}" for stock in stocks]
     symbol_to_exchange = {stock.symbol: stock.exchange for stock in stocks}
 
     if symbol_to_exchange:
         p1 = TDProvider(db=db, symbol_to_exchange=symbol_to_exchange, api_key=API_KEY)
         p2 = SimulatedProvider(db=db, symbol_to_exchange=symbol_to_exchange, simulators=create_simulators(db))
-        market_data_provider = CompositeDataProvider([p1, p2])
+        market_data_provider = CompositeDataProvider([p1, p2])  # p1
         market_data_provider.pre_start()
-        market_data_provider.subscribe(StatUpdatePublisher(db).update)
-        # TODO @Song, place the order execution below the above subscribe
         market_data_provider.start()
+        market_data_provider.subscribe(StatUpdatePublisher(db).update)
+        market_data_provider.subscribe(PendingOrder(db).update)
     else:
         log_msg("There are no stocks in the database, not polling for data.", "WARNING")
 
@@ -62,7 +63,7 @@ def startup_event():
 async def get_symbols(db: Session = Depends(get_db)):
     ret = []
 
-    stocks = crud.stock.get_all_stocks(db=db)[:20]
+    stocks = crud.stock.get_all_stocks(db=db)[:12]
     for stock in stocks:
         ret.append(
             {

@@ -322,14 +322,14 @@ class UserDM:
                 return True
         return False
 
-    def check_order_exists(self, id: int, is_limit: bool):
-        order_db = self.user.limit_orders if is_limit else self.user.after_orders
+    # def check_order_exists(self, id: int, is_limit: bool):
+    #     order_db = self.user.limit_orders if is_limit else self.user.after_orders
 
-        for order in order_db:
-            if order.id == id:
-                return True
+    #     for order in order_db:
+    #         if order.id == id:
+    #             return True
 
-        return False
+    #     return False
 
     def can_reset_portfolio(self):
 

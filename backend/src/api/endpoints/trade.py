@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from src import domain_models as dm
@@ -6,10 +8,9 @@ from src.core import trade
 from src.core.utilities import HTTP400
 from src.crud import crud_user, stock
 from src.domain_models.trade_dm import Trade
+from src.domain_models.trading_hours import trading_hours_manager
 from src.schemas.response import Response
 from src.schemas.transaction import TradeType
-from src.domain_models.trading_hours import trading_hours_manager
-from datetime import datetime
 
 router = APIRouter()
 
@@ -24,7 +25,8 @@ async def market_buy(
     price = trade.get_stock_price(symbol)
 
     if trading_hours_manager.is_trading(stock=stock.get_stock_by_symbol(db=db, stock_symbol=symbol)):
-        return dm.BuyTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
+        # return dm.BuyTrade(symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
+        return dm.Trade.new(TradeType.BUY, symbol=symbol, qty=quantity, price=price, db=db, user=user).execute()
     else:
         crud_user.user.add_after_order(
             db=db,
@@ -106,6 +108,7 @@ async def market_cover(
         return Response(msg="After market order placed")
 
 
+# TODO change quantity to qty
 def place_limit_order(
     quantity: int,
     limit: float,

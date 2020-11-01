@@ -1,18 +1,17 @@
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
-from src.db.base_model import BaseModel
+from src.models.limit_order import PendingOrder
 
 
-class AfterOrder(BaseModel):
-    id = Column(Integer, primary_key=True)
-    user_id = Column(String, ForeignKey("user.uid"))
-    symbol = Column(String, ForeignKey("stock.symbol"))
-    amount = Column(Integer, nullable=False)
-    t_type = Column(String, nullable=False)  # buy/sell/short/cover
-    date_time = Column(DateTime, nullable=False)
+class AfterOrder(PendingOrder):
+    id = Column(Integer, ForeignKey("pendingorder.id"), primary_key=True)
+    date_time = Column(DateTime, nullable=False)  # TODO consider moving this to the superclass
     stock_info = relationship(
         "Stock",
-        backref="afterorder",
+        backref="afterorder",  # TODO change these names, just remove
         cascade="save-update, merge",
     )
-    [id, user_id, symbol, amount, t_type, date_time]
+
+    __mapper_args__ = {
+        "polymorphic_identity": "MARKET",
+    }

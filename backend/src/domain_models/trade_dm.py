@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 
 from src.core import trade
 from src.core.utilities import HTTP400
@@ -7,11 +8,12 @@ from src.game.event.sub_events import StatUpdateEvent
 from src.game.setup.setup import event_hub
 from src.schemas.response import Response
 from src.schemas.transaction import TradeType
-from datetime import datetime
 
 
 class Trade(ABC):
-    def __init__(self, symbol, qty, price, db, user, is_buying, is_long, is_opening, trade_type):
+    trade_type: TradeType = None
+
+    def __init__(self, symbol, qty, price, db, user, is_buying, is_long, is_opening):
         self.symbol = symbol
         self.qty = qty
         self.price = price
@@ -20,7 +22,6 @@ class Trade(ABC):
         self.is_buying = is_buying
         self.is_long = is_long
         self.is_opening = is_opening
-        self.trade_type = trade_type
 
     def execute(self):
         if self.qty < 0:
@@ -71,10 +72,24 @@ class Trade(ABC):
     def model(self):
         return self.user.model
 
+    @property
+    def trade_type(self):
+        return self.__class__.trade_type
+
+    @classmethod
+    def register(cls, subclasses):
+        cls.type_to_cls = {subclass.trade_type: subclass for subclass in subclasses}
+
+    @classmethod
+    def new(cls, trade_type, **kwargs):
+        return cls.type_to_cls[trade_type](**kwargs)
+
 
 class BuyTrade(Trade):
+    trade_type = TradeType.BUY
+
     def __init__(self, **kwargs):
-        super().__init__(**kwargs, is_buying=True, is_long=True, is_opening=True, trade_type=TradeType.BUY)
+        super().__init__(**kwargs, is_buying=True, is_long=True, is_opening=True)
 
     def check(self, total_price, trade_price):
         if self.model.balance < trade_price:
@@ -82,8 +97,10 @@ class BuyTrade(Trade):
 
 
 class SellTrade(Trade):
+    trade_type = TradeType.SELL
+
     def __init__(self, **kwargs):
-        super().__init__(**kwargs, is_buying=False, is_long=True, is_opening=False, trade_type=TradeType.SELL)
+        super().__init__(**kwargs, is_buying=False, is_long=True, is_opening=False)
 
     def check(self, total_price, trade_price):
         if not trade.check_owned_longs(self.user, self.qty, self.symbol):
@@ -91,8 +108,10 @@ class SellTrade(Trade):
 
 
 class ShortTrade(Trade):
+    trade_type = TradeType.SHORT
+
     def __init__(self, **kwargs):
-        super().__init__(**kwargs, is_buying=False, is_long=False, is_opening=True, trade_type=TradeType.SHORT)
+        super().__init__(**kwargs, is_buying=False, is_long=False, is_opening=True)
 
     def check(self, total_price, trade_price):
         if self.user.level < 5:
@@ -108,8 +127,10 @@ class ShortTrade(Trade):
 
 
 class CoverTrade(Trade):
+    trade_type = TradeType.COVER
+
     def __init__(self, **kwargs):
-        super().__init__(**kwargs, is_buying=True, is_long=False, is_opening=False, trade_type=TradeType.COVER)
+        super().__init__(**kwargs, is_buying=True, is_long=False, is_opening=False)
 
     def check(self, total_price, trade_price):
         if self.user.level < 5:
@@ -120,3 +141,5 @@ class CoverTrade(Trade):
 
         if self.model.balance < trade_price:
             raise HTTP400("Insufficient balance")
+
+Trade.register([BuyTrade, SellTrade, ShortTrade, CoverTrade])

@@ -1,13 +1,27 @@
+from abc import ABC
+from datetime import datetime
+
 from sqlalchemy.orm import Session
 from sqlalchemy.util.langhelpers import symbol
-from src.crud.crud_user import user
-from src.crud import stock
-from src.models import User
 from src import domain_models as dm
-from src.domain_models import trading_hours
 from src.core import trade
+from src.crud import stock
+from src.crud.crud_user import user
+from src.domain_models import trading_hours
+from src.models import User
 from src.schemas.transaction import TradeType
-from datetime import datetime
+
+# class Order(ABC):
+#     def __init__(self, order_obj):
+
+#     def submit(self):
+#         pass
+
+#     def try_execute(self):
+#         pass
+
+#     def execute(self, price):
+#         pass
 
 
 class PendingOrder:

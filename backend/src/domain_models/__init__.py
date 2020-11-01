@@ -1,2 +1,2 @@
-from .trade_dm import BuyTrade, CoverTrade, SellTrade, ShortTrade
+from .trade_dm import BuyTrade, CoverTrade, SellTrade, ShortTrade, Trade
 from .user_dm import UserDM

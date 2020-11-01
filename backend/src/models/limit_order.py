@@ -12,11 +12,10 @@ class PendingOrder(BaseModel):
     amount = Column(Integer, nullable=False)
     t_type = Column(String, nullable=False)  # buy/sell/short/cover
     price = Column(Float, nullable=False)
-    # stock_info = relationship( #TODO change name to [stock]
-    #     "Stock",
-    #     backref=stock_backref() #TODO change the names?
-    #     cascade="save-update, merge",
-    # )
+    stock_info = relationship(  # TODO change name to [stock]
+        "Stock",
+        cascade="save-update, merge",
+    )
 
     order_type = Column(String, nullable=False)
 
@@ -25,11 +24,6 @@ class PendingOrder(BaseModel):
 
 class LimitOrder(PendingOrder):
     id = Column(Integer, ForeignKey("pendingorder.id"), primary_key=True)
-    stock_info = relationship(
-        "Stock",
-        backref="limitorder",
-        cascade="save-update, merge",
-    )
 
     __mapper_args__ = {
         "polymorphic_identity": "LIMIT",

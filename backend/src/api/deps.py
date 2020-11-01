@@ -35,7 +35,8 @@ def get_current_user_m(id_token: str = Header(None), db: Session = Depends(get_d
     user_m = crud.user.get_user_by_uid(db=db, uid=decode_token(id_token))
     if not user_m:
         raise HTTPException(
-            status_code=400, detail="no user exists",
+            status_code=400,
+            detail="no user exists",
         )
     return user_m
 

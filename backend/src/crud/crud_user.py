@@ -17,22 +17,14 @@ from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
 from src.crud.base import CRUDBase
 from src.crud.crud_stock import stock
-from src.models.after_order import AfterOrder
-from src.models.limit_order import LimitOrder
+from src.models.limit_order import AfterOrder, LimitOrder
 from src.models.long_position import LongPosition
 from src.models.short_position import ShortPosition
 from src.models.transaction import Transaction
 from src.models.user import User
 from src.models.watch_list import WatchList
 from src.schemas.transaction import OrderType, TradeType
-from src.schemas.user import (
-    AfterOrderCreate,
-    LimitOrderCreate,
-    TransactionCreate,
-    TransactionHistoryCreate,
-    UserCreate,
-    UserUpdate,
-)
+from src.schemas.user import TransactionHistoryCreate, UserCreate, UserUpdate
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -227,23 +219,35 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db.refresh(user)
         return user
 
+    # def delete_order(self, *, db: Session, user: User, id: int) -> User:
+    #     std = None
+    #     for order in user.limit_orders:
+    #         if order.id == id:
+    #             std = order
+
+    #     if std == None:
+    #         log_msg(f"No limit order of id {id} exists. ", "ERROR")
+    #         return user
+    #     else:
+    #         user.limit_orders.remove(std)
+
+    #     db.commit()
+    #     db.refresh(user)
+
+    #     return user
     @fail_save
-    def delete_order(self, *, db: Session, user_in: User, identity: int) -> User:
-        std = None
-        for order in user_in.limit_orders:
-            if order.id == identity:
-                std = order
+    def delete_order(self, *, db: Session, user: User, id: int) -> User:
+        order = next((order for order in user.pending_orders if order.id == id), None)
+        # order = db.query(models.PendingOrder).filter(models.PendingOrder.id == id).first() #TODO new crud, need to specify user too
 
-        if std == None:
-            log_msg(f"No limit order of id {identity} exists. ", "ERROR")
-            return user_in
-        else:
-            user_in.limit_orders.remove(std)
+        if order is None:
+            log_msg(f"No limit order of id {id} exists. ", "ERROR")
+            return user
 
+        user.pending_orders.remove(order)  # TODO maybe use filter instead of remove
         db.commit()
-        db.refresh(user_in)
-
-        return user_in
+        db.refresh(user)
+        return user
 
     def reset_user_portfolio(self, *, user_in: User, db: Session) -> User:
 
@@ -289,50 +293,50 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db.refresh(user_in)
         return user_in
 
-    @fail_save
-    def add_after_order(
-        self,
-        *,
-        db: Session,  # TODO turn this into a schema based input
-        user: User,
-        trade_type: TradeType,
-        qty: int,
-        symbol: str,
-        timestamp: datetime,
-    ) -> User:
-        """
-        Add an after order for the user.
-        """
-        if not self.symbol_exist(db=db, symbol_in=symbol):
-            log_msg(
-                f"Adding a non-existent symbol on after order of User(uid = {user.uid}).",
-                "WARNING",
-            )
-            return user
+    # @fail_save
+    # def add_after_order(
+    #     self,
+    #     *,
+    #     db: Session,  # TODO turn this into a schema based input
+    #     user: User,
+    #     trade_type: TradeType,
+    #     qty: int,
+    #     symbol: str,
+    #     timestamp: datetime,
+    # ) -> User:
+    #     """
+    #     Add an after order for the user.
+    #     """
+    #     if not self.symbol_exist(db=db, symbol_in=symbol):
+    #         log_msg(
+    #             f"Adding a non-existent symbol on after order of User(uid = {user.uid}).",
+    #             "WARNING",
+    #         )
+    #         return user
 
-        user.after_orders.append(
-            AfterOrder(user_id=user.uid, symbol=symbol, qty=qty, timestamp=timestamp, trade_type=trade_type)
-        )
+    #     user.after_orders.append(
+    #         AfterOrder(user_id=user.uid, symbol=symbol, qty=qty, timestamp=timestamp, trade_type=trade_type)
+    #     )
 
-        db.commit()
-        db.refresh(user)
-        return user
+    #     db.commit()
+    #     db.refresh(user)
+    #     return user
 
-    @fail_save
-    def delete_after_order(self, *, db: Session, user_in: User, identity: int) -> User:
-        std = None
-        for order in user_in.after_orders:
-            if order.id == identity:
-                std = order
+    # @fail_save
+    # def delete_after_order(self, *, db: Session, user_in: User, identity: int) -> User:
+    #     std = None
+    #     for order in user_in.after_orders:
+    #         if order.id == identity:
+    #             std = order
 
-        if std == None:
-            log_msg(f"No after order of id {identity} exists. ", "ERROR")
-            return user_in
-        else:
-            user_in.after_orders.remove(std)
+    #     if std == None:
+    #         log_msg(f"No after order of id {identity} exists. ", "ERROR")
+    #         return user_in
+    #     else:
+    #         user_in.after_orders.remove(std)
 
-        db.commit()
-        db.refresh(user_in)
+    #     db.commit()
+    #     db.refresh(user_in)
 
 
 user = CRUDUser(User)

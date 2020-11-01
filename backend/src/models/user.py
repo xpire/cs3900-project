@@ -18,6 +18,8 @@ class User(BaseModel):
     unlocked_achievements = relationship(
         "UnlockedAchievement", backref="user", cascade="save-update, merge, delete, delete-orphan"
     )
-    limit_orders = relationship("LimitOrder", backref="user", cascade="save-update, merge, delete, delete-orphan")
     transaction_hist = relationship("Transaction", backref="user", cascade="save-update, merge, delete, delete-orphan")
+
+    pending_orders = relationship("PendingOrder", backref="user", cascade="save-update, merge, delete, delete-orphan")
+    limit_orders = relationship("LimitOrder", backref="user", cascade="save-update, merge, delete, delete-orphan")
     after_orders = relationship("AfterOrder", backref="user", cascade="save-update, merge, delete, delete-orphan")

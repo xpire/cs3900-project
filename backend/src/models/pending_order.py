@@ -29,10 +29,6 @@ class PendingOrder(BaseModel):
         cls.type_to_cls = type_to_cls
 
     @classmethod
-    def new(cls, order_type, **kwargs):
-        return cls.subclass(order_type)(**kwargs)
-
-    @classmethod
     def subclass(cls, order_type):
         return cls.type_to_cls[order_type]
 

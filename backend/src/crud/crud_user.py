@@ -17,8 +17,8 @@ from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
 from src.crud.base import CRUDBase
 from src.crud.crud_stock import stock
-from src.models.limit_order import AfterOrder, LimitOrder
 from src.models.long_position import LongPosition
+from src.models.pending_order import AfterOrder, LimitOrder, PendingOrder
 from src.models.short_position import ShortPosition
 from src.models.transaction import Transaction
 from src.models.user import User
@@ -192,62 +192,41 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             return True
         return False
 
+    # TODO does not belong in User...
     @fail_save
     def create_order(
         self,
         *,
         db: Session,
         order: schemas.PendingOrder,
-    ) -> User:
-        user = crud.user.get_user_by_uid(order.user_id)
-
+    ) -> bool:
         if not self.symbol_exist(db=db, symbol_in=order.symbol):
             log_msg(
-                f"Adding a non-existent symbol on pending order of User(uid = {user.uid}).",
+                f"Adding a non-existent symbol on pending order of User(uid = {order.user_id}).",
                 "WARNING",
             )
-            return user
+            return False
 
-        # TODO see if this can be simplified
-        if order.order_type == OrderType.LIMIT:
-            user.limit_orders.append(LimitOrder(**order.dict()))
+        # TODO check difference between add, commit, flush
+        order_m = PendingOrder.subclass(order.order_type)(**order.dict())
+        db.add(order_m)
+        db.flush()
+        return True
 
-        elif order.order_type == OrderType.MARKET:
-            user.after_orders.append(AfterOrder(**order.dict()))
-
-        db.commit()
-        db.refresh(user)
-        return user
-
-    # def delete_order(self, *, db: Session, user: User, id: int) -> User:
-    #     std = None
-    #     for order in user.limit_orders:
-    #         if order.id == id:
-    #             std = order
-
-    #     if std == None:
-    #         log_msg(f"No limit order of id {id} exists. ", "ERROR")
-    #         return user
-    #     else:
-    #         user.limit_orders.remove(std)
-
-    #     db.commit()
-    #     db.refresh(user)
-
-    #     return user
     @fail_save
-    def delete_order(self, *, db: Session, user: User, id: int) -> User:
-        order = next((order for order in user.pending_orders if order.id == id), None)
-        # order = db.query(models.PendingOrder).filter(models.PendingOrder.id == id).first() #TODO new crud, need to specify user too
+    def delete_order(self, *, db: Session, id: int):
+        # order = next((order for order in user.pending_orders if order.id == id), None)
+        order = (
+            db.query(models.PendingOrder).filter(PendingOrder.id == id).one()
+        )  # TODO new crud, also diff betwee one/first
 
         if order is None:
             log_msg(f"No limit order of id {id} exists. ", "ERROR")
-            return user
+            return False
 
-        user.pending_orders.remove(order)  # TODO maybe use filter instead of remove
-        db.commit()
-        db.refresh(user)
-        return user
+        db.remove(order)
+        db.flush()
+        return True
 
     def reset_user_portfolio(self, *, user_in: User, db: Session) -> User:
 
@@ -337,6 +316,23 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     #     db.commit()
     #     db.refresh(user_in)
+
+    # def delete_order(self, *, db: Session, user: User, id: int) -> User:
+    #     std = None
+    #     for order in user.limit_orders:
+    #         if order.id == id:
+    #             std = order
+
+    #     if std == None:
+    #         log_msg(f"No limit order of id {id} exists. ", "ERROR")
+    #         return user
+    #     else:
+    #         user.limit_orders.remove(std)
+
+    #     db.commit()
+    #     db.refresh(user)
+
+    #     return user
 
 
 user = CRUDUser(User)

@@ -13,9 +13,9 @@ from .utils import random_email, random_float, random_lower_string
 
 def generate_random_user(is_init: bool) -> md.User:
     return {
-        "uid": random_lower_string(l=(1, 128), rand_length=True),
+        "uid": random_lower_string(length=(1, 128), rand_length=True),
         "email": random_email(),
-        "username": random_lower_string(l=(1, 32), rand_length=True),  # longest user name be 32 characters
+        "username": random_lower_string(length=(1, 32), rand_length=True),  # longest user name be 32 characters
         "balance": 10000 if is_init else random_float(interval=(0, 1000000)),
         "level": 0 if is_init else random.randint(0, 10),
         "exp": 0 if is_init else random_float(interval=(0, 100)),

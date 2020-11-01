@@ -15,8 +15,6 @@ from collections import defaultdict
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 
-from .config import env_settings
-
 HTTP400 = lambda detail: HTTPException(status_code=400, detail=detail)
 
 
@@ -85,8 +83,8 @@ def as_delta(time: dt.time):
     return dt.datetime.combine(dt.datetime.min, time) - dt.datetime.min
 
 
-def db_uri_generator(db_name: str) -> str:
+def db_uri_generator(*, proj_root: str, db_name: str) -> str:
     """
     Generate the URI that sqlalchemy uses for db connection.'
     """
-    return "sqlite:///" + os.path.join(str(env_settings.proj_root), "database", db_name + ".sqlite3")
+    return "sqlite:///" + os.path.join(proj_root, "database", db_name + ".sqlite3")

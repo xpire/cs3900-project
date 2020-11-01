@@ -13,7 +13,7 @@ def random_lower_string(length: int, rand_length: bool) -> str:
 
 
 def random_email() -> str:
-    return f"{random_lower_string()}@{random_lower_string(l=32)}.com"
+    return f"{random_lower_string(length=(5, 20), rand_length=True)}@{random_lower_string(length=(5, 32), rand_length=True)}.com"
 
 
 def random_float(interval: Tuple[float]) -> str:

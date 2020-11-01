@@ -5,7 +5,8 @@ from typing import Any, List
 import yaml
 from firebase_admin import auth, credentials, initialize_app
 from pydantic import AnyHttpUrl, BaseSettings
-from src.core.utilities import db_uri_generator, find_path_curr_f
+
+from .utilities import db_uri_generator, find_path_curr_f
 
 
 class Settings(BaseSettings):
@@ -45,8 +46,10 @@ with open(path.join(env_settings.abs_path, ".secrets", "env.yaml")) as e:
         DEV_NAME=yaml_field["DEV_NAME"],
         COURSE_NAME=yaml_field["COURSE_NAME"],
         TD_API_KEY=yaml_field["TD_API_KEY"],
-        SQLITE_DB_URI=db_uri_generator(db_name=yaml_field["SQLITE_DB_NAME"]),
-        SQLITE_TEST_DB_NAME=db_uri_generator(db_name=yaml_field["SQLITE_TEST_DB_NAME"]),
+        SQLITE_DB_URI=db_uri_generator(proj_root=str(env_settings.proj_root), db_name=yaml_field["SQLITE_DB_NAME"]),
+        SQLITE_TEST_DB_URI=db_uri_generator(
+            proj_root=str(env_settings.proj_root), db_name=yaml_field["SQLITE_TEST_DB_NAME"]
+        ),
         BACKEND_CORS_ORIGIN=[x for x in yaml_field["BACKEND_CORS_ORIGINS"]],
         FIRE_BASE_CRED=cred,
     )

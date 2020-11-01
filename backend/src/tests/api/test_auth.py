@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from src.core.config import settings
 
 
-def random_test_template(client: TestClient):
+def test_random_template(client: TestClient):
     r = client.get("/symbols")
 
     d = r.json()

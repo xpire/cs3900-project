@@ -12,6 +12,15 @@ from src.domain_models.trading_hours import trading_hours_manager
 from src.schemas.response import Response
 from src.schemas.transaction import OrderType, TradeType
 
+# TODO
+"""
+1. update trade.py
+2. update orders.py
+3. update others as necessary
+4. refactor crud
+
+"""
+
 
 class Order(ABC):
     order_type: OrderType = None

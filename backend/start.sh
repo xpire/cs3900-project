@@ -26,7 +26,7 @@ title-bar() {
     echo "█   █▄▄▄█    █▄▄█    ▄  █▄▄▄▄▄█ █       █   █▄▄▄█   █▄▄▄   █   ▄   █       █ "
     echo "█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄▄█ █▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄██▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█  █▄▄█ █▄▄█▄▄▄▄▄▄█  "
     echo "============================================================================="
-}
+}          
 
 set-python-path() {
     print-line;
@@ -122,7 +122,7 @@ elif [ $# -eq 1 ]; then
         "nuke-db-from-orbit") # be in backend
             title-bar; 
             read -p "Are you sure you want to nuke it ? you will lose all the data in the database...   "  res
-            set-python-path
+            set-python-path; 
             if [ $res=="yes" ]; then 
                 db_name=$(grep -A0 'SQLITE_DB_NAME: ' ./src/core/.secrets/env.yaml | cut -d ":" -f2 | cut -c 2-) 
                 echo "Nuking $db_name from the orbit..."
@@ -134,6 +134,19 @@ elif [ $# -eq 1 ]; then
             else
                 echo "ABORT!!!! ABORT!!!!" 
             fi
+        ;;
+
+
+        "setup-test" )
+            title-bar; 
+            set-python-path;
+            echo "pytest -v ../../backend/src/tests" >> ../.git/hooks/pre-push;
+        ;;
+        
+        "test" )
+            title-bar; 
+            set-python-path;
+            pytest -v src/tests;
         ;;
         *) echo "Please provide the correct path.";;
     esac

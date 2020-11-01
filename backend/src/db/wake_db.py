@@ -2,7 +2,8 @@ import logging
 from typing import Any
 
 from src.db.session import SessionLocal
-from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
+from tenacity import (after_log, before_log, retry, stop_after_attempt,
+                      wait_fixed)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -29,7 +30,7 @@ def init(is_test: bool, test_session: Any) -> None:
 
 def main() -> None:
     logger.info("Initializing service")
-    init(mode="prod")
+    init(is_test=False, test_session=None)
     logger.info("Service finished initializing")
 
 

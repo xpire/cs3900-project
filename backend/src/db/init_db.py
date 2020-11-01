@@ -57,5 +57,5 @@ if __name__ == "__main__":
     # Create the initial data
     logger.info("Creating initial data")
     db = SessionLocal()
-    init_db(db=db, is_test=False)
+    init_db(db=db, is_test=False, t_engine=None)
     logger.info("Initial data created")

@@ -94,7 +94,11 @@ class Trade(ABC):
 
     @classmethod
     def new(cls, trade_type, **kwargs):
-        return cls.type_to_cls[trade_type](**kwargs)
+        return cls.subclass(trade_type)(**kwargs)
+
+    @classmethod
+    def subclass(cls, trade_type):
+        return cls.type_to_cls[trade_type]
 
 
 class BuyTrade(Trade):

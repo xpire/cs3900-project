@@ -12,7 +12,7 @@ class CRUDPendingOrder:
         db: Session,
         order: schemas.PendingOrder,
     ) -> bool:
-        if not crud.user.symbol_exist(db=db, symbol_in=order.symbol):
+        if not crud.stock.symbol_exists(db=db, symbol=order.symbol):
             log_msg(
                 f"Adding a non-existent symbol on pending order of User(uid = {order.user_id}).",
                 "WARNING",

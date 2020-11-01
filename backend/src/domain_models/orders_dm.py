@@ -36,7 +36,7 @@ class Order(ABC):
         if self.try_execute():
             return Response(msg="Order executed successfully")
         else:
-            crud.user.create_order(db=self.db, order=self.schema)
+            crud.pending_order.create_order(db=self.db, order=self.schema)
             return Response(msg="Order placed successfully")
 
     @abstractmethod
@@ -70,7 +70,7 @@ class Order(ABC):
 
     @abstractproperty
     def schema(self):
-        return PendingOrder(
+        return schemas.PendingOrder(
             user_id=self.user.model.uid,
             symbol=self.symbol,
             qty=self.qty,
@@ -174,4 +174,4 @@ class PendingOrderExecutor:
     def execute_pending_orders(self, user, pending_orders, order_cls):
         for order in pending_orders:
             if order_cls.from_orm(user, self.db, order).try_execute():
-                crud.user.delete_order(db=self.db, id=order.id)
+                crud.pending_order.delete_order(db=self.db, id=order.id)

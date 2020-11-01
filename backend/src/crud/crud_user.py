@@ -291,36 +291,46 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def add_after_order(
         self,
         *,
-        db: Session,
-        user_in: User,
-        trade_type_in: TradeType,
-        amount_in: int,
-        symbol_in: str,
-        dt_in: datetime,
+        db: Session,  # TODO turn this into a
+        user: User,
+        trade_type: TradeType,
+        qty: int,
+        symbol: str,
+        timestamp: datetime,
     ) -> User:
         """
         Add an after order for the user.
         """
         if self.symbol_exist(db=db, symbol_in=symbol_in):
             stc = AfterOrderCreate(
-                user_id=user_in.uid,
+                user_id=user.uid,
                 symbol=symbol_in,
                 amount=amount_in,
-                t_type=trade_type_in.name,
-                date_time=dt_in,
+                t_type=trade_type.name,
+                timestamp=timestamp,
             )
+            """
+            class AfterOrderCreate(BaseSchema):
+                user_id: str
+                symbol: str
+                amount: int
+                t_type: TradeType
+                date_time: datetime
+            """
 
-            user_in.after_orders.append(AfterOrder(**stc.__dict__))
+            user.after_orders.append(
+                AfterOrder(user_id=user.uid, symbol=symbol, qty=qty, timestamp=timestamp, trade_type=trade_type)
+            )
         else:
             log_msg(
-                f"Adding a non-existent symbol on after order of User(uid = {user_in.uid}).",
+                f"Adding a non-existent symbol on after order of User(uid = {user.uid}).",
                 "WARNING",
             )
-            return user_in
+            return user
 
         db.commit()
-        db.refresh(user_in)
-        return user_in
+        db.refresh(user)
+        return user
 
     @fail_save
     def delete_after_order(self, *, db: Session, user_in: User, identity: int) -> User:

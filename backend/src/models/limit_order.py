@@ -9,22 +9,22 @@ class PendingOrder(BaseModel):
     id = Column(Integer, primary_key=True)
     user_id = Column(String, ForeignKey("user.uid"))
     symbol = Column(String, ForeignKey("stock.symbol"))
-    amount = Column(Integer, nullable=False)
-    t_type = Column(String, nullable=False)  # buy/sell/short/cover
-    price = Column(Float, nullable=False)
-    stock_info = relationship(  # TODO change name to [stock]
+    qty = Column(Integer, nullable=False)
+    timestamp = Column(DateTime, nullable=False)  # TODO consider moving this to the superclass
+    trade_type = Column(String, nullable=False)  # buy/sell/short/cover
+    order_type = Column(String, nullable=False)
+    stock = relationship(  # TODO change name to [stock]
         "Stock",
         cascade="save-update, merge",
     )
-
-    order_type = Column(String, nullable=False)
 
     __mapper_args__ = {"polymorphic_identity": "pendingorder", "polymorphic_on": order_type}
 
 
 class LimitOrder(PendingOrder):
     id = Column(Integer, ForeignKey("pendingorder.id"), primary_key=True)
+    price = Column(Float, nullable=False)
 
     __mapper_args__ = {
-        "polymorphic_identity": "LIMIT",
+        "polymorphic_identity": "LIMIT",  # TODO replace with order type .name
     }

@@ -51,6 +51,21 @@ class Order(ABC):
     def order_type(self):
         return self.__class__.order_type
 
+    @classmethod
+    def from_orm_kwargs(cls, user, db, order):
+        return dict(
+            symbol=order.symbol,
+            qty=order.qty,
+            timestamp=order.timestamp,
+            user=user,
+            db=db,
+            trade_type=TradeType[order.t_type],
+        )
+
+    @classmethod
+    def from_orm(cls, user, db, order):
+        return cls(**cls.from_orm_kwargs(user, db, order))
+
 
 class LimitOrder(Order):
     order_type = OrderType.LIMIT
@@ -96,15 +111,8 @@ class LimitOrder(Order):
         return False
 
     @classmethod
-    def from_orm(cls, user, db, order):
-        return cls(
-            limit_price=order.limit,
-            symbol=order.symbol,
-            qty=order.amount,
-            user=user,
-            db=db,
-            trade_type=TradeType[order.t_type],
-        )
+    def from_orm_kwargs(cls, user, db, order):
+        return dict(limit_price=order.price, **cls.super.from_orm_kwargs(user, db, order))
 
 
 class MarketOrder(Order):
@@ -134,9 +142,6 @@ class MarketOrder(Order):
             )
             return Response(msg="After market order placed")
 
-    def is_trading(self):
-        return trading_hours_manager.is_trading(self.get_stock())
-
     def try_execute(self):
         if self.is_pending:
             return self.try_execute_pending()
@@ -159,6 +164,9 @@ class MarketOrder(Order):
 
         self.execute(open_price)
         return True
+
+    def is_trading(self):
+        return trading_hours_manager.is_trading(self.get_stock())
 
     def get_stock(self):
         return crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=self.symbol)

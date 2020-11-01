@@ -5,7 +5,6 @@ from src.models.limit_order import PendingOrder
 
 class AfterOrder(PendingOrder):
     id = Column(Integer, ForeignKey("pendingorder.id"), primary_key=True)
-    date_time = Column(DateTime, nullable=False)  # TODO consider moving this to the superclass
 
     __mapper_args__ = {
         "polymorphic_identity": "MARKET",

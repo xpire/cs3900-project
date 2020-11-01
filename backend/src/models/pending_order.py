@@ -19,11 +19,6 @@ class PendingOrder(BaseModel):
 
     __mapper_args__ = {"polymorphic_identity": "pendingorder", "polymorphic_on": order_type}
 
-    # TODO see if this is possible
-    # @classmethod
-    # def register(cls, subclasses):
-    #     cls.type_to_cls = {subclass.order_type: subclass for subclass in subclasses}
-
     @classmethod
     def register(cls, type_to_cls):
         cls.type_to_cls = type_to_cls

@@ -107,16 +107,16 @@ class LimitOrder(Order):
         else:
             return curr_price >= self.limit_price
 
+    @classmethod
+    def from_orm_kwargs(cls, user, db, order):
+        return dict(limit_price=order.price, **cls.super(cls, cls).from_orm_kwargs(user, db, order))
+
     @property
     def schema(self):
         return schemas.LimitOrder(
             **self.super().schema.dict(),
             limit_price=self.limit_price,
         )
-
-    @classmethod
-    def from_orm_kwargs(cls, user, db, order):
-        return dict(limit_price=order.price, **cls.super(cls, cls).from_orm_kwargs(user, db, order))
 
 
 class MarketOrder(Order):
@@ -174,73 +174,4 @@ class PendingOrderExecutor:
     def execute_pending_orders(self, user, pending_orders, order_cls):
         for order in pending_orders:
             if order_cls.from_orm(user, self.db, order).try_execute():
-                crud.user.delete_order(db=self.db, user=user.model, id=order.id)
-
-
-"""
-class PendingOrder:
-    def __init__(self, db: Session):
-        self.db = db
-        self.users = user.get_all_users(db=db)
-
-    def update(self):
-        for investor in self.users:
-            self.execute_limit_orders(investor=investor, db=self.db)
-            self.execute_after_orders(investor=investor, db=self.db)
-
-    def execute_limit_orders(self, investor: User, db: Session):
-        for order in investor.limit_orders:
-            print(f"found limit order {order.symbol}")
-            curr_price = trade.get_stock_price(order.symbol)
-            transaction = None
-            if order.t_type == TradeType.BUY and order.price >= curr_price:
-                transaction = dm.BuyTrade(
-                    symbol=order.symbol, qty=order.amount, price=order.price, db=db, user=dm.UserDM(investor, db)
-                )
-            elif order.t_type == TradeType.SELL and order.price <= curr_price:
-                transaction = dm.SellTrade(
-                    symbol=order.symbol, qty=order.amount, price=order.price, db=db, user=dm.UserDM(investor, db)
-                )
-            elif order.t_type == TradeType.SHORT and order.price <= curr_price:
-                transaction = dm.ShortTrade(
-                    symbol=order.symbol, qty=order.amount, price=order.price, db=db, user=dm.UserDM(investor, db)
-                )
-            elif order.t_type == TradeType.COVER and order.price >= curr_price:
-                transaction = dm.CoverTrade(
-                    symbol=order.symbol, qty=order.amount, price=order.price, db=db, user=dm.UserDM(investor, db)
-                )
-
-            if transaction is not None:
-                print(f"executing limit order {order.symbol}")
-                transaction.execute()
-                user.delete_order(db=db, user_in=investor, identity=order.id)
-
-    def execute_after_orders(self, investor: User, db: Session):
-        for order in investor.after_orders:
-            stock_obj = crud.stock.get_stock_by_symbol(db=db, stock_symbol=order.symbol)
-            exchange = trading_hours.trading_hours_manager.get_exchange(stock_obj.exchange)
-            if trading_hours.next_open(order.date_time, exchange) < datetime.now():
-                stock_data = next((x for x in stock_obj.timeseries if x.date == datetime.date(order.date_time)), None)
-                # TODO: check that data exists for date
-                # if stock_data is None, cancel the order (error)
-                open_price = stock_data.open
-                if order.t_type == TradeType.BUY:
-                    transaction = dm.BuyTrade(
-                        symbol=order.symbol, qty=order.amount, price=open_price, db=db, user=dm.UserDM(investor, db)
-                    )
-                elif order.t_type == TradeType.SELL:
-                    transaction = dm.SellTrade(
-                        symbol=order.symbol, qty=order.amount, price=open_price, db=db, user=dm.UserDM(investor, db)
-                    )
-                elif order.t_type == TradeType.SHORT:
-                    transaction = dm.ShortTrade(
-                        symbol=order.symbol, qty=order.amount, price=open_price, db=db, user=dm.UserDM(investor, db)
-                    )
-                else:
-                    transaction = dm.CoverTrade(
-                        symbol=order.symbol, qty=order.amount, price=open_price, db=db, user=dm.UserDM(investor, db)
-                    )
-
-                transaction.execute()
-                user.delete_after_order(db=db, user_in=investor, identity=order.id)
-"""
+                crud.user.delete_order(db=self.db, id=order.id)

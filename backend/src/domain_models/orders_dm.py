@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod, abstractproperty
 from datetime import datetime
 
 from sqlalchemy.orm import Session
@@ -9,19 +9,35 @@ from src.crud import stock
 from src.crud.crud_user import user
 from src.domain_models import trading_hours
 from src.models import User
-from src.schemas.transaction import TradeType
+from src.schemas.transaction import OrderType, TradeType
 
-# class Order(ABC):
-#     def __init__(self, order_obj):
 
-#     def submit(self):
-#         pass
+class Order(ABC):
+    order_type: OrderType
 
-#     def try_execute(self):
-#         pass
+    def __init__(self, symbol, qty, db, user, trade_type):
+        self.symbol = symbol
+        self.qty = qty
+        self.db = db
+        self.user = user
+        self.trade_type = trade_type
 
-#     def execute(self, price):
-#         pass
+    @abstractmethod
+    def submit(self):
+        pass
+
+    @abstractmethod
+    def try_execute(self):
+        pass
+
+    def execute(self, price):
+        dm.Trade.new(
+            self.trade_type, symbol=self.symbol, qty=self.qty, price=price, db=self.db, user=self.user
+        ).execute()
+
+    @abstractproperty
+    def order_type(self):
+        return self.__class__.order_type
 
 
 class PendingOrder:

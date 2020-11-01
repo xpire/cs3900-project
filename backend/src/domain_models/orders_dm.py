@@ -2,44 +2,45 @@ from abc import ABC, abstractmethod, abstractproperty
 from datetime import datetime
 
 from sqlalchemy.orm import Session
-from sqlalchemy.util.langhelpers import symbol
-
-# from src.crud import crud, stock
 from src import crud
 from src import domain_models as dm
+from src import schemas
 from src.core import trade
 from src.core.utilities import HTTP400
-from src.crud.crud_user import user
 from src.domain_models import trading_hours
 from src.domain_models.trading_hours import trading_hours_manager
-from src.domain_models.user_dm import UserDM
-from src.models import User
-from src.models.after_order import AfterOrder
 from src.schemas.response import Response
 from src.schemas.transaction import OrderType, TradeType
 
 
 class Order(ABC):
-    order_type: OrderType
+    order_type: OrderType = None
 
-    def __init__(self, symbol, qty, user, db, trade_type, is_pending=False):
+    def __init__(self, symbol, qty, user, db, trade_type, timestamp, is_pending=False):
         self.symbol = symbol
         self.qty = qty
         self.user = user
         self.db = db
         self.trade_type = trade_type
+        self.timestamp = timestamp
         self.is_pending = is_pending
 
-    @abstractmethod
+    def check_submit(self):
+        if self.qty < 0:
+            raise HTTP400(f"Cannot {self.trade_type} negative quantity")
+
     def submit(self):
-        pass
+        self.check_submit()
 
-    # @abstractmethod
-    # def try_execute(self):
-    #     pass
+        # If the order can be executed immediately, execute
+        if self.try_execute():
+            return Response(msg="Order executed successfully")
+        else:
+            crud.user.create_order(db=self.db, order=self.schema)
+            return Response(msg="Order placed successfully")
 
     @abstractmethod
-    def update(self):
+    def try_execute(self):
         pass
 
     def execute(self, price):
@@ -60,11 +61,23 @@ class Order(ABC):
             user=user,
             db=db,
             trade_type=TradeType[order.t_type],
+            is_pending=True,
         )
 
     @classmethod
     def from_orm(cls, user, db, order):
         return cls(**cls.from_orm_kwargs(user, db, order))
+
+    @abstractproperty
+    def schema(self):
+        return PendingOrder(
+            user_id=self.user.model.uid,
+            symbol=self.symbol,
+            qty=self.qty,
+            trade_type=self.trade_type,
+            order_type=self.__class__.order_type,
+            timestamp=self.timestamp,
+        )
 
 
 class LimitOrder(Order):
@@ -74,33 +87,10 @@ class LimitOrder(Order):
         super().__init__(**kwargs)
         self.limit_price = limit_price
 
-    def submit(self):
-        if self.qty < 0:
-            raise HTTP400(f"Cannot {self.trade_type} negative quantity")
-
+    def check_submit(self):
+        self.super().check_submit()
         if self.limit_price < 0:
             raise HTTP400("Limit value cannot be negative")
-
-        # If the order can be executed immediately, execute
-        if self.try_execute():
-            return Response(msg="Order palced and executed successfully")
-        else:
-            crud.user.create_order(
-                db=self.db,
-                user_in=user.model,
-                trade_type=self.trade_type,
-                symbol=self.symbol,
-                quantity=self.qty,
-                limit=self.limit_price,
-            )
-            return Response(msg="Order placed successfully")
-
-    def can_execute(self, curr_price):
-        trade_type = dm.Trade.subclass(self.trade_type)
-        if trade_type.is_buying:
-            return curr_price <= self.limit_price
-        else:
-            return curr_price >= self.limit_price
 
     def try_execute(self):
         curr_price = trade.get_stock_price(self.symbol)
@@ -110,37 +100,27 @@ class LimitOrder(Order):
             return True
         return False
 
+    def can_execute(self, curr_price):
+        trade_type = dm.Trade.subclass(self.trade_type)
+        if trade_type.is_buying:
+            return curr_price <= self.limit_price
+        else:
+            return curr_price >= self.limit_price
+
+    @property
+    def schema(self):
+        return schemas.LimitOrder(
+            **self.super().schema.dict(),
+            limit_price=self.limit_price,
+        )
+
     @classmethod
     def from_orm_kwargs(cls, user, db, order):
-        return dict(limit_price=order.price, **cls.super.from_orm_kwargs(user, db, order))
+        return dict(limit_price=order.price, **cls.super(cls, cls).from_orm_kwargs(user, db, order))
 
 
 class MarketOrder(Order):
     order_type = OrderType.MARKET
-
-    # TODO move timestamp up to the superclass
-    def __init__(self, timestamp, **kwargs):
-        super().__init__(**kwargs)
-        self.timestamp = timestamp
-
-    # TODO refactor submit function so that the logic is abstracted
-    def submit(self):
-        if self.qty < 0:
-            raise HTTP400(f"Cannot {self.trade_type} negative quantity")
-
-        # If the order can be executed immediately, execute
-        if self.try_execute():
-            return Response(msg="Order placed and executed successfully")
-        else:
-            crud.user.add_after_order(
-                db=self.db,
-                user_in=user.model,
-                trade_type_in=self.trade_type,
-                amount_in=self.qty,
-                symbol_in=self.symbol,
-                dt_in=self.timestamp,
-            )
-            return Response(msg="After market order placed")
 
     def try_execute(self):
         if self.is_pending:
@@ -171,16 +151,9 @@ class MarketOrder(Order):
     def get_stock(self):
         return crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=self.symbol)
 
-    @classmethod
-    def from_orm(cls, user, db, order):
-        return cls(
-            timestamp=order.date_time,
-            symbol=order.symbol,
-            qty=order.amount,
-            user=user,
-            db=db,
-            trade_type=TradeType[order.t_type],
-        )
+    @property
+    def schema(self):
+        return schemas.MarketOrder(**self.super().schema.dict())
 
 
 class PendingOrderExecutor:
@@ -190,23 +163,21 @@ class PendingOrderExecutor:
     # TODO place db.flush/expire/commit in correct places
     def update(self):
         for user_m in crud.user.get_all_users(db=self.db):
-            self.execute_limit_orders(UserDM(user_m, self.db))
+            self.execute_limit_orders(dm.UserDM(user_m, self.db))
 
     def execute_limit_orders(self, user):
-        for order in user.model.limit_orders:
-            print(f"found limit order {order.symbol}")
-
-            if LimitOrder.from_orm(user, self.db, order).try_execute():
-                crud.user.delete_order(db=self.db, user_in=user.model, identity=order.id)
+        self.execute_pending_orders(user, user.model.limit_orders, LimitOrder)
 
     def execute_market_orders(self, user):
-        for order in user.model.after_orders:
-            print(f"found after order {order.symbol}")
+        self.execute_pending_orders(user, user.model.limit_orders, MarketOrder)
 
-            if MarketOrder.from_orm(user, self.db, order).try_execute():
-                crud.user.delete_after_order(db=self.db, user_in=user.model, identity=order.id)
+    def execute_pending_orders(self, user, pending_orders, order_cls):
+        for order in pending_orders:
+            if order_cls.from_orm(user, self.db, order).try_execute():
+                crud.user.delete_order(db=self.db, user=user.model, id=order.id)
 
 
+"""
 class PendingOrder:
     def __init__(self, db: Session):
         self.db = db
@@ -272,3 +243,4 @@ class PendingOrder:
 
                 transaction.execute()
                 user.delete_after_order(db=db, user_in=investor, identity=order.id)
+"""

@@ -12,6 +12,7 @@ from typing import List, Optional
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
+from src import crud, models, schemas
 from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
 from src.crud.base import CRUDBase
@@ -23,7 +24,7 @@ from src.models.short_position import ShortPosition
 from src.models.transaction import Transaction
 from src.models.user import User
 from src.models.watch_list import WatchList
-from src.schemas.transaction import TradeType
+from src.schemas.transaction import OrderType, TradeType
 from src.schemas.user import (
     AfterOrderCreate,
     LimitOrderCreate,
@@ -201,29 +202,30 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     @fail_save
     def create_order(
-        self, *, db: Session, user_in: User, trade_type: TradeType, symbol: str, quantity: int, limit: float
+        self,
+        *,
+        db: Session,
+        order: schemas.PendingOrder,
     ) -> User:
-        if self.symbol_exist(db=db, symbol_in=symbol):
+        user = crud.user.get_user_by_uid(order.user_id)
 
-            stc = LimitOrderCreate(
-                user_id=user_in.uid,
-                symbol=symbol,
-                amount=quantity,
-                t_type=trade_type.name,
-                price=limit,
-            )
-
-            user_in.limit_orders.append(LimitOrder(**stc.__dict__))
-        else:
+        if not self.symbol_exist(db=db, symbol_in=order.symbol):
             log_msg(
-                f"Adding a non-existent symbol on limit order of User(uid = {user_in.uid}).",
+                f"Adding a non-existent symbol on pending order of User(uid = {user.uid}).",
                 "WARNING",
             )
-            return user_in
+            return user
+
+        # TODO see if this can be simplified
+        if order.order_type == OrderType.LIMIT:
+            user.limit_orders.append(LimitOrder(**order.dict()))
+
+        elif order.order_type == OrderType.MARKET:
+            user.after_orders.append(AfterOrder(**order.dict()))
 
         db.commit()
-        db.refresh(user_in)
-        return user_in
+        db.refresh(user)
+        return user
 
     @fail_save
     def delete_order(self, *, db: Session, user_in: User, identity: int) -> User:
@@ -291,7 +293,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def add_after_order(
         self,
         *,
-        db: Session,  # TODO turn this into a
+        db: Session,  # TODO turn this into a schema based input
         user: User,
         trade_type: TradeType,
         qty: int,
@@ -301,32 +303,16 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Add an after order for the user.
         """
-        if self.symbol_exist(db=db, symbol_in=symbol_in):
-            stc = AfterOrderCreate(
-                user_id=user.uid,
-                symbol=symbol_in,
-                amount=amount_in,
-                t_type=trade_type.name,
-                timestamp=timestamp,
-            )
-            """
-            class AfterOrderCreate(BaseSchema):
-                user_id: str
-                symbol: str
-                amount: int
-                t_type: TradeType
-                date_time: datetime
-            """
-
-            user.after_orders.append(
-                AfterOrder(user_id=user.uid, symbol=symbol, qty=qty, timestamp=timestamp, trade_type=trade_type)
-            )
-        else:
+        if not self.symbol_exist(db=db, symbol_in=symbol):
             log_msg(
                 f"Adding a non-existent symbol on after order of User(uid = {user.uid}).",
                 "WARNING",
             )
             return user
+
+        user.after_orders.append(
+            AfterOrder(user_id=user.uid, symbol=symbol, qty=qty, timestamp=timestamp, trade_type=trade_type)
+        )
 
         db.commit()
         db.refresh(user)

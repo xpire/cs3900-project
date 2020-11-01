@@ -23,8 +23,16 @@ class PendingOrder(BaseModel):
 
 class LimitOrder(PendingOrder):
     id = Column(Integer, ForeignKey("pendingorder.id"), primary_key=True)
-    price = Column(Float, nullable=False)
+    limit_price = Column(Float, nullable=False)
 
     __mapper_args__ = {
         "polymorphic_identity": "LIMIT",  # TODO replace with order type .name
+    }
+
+
+class AfterOrder(PendingOrder):
+    id = Column(Integer, ForeignKey("pendingorder.id"), primary_key=True)
+
+    __mapper_args__ = {
+        "polymorphic_identity": "MARKET",
     }

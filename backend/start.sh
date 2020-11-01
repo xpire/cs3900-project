@@ -50,6 +50,16 @@ init-db() {
     print-line;
 }
 
+# Get the git hook tests
+setup-test() {
+    echo "Setting up git hook tests...";
+    # NO ONE SHOULD EVER DO THIS, BUT STUFF IT
+    git_dir="../.git/hooks";
+    echo "pytest -v backend/src/tests" >> ${git_dir}/temp_pytest;
+    test -f ${git_dir}/pre-push && cat ${git_dir}/pre-push >> ${git_dir}/temp_pytest && rm ${git_dir}/pre-push;
+    mv ${git_dir}/temp_pytest ${git_dir}/pre-push && chmod +x ${git_dir}/pre-push && echo "Cool";
+}
+
 explode() {
     echo "      _.-^^---....,,--          "
     echo "  _--                  --_     "
@@ -93,6 +103,7 @@ if [ $# -eq 3 ]; then
 
             check-wake;
             init-db;
+            setup-test;
         ;; 
         *) echo "Variable name error.";;
     esac
@@ -136,14 +147,13 @@ elif [ $# -eq 1 ]; then
             fi
         ;;
 
-
-        "setup-test" )
+        "setup-test")
             title-bar; 
             set-python-path;
-            echo "pytest -v ../../backend/src/tests" >> ../.git/hooks/pre-push;
+            setup-test;
         ;;
-        
-        "test" )
+
+        "run-test")
             title-bar; 
             set-python-path;
             pytest -v src/tests;

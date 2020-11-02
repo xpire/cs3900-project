@@ -20,7 +20,7 @@ from src.models.long_position import LongPosition
 from src.models.short_position import ShortPosition
 from src.models.transaction import Transaction
 from src.models.user import User
-from src.models.watch_list import WatchList
+from src.models.watchlist import WatchList
 from src.schemas.response import Fail, Result, Success, return_result
 from src.schemas.transaction import TradeType
 from src.schemas.user import TransactionHistoryCreate, UserCreate, UserUpdate

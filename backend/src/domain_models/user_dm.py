@@ -5,7 +5,6 @@ import src.api.endpoints.stocks as stocks_api
 from sqlalchemy.orm import Session
 from src import crud, schemas
 from src.core.utilities import log_msg
-from src.crud.crud_user import user
 from src.db.base_model import BaseModel
 from src.game.achievement.achievement import UserAchievement
 from src.game.event.sub_events import StatUpdateEvent
@@ -334,18 +333,6 @@ class UserDM:
         stats["total_value"] = self.get_net_value()
 
         return stats
-
-    def watchlist_create(self, wl_sys: str):
-        user.add_to_watch_list(db=self.db, user_in=self.user, symbol_in=wl_sys)
-
-    def watchlist_delete(self, wl_sys: str):
-        user.delete_from_watch_list(db=self.db, user_in=self.user, symbol_in=wl_sys)
-
-    def check_exists_watchlist(self, symbol: str):
-        for entry in self.user.watchlist:
-            if entry.symbol == symbol:
-                return True
-        return False
 
     def can_reset_portfolio(self):
         if not self.model.last_reset:

@@ -1,69 +1,93 @@
 from datetime import datetime
+from functools import wraps
 
 import src.api.endpoints.stocks as stocks_api
 from sqlalchemy.orm import Session
-from src import schemas
+from src import crud, schemas
 from src.core.utilities import log_msg
 from src.crud.crud_user import user
 from src.db.base_model import BaseModel
 from src.game.achievement.achievement import UserAchievement
-from src.game.setup.setup import achievements_list, level_manager
+from src.game.event.sub_events import StatUpdateEvent
+from src.game.setup.setup import achievements_list, event_hub, level_manager
 from src.models import UnlockedAchievement, User
+from src.schemas.response import Fail, Success, return_result
 
 RESET_WAIT_PERIOD_DAYS = 1
 
-# TODO move this and relevant imports somewhere
-def update(model: BaseModel, db: Session):
-    db.add(model)
-    db.commit()
-    db.refresh(model)
+# TODO use this decorrator
+def save_to_db():
+    def wrapper(fn):
+        @wraps(fn)
+        def wrapped(self, *args, **kwargs):
+            result = self.fn(*args, **kwargs)
+            self.db.commit()
+            self.db.refresh(self.model)
+            return result
+
+        return wrapped
+
+    return wrapper
 
 
 # TODO save_to_db can be done at the end
 class UserDM:
     def __init__(self, user: User, db: Session):
-        self.user = user
+        self.user = user  # TODO consider renaming
         self.db = db
 
     def add_exp(self, amount: float):
         level_manager.add_exp(self, amount)
-        self.save_to_db()
 
+    # @save_to_db
     def unlock_achievement(self, achievement_id: int):
-        if achievement_id in self.user.unlocked_achievements:
+        if achievement_id in self.model.unlocked_achievements:
             log_msg("Achievement is already unlocked by the user", "ERROR")
             return
 
-        self.user.unlocked_achievements.append(UnlockedAchievement(achievement_id=achievement_id))
-        self.save_to_db()
+        self.model.unlocked_achievements.append(UnlockedAchievement(achievement_id=achievement_id))
 
     def save_to_db(self):
-        update(self.user, self.db)
+        self.db.commit()
+        self.db.refresh(self.model)
 
-    # @property
-    # def balance(self):
-    #     return self.user.balance
+    # @save_to_db
+    @return_result()
+    def reset(self):
+        if not self.can_reset_portfolio():
+            return Fail(f"Failed to reset, you last resetted {self.model.last_reset}.")
 
-    # @balance.setter
-    # def balance(self, balance):
-    #     self.user.balance = balance
-    #     self.save_to_db()
+        crud.user.reset(user=self.model, db=self.db)
+
+        event_hub.publish(StatUpdateEvent(user=user))
+        return Success("Reset successfully.")
 
     @property
     def exp(self):
-        return self.user.exp
+        return self.model.exp
 
     @exp.setter
     def exp(self, exp: float):
-        self.user.exp = exp
+        self.model.exp = exp
+        self.save_to_db()
 
     @property
     def level(self):
-        return self.user.level
+        return self.model.level
 
     @level.setter
     def level(self, level: int):
-        self.user.level = level
+        self.model.level = level
+        self.save_to_db()
+
+    @property
+    def balance(self):
+        return self.model.balance
+
+    @balance.setter
+    def balance(self, balance: float):
+        self.model.balance = balance
+        self.save_to_db()
 
     @property
     def exp_until_next_level(self):
@@ -73,9 +97,10 @@ class UserDM:
     def is_max_level(self):
         return level_manager.is_max_level(self)
 
+    # TODO can be replaced by using crud Query(Achievements.id)
     @property
     def unlocked_achievement_ids(self):
-        return set(x.achievement_id for x in self.user.unlocked_achievements)
+        return set(x.achievement_id for x in self.model.unlocked_achievements)
 
     @property
     def achievements(self):
@@ -84,19 +109,7 @@ class UserDM:
 
     @property
     def uid(self):
-        return self.user.uid
-
-    @property
-    def schema(self):
-        return schemas.User(
-            **schemas.UserInDB.from_orm(self.user).dict(),
-            exp_until_next_level=self.exp_until_next_level,
-            is_max_level=self.is_max_level
-        )
-
-    @property
-    def model(self):
-        return self.user
+        return self.model.uid
 
     @property
     def short_allowance_balance(self):
@@ -105,6 +118,18 @@ class UserDM:
         elif self.level >= 10:
             return 0.5
         return 0
+
+    @property
+    def schema(self):
+        return schemas.User(
+            **schemas.UserInDB.from_orm(self.model).dict(),
+            exp_until_next_level=self.exp_until_next_level,
+            is_max_level=self.is_max_level,
+        )
+
+    @property
+    def model(self):
+        return self.user
 
     def get_positions(self, p_type: str):
         if p_type != "long" and p_type != "short":
@@ -323,9 +348,6 @@ class UserDM:
         return False
 
     def can_reset_portfolio(self):
-
         if not self.model.last_reset:
             return True
-
-        curr_dt = datetime.now()
-        return (curr_dt - self.model.last_reset).days >= RESET_WAIT_PERIOD_DAYS
+        return (datetime.now() - self.model.last_reset).days >= RESET_WAIT_PERIOD_DAYS

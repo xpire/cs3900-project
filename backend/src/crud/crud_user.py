@@ -27,7 +27,7 @@ from src.schemas.user import TransactionHistoryCreate, UserCreate, UserUpdate
 # TODO config
 STARTING_BALANCE = 10000
 
-
+'''
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     """
     Module for user/auth related CRUD operations
@@ -233,6 +233,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
 
 user = CRUDUser(User)
+'''
 
 
 class CRUDUser:
@@ -402,7 +403,8 @@ class CRUDUser:
             return True
         return False
 
-    def reset_user_portfolio(self, *, user: User, db: Session) -> User:
+    @fail_save
+    def reset(self, *, user: User, db: Session) -> User:
 
         # Reset portfolio and transaction history
         user.balance = STARTING_BALANCE
@@ -446,3 +448,6 @@ class CRUDUser:
         db.commit()
         db.refresh(user_in)
         return user_in
+
+
+user = CRUDUser(User)

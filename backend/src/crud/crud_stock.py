@@ -62,7 +62,7 @@ class CRUDStock(CRUDBase[Stock]):
         Update the newest entry of time series. Update last 2 entries u_time_series.
         """
         for x in timeseries:
-            db_obj = self.query(db).get((x.date, x.symbol))
+            db_obj = db.query(TimeSeries).get((x.date, x.symbol))
             if db_obj is None:
                 db.add(TimeSeries(**x.dict()))
             else:

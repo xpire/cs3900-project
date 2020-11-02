@@ -73,7 +73,7 @@ class Order(ABC):
             timestamp=order.timestamp,
             user=user,
             db=db,
-            trade_type=TradeType[order.t_type],
+            trade_type=TradeType[order.trade_type],
             is_pending=True,
         )
 

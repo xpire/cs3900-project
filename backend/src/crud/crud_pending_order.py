@@ -18,8 +18,10 @@ class CRUDPendingOrder:
             return Fail(f"Cannot add a non-existent symbol as a pending order of User(uid = {order.user_id}).")
 
         # TODO check difference between add, commit, flush
+        print("ADD PENDING ORDER:", order)
         order_m = PendingOrder.subclass(order.order_type)(**order.dict(exclude_none=True))
         db.add(order_m)
+        db.commit()
         db.flush()
 
     @fail_save
@@ -34,6 +36,7 @@ class CRUDPendingOrder:
             return Fail(f"The order(id = {id}) is not owned by the user(uid = {user.uid}).")
 
         db.remove(order)
+        db.commit()
         db.flush()
 
 

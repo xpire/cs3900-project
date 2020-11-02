@@ -12,9 +12,9 @@ const headCells = [
   { id: "name", numeric: false, disablePadding: false, label: "Name" },
   { id: "exchange", numeric: false, disablePadding: false, label: "Exchange" },
   { id: "type", numeric: false, disablePadding: false, label: "Type" },
-  { id: "quantity", numeric: true, disablePadding: false, label: "Quantity" },
+  { id: "qty", numeric: true, disablePadding: false, label: "Quantity" },
   {
-    id: "price",
+    id: "limit_price",
     numeric: true,
     disablePadding: false,
     label: "Price",
@@ -35,7 +35,7 @@ const Watchlist = () => {
           header={headCells}
           title="Limit Orders"
           handleDelete={({ id }) => {
-            handleSnack(`/orders?identity=${id}`, "delete").then(() =>
+            handleSnack(`/orders?id=${id}`, "delete").then(() =>
               setDeleted(deleted + 1)
             );
           }}

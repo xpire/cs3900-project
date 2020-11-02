@@ -31,6 +31,7 @@ class PendingOrderAPIout(PendingOrderBase):
 
 class PendingOrderDBcreate(PendingOrderBase):
     id: Optional[int] = Const(None)
+    user_id: str
 
 
 class LimitOrderDBcreate(PendingOrderDBcreate):

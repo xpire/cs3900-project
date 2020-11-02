@@ -36,7 +36,7 @@ class Result(BaseSchema):
         else:
             raise HTTP400(self.msg)
 
-    def check(self):
+    def assert_ok(self):
         if not self.success:
             raise ResultException(self)
 
@@ -45,7 +45,7 @@ class Result(BaseSchema):
 
 
 def get_result_maker(success):
-    def result_maker(msg="", data=None):
+    def result_maker(msg="", data=None) -> Result:
         if data is None:
             return Result(msg=msg, success=success)
         else:
@@ -59,11 +59,13 @@ Fail = get_result_maker(False)
 
 
 class ResultException(Exception):
-    result: Result
+    def __init__(self, result):
+        super().__init__()
+        self.result = result
 
 
 def return_result(fn):
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Result:
         try:
             res = fn(*args, **kwargs)
             if res is None:

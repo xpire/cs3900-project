@@ -6,19 +6,9 @@ from src import crud
 from src import domain_models as dm
 from src import schemas
 from src.core import trade
-from src.core.utilities import HTTP400
 from src.domain_models import trading_hours
-from src.domain_models.trading_hours import trading_hours_manager
-from src.schemas.response import Fail, Response, Success, return_result
+from src.schemas.response import Fail, Result, Success, return_result
 from src.schemas.transaction import OrderType, TradeType
-
-# TODO
-"""
-1. update trade.py
-2. update orders.py
-3. update others as necessary
-4. refactor crud
-"""
 
 
 class Order(ABC):
@@ -34,13 +24,13 @@ class Order(ABC):
         self.is_pending = is_pending
 
     @return_result
-    def check_submit(self):
-        if self.qty < 0:
-            return Fail(f"Cannot {self.trade_type} negative quantity")
+    def check_submit(self) -> Result:
+        if self.qty <= 0:
+            return Fail(f"Must {self.trade_type} positive quantity")
 
     @return_result
-    def submit(self):
-        self.check_submit().check()
+    def submit(self) -> Result:
+        self.check_submit().assert_ok()
 
         # If the order can be executed immediately, execute
         if self.try_execute():
@@ -98,14 +88,14 @@ class LimitOrder(Order):
         self.limit_price = limit_price
 
     @return_result
-    def check_submit(self):
-        super().check_submit().check()
+    def check_submit(self) -> Result:
+        super().check_submit().assert_ok()
 
         if self.limit_price < 0:
             return Fail("Limit value cannot be negative")
 
     @return_result
-    def try_execute(self):
+    def try_execute(self) -> Result:
         curr_price = trade.get_stock_price(self.symbol)
         if not self.can_execute(curr_price):
             return Fail()
@@ -143,7 +133,7 @@ class MarketOrder(Order):
             self.execute(trade.get_stock_price(self.symbol))
 
     @return_result
-    def try_execute_pending(self):
+    def try_execute_pending(self) -> Result:
         stock = self.get_stock()
         exchange = crud.exchange.get_exchange_by_name(stock.exchange)
         open_datetime = trading_hours.next_open(self.timestamp, exchange)
@@ -160,7 +150,7 @@ class MarketOrder(Order):
         self.execute(open_price)
 
     def is_trading(self):
-        return trading_hours_manager.is_trading(self.get_stock())
+        return trading_hours.trading_hours_manager.is_trading(self.get_stock())
 
     def get_stock(self):
         return crud.stock.get_stock_by_symbol(db=self.db, symbol=self.symbol)
@@ -174,7 +164,7 @@ class PendingOrderExecutor:
     def __init__(self, db: Session):
         self.db = db
 
-    # TODO place db.flush/expire/commit in correct places
+    # TODO place db.flush/expire/commit in correct places if needed
     def update(self):
         for user_m in crud.user.get_all_users(db=self.db):
             user = dm.UserDM(user_m, self.db)

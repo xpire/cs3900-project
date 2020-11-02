@@ -6,7 +6,7 @@ from src.core.utilities import HTTP400
 from src.crud import crud_user
 from src.game.event.sub_events import StatUpdateEvent
 from src.game.setup.setup import event_hub
-from src.schemas.response import Response
+from src.schemas.response import Fail, Response, Result, return_result
 from src.schemas.transaction import TradeType
 
 
@@ -23,20 +23,19 @@ class Trade(ABC):
         self.db = db
         self.user = user
 
-    def execute(self):
-        if self.qty < 0:
-            raise HTTP400("Cannot trade negative quantity")
-
+    @return_result
+    def execute(self) -> Result:
+        # Assume qty > 0 check done by order_dm.Order
         total_price = self.price * self.qty
         trade_price = trade.apply_commission(total_price, self.is_buying)
-        self.check(total_price, trade_price)
+        self.check(total_price, trade_price).assert_ok()
         self.apply_trade(trade_price)
 
+        # Add exp equivalent to the amount of commission deducted
         fee = abs(trade_price - total_price)
         self.user.add_exp(fee)
 
         event_hub.publish(StatUpdateEvent(user=self.user))
-        return Response(msg="success")
 
     def apply_trade(self, trade_price):
         if self.is_opening:
@@ -65,7 +64,8 @@ class Trade(ABC):
         )
 
     @abstractmethod
-    def check(self, total_price, trade_price):
+    @return_result
+    def check(self, total_price, trade_price) -> Result:
         pass
 
     @property
@@ -107,9 +107,10 @@ class BuyTrade(Trade):
     is_long = True
     is_opening = True
 
-    def check(self, total_price, trade_price):
+    @return_result
+    def check(self, total_price, trade_price) -> Result:
         if self.model.balance < trade_price:
-            raise HTTP400("Insufficient balance")
+            return Fail("Insufficient balance")
 
 
 class SellTrade(Trade):
@@ -118,9 +119,10 @@ class SellTrade(Trade):
     is_long = True
     is_opening = False
 
-    def check(self, total_price, trade_price):
+    @return_result
+    def check(self, total_price, trade_price) -> Result:
         if not trade.check_owned_longs(self.user, self.qty, self.symbol):
-            raise HTTP400("Cannot sell more than owned")
+            return Fail("Cannot sell more than owned")
 
 
 class ShortTrade(Trade):
@@ -129,17 +131,18 @@ class ShortTrade(Trade):
     is_long = False
     is_opening = True
 
-    def check(self, total_price, trade_price):
+    @return_result
+    def check(self, total_price, trade_price) -> Result:
         if self.user.level < 5:
-            raise HTTP400(f"Insufficient level. Reach level 5 to short sell")
+            return Fail(f"Insufficient level. Reach level 5 to short sell")
 
         if not trade.check_short_balance(self.user, total_price):
             if self.user.level < 10:
-                raise HTTP400(
+                return Fail(
                     f"Insufficient short balance. Reach level 10, buy to cover or increase net worth to short more."
                 )
             else:
-                raise HTTP400(f"Insufficient short balance. Buy to cover or increase net worth to short more.")
+                return Fail(f"Insufficient short balance. Buy to cover or increase net worth to short more.")
 
 
 class CoverTrade(Trade):
@@ -148,15 +151,16 @@ class CoverTrade(Trade):
     is_long = False
     is_opening = False
 
-    def check(self, total_price, trade_price):
+    @return_result
+    def check(self, total_price, trade_price) -> Result:
         if self.user.level < 5:
-            raise HTTP400(f"Insufficient level. Reach level 5 to buy-to-cover")
+            return Fail(f"Insufficient level. Reach level 5 to buy-to-cover")
 
         if not trade.check_owned_shorts(self.user, self.qty, self.symbol):
-            raise HTTP400("Cannot cover more than owed")
+            return Fail("Cannot cover more than owed")
 
         if self.model.balance < trade_price:
-            raise HTTP400("Insufficient balance")
+            return Fail("Insufficient balance")
 
 
 Trade.register([BuyTrade, SellTrade, ShortTrade, CoverTrade])

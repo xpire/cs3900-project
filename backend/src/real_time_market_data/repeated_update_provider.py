@@ -2,8 +2,10 @@ import time
 from abc import abstractmethod
 from datetime import datetime
 from threading import Lock, Thread
+from typing import List
 
 from src import crud
+from src.schemas.time_series import TimeSeriesCreate
 
 from .data_provider import DataProvider
 
@@ -39,9 +41,7 @@ class RepeatedUpdateProvider(DataProvider):
         print("===== INITIALISING MARKET DATA =====")
         for symbol, stock_data in data.items():
             print(f"Number of entries for {symbol}: {len(stock_data)}")
-            crud.stock.batch_add_daily_time_series(
-                db=self.db, stock_in=self.get_stock(symbol), time_series_in=stock_data
-            )
+            crud.stock.batch_add_daily_time_series(db=self.db, stock=self.get_stock(symbol), time_series=stock_data)
         print("===== FINISHED INITIALISATION =====")
         self.cache_latest_data(data)
 
@@ -60,8 +60,9 @@ class RepeatedUpdateProvider(DataProvider):
         """
         data = self.get_update_data()
         for symbol, stock_data in data.items():
+            timeseries = stock_data_as_timeseries(symbol, stock_data)
             # TODO what is the difference between this one and the one above?
-            crud.stock.update_time_series(db=self.db, stock_in=self.get_stock(symbol), u_time_series=stock_data)
+            crud.stock.update_time_series(db=self.db, stock=self.get_stock(symbol), timeseries=timeseries)
         self.cache_latest_data(data)
         self.notify()
 
@@ -101,6 +102,24 @@ class RepeatedUpdateProvider(DataProvider):
         Get stock given [symbol]
         """
         return crud.stock.get_stock_by_symbol(db=self.db, symbol=symbol)
+
+def stock_data_as_timeseries(symbol, stock_data) -> List[TimeSeriesCreate]:
+    # try: TODO
+    timeseries = []
+    for day_data in stock_data:
+        timeseries.append(TimeSeriesCreate(
+            date=day_data["datetime"],
+            symbol=symbol,
+            low=day_data["low"],
+            high=day_data["high"],
+            open=day_data["open"],
+            close=day_data["close"],
+            volume=day_data["volume"],
+        ))
+    # except ValidationError as e:
+    #     log_msg(f"Failed to update time series {e.__str__}.", "ERROR")
+    #     return stock
+    return timeseries
 
 
 def seconds_until_next_minute(at_second=15):

@@ -23,6 +23,10 @@ class CRUDBase(Generic[ModelType]):
     def query(self, db: Session):
         return db.query(self.model)
 
+    def commit_and_refresh(self, db, obj):
+        db.commit()
+        db.refresh(obj)
+
     def create(self, db: Session, *, obj) -> ModelType:
         db_obj = self.model(**jsonable_encoder(obj))
         db.add(db_obj)

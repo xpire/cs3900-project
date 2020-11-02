@@ -148,15 +148,15 @@ class UserDM:
             # TODO: update this to get daily opening price, rather than prev day closing
             entry["previous_price"] = float(stocks_api.market_data_provider.get_prev_day_close(position.symbol))
             entry["symbol"] = position.symbol
-            entry["name"] = position.stock_info.name
-            entry["owned"] = position.amount
+            entry["name"] = position.stock.name
+            entry["owned"] = position.qty
             entry["average_paid"] = position.avg
-            entry["total_paid"] = position.avg * position.amount
-            entry["value"] = entry["price"] * position.amount
+            entry["total_paid"] = position.avg * position.qty
+            entry["value"] = entry["price"] * position.qty
             entry["profit"] = entry["value"] - entry["total_paid"]
             entry["day_profit"] = (
                 entry["price"] - entry["previous_price"]
-            ) * position.amount  # TODO: fix, returns daily profit, but not for the portfolio
+            ) * position.qty  # TODO: fix, returns daily profit, but not for the portfolio
             entry["day_return"] = entry["day_profit"] / entry["total_paid"]
             entry["total_return"] = entry["profit"] / entry["total_paid"]
 
@@ -180,7 +180,7 @@ class UserDM:
 
         value = 0
         for position in portfolio:
-            value += position.amount * position.avg
+            value += position.qty * position.avg
 
         return value
 
@@ -201,7 +201,7 @@ class UserDM:
         value = 0
         for position in portfolio:
             curr_price = float(stocks_api.market_data_provider.get_curr_day_close(position.symbol))
-            value += position.amount * curr_price
+            value += position.qty * curr_price
 
         return value
 

@@ -30,12 +30,6 @@ class CRUDUser(CRUDBase[User]):
     """
     Module for user/auth related CRUD operations
     """
-
-    # TODO turn into decorator
-    def commit_and_refresh(self, db, user):
-        db.commit()
-        db.refresh(user)
-
     def fail_if_stock_missing(self, db, symbol, msg, log_level="WARNING"):
         if not crud.stock.exists(db=db, symbol=symbol):
             Fail(msg).log(log_level).assert_ok()

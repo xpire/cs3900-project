@@ -5,7 +5,7 @@ from src.domain_models.user_dm import UserDM
 def get_stock_price(symbol: str):
     return stocks_api.market_data_provider.get_curr_day_close(symbol)
 
-
+#TODO CONFIG
 def apply_commission(price: float, is_buying: bool = True):
     return price * 1.005 if is_buying else price * 0.995
 
@@ -15,7 +15,7 @@ def check_owned(user: UserDM, qty: int, symbol: str, positions):
     if pos is None:
         return False
 
-    return pos is not None and qty <= pos.amount
+    return pos is not None and qty <= pos.qty
 
 
 def check_owned_longs(user: UserDM, qty: int, symbol: str):

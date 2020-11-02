@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel as BaseSchema
-from src.schemas.transaction import TradeType
 from src.util.extended_types import Const
 
 
@@ -41,49 +40,3 @@ class User(UserInDBBase):
 # probably not needed?
 class UserInDB(UserInDBBase):
     uid: str
-
-
-class TransactionBase(BaseSchema):
-    date_time: datetime
-    user_id: str
-    price: float
-    action: str
-    symbol: str
-    amount: int
-
-
-class TransactionCreate(TransactionBase):
-    pass
-
-
-class LimitOrderBase(BaseSchema):
-    user_id: str
-    symbol: str
-    amount: int
-    t_type: str
-    price: float
-
-
-class LimitOrderCreate(LimitOrderBase):
-    pass
-
-
-class LimitOrderDelete(LimitOrderBase):
-    pass
-
-
-class TransactionHistoryCreate(BaseSchema):
-    user_id: str
-    price: float
-    action: str
-    symbol: str
-    amount: int
-    date_time: datetime
-
-
-class AfterOrderCreate(BaseSchema):
-    user_id: str
-    symbol: str
-    amount: int
-    t_type: TradeType
-    date_time: datetime

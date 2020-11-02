@@ -121,10 +121,8 @@ class LimitOrder(Order):
 
     @property
     def schema(self):
-        return schemas.LimitOrderDBcreate(
-            **super().schema.dict(),
-            limit_price=self.limit_price,
-        )
+        data = {**super().schema.dict(), "limit_price": self.limit_price}
+        return schemas.LimitOrderDBcreate(**data)
 
 
 class MarketOrder(Order):
@@ -171,13 +169,9 @@ class PendingOrderExecutor:
     # TODO place db.flush/expire/commit in correct places
     def update(self):
         for user_m in crud.user.get_all_users(db=self.db):
-            self.execute_limit_orders(dm.UserDM(user_m, self.db))
-
-    def execute_limit_orders(self, user):
-        self.execute_pending_orders(user, user.model.limit_orders, LimitOrder)
-
-    def execute_market_orders(self, user):
-        self.execute_pending_orders(user, user.model.market_orders, MarketOrder)
+            user = dm.UserDM(user_m, self.db)
+            self.execute_pending_orders(user, user_m.limit_orders, LimitOrder)
+            self.execute_pending_orders(user, user_m.after_orders, MarketOrder)
 
     def execute_pending_orders(self, user, pending_orders, order_cls):
         for order in pending_orders:

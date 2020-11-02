@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from src import crud
 from src.core.config import settings
 from src.core.utilities import fail_save, find
+from src.crud.base import CRUDBase
 from src.models.position import LongPosition, ShortPosition
 from src.models.transaction import Transaction
 from src.models.user import User
@@ -23,18 +24,12 @@ from src.schemas.transaction import TradeType
 
 # TODO config
 STARTING_BALANCE = 10000
+        
 
-
-class CRUDUser:
+class CRUDUser(CRUDBase[User]):
     """
     Module for user/auth related CRUD operations
     """
-
-    def __init__(self, model):
-        self.model = model
-
-    def query(self, db):
-        return db.query(self.model)
 
     # TODO turn into decorator
     def commit_and_refresh(self, db, user):

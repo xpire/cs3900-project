@@ -1,11 +1,12 @@
-from sqlalchemy import Column, Float, ForeignKey, Integer, String
+from sqlalchemy import Column, Float, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 from src.db.base_model import BaseModel
 
 
 class Position(BaseModel):
-    user_id = Column(String, ForeignKey("user.uid"), primary_key=True)
-    symbol = Column(String, ForeignKey("stock.symbol"), primary_key=True)
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String, ForeignKey("user.uid"))
+    symbol = Column(String, ForeignKey("stock.symbol"))
     qty = Column(Integer, nullable=False)
     avg = Column(Float, nullable=False)
     position_type = Column(String, nullable=False)  # long/short
@@ -13,6 +14,8 @@ class Position(BaseModel):
         "Stock",
         cascade="save-update, merge",
     )
+
+    __table_args__ = (UniqueConstraint("user_id", "symbol", name="_user_symbol_uc"),)
 
     __mapper_args__ = {"polymorphic_identity": "position", "polymorphic_on": position_type}
 
@@ -27,6 +30,7 @@ class Position(BaseModel):
 
 class LongPosition(Position):
     id = Column(Integer, ForeignKey("position.id"), primary_key=True)
+
     __mapper_args__ = {
         "polymorphic_identity": "LONG",
     }
@@ -34,6 +38,7 @@ class LongPosition(Position):
 
 class ShortPosition(Position):
     id = Column(Integer, ForeignKey("position.id"), primary_key=True)
+
     __mapper_args__ = {
         "polymorphic_identity": "SHORT",
     }

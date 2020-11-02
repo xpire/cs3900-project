@@ -16,7 +16,7 @@ class CRUDStock(CRUDBase[Stock]):
         """
         Get a single stock
         """
-        return self.query(db).get(symbol).first()
+        return self.query(db).get(symbol)
 
     def get_stock_by_symbols(self, *, db: Session, symbols: List[str]) -> List[Stock]:
         """
@@ -56,7 +56,7 @@ class CRUDStock(CRUDBase[Stock]):
         return [x.__dict__ for x in stock.timeseries][::-1]
 
     @fail_save
-    @return_result
+    @return_result()
     def update_time_series(self, *, db: Session, timeseries: List[TimeSeriesCreate]) -> Result:
         """
         Update the newest entry of time series. Update last 2 entries u_time_series.

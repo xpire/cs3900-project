@@ -3,8 +3,7 @@ from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm
 from src import models
-from src.api.deps import (check_symbol, get_current_user_dm,
-                          get_current_user_m, get_db)
+from src.api.deps import check_symbol, get_current_user_dm, get_current_user_m, get_db
 from src.core.utilities import HTTP400
 from src.schemas.response import Response, Result, Success, return_response
 
@@ -21,7 +20,7 @@ async def get_watchlist(user_m: models.User = Depends(get_current_user_m), db: S
 
 
 @router.post("")
-@return_response
+@return_response()
 async def update_watchlist(
     symbol: str = Depends(check_symbol),
     user_m: models.user = Depends(get_current_user_m),
@@ -32,7 +31,7 @@ async def update_watchlist(
 
 
 @router.delete("")
-@return_response
+@return_response()
 async def delete_watchlist(
     symbol: str = Depends(check_symbol),
     user_m: models.user = Depends(get_current_user_m),

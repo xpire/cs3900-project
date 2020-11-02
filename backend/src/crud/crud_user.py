@@ -24,12 +24,13 @@ from src.schemas.transaction import TradeType
 
 # TODO config
 STARTING_BALANCE = 10000
-        
+
 
 class CRUDUser(CRUDBase[User]):
     """
     Module for user/auth related CRUD operations
     """
+
     def fail_if_stock_missing(self, db, symbol, msg, log_level="WARNING"):
         if not crud.stock.exists(db=db, symbol=symbol):
             Fail(msg).log(log_level).assert_ok()
@@ -46,7 +47,7 @@ class CRUDUser(CRUDBase[User]):
         return self.query(db).get(uid)
 
     @fail_save
-    @return_result
+    @return_result()
     def add_to_watchlist(self, *, db: Session, user: User, symbol: str) -> Result:
         """
         Add a watchlist to the user's watchlist.
@@ -62,7 +63,7 @@ class CRUDUser(CRUDBase[User]):
         self.commit_and_refresh(db, user)
 
     @fail_save
-    @return_result
+    @return_result()
     def delete_from_watchlist(self, *, db: Session, user: User, symbol: str) -> Result:
         """
         Delete a watchlist for user.
@@ -79,7 +80,7 @@ class CRUDUser(CRUDBase[User]):
         self.commit_and_refresh(db, user)
 
     @fail_save
-    @return_result
+    @return_result()
     def add_transaction(
         self,
         *,
@@ -113,7 +114,7 @@ class CRUDUser(CRUDBase[User]):
         self.commit_and_refresh(db, user)
 
     @fail_save
-    @return_result
+    @return_result()
     def deduct_transaction(self, *, db: Session, user: User, is_long: bool, symbol: str, qty: int) -> Result:
         """
         Deduct stock qty from portfolio
@@ -139,7 +140,7 @@ class CRUDUser(CRUDBase[User]):
         self.commit_and_refresh(db, user)
 
     @fail_save
-    @return_result
+    @return_result()
     def delete_user_by_email(self, db: Session, *, email: str) -> Result:
         user = self.query(db).filter_by(email=email).first()
         if user is None:
@@ -149,7 +150,7 @@ class CRUDUser(CRUDBase[User]):
         db.commit()
 
     @fail_save
-    @return_result
+    @return_result()
     def reset(self, *, user: User, db: Session) -> Result:
         """
         Reset portfolio, transaction history, and balance
@@ -167,7 +168,7 @@ class CRUDUser(CRUDBase[User]):
         self.commit_and_refresh(db, user)
 
     @fail_save
-    @return_result
+    @return_result()
     def add_history(
         self,
         *,

@@ -9,7 +9,7 @@ from src.core import trade
 from src.core.utilities import HTTP400
 from src.domain_models import trading_hours
 from src.domain_models.trading_hours import trading_hours_manager
-from src.schemas.response import Response
+from src.schemas.response import Fail, Response, Success, return_result
 from src.schemas.transaction import OrderType, TradeType
 
 # TODO
@@ -33,19 +33,21 @@ class Order(ABC):
         self.timestamp = datetime.now() if timestamp is None else timestamp
         self.is_pending = is_pending
 
+    @return_result
     def check_submit(self):
         if self.qty < 0:
-            raise HTTP400(f"Cannot {self.trade_type} negative quantity")
+            return Fail(f"Cannot {self.trade_type} negative quantity")
 
+    @return_result
     def submit(self):
-        self.check_submit()
+        self.check_submit().check()
 
         # If the order can be executed immediately, execute
         if self.try_execute():
-            return Response(msg="Order executed successfully")
+            return Success("Order executed successfully")
         else:
             crud.pending_order.create_order(db=self.db, order=self.schema)
-            return Response(msg="Order placed successfully")
+            return Success("Order placed successfully")
 
     @abstractmethod
     def try_execute(self):
@@ -95,18 +97,21 @@ class LimitOrder(Order):
         super().__init__(**kwargs)
         self.limit_price = limit_price
 
+    @return_result
     def check_submit(self):
-        super().check_submit()
-        if self.limit_price < 0:
-            raise HTTP400("Limit value cannot be negative")
+        super().check_submit().check()
 
+        if self.limit_price < 0:
+            return Fail("Limit value cannot be negative")
+
+    @return_result
     def try_execute(self):
         curr_price = trade.get_stock_price(self.symbol)
-        if self.can_execute(curr_price):
-            print(f"executing limit order {self.symbol}")
-            self.execute(curr_price)
-            return True
-        return False
+        if not self.can_execute(curr_price):
+            return Fail()
+
+        print(f"executing limit order {self.symbol}")
+        self.execute(curr_price)
 
     def can_execute(self, curr_price):
         trade_type = dm.Trade.subclass(self.trade_type)
@@ -132,24 +137,27 @@ class MarketOrder(Order):
         if self.is_pending:
             return self.try_execute_pending()
         else:
-            if self.is_trading():
-                self.execute(trade.get_stock_price(self.symbol))
-                return True
-            return False
+            if not self.is_trading():
+                return Fail()
 
+            self.execute(trade.get_stock_price(self.symbol))
+
+    @return_result
     def try_execute_pending(self):
         stock = self.get_stock()
         exchange = crud.exchange.get_exchange_by_name(stock.exchange)
         open_datetime = trading_hours.next_open(self.timestamp, exchange)
         if datetime.now() < open_datetime:
-            return False
+            return Fail()
 
         open_price = next((x.open for x in stock.timeseries if x.date == open_datetime.date()), None)
-        # TODO: check that data exists for date
-        # if stock is None, cancel the order (error)
+
+        if open_price is None:
+            return Fail(
+                f"Cannot exectue market order because open price data for stock {stock.symbol} does not exist."
+            ).log()
 
         self.execute(open_price)
-        return True
 
     def is_trading(self):
         return trading_hours_manager.is_trading(self.get_stock())

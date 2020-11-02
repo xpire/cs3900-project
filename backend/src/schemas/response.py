@@ -2,15 +2,21 @@ from typing import Any, Optional
 
 from pydantic import BaseModel as BaseSchema
 from src.core.utilities import HTTP400, log_msg
-from src.util.extended_types import Const
 
 
 class Response(BaseSchema):
+    """
+    Generic API response type
+    """
+
     msg: str
 
 
-# Internal return type
 class Result(BaseSchema):
+    """
+    Internal return type
+    """
+
     msg: str = ""
     success: bool
     data: Optional[Any]
@@ -30,13 +36,41 @@ class Result(BaseSchema):
         else:
             raise HTTP400(self.msg)
 
+    def check(self):
+        if not self.success:
+            raise ResultException(self)
+
     def __bool__(self):
         return self.success
 
 
-class Success(Result):
-    success = Const(True)
+def get_result_maker(success):
+    def result_maker(msg="", data=None):
+        if data is None:
+            return Result(msg=msg, success=success)
+        else:
+            return Result(msg=msg, success=success, data=data)
+
+    return result_maker
 
 
-class Fail(Result):
-    success = Const(False)
+Success = get_result_maker(True)
+Fail = get_result_maker(False)
+
+
+class ResultException(Exception):
+    result: Result
+
+
+def return_result(fn):
+    def wrapper(*args, **kwargs):
+        try:
+            res = fn(*args, **kwargs)
+            if res is None:
+                return Success()
+            else:
+                return res
+        except ResultException as e:
+            return e.result
+
+    return wrapper

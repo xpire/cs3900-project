@@ -17,7 +17,7 @@ class CRUDPendingOrder:
             return Fail(f"Cannot add a non-existent symbol as a pending order of User(uid = {order.user_id}).")
 
         # TODO check difference between add, commit, flush
-        order_m = PendingOrder.subclass(order.order_type)(**order.dict())
+        order_m = PendingOrder.subclass(order.order_type)(**order.dict(exclude_none=True))
         db.add(order_m)
         db.flush()
         return Success()

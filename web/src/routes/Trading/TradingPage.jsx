@@ -43,6 +43,7 @@ const Trading = () => {
     purchaseBy: "quantity",
     orderType: "market",
     quantity: 0,
+    limitOrderPrice: 0,
     // date: new Date(),
   };
 
@@ -62,6 +63,8 @@ const Trading = () => {
   };
   const setQuantity = (value) => setState({ ...state, quantity: value });
   const setOrderType = (value) => setState({ ...state, orderType: value });
+  const setLimitOrderPrice = (value) =>
+    setState({ ...state, limitOrderPrice: value });
   const [update, setUpdate] = useState(0);
 
   const handleInputChange = (event) => {
@@ -372,6 +375,30 @@ const Trading = () => {
                     variant="determinate"
                     style={{ height: "20px" }}
                     value={portfolioAllocation}
+                  />
+                </Grid>
+              </>
+            )}
+            {state.purchaseBy === "limit" && (
+              <>
+                <Grid item xs={3}>
+                  Limit Price
+                </Grid>
+                <Grid item xs={9}>
+                  <Input />
+                  <Input
+                    value={state.limitOrderPrice}
+                    // margin="dense"
+                    onChange={(_event, newValue) =>
+                      setLimitOrderPrice(newValue)
+                    }
+                    disableUnderline={true}
+                    inputProps={{
+                      step: 1,
+                      min: 0,
+                      max: maxValue,
+                      type: "number",
+                    }}
                   />
                 </Grid>
               </>

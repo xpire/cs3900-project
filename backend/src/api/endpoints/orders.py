@@ -5,7 +5,7 @@ from src import domain_models as dm
 from src import schemas
 from src.api.deps import get_current_user_dm, get_db
 from src.core.utilities import HTTP400
-from src.schemas.response import Response, Success
+from src.schemas.response import Response, Success, return_response
 
 router = APIRouter()
 
@@ -19,6 +19,7 @@ async def get_orders(user: dm.UserDM = Depends(get_current_user_dm), db: Session
 
 
 @router.delete("")
+@return_response()
 async def delete_order(
     id: int,
     user: dm.UserDM = Depends(get_current_user_dm),

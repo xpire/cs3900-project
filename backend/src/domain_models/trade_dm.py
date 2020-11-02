@@ -23,7 +23,7 @@ class Trade(ABC):
         self.db = db
         self.user = user
 
-    @return_result
+    @return_result()
     def execute(self) -> Result:
         # Assume qty > 0 check done by order_dm.Order
         total_price = self.price * self.qty
@@ -64,7 +64,7 @@ class Trade(ABC):
         )
 
     @abstractmethod
-    @return_result
+    @return_result()
     def check(self, total_price, trade_price) -> Result:
         pass
 
@@ -107,7 +107,7 @@ class BuyTrade(Trade):
     is_long = True
     is_opening = True
 
-    @return_result
+    @return_result()
     def check(self, total_price, trade_price) -> Result:
         if self.model.balance < trade_price:
             return Fail("Insufficient balance")
@@ -119,7 +119,7 @@ class SellTrade(Trade):
     is_long = True
     is_opening = False
 
-    @return_result
+    @return_result()
     def check(self, total_price, trade_price) -> Result:
         if not trade.check_owned_longs(self.user, self.qty, self.symbol):
             return Fail("Cannot sell more than owned")
@@ -131,7 +131,7 @@ class ShortTrade(Trade):
     is_long = False
     is_opening = True
 
-    @return_result
+    @return_result()
     def check(self, total_price, trade_price) -> Result:
         if self.user.level < 5:
             return Fail(f"Insufficient level. Reach level 5 to short sell")
@@ -151,7 +151,7 @@ class CoverTrade(Trade):
     is_long = False
     is_opening = False
 
-    @return_result
+    @return_result()
     def check(self, total_price, trade_price) -> Result:
         if self.user.level < 5:
             return Fail(f"Insufficient level. Reach level 5 to buy-to-cover")

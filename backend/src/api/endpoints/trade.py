@@ -9,7 +9,7 @@ from src.core.utilities import HTTP400
 from src.crud import crud_user, stock
 from src.domain_models.trade_dm import Trade
 from src.domain_models.trading_hours import trading_hours_manager
-from src.schemas.response import Response
+from src.schemas.response import Response, return_response, return_result
 from src.schemas.transaction import TradeType
 
 router = APIRouter()
@@ -17,6 +17,7 @@ router = APIRouter()
 # TODO change endpoint parameter names
 def market_order_endpoint(endpoint, trade_type):
     @router.post(endpoint)
+    @return_response()
     async def market_order(
         quantity: int,
         symbol: str = Depends(check_symbol),
@@ -30,6 +31,7 @@ def market_order_endpoint(endpoint, trade_type):
 
 def limit_order_endpoint(endpoint, trade_type):
     @router.post(endpoint)
+    @return_response()
     async def limit_order(
         quantity: int,
         limit: float,

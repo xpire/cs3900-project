@@ -7,7 +7,7 @@ from src.schemas.response import Fail, Result, Success, return_result
 
 class CRUDPendingOrder:
     @fail_save
-    @return_result
+    @return_result()
     def create_order(
         self,
         *,
@@ -25,7 +25,7 @@ class CRUDPendingOrder:
         db.flush()
 
     @fail_save
-    @return_result
+    @return_result()
     def delete_order(self, *, db: Session, id: int, user=None) -> Result:
         order = db.query(PendingOrder).filter(PendingOrder.id == id).first()
 

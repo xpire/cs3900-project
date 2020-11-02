@@ -23,12 +23,12 @@ class Order(ABC):
         self.timestamp = datetime.now() if timestamp is None else timestamp
         self.is_pending = is_pending
 
-    @return_result
+    @return_result()
     def check_submit(self) -> Result:
         if self.qty <= 0:
             return Fail(f"Must {self.trade_type} positive quantity")
 
-    @return_result
+    @return_result()
     def submit(self) -> Result:
         self.check_submit().assert_ok()
 
@@ -39,7 +39,7 @@ class Order(ABC):
             crud.pending_order.create_order(db=self.db, order=self.schema)
             return Success("Order placed successfully")
 
-    @return_result
+    @return_result()
     def try_execute(self) -> Result:
         if not self.is_trading():
             return Fail()
@@ -100,14 +100,14 @@ class LimitOrder(Order):
         super().__init__(**kwargs)
         self.limit_price = limit_price
 
-    @return_result
+    @return_result()
     def check_submit(self) -> Result:
         super().check_submit().assert_ok()
 
         if self.limit_price < 0:
             return Fail("Limit value cannot be negative")
 
-    @return_result
+    @return_result()
     def _try_execute(self) -> Result:
         curr_price = trade.get_stock_price(self.symbol)
         if not self.can_execute(curr_price):
@@ -136,14 +136,14 @@ class LimitOrder(Order):
 class MarketOrder(Order):
     order_type = OrderType.MARKET
 
-    @return_result
+    @return_result()
     def _try_execute(self) -> Result:
         if not self.is_pending:
             return self.execute(trade.get_stock_price(self.symbol))
 
         return self.try_execute_pending()
 
-    @return_result
+    @return_result()
     def try_execute_pending(self) -> Result:
         stock = self.get_stock()
         exchange = crud.exchange.get_exchange_by_name(stock.exchange)

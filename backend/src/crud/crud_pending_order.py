@@ -35,7 +35,7 @@ class CRUDPendingOrder:
         elif user is not None and user.uid != order.user_id:
             return Fail(f"The order(id = {id}) is not owned by the user(uid = {user.uid}).")
 
-        db.remove(order)
+        db.delete(order)
         db.commit()
         db.flush()
 

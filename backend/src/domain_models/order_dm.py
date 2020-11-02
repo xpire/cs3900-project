@@ -125,7 +125,7 @@ class LimitOrder(Order):
 
     @classmethod
     def from_orm_kwargs(cls, user, db, order):
-        return dict(limit_price=order.price, **super().from_orm_kwargs(user, db, order))
+        return dict(limit_price=order.limit_price, **super().from_orm_kwargs(user, db, order))
 
     @property
     def schema(self):

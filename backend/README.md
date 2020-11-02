@@ -1,3 +1,7 @@
+<p align="center">
+   <img src="https://www.unsw.edu.au/sites/all/themes/mobileunswcorporate/logo.png" width="165" height="70" align="center">
+ </p>
+
 # Backend
 
 This the the root directory for the backend of the application. Instruction on deployment is as follows.
@@ -24,6 +28,16 @@ $ bash start.sh initial-populate /path/to/env.yaml /path/to/ecksdee-firebase.jso
 ```
 `env.yaml`: file containing the configuration information and secret keys. 
 `ecksdee-firebase`: file containing the firebase token. 
+
+## Testing
+To manually set up the git hook test, run 
+```
+$ bash start.sh setup-test
+``` 
+To run the tests manually run the tests now, run
+```
+$ bash start.sh run-test
+```
 
 ## Other utilities
 You may also use some of the utilities provided by `start.sh`. 

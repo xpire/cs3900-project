@@ -5,24 +5,24 @@ from pydantic import BaseModel as BaseSchema
 from src.schemas.transaction import OrderType, TradeType
 from src.util.extended_types import Const
 
+"""
+TODO convention:
+- DBin - into db
+- DBout - out of db
+- APIin - from api
+- APIout - to api
+"""
 
-class PendingOrder(BaseSchema):
-    id: Optional[int]
-    user_id: str
+
+class PendingOrderAPIout(BaseSchema):
+    id: int
     symbol: str
     qty: int
+    limit_price: Optional[float]
     trade_type: TradeType
     order_type: OrderType
     timestamp: datetime
+    exchange: str
 
     class Config:
         orm_mode = True
-
-
-class LimitOrder(PendingOrder):
-    limit_price: float
-    order_type = Const(OrderType.LIMIT)
-
-
-class MarketOrder(PendingOrder):
-    order_type = Const(OrderType.MARKET)

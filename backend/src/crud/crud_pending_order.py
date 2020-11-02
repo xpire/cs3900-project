@@ -22,7 +22,6 @@ class CRUDPendingOrder:
         order_m = PendingOrder.subclass(order.order_type)(**order.dict(exclude_none=True))
         db.add(order_m)
         db.commit()
-        db.flush()
 
     @fail_save
     @return_result()
@@ -37,7 +36,6 @@ class CRUDPendingOrder:
 
         db.delete(order)
         db.commit()
-        db.flush()
 
 
 pending_order = CRUDPendingOrder()

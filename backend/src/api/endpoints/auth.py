@@ -26,8 +26,6 @@ from src.schemas.transaction import ClosingTransaction, OpeningTransaction, Orde
 
 router = APIRouter()
 
-STARTING_BALANCE = 10000
-
 
 @router.get("")
 async def get_user(user=Depends(get_current_user_dm)) -> schemas.User:
@@ -81,6 +79,7 @@ async def reset_user_portfolio(user=Depends(get_current_user_dm), db: Session = 
         # }
         raise HTTPException(status_code=400, detail=f"Failed to reset, you last resetted {user.model.last_reset}.")
 
+    # TODO refactor
     crud.user.update_balance(db=db, user_in=user.model, balance_in=STARTING_BALANCE)
 
     crud.user.reset_user_portfolio(user_in=user.model, db=db)

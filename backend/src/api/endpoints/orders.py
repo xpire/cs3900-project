@@ -4,7 +4,6 @@ from src import crud
 from src import domain_models as dm
 from src import schemas
 from src.api.deps import get_current_user_dm, get_db
-from src.core.utilities import HTTP400
 from src.schemas.response import Response, Success, return_response
 
 router = APIRouter()

@@ -1,15 +1,8 @@
-from datetime import datetime
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from src import domain_models as dm
 from src.api.deps import check_symbol, get_current_user_dm, get_db
-from src.core import trade
-from src.core.utilities import HTTP400
-from src.crud import crud_user, stock
-from src.domain_models.trade_dm import Trade
-from src.domain_models.trading_hours import trading_hours_manager
-from src.schemas.response import Response, return_response, return_result
+from src.schemas.response import Response, return_response
 from src.schemas.transaction import TradeType
 
 router = APIRouter()

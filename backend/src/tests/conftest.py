@@ -1,33 +1,34 @@
+import os
 from typing import Dict, Generator
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from src.core.config import settings
-from src.db.session import SessionLocal
+from src.core.config import env_settings, settings, yaml_field
+from src.db.init_db import init_db
+from src.db.session import get_test_session
+from src.db.wake_db import init
 from src.main import app
-from src.tests.utils.user import authentication_token_from_email
-from src.tests.utils.utils import get_superuser_token_headers
 
 
 @pytest.fixture(scope="session")
 def db() -> Generator:
-    yield SessionLocal()
+    engine, sesh = get_test_session()
+    print("Setting up the testing environment...")
+    init(is_test=True, test_session=sesh())  # wake_db
+    init_db(db=sesh(), is_test=True, t_engine=engine)  # init db
+    print("Cool...")
+    yield sesh
+    print("Testing environment tear down")
+    t_db_path = str(env_settings.db_src / yaml_field["SQLITE_TEST_DB_NAME"]) + ".sqlite3"
+    if os.path.exists(t_db_path):
+        os.remove(str(t_db_path))
+        print("Cool...")
+    else:
+        print("Missing testing db...")
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def client() -> Generator:
     with TestClient(app) as c:
         yield c
-
-
-@pytest.fixture(scope="module")
-def superuser_token_headers(client: TestClient) -> Dict[str, str]:
-    return get_superuser_token_headers(client)
-
-
-@pytest.fixture(scope="module")
-def normal_user_token_headers(client: TestClient, db: Session) -> Dict[str, str]:
-    return authentication_token_from_email(
-        client=client, email=settings.EMAIL_TEST_USER, db=db
-    )

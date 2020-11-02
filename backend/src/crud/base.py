@@ -63,7 +63,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.refresh(db_obj)
         return db_obj
 
-    # Aren't really needed as db doesnt rlly delete anything
+    # Aren't really needed as db doesnt really delete anything
     # def remove(self, db: Session, *, id: int) -> ModelType:
     #     obj = db.query(self.model).get(id)
     #     db.delete(obj)

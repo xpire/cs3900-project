@@ -26,7 +26,7 @@ title-bar() {
     echo "█   █▄▄▄█    █▄▄█    ▄  █▄▄▄▄▄█ █       █   █▄▄▄█   █▄▄▄   █   ▄   █       █ "
     echo "█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄▄█ █▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄██▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█  █▄▄█ █▄▄█▄▄▄▄▄▄█  "
     echo "============================================================================="
-}
+}          
 
 set-python-path() {
     print-line;
@@ -50,6 +50,30 @@ init-db() {
     print-line;
 }
 
+# Get the git hook tests
+setup-test() {
+    echo "Setting up git hook tests...";
+    # NO ONE SHOULD EVER DO THIS, BUT STUFF IT
+    git_dir="../.git/hooks";
+    echo "pytest -v backend/src/tests" >> ${git_dir}/temp_pytest;
+    test -f ${git_dir}/pre-push && cat ${git_dir}/pre-push >> ${git_dir}/temp_pytest && rm ${git_dir}/pre-push;
+    mv ${git_dir}/temp_pytest ${git_dir}/pre-push && chmod +x ${git_dir}/pre-push && echo "Cool";
+}
+
+explode() {
+    echo "      _.-^^---....,,--          "
+    echo "  _--                  --_     "
+    echo " <                        >)   "
+    echo " |                         |    "
+    echo "  \._                   _./     "
+    echo "     \`\`\`--. . , \; .--'''        "  
+    echo "           | |   |               " 
+    echo "        .-=||  | |=-.      "
+    echo "        \`-=#$%&%\$#=-'      "
+    echo "           | ;  :|        "
+    echo "  _____.,-#%&\$@%#&#~,._____   "
+    echo " !!!!!!!!!BOOOOMMMMMM!!!!!!!!!!!"
+}
 
 if [ $# -eq 3 ]; then
     case $1 in
@@ -79,6 +103,7 @@ if [ $# -eq 3 ]; then
 
             check-wake;
             init-db;
+            setup-test;
         ;; 
         *) echo "Variable name error.";;
     esac
@@ -108,16 +133,30 @@ elif [ $# -eq 1 ]; then
         "nuke-db-from-orbit") # be in backend
             title-bar; 
             read -p "Are you sure you want to nuke it ? you will lose all the data in the database...   "  res
-            set-python-path
+            set-python-path; 
             if [ $res=="yes" ]; then 
-                echo "Nuking database from the orbit..."
-                rm ../database/testdb.sqlite3 && echo "BOOM!!!!!!!";# change this later
+                db_name=$(grep -A0 'SQLITE_DB_NAME: ' ./src/core/.secrets/env.yaml | cut -d ":" -f2 | cut -c 2-) 
+                echo "Nuking $db_name from the orbit..."
+                rm ../database/$db_name.sqlite3 && explode;
+
                 echo "Recreating it now...";
                 check-wake;
                 init-db;
             else
                 echo "ABORT!!!! ABORT!!!!" 
             fi
+        ;;
+
+        "setup-test")
+            title-bar; 
+            set-python-path;
+            setup-test;
+        ;;
+
+        "run-test")
+            title-bar; 
+            set-python-path;
+            pytest -v src/tests;
         ;;
         *) echo "Please provide the correct path.";;
     esac

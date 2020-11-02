@@ -39,14 +39,27 @@ class Order(ABC):
             crud.pending_order.create_order(db=self.db, order=self.schema)
             return Success("Order placed successfully")
 
+    @return_result
+    def try_execute(self) -> Result:
+        if not self.is_trading():
+            return Fail()
+
+        return self._try_execute()
+
     @abstractmethod
-    def try_execute(self):
+    def _try_execute(self) -> Result:
         pass
 
     def execute(self, price):
         dm.Trade.new(
             self.trade_type, symbol=self.symbol, qty=self.qty, price=price, user=self.user, db=self.db
         ).execute()
+
+    def is_trading(self):
+        return trading_hours.trading_hours_manager.is_trading(self.get_stock())
+
+    def get_stock(self):
+        return crud.stock.get_stock_by_symbol(db=self.db, symbol=self.symbol)
 
     @abstractproperty
     def order_type(self):
@@ -95,7 +108,7 @@ class LimitOrder(Order):
             return Fail("Limit value cannot be negative")
 
     @return_result
-    def try_execute(self) -> Result:
+    def _try_execute(self) -> Result:
         curr_price = trade.get_stock_price(self.symbol)
         if not self.can_execute(curr_price):
             return Fail()
@@ -123,14 +136,12 @@ class LimitOrder(Order):
 class MarketOrder(Order):
     order_type = OrderType.MARKET
 
-    def try_execute(self):
-        if self.is_pending:
-            return self.try_execute_pending()
-        else:
-            if not self.is_trading():
-                return Fail()
+    @return_result
+    def _try_execute(self) -> Result:
+        if not self.is_pending:
+            return self.execute(trade.get_stock_price(self.symbol))
 
-            self.execute(trade.get_stock_price(self.symbol))
+        return self.try_execute_pending()
 
     @return_result
     def try_execute_pending(self) -> Result:
@@ -148,12 +159,6 @@ class MarketOrder(Order):
             ).log()
 
         self.execute(open_price)
-
-    def is_trading(self):
-        return trading_hours.trading_hours_manager.is_trading(self.get_stock())
-
-    def get_stock(self):
-        return crud.stock.get_stock_by_symbol(db=self.db, symbol=self.symbol)
 
     @property
     def schema(self):

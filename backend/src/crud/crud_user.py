@@ -57,7 +57,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         Add a watchlist to the user_in's watchlist.
         """
         # BUG: adding existing stocks breaks the code, handle it
-        if self.symbol_exists(db=db, symbol=symbol_in):
+        if crud.stock.symbol_exists(db=db, symbol=symbol_in):
             requested_watchlist_entry = WatchList(user_id=user_in.uid, symbol=symbol_in)
 
             user_in.watchlist.append(requested_watchlist_entry)
@@ -76,7 +76,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Delete a watchlist for user_in.
         """
-        if self.symbol_exists(db=db, symbol=symbol_in):
+        if crud.stock.symbol_exists(db=db, symbol=symbol_in):
             search_result = None
             for entry in user_in.watchlist:
                 if entry.symbol == symbol_in:
@@ -115,7 +115,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Add amount and price to portfolio
         """
-        if not self.symbol_exists(db=db, symbol=symbol_in):
+        if not crud.stock.symbol_exists(db=db, symbol=symbol_in):
             log_msg(
                 f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).",
                 "WARNING",
@@ -145,7 +145,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         Remove a stock from portfolio (selling). For type specify 'long' or 'short'
         """
 
-        if not self.symbol_exists(db=db, symbol=symbol_in):
+        if not crud.stock.symbol_exists(db=db, symbol=symbol_in):
             log_msg(
                 f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).",
                 "WARNING",

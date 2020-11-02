@@ -14,15 +14,28 @@ TODO convention:
 """
 
 
-class PendingOrderAPIout(BaseSchema):
-    id: int
+class PendingOrderBase(BaseSchema):
+    id: Optional[int]
     symbol: str
     qty: int
     limit_price: Optional[float]
     trade_type: TradeType
     order_type: OrderType
     timestamp: datetime
+
+
+class PendingOrderAPIout(PendingOrderBase):
+    id: int
     exchange: str
 
-    class Config:
-        orm_mode = True
+
+class PendingOrderDBcreate(PendingOrderBase):
+    id: Optional[int] = Const(None)
+
+
+class LimitOrderDBcreate(PendingOrderDBcreate):
+    limit_price: float
+
+
+class MarketOrderDBcreate(PendingOrderDBcreate):
+    limit_price: Optional[float] = Const(None)

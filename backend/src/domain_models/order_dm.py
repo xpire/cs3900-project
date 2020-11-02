@@ -18,20 +18,19 @@ from src.schemas.transaction import OrderType, TradeType
 2. update orders.py
 3. update others as necessary
 4. refactor crud
-
 """
 
 
 class Order(ABC):
     order_type: OrderType = None
 
-    def __init__(self, symbol, qty, user, db, trade_type, timestamp, is_pending=False):
+    def __init__(self, symbol, qty, user, db, trade_type, timestamp=None, is_pending=False):
         self.symbol = symbol
         self.qty = qty
         self.user = user
         self.db = db
         self.trade_type = trade_type
-        self.timestamp = timestamp
+        self.timestamp = datetime.now() if timestamp is None else timestamp
         self.is_pending = is_pending
 
     def check_submit(self):
@@ -79,7 +78,7 @@ class Order(ABC):
 
     @abstractproperty
     def schema(self):
-        return schemas.PendingOrder(
+        return schemas.PendingOrderDBcreate(
             user_id=self.user.model.uid,
             symbol=self.symbol,
             qty=self.qty,
@@ -97,7 +96,7 @@ class LimitOrder(Order):
         self.limit_price = limit_price
 
     def check_submit(self):
-        self.super().check_submit()
+        super().check_submit()
         if self.limit_price < 0:
             raise HTTP400("Limit value cannot be negative")
 
@@ -118,12 +117,12 @@ class LimitOrder(Order):
 
     @classmethod
     def from_orm_kwargs(cls, user, db, order):
-        return dict(limit_price=order.price, **cls.super(cls, cls).from_orm_kwargs(user, db, order))
+        return dict(limit_price=order.price, **super().from_orm_kwargs(user, db, order))
 
     @property
     def schema(self):
-        return schemas.LimitOrder(
-            **self.super().schema.dict(),
+        return schemas.LimitOrderDBcreate(
+            **super().schema.dict(),
             limit_price=self.limit_price,
         )
 
@@ -158,11 +157,11 @@ class MarketOrder(Order):
         return trading_hours_manager.is_trading(self.get_stock())
 
     def get_stock(self):
-        return crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=self.symbol)
+        return crud.stock.get_stock_by_symbol(db=self.db, symbol=self.symbol)
 
     @property
     def schema(self):
-        return schemas.MarketOrder(**self.super().schema.dict())
+        return schemas.MarketOrderDBcreate(**super().schema.dict())
 
 
 class PendingOrderExecutor:
@@ -178,7 +177,7 @@ class PendingOrderExecutor:
         self.execute_pending_orders(user, user.model.limit_orders, LimitOrder)
 
     def execute_market_orders(self, user):
-        self.execute_pending_orders(user, user.model.limit_orders, MarketOrder)
+        self.execute_pending_orders(user, user.model.market_orders, MarketOrder)
 
     def execute_pending_orders(self, user, pending_orders, order_cls):
         for order in pending_orders:

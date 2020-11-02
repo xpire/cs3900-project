@@ -27,7 +27,7 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         """
         return db.query(self.model).filter(self.model.symbol.in_(symbols)).all()
 
-    def symbol_exist(self, db: Session, symbol: str):
+    def symbol_exists(self, db: Session, symbol: str):
         """
         Return True if the symbol exists
         """

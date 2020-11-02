@@ -11,7 +11,7 @@ class CRUDPendingOrder:
         self,
         *,
         db: Session,
-        order: schemas.PendingOrder,
+        order: schemas.PendingOrderDBcreate,
     ) -> bool:
         if not crud.stock.symbol_exists(db=db, symbol=order.symbol):
             return Fail(f"Cannot add a non-existent symbol as a pending order of User(uid = {order.user_id}).")

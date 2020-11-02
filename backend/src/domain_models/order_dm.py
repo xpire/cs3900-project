@@ -155,7 +155,7 @@ class MarketOrder(Order):
 
         if open_price is None:
             return Fail(
-                f"Cannot exectue market order because open price data for stock {stock.symbol} does not exist."
+                f"Cannot execute market order because open price data for stock {stock.symbol} does not exist."
             ).log()
 
         self.execute(open_price)

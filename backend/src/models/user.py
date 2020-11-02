@@ -2,6 +2,14 @@ from sqlalchemy import Column, DateTime, Float, Integer, String
 from sqlalchemy.orm import relationship
 from src.db.base_model import BaseModel
 
+# TODO simplify relationship parameters
+# def has(table_name, backref=True):
+#     cascade = "save-update, merge, delete, delete-orphan"
+#     if backref:
+#         return relationship(table_name, cascade=cascade, backref="user")
+#     else:
+#         return relationship(table_name, cascade=cascade)
+
 
 class User(BaseModel):
     uid = Column(String, unique=True, primary_key=True)
@@ -13,9 +21,9 @@ class User(BaseModel):
     watchlist = relationship("WatchList", backref="user", cascade="save-update, merge, delete, delete-orphan")
 
     # portfolio
-    # TODO use inheritance
-    long_positions = relationship("LongPosition", backref="user", cascade="save-update, merge, delete, delete-orphan")
-    short_positions = relationship("ShortPosition", backref="user", cascade="save-update, merge, delete, delete-orphan")
+    positions = relationship("Position", backref="user", cascade="save-update, merge, delete, delete-orphan")
+    long_positions = relationship("LongPosition", cascade="save-update, merge, delete, delete-orphan")
+    short_positions = relationship("ShortPosition", cascade="save-update, merge, delete, delete-orphan")
 
     # orders and history
     pending_orders = relationship("PendingOrder", backref="user", cascade="save-update, merge, delete, delete-orphan")

@@ -1,12 +1,9 @@
-from datetime import datetime
 from json.decoder import JSONDecodeError
 from typing import List
 
 from fastapi import APIRouter, Depends, Header, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
-from src import crud
-from src import domain_models as dm
-from src import models, schemas
+from src import crud, models, schemas
 from src.api.deps import (
     check_uid_email,
     check_user_exists,
@@ -16,13 +13,9 @@ from src.api.deps import (
     get_db,
 )
 from src.core.async_exit import AppStatus
-from src.domain_models import UserDM
 from src.game.achievement.achievement import UserAchievement
-from src.game.event.sub_events import StatUpdateEvent, TransactionEvent
-from src.game.setup.setup import event_hub
 from src.notification.notifier import Notifier, notif_hub
-from src.schemas.response import Fail, Response, Success, return_response, return_result
-from src.schemas.transaction import ClosingTransaction, OpeningTransaction, OrderType, TradeType, Transaction
+from src.schemas.response import Response, return_response
 
 router = APIRouter()
 
@@ -30,18 +23,6 @@ router = APIRouter()
 @router.get("")
 async def get_user(user=Depends(get_current_user_dm)) -> schemas.User:
     return user.schema
-
-
-@router.delete("")
-async def delete_user(
-    email: str,
-    db: Session = Depends(get_db),
-) -> bool:
-    """
-    Just a helper api for testing
-    """
-
-    return crud.user.delete_user_by_email(db, email=email)
 
 
 @router.post("")
@@ -60,14 +41,13 @@ async def create_user(
     check_user_exists(uid, db)
 
     # Create if doesn't exist
-    user = crud.user.create(db, obj=schemas.UserCreate(email=email, uid=uid, username=email))
-
-    return dm.UserDM(user, db).schema
+    return crud.user.create(db, obj=schemas.UserCreate(email=email, uid=uid, username=email))
 
 
 # TODO endpoint
-@router.get("/reset_portfolio")
-async def reset_user_portfolio(user=Depends(get_current_user_dm), db: Session = Depends(get_db)):
+@router.get("/reset")
+@return_response
+async def reset(user=Depends(get_current_user_dm)) -> Response:
     return user.reset()
 
 
@@ -113,7 +93,6 @@ async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
 
         if user:
             print("AUTHORISED")
-            # print(schemas.UserInDB.from_orm(user))
             await ws.send_json(dict(msg="User authorised", is_error=False, type="auth"))
         else:
             print("NOT AUTHORISED")
@@ -132,3 +111,20 @@ async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
     finally:
         if notifier is not None:
             notif_hub.unsusbscribe(notifier)
+
+
+"""
+TEST API
+"""
+
+
+@router.delete("")
+async def delete_user(
+    email: str,
+    db: Session = Depends(get_db),
+) -> bool:
+    """
+    Just a helper api for testing
+    """
+
+    return crud.user.delete_user_by_email(db, email=email)

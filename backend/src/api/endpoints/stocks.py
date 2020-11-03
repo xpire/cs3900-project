@@ -1,5 +1,4 @@
-from datetime import datetime, time
-from typing import Any, List
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -7,52 +6,16 @@ from src import crud
 from src import domain_models as dm
 from src import schemas
 from src.api.deps import check_symbol, get_db
-from src.core.config import settings
-from src.core.utilities import HTTP400, log_msg
-from src.db.session import SessionLocal
 from src.domain_models.trading_hours import trading_hours_manager
-from src.game.stat_update_publisher import StatUpdatePublisher
-
-# from src.real_time_market_data.composite_data_provider import CompositeDataProvider
-# from src.real_time_market_data.setup import create_simulators
-# from src.real_time_market_data.simulated_data_provider import SimulatedProvider
-# from src.real_time_market_data.td_data_provider import TDProvider
-from src.schemas.response import Fail, Response, Success, return_response, return_result
+from src.schemas.response import Fail
 from src.schemas.stock import StockAPIout
-from twelvedata import TDClient
 
 router = APIRouter()
-
-
-"""# TODO move this to a separate place
-# We can't use deps to get the database here, on_event is not part of FastAPI so it can't use depends apparently
-# https://github.com/tiangolo/fastapi/issues/425
-@router.on_event("startup")
-def startup_event():
-    global market_data_provider
-
-    db = SessionLocal()
-    real_stocks = crud.stock.get_all_stocks(db=db, simulated=False)
-    sim_stocks = crud.stock.get_all_stocks(db=db, simulated=True)
-
-    def make_symbol_to_exchange(stocks):
-        return {stock.symbol: stock.exchange for stock in stocks}
-
-    # p1 = TDProvider(db=db, symbol_to_exchange=make_symbol_to_exchange(real_stocks), api_key=API_KEY)
-    p2 = SimulatedProvider(
-        db=db, symbol_to_exchange=make_symbol_to_exchange(sim_stocks), simulators=create_simulators(db)
-    )
-    market_data_provider = CompositeDataProvider([p2])  # p1
-    market_data_provider.pre_start()
-    market_data_provider.start()
-    market_data_provider.subscribe(StatUpdatePublisher(db).update)
-    market_data_provider.subscribe(dm.PendingOrderExecutor(db).update)"""
-
 
 # TODO rename: /stocks
 @router.get("/symbols")
 async def get_symbols(db: Session = Depends(get_db)) -> List[StockAPIout]:
-    return crud.stock.get_multi_by_symbols(db=db, symbols=market_data_provider.symbols)
+    return crud.stock.get_multi_by_symbols(db=db, symbols=dm.get_data_provider().symbols)
 
 
 # TODO rename: /real_time
@@ -72,7 +35,7 @@ async def get_stocks(
         ret.append(
             schemas.StockRealTimeAPIout(
                 **stock.dict(),
-                **market_data_provider.data[stock.symbol],
+                **dm.get_data_provider().data[stock.symbol],
                 trading_hours_info=trading_hours_manager.get_trading_hours_info(stock),
             )
         )

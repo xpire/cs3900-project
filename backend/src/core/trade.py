@@ -1,13 +1,12 @@
-import src.api.endpoints.stocks as stocks_api
+from src import domain_models as dm
 from src.core.config import settings
 from src.domain_models.user_dm import UserDM
 
 
 def get_stock_price(symbol: str):
-    return stocks_api.market_data_provider.get_curr_day_close(symbol)
+    return dm.get_data_provider().get_curr_day_close(symbol)
 
 
-# TODO CONFIG
 def apply_commission(price: float, is_buying: bool = True):
     rate = 1 + (1 if is_buying else -1) * settings.COMMISSION_RATE
     return price * rate

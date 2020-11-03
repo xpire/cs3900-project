@@ -1,11 +1,10 @@
 from datetime import datetime
 from functools import wraps
 
-import src.api.endpoints.stocks as stocks_api
 from sqlalchemy.orm import Session
 from src import crud, schemas
 from src.core.utilities import log_msg
-from src.db.base_model import BaseModel
+from src.domain_models.data_provider.setup import get_data_provider
 from src.game.achievement.achievement import UserAchievement
 from src.game.event.sub_events import StatUpdateEvent
 from src.game.setup.setup import achievements_list, event_hub, level_manager
@@ -144,9 +143,9 @@ class UserDM:
 
         for position in portfolio:
             entry = {}
-            entry["price"] = float(stocks_api.market_data_provider.get_curr_day_close(position.symbol))
+            entry["price"] = get_data_provider().get_curr_day_close(position.symbol)
             # TODO: update this to get daily opening price, rather than prev day closing
-            entry["previous_price"] = float(stocks_api.market_data_provider.get_prev_day_close(position.symbol))
+            entry["previous_price"] = get_data_provider().get_prev_day_close(position.symbol)
             entry["symbol"] = position.symbol
             entry["name"] = position.stock.name
             entry["owned"] = position.qty
@@ -200,7 +199,7 @@ class UserDM:
 
         value = 0
         for position in portfolio:
-            curr_price = float(stocks_api.market_data_provider.get_curr_day_close(position.symbol))
+            curr_price = get_data_provider().get_curr_day_close(position.symbol)
             value += position.qty * curr_price
 
         return value
@@ -281,8 +280,8 @@ class UserDM:
 
         profit = 0
         for position in portfolio:
-            curr_price = float(stocks_api.market_data_provider.get_curr_day_close(position.symbol))
-            opening_price = float(stocks_api.market_data_provider.get_prev_day_close(position.symbol))
+            curr_price = get_data_provider().get_curr_day_close(position.symbol)
+            opening_price = get_data_provider().get_prev_day_close(position.symbol)
             profit += curr_price - opening_price
 
         return profit if p_type == "long" else -profit

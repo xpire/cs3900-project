@@ -9,7 +9,7 @@ def get_stock_price(symbol: str):
 
 # TODO CONFIG
 def apply_commission(price: float, is_buying: bool = True):
-    rate = 1 + (1 if is_buying else -1) * settings.COMMISION_RATE
+    rate = 1 + (1 if is_buying else -1) * settings.COMMISSION_RATE
     return price * rate
 
 

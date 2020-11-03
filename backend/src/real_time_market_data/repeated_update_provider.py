@@ -19,7 +19,7 @@ class RepeatedUpdateProvider(DataProvider):
     def __init__(self, symbol_to_exchange, repeat_in_x_seconds, db, **kwargs):
         super().__init__(**kwargs)
 
-        self.symbols = list(symbol_to_exchange.keys())
+        self._symbols = list(symbol_to_exchange.keys())
         self.symbol_to_exchange = symbol_to_exchange
         self.db = db
 
@@ -104,7 +104,11 @@ class RepeatedUpdateProvider(DataProvider):
         """
         Get stock given [symbol]
         """
-        return crud.stock.get_stock_by_symbol(db=self.db, symbol=symbol)
+        return crud.stock.get_by_symbol(db=self.db, symbol=symbol)
+
+    @property
+    def symbols(self):
+        return self._symbols
 
 
 def stock_data_as_time_series(symbol, stock_data) -> List[TimeSeriesDBcreate]:

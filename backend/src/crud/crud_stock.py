@@ -11,14 +11,14 @@ from src.schemas.time_series import TimeSeriesDBcreate
 
 
 class CRUDStock(CRUDBase[Stock]):
-    def get_stock_by_symbol(self, *, db: Session, symbol: str) -> Optional[Stock]:
+    def get_by_symbol(self, *, db: Session, symbol: str) -> Optional[Stock]:
         """
         Get a single stock
         """
         return self.query(db).get(symbol)
 
     # TODO rename
-    def get_stock_by_symbols(self, *, db: Session, symbols: List[str]) -> List[Stock]:
+    def get_multi_by_symbols(self, *, db: Session, symbols: List[str]) -> List[Stock]:
         """
         Get multiple stock by multiple symbols.
         """
@@ -28,13 +28,18 @@ class CRUDStock(CRUDBase[Stock]):
         """
         Return True if the symbol exists
         """
-        return self.get_stock_by_symbol(db=db, symbol=symbol) is not None
+        return self.get_by_symbol(db=db, symbol=symbol) is not None
 
-    def get_all_stocks(self, *, db: Session) -> List[Stock]:
+    def get_all_stocks(self, *, db: Session, simulated: Optional[bool] = None) -> List[Stock]:
         """
         Get all stock objects
         """
-        return self.query(db).all()
+        if simulated is None:
+            return self.query(db).all()
+        elif simulated:
+            return self.query(db).filter_by(industry="Simulated").all()
+        else:
+            return self.query(db).filter(self.model.industry != "Simulated").all()
 
     @fail_save
     def csv_batch_insert(self, *, db: Session, csv_stocks: List[Dict]) -> Any:
@@ -59,7 +64,7 @@ class CRUDStock(CRUDBase[Stock]):
         """
         Update the newest entry of time series
         """
-        stock = self.get_stock_by_symbol(db=db, symbol=symbol)
+        stock = self.get_by_symbol(db=db, symbol=symbol)
 
         if stock.time_series.count() == 0:
             stock.time_series = [TimeSeries(**x.dict()) for x in time_series]

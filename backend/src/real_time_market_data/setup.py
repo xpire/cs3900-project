@@ -45,6 +45,6 @@ def create_simulators(db):
 
     simulators = []
     for symbol, day_patterns in stock_details.items():
-        stock = crud.stock.get_stock_by_symbol(db=db, symbol=symbol)
+        stock = crud.stock.get_by_symbol(db=db, symbol=symbol)
         simulators.append(StockSimulator(stock, day_patterns))
     return simulators

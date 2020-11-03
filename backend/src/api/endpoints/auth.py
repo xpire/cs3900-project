@@ -2,7 +2,7 @@ from datetime import datetime
 from json.decoder import JSONDecodeError
 from typing import List
 
-from fastapi import APIRouter, Depends, Header, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, Header, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm

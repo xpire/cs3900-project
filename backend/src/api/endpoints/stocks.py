@@ -41,27 +41,27 @@ def startup_event():
     global market_data_provider
 
     db = SessionLocal()
-    stocks = crud.stock.get_all_stocks(db=db)[:12]  # TODO change this slice later
-    # TODO split into simulated and non-simulated
-    # symbols = [f"{stock.symbol}:{stock.exchange}" for stock in stocks]
-    symbol_to_exchange = {stock.symbol: stock.exchange for stock in stocks}
+    real_stocks = crud.stock.get_all_stocks(db=db, simulated=False)
+    sim_stocks = crud.stock.get_all_stocks(db=db, simulated=True)
 
-    if symbol_to_exchange:
-        # p1 = TDProvider(db=db, symbol_to_exchange=symbol_to_exchange, api_key=API_KEY)
-        p2 = SimulatedProvider(db=db, symbol_to_exchange=symbol_to_exchange, simulators=create_simulators(db))
-        market_data_provider = CompositeDataProvider([p2])  # p1
-        market_data_provider.pre_start()
-        market_data_provider.start()
-        market_data_provider.subscribe(StatUpdatePublisher(db).update)
-        market_data_provider.subscribe(dm.PendingOrderExecutor(db).update)
-    else:
-        log_msg("There are no stocks in the database, not polling for data.", "WARNING")
+    def make_symbol_to_exchange(stocks):
+        return {stock.symbol: stock.exchange for stock in stocks}
+
+    # p1 = TDProvider(db=db, symbol_to_exchange=make_symbol_to_exchange(real_stocks), api_key=API_KEY)
+    p2 = SimulatedProvider(
+        db=db, symbol_to_exchange=make_symbol_to_exchange(sim_stocks), simulators=create_simulators(db)
+    )
+    market_data_provider = CompositeDataProvider([p2])  # p1
+    market_data_provider.pre_start()
+    market_data_provider.start()
+    market_data_provider.subscribe(StatUpdatePublisher(db).update)
+    market_data_provider.subscribe(dm.PendingOrderExecutor(db).update)
 
 
 # TODO rename: /stocks
 @router.get("/symbols")
 async def get_symbols(db: Session = Depends(get_db)) -> List[StockAPIout]:
-    return crud.stock.get_all_stocks(db=db)[:12]
+    return crud.stock.get_multi_by_symbols(db=db, symbols=market_data_provider.symbols)
 
 
 # TODO rename: /real_time
@@ -72,7 +72,7 @@ async def get_stocks(
     if not symbols:
         return []
 
-    stocks = crud.stock.get_stock_by_symbols(db=db, symbols=symbols)
+    stocks = crud.stock.get_multi_by_symbols(db=db, symbols=symbols)
     if len(stocks) != len(symbols):
         Fail(f"Following symbols are requested but do not exist: {set(symbols) - set(stocks)}").assert_ok()
 
@@ -97,5 +97,5 @@ async def get_stock_data(
 
 @router.get("/trading_hours")
 async def get_trading_hours(symbol: str = Depends(check_symbol), db: Session = Depends(get_db)):  # TODO define schema
-    stock = crud.stock.get_stock_by_symbol(db=db, symbol=symbol)
+    stock = crud.stock.get_by_symbol(db=db, symbol=symbol)
     return trading_hours_manager.get_trading_hours_info(stock)

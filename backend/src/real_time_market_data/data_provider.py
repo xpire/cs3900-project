@@ -4,8 +4,6 @@ from src import crud
 
 """
 TODO
-- helper functions (crud?/not) to separate between simulated and non-simulated
-- focus on refactoring in the next sprint
 - how to test limit order execution etc.
 - limit order test: don't use latest data, but use lo and high since we get data
 in blocks of 5
@@ -19,8 +17,6 @@ in blocks of 5
 and portfolio
 - portfolio - inventory system: hover to see more details, click for even more
 - floaty + button?
-
-- change days=365 -> time-start, time-end for yearly data, keep it at days=2 for other
 """
 
 
@@ -80,6 +76,10 @@ class DataProvider(ABC):
         """
         Return cached data with an id that is updated whenver the data is changed (for caching purposes)
         """
+        pass
+
+    @abstractproperty
+    def symbols(self):
         pass
 
     # #

@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGIN: List[AnyHttpUrl] = []
     FIRE_BASE_CRED: Any
     STARTING_BALANCE: float
-    COMMISION_RATE: float
+    COMMISSION_RATE: float
 
 
 class LocalSettings(BaseSettings):
@@ -55,5 +55,5 @@ with open(path.join(env_settings.abs_path, ".secrets", "env.yaml")) as e:
         BACKEND_CORS_ORIGIN=[x for x in yaml_field["BACKEND_CORS_ORIGINS"]],
         FIRE_BASE_CRED=cred,
         STARTING_BALANCE=yaml_field["STARTING_BALANCE"],
-        COMMISION_RATE=yaml_field["COMMISION_RATE"],
+        COMMISSION_RATE=yaml_field["COMMISSION_RATE"],
     )

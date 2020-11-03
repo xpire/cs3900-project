@@ -60,7 +60,7 @@ class Order(ABC):
         return trading_hours.trading_hours_manager.is_trading(self.get_stock())
 
     def get_stock(self):
-        return crud.stock.get_stock_by_symbol(db=self.db, symbol=self.symbol)
+        return crud.stock.get_by_symbol(db=self.db, symbol=self.symbol)
 
     @abstractproperty
     def order_type(self):

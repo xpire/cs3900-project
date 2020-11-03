@@ -15,7 +15,7 @@ class Position(BaseModel):
         cascade="save-update, merge",
     )
 
-    __table_args__ = (UniqueConstraint("user_id", "symbol", name="_user_symbol_uc"),)
+    __table_args__ = (UniqueConstraint("user_id", "symbol", "position_type", name="_user_symbol_type_uc"),)
 
     __mapper_args__ = {"polymorphic_identity": "position", "polymorphic_on": position_type}
 

@@ -124,7 +124,7 @@ class LongPortfolioStat(HalfPortfolioStat):
         return self.closing_value(p)
 
     def daily_profit(self, p):
-        return self._price_change_since_open()
+        return self._price_change_since_open(p)
 
 
 class ShortPortfolioStat(HalfPortfolioStat):
@@ -133,10 +133,10 @@ class ShortPortfolioStat(HalfPortfolioStat):
     """
 
     def opening_value(self, p):
-        return self._opening_abs_value(p)
+        return self._opening_value_abs(p)
 
     def closing_value(self, p):
-        return -self._closing_abs_value(p)
+        return -self._closing_value_abs(p)
 
     def buy_value(self, p):
         return self.closing_value(p)
@@ -145,7 +145,7 @@ class ShortPortfolioStat(HalfPortfolioStat):
         return self.opening_value(p)
 
     def daily_profit(self, p):
-        return -self._price_change_since_open()
+        return -self._price_change_since_open(p)
 
 
 class CombinedPortfolioStat(PortfolioStat):
@@ -186,19 +186,19 @@ class AccountStat:
         return schemas.PortfolioStatAPIout(
             total_long_value=self.long.total_closing_value(),
             total_short_value=self.short.total_closing_value(),
-            total_portfolio_value=self.total_closing_value(),
+            total_portfolio_value=self.portfolio.total_closing_value(),
             total_long_profit=self.long.total_profit(),
             total_short_profit=self.short.total_profit(),
-            total_portfolio_profit=self.total_profit(),
+            total_portfolio_profit=self.portfolio.total_profit(),
             total_long_return=self.long.total_return(),
             total_short_return=self.short.total_return(),
-            total_portfolio_return=self.total_return(),
+            total_portfolio_return=self.portfolio.total_return(),
             daily_long_profit=self.long.total_daily_profit(),
             daily_short_profit=self.short.total_daily_profit(),
-            daily_total_profit=self.total_daily_profit(),
+            daily_portfolio_profit=self.portfolio.total_daily_profit(),
             daily_long_return=self.long.total_daily_return(),
             daily_short_return=self.short.total_daily_return(),
-            total_daily_return=self.total_daily_return(),
+            daily_portfolio_return=self.portfolio.total_daily_return(),
             balance=self.balance,
             short_balance=self.short_balance(),
             total_value=self.net_worth(),
@@ -212,14 +212,6 @@ class AccountStat:
 
     def get_positions(self, is_long=True):
         return self.user.model.long_positions if is_long else self.user.model.short_positions
-
-    @property
-    def long(self):
-        return self.portfolio.long
-
-    @property
-    def short(self):
-        return self.portfolio.short
 
     @property
     def balance(self):
@@ -239,7 +231,7 @@ def open_price(symbol):
 
 
 def div(a, b, default=0):
-    return 0 if b is 0 else a / b
+    return default if b is 0 else a / b
 
 
 def total(positions, stat):

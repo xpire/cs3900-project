@@ -1,5 +1,4 @@
 import itertools as it
-from functools import lru_cache
 
 import numpy as np
 from src import crud
@@ -41,28 +40,39 @@ def create_simulators(db):
     return simulators
 
 
-@lru_cache(maxsize=None)
-def get_data_provider():
-    from src import domain_models as dm
-    from src.db.session import SessionLocal
-    from src.game.stat_update_publisher import StatUpdatePublisher
+def cached_get_data_provider():
+    provider = None
 
-    db = SessionLocal()
+    def get_data_provider():
+        nonlocal provider
+        if provider is not None:
+            return provider
 
-    real_stocks = crud.stock.get_all_stocks(db=db, simulated=False)
-    sim_stocks = crud.stock.get_all_stocks(db=db, simulated=True)
+        from src import domain_models as dm
+        from src.db.session import SessionLocal
+        from src.game.stat_update_publisher import StatUpdatePublisher
 
-    def make_symbol_to_exchange(stocks):
-        return {stock.symbol: stock.exchange for stock in stocks}
+        db = SessionLocal()
 
-    # p1 = TDProvider(db=db, symbol_to_exchange=make_symbol_to_exchange(real_stocks), api_key=settings.TD_API_KEY)
-    p2 = SimulatedProvider(
-        db=db, symbol_to_exchange=make_symbol_to_exchange(sim_stocks), simulators=create_simulators(db)
-    )
+        real_stocks = crud.stock.get_all_stocks(db=db, simulated=False)
+        sim_stocks = crud.stock.get_all_stocks(db=db, simulated=True)
 
-    provider = CompositeDataProvider([p2])  # p1
-    provider.pre_start()
-    provider.start()
-    provider.subscribe(StatUpdatePublisher(db).update)
-    provider.subscribe(dm.PendingOrderExecutor(db).update)
-    return provider
+        def make_symbol_to_exchange(stocks):
+            return {stock.symbol: stock.exchange for stock in stocks}
+
+        # p1 = TDProvider(db=db, symbol_to_exchange=make_symbol_to_exchange(real_stocks), api_key=settings.TD_API_KEY)
+        p2 = SimulatedProvider(
+            db=db, symbol_to_exchange=make_symbol_to_exchange(sim_stocks), simulators=create_simulators(db)
+        )
+
+        provider = CompositeDataProvider([p2])  # p1
+        provider.pre_start()
+        provider.start()
+        provider.subscribe(StatUpdatePublisher(db).update)
+        provider.subscribe(dm.PendingOrderExecutor(db).update)
+        return provider
+
+    return get_data_provider
+
+
+get_data_provider = cached_get_data_provider()

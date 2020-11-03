@@ -33,7 +33,7 @@ async def get_stocks(
         return schemas.StockRealTimeAPIout(
             **stock.dict(),
             **dm.get_data_provider().data[stock.symbol],
-            trading_hours_info=trading_hours_manager.get_trading_hours_info(stock),
+            **trading_hours_manager.get_trading_hours_info(stock).dict(),
         )
 
     return [to_schema(stock) for stock in stocks]

@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm
 from src import schemas
-from src.core import trade
 from src.core.utilities import find
 from src.domain_models import trading_hours
 from src.schemas.response import Fail, Result, Success, return_result
@@ -62,6 +61,9 @@ class Order(ABC):
     def get_stock(self):
         return crud.stock.get_by_symbol(db=self.db, symbol=self.symbol)
 
+    def get_curr_price(self):
+        return dm.get_data_provider().curr_price(self.symbol)
+
     @abstractproperty
     def order_type(self):
         return self.__class__.order_type
@@ -110,7 +112,7 @@ class LimitOrder(Order):
 
     @return_result()
     def _try_execute(self) -> Result:
-        curr_price = trade.get_stock_price(self.symbol)
+        curr_price = self.get_curr_price()
         if not self.can_execute(curr_price):
             return Fail()
 
@@ -140,7 +142,7 @@ class MarketOrder(Order):
     @return_result()
     def _try_execute(self) -> Result:
         if not self.is_pending:
-            return self.execute(trade.get_stock_price(self.symbol))
+            return self.execute(self.get_curr_price())
 
         return self.try_execute_pending()
 
@@ -152,15 +154,13 @@ class MarketOrder(Order):
         if datetime.now() < open_datetime:
             return Fail()
 
-        # TODO upgrade find() to allow for accessing an attribute?
-        open_price = next((x.open for x in stock.time_series if x.date == open_datetime.date()), None)
-
-        if open_price is None:
+        time_series = find(stock.time_series, date=open_datetime.date())
+        if time_series is None:
             return Fail(
                 f"Cannot execute market order because open price data for stock {stock.symbol} does not exist."
             ).log()
 
-        self.execute(open_price)
+        self.execute(time_series.open)
 
     @property
     def schema(self):

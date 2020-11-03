@@ -105,11 +105,11 @@ const StockDetails = () => {
   }, []);
 
   useEffect(() => {
-    if ("curr_close_price" in stockData) {
-      setLatestPrice(stockData.curr_close_price);
+    if ("curr_day_close" in stockData) {
+      setLatestPrice(stockData.curr_day_close);
       let gain =
-        (100 * (stockData.curr_close_price - stockData.prev_close_price)) /
-        stockData.prev_close_price;
+        (100 * (stockData.curr_day_close - stockData.prev_day_close)) /
+        stockData.prev_day_close;
       setDayGain(gain);
       setOnline(stockData.is_trading);
     }

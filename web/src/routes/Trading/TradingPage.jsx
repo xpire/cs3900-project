@@ -107,7 +107,7 @@ const Trading = () => {
       state.symbol,
     ],
     100,
-    (data) => data[0].curr_close_price
+    (data) => data[0].curr_day_close
   );
   const [online, onlineLoading] = useApi(
     `/stocks/stocks?symbols=${state.symbol}`,

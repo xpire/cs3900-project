@@ -19,8 +19,8 @@ const CardGrid = ({ data }) => {
             symbol,
             name,
             exchange,
-            curr_close_price,
-            prev_close_price,
+            curr_day_close,
+            prev_day_close,
             skeleton,
             is_trading,
           },
@@ -28,12 +28,8 @@ const CardGrid = ({ data }) => {
         ) => {
           let delta = null;
           // TODO maybe it's undefined
-          if (
-            curr_close_price !== undefined &&
-            prev_close_price !== undefined
-          ) {
-            delta =
-              (100 * (curr_close_price - prev_close_price)) / prev_close_price;
+          if (curr_day_close !== undefined && prev_day_close !== undefined) {
+            delta = (100 * (curr_day_close - prev_day_close)) / prev_day_close;
           }
           console.log(is_trading);
           return (
@@ -42,7 +38,7 @@ const CardGrid = ({ data }) => {
                 symbol={symbol}
                 name={name}
                 category={exchange}
-                price={format(curr_close_price)} //{curr_close_price?.toFixed(2)}
+                price={format(curr_day_close)} //{curr_day_close?.toFixed(2)}
                 delta={format(delta)} //{delta?.toFixed(2)}
                 key={index}
                 online={is_trading}

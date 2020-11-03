@@ -35,16 +35,16 @@ const Watchlist = () => {
   const [deleted, setDeleted] = useState(0);
   const [data, loading] = useRealTimeStockData("/watchlist", [deleted], []);
   const mappedData = data.map(
-    ({ curr_close_price, exchange, name, prev_close_price, symbol }) => {
+    ({ curr_day_close, exchange, name, curr_day_open, symbol }) => {
       return {
         symbol: symbol,
         name: name,
         exchange: exchange,
-        price: curr_close_price,
-        open: prev_close_price,
-        daily: format(curr_close_price - prev_close_price),
+        price: curr_day_close,
+        open: curr_day_open,
+        daily: format(curr_day_close - curr_day_open),
         dailyPercentage: format(
-          (100 * (curr_close_price - prev_close_price)) / prev_close_price
+          (100 * (curr_day_close - curr_day_open)) / curr_day_open
         ),
       };
     }

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel as BaseSchema
 from src.core.config import settings
@@ -41,3 +41,23 @@ class User(UserInDBBase):
 # probably not needed?
 class UserInDB(UserInDBBase):
     uid: str
+
+
+class LeaderboardUserBase(BaseSchema):
+    username: str
+    email: str
+    level: int
+    net_worth: float
+
+
+class LeaderboardUserWithUid(LeaderboardUserBase):
+    uid: str
+
+
+class LeaderboardUserAPIout(LeaderboardUserBase):
+    pass
+
+
+class LeaderboardAPIout(BaseSchema):
+    rankings: List[LeaderboardUserAPIout]
+    user_ranking: int

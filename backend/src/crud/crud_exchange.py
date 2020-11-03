@@ -1,7 +1,6 @@
 from datetime import timedelta
 from typing import List, Optional
 
-from pytz import timezone
 from src.schemas.exchange import ExchangeFromDB
 
 # Trading hours retrieved from https://www.thebalance.com/stock-market-hours-4773216

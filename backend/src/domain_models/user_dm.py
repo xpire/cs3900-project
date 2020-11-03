@@ -57,7 +57,7 @@ class UserDM:
 
         crud.user.reset(user=self.model, db=self.db)
 
-        event_hub.publish(StatUpdateEvent(user=user))
+        event_hub.publish(StatUpdateEvent(user=self.model))
         return Success("Reset successfully.")
 
     @property

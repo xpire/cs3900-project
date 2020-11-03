@@ -3,24 +3,24 @@
     "symbol": "TLS",
     "name": "Telstra Corporation",
     "exchange": "ASX",
-    "curr_close_price": 2.73,
-    "prev_close_price": 2.75,
+    "curr_day_close": 2.73,
+    "prev_day_close": 2.75,
     "commission": 0.005
   },
   {
     "symbol": "SVW",
     "name": "Seven Group Holdings Ltd",
     "exchange": "ASX",
-    "curr_close_price": 20.6,
-    "prev_close_price": 20.92,
+    "curr_day_close": 20.6,
+    "prev_day_close": 20.92,
     "commission": 0.005
   },
   {
     "symbol": "TPG",
     "name": "TPG Telecom Ltd",
     "exchange": "ASX",
-    "curr_close_price": 7.16,
-    "prev_close_price": 7.23,
+    "curr_day_close": 7.16,
+    "prev_day_close": 7.23,
     "commission": 0.005
   }
 ]

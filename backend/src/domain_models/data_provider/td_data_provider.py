@@ -1,7 +1,9 @@
 import datetime as dt
 
-from src.real_time_market_data.repeated_update_provider import RepeatedUpdateProvider, seconds_until_next_minute
+from src.core.config import settings
 from twelvedata import TDClient
+
+from .repeated_update_provider import RepeatedUpdateProvider, seconds_until_next_minute
 
 
 class TDProvider(RepeatedUpdateProvider):
@@ -18,7 +20,7 @@ class TDProvider(RepeatedUpdateProvider):
         request = self.td.time_series(
             symbol=self.symbols_and_exchanges,
             interval="1day",
-            timezone="Australia/Sydney",  # TODO make config, and set datetime timezone using https://stackoverflow.com/questions/1301493/setting-timezone-in-python
+            timezone=settings.TIMEZONE,  # TODO make config, and set defaultdatetime timezone using https://stackoverflow.com/questions/1301493/setting-timezone-in-python
             outputsize=365,
             start_date=start_date,
         )
@@ -30,7 +32,7 @@ class TDProvider(RepeatedUpdateProvider):
             symbol=self.symbols_and_exchanges,
             interval="1day",
             outputsize=2,
-            timezone="Australia/Sydney",  # output all timestamps in Sydney's timezone TODO verify if this is desirable
+            timezone=settings.TIMEZONE,  # output all timestamps in Sydney's timezone TODO verify if this is desirable
         )
         return self.make_request(request)
 

@@ -41,26 +41,25 @@ class Trade(ABC):
         if self.is_opening:
             crud_user.user.add_transaction(
                 db=self.db,
-                user_in=self.model,
+                user=self.model,
                 is_long=self.is_long,
-                symbol_in=self.symbol,
-                amount_in=self.qty,
-                price_in=self.price,
+                symbol=self.symbol,
+                qty=self.qty,
+                price=self.price,
             )
         else:
             crud_user.user.deduct_transaction(
-                db=self.db, user_in=self.model, is_long=self.is_long, symbol_in=self.symbol, amount_in=self.qty
+                db=self.db, user=self.model, is_long=self.is_long, symbol=self.symbol, qty=self.qty
             )
-        new_balance = self.model.balance + trade_price * (-1 if self.is_buying else 1)
-        crud_user.user.update_balance(db=self.db, user_in=self.model, balance_in=new_balance)
+        self.user.balance += trade_price * (-1 if self.is_buying else 1)
         crud_user.user.add_history(
             db=self.db,
-            user_in=self.model,
-            date_time_in=datetime.now(),
-            price_in=self.price,
-            trade_type_in=self.trade_type,
-            amount_in=self.qty,
-            symbol_in=self.symbol,
+            user=self.model,
+            timestamp=datetime.now(),
+            price=self.price,
+            trade_type=self.trade_type,
+            qty=self.qty,
+            symbol=self.symbol,
         )
 
     @abstractmethod

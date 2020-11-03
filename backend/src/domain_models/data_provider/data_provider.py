@@ -1,11 +1,7 @@
 from abc import ABC, abstractmethod, abstractproperty
 
-from src import crud
-
 """
 TODO
-- helper functions (crud?/not) to separate between simulated and non-simulated
-- focus on refactoring in the next sprint
 - how to test limit order execution etc.
 - limit order test: don't use latest data, but use lo and high since we get data
 in blocks of 5
@@ -19,8 +15,6 @@ in blocks of 5
 and portfolio
 - portfolio - inventory system: hover to see more details, click for even more
 - floaty + button?
-
-- change days=365 -> time-start, time-end for yearly data, keep it at days=2 for other
 """
 
 
@@ -82,6 +76,10 @@ class DataProvider(ABC):
         """
         pass
 
+    @abstractproperty
+    def symbols(self):
+        pass
+
     # #
     # Direct gettors for cached data
     # #
@@ -93,3 +91,6 @@ class DataProvider(ABC):
 
     def get_prev_day_close(self, symbol):
         return self.data[symbol]["prev_day_close"]
+
+    def curr_price(self, symbol):
+        return self.get_curr_day_close(symbol)

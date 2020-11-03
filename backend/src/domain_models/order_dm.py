@@ -6,6 +6,7 @@ from src import crud
 from src import domain_models as dm
 from src import schemas
 from src.core import trade
+from src.core.utilities import find
 from src.domain_models import trading_hours
 from src.schemas.response import Fail, Result, Success, return_result
 from src.schemas.transaction import OrderType, TradeType
@@ -59,7 +60,7 @@ class Order(ABC):
         return trading_hours.trading_hours_manager.is_trading(self.get_stock())
 
     def get_stock(self):
-        return crud.stock.get_stock_by_symbol(db=self.db, symbol=self.symbol)
+        return crud.stock.get_by_symbol(db=self.db, symbol=self.symbol)
 
     @abstractproperty
     def order_type(self):
@@ -151,7 +152,8 @@ class MarketOrder(Order):
         if datetime.now() < open_datetime:
             return Fail()
 
-        open_price = next((x.open for x in stock.timeseries if x.date == open_datetime.date()), None)
+        # TODO upgrade find() to allow for accessing an attribute?
+        open_price = next((x.open for x in stock.time_series if x.date == open_datetime.date()), None)
 
         if open_price is None:
             return Fail(

@@ -18,7 +18,7 @@ const AutoCompleteTextField = ({ value, setValue }) => {
     }
 
     axios
-      .get("/stocks/symbols")
+      .get("/stocks")
       .then((resp) => {
         setOptions(resp.data.map(({ symbol }) => symbol));
       })

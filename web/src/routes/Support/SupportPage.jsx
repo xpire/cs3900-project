@@ -47,7 +47,7 @@ const Support = () => {
     setForgotAlert(false);
   };
   const handleRestartGame = () => {
-    handleSnack(`/user/reset_portfolio`, "get").then(() => {
+    handleSnack(`/user/reset`, "get").then(() => {
       setRestartAlert(false);
     });
   };

@@ -1,13 +1,15 @@
-import src.api.endpoints.stocks as stocks_api
+from src import domain_models as dm
+from src.core.config import settings
 from src.domain_models.user_dm import UserDM
 
 
 def get_stock_price(symbol: str):
-    return stocks_api.market_data_provider.get_curr_day_close(symbol)
+    return dm.get_data_provider().get_curr_day_close(symbol)
 
 
 def apply_commission(price: float, is_buying: bool = True):
-    return price * 1.005 if is_buying else price * 0.995
+    rate = 1 + (1 if is_buying else -1) * settings.COMMISSION_RATE
+    return price * rate
 
 
 def check_owned(user: UserDM, qty: int, symbol: str, positions):
@@ -15,7 +17,7 @@ def check_owned(user: UserDM, qty: int, symbol: str, positions):
     if pos is None:
         return False
 
-    return pos is not None and qty <= pos.amount
+    return pos is not None and qty <= pos.qty
 
 
 def check_owned_longs(user: UserDM, qty: int, symbol: str):

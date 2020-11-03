@@ -5,14 +5,6 @@ from pydantic import BaseModel as BaseSchema
 from src.schemas.transaction import OrderType, TradeType
 from src.util.extended_types import Const
 
-"""
-TODO convention:
-- DBin - into db
-- DBout - out of db
-- APIin - from api
-- APIout - to api
-"""
-
 
 class PendingOrderBase(BaseSchema):
     id: Optional[int]

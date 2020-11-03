@@ -17,6 +17,21 @@ from sqlalchemy.exc import SQLAlchemyError
 
 HTTP400 = lambda detail: HTTPException(status_code=400, detail=detail)
 
+def find(iterable, default=None, **kwargs):
+    """
+    Find the first element in the iterable whose attribute values match
+    those specified by the keyword arguments
+    """
+    def is_match(x):
+        try:
+            for name, value in kwargs.items():
+                if getattr(x, name) != value:
+                    return False
+            return True
+        except AttributeError:
+            return False
+
+    return next((x for x in iterable if is_match(x)), default)
 
 def find_path_curr_f() -> str:
     """

@@ -1,43 +1,45 @@
-import json
-from datetime import date, datetime
 from typing import Any, Dict, List, Optional
 
-from pydantic import ValidationError
-from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
 from src.crud.base import CRUDBase
 from src.models.stock import Stock
 from src.models.time_series import TimeSeries
-from src.schemas.stock import StockCreate, StockUpdate
-from src.schemas.time_series import TimeSeriesCreate
+from src.schemas.response import Fail, Result, return_result
+from src.schemas.time_series import TimeSeriesDBcreate
 
 
-class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
-    def get_stock_by_symbol(self, *, db: Session, symbol: str) -> Optional[Stock]:
+class CRUDStock(CRUDBase[Stock]):
+    def get_by_symbol(self, *, db: Session, symbol: str) -> Optional[Stock]:
         """
-        Get a single stock information
+        Get a single stock
         """
-        return db.query(self.model).filter(self.model.symbol == symbol).first()
+        return self.query(db).get(symbol)
 
-    def get_stock_by_symbols(self, *, db: Session, symbols: List[str]) -> Optional[List[Stock]]:
+    # TODO rename
+    def get_multi_by_symbols(self, *, db: Session, symbols: List[str]) -> List[Stock]:
         """
-        Get multiple stock information by multiple symbols.
+        Get multiple stock by multiple symbols.
         """
-        return db.query(self.model).filter(self.model.symbol.in_(symbols)).all()
+        return self.query(db).filter(self.model.symbol.in_(symbols)).all()
 
     def symbol_exists(self, db: Session, symbol: str):
         """
         Return True if the symbol exists
         """
-        return self.get_stock_by_symbol(db=db, symbol=symbol) is not None
+        return self.get_by_symbol(db=db, symbol=symbol) is not None
 
-    def get_all_stocks(self, *, db: Session) -> Optional[List[Stock]]:
+    def get_all_stocks(self, *, db: Session, simulated: Optional[bool] = None) -> List[Stock]:
         """
-        Get multiple stock information by multiple symbols.
+        Get all stock objects
         """
-        return db.query(self.model).all()
+        if simulated is None:
+            return self.query(db).all()
+        elif simulated:
+            return self.query(db).filter_by(industry="Simulated").all()
+        else:
+            return self.query(db).filter(self.model.industry != "Simulated").all()
 
     @fail_save
     def csv_batch_insert(self, *, db: Session, csv_stocks: List[Dict]) -> Any:
@@ -50,66 +52,69 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
         db.commit()
         return ds
 
-    def get_time_series(self, *, db: Session, stock_in: Stock) -> List[Optional[Dict]]:
+    def get_time_series(self, *, db: Session, symbol: str, days: int) -> List[Dict]:
         """
-        Retieve the sorted time series of the obj_in. Returns latest date first.
+        Retieve the sorted time series of the obj. Returns latest date first
         """
-        # Need to reverse the order, since db returns in reverse order
-        return [x.__dict__ for x in stock_in.timeseries][::-1]
+        return db.query(TimeSeries).filter_by(symbol=symbol).order_by(TimeSeries.date.desc()).limit(days).all()
 
     @fail_save
-    def update_time_series(self, *, db: Session, stock_in: Stock, u_time_series: Dict) -> Stock:
+    @return_result()
+    def update_time_series(self, *, db: Session, symbol: str, time_series: List[TimeSeriesDBcreate]) -> Result:
+        """
+        Update the newest entry of time series
+        """
+        stock = self.get_by_symbol(db=db, symbol=symbol)
+
+        if stock.time_series.count() == 0:
+            stock.time_series = [TimeSeries(**x.dict()) for x in time_series]
+
+        else:
+            latest_entry = max((x for x in stock.time_series), key=lambda x: x.date)
+
+            for x in time_series:
+                if symbol != x.symbol:
+                    log_msg(f"Updating time series for {symbol} but entry for {time_series.symbol} passed in.")
+
+                if x.date < latest_entry.date:
+                    continue
+                elif x.date == latest_entry.date:
+                    latest_entry.__dict__.update(x.dict())
+                else:
+                    stock.time_series.append(TimeSeries(**x.dict()))
+        db.commit()
+
+    '''
+    @fail_save
+    @return_result()
+    def update_time_series(self, *, db: Session, timeseries: List[TimeSeriesCreate]) -> Result:
         """
         Update the newest entry of time series. Update last 2 entries u_time_series.
         """
-        for entry in u_time_series:
-            attempt_entry = None
-            try:
-                attempt_entry = TimeSeriesCreate(
-                    date=entry["datetime"],
-                    symbol=stock_in.symbol,
-                    low=entry["low"],
-                    high=entry["high"],
-                    open=entry["open"],
-                    close=entry["close"],
-                    volume=entry["volume"],
-                )
-            except ValidationError as e:
-                log_msg(f"Failed to update time series {e.__str__}.", "ERROR")
-                return stock_in
-
-            attempt_entry = TimeSeries(**attempt_entry.dict())
-
-            # TODO this looks very inefficient... use other methods, e.g. indexed query
-            found = False
-            for t in stock_in.timeseries:
-                if t.date == attempt_entry.date:
-                    found = True
-                    t.low = attempt_entry.low
-                    t.high = attempt_entry.high
-                    t.open = attempt_entry.open
-                    t.close = attempt_entry.close
-
-            if not found:
-                stock_in.timeseries.append(attempt_entry)
-
+        for x in timeseries:
+            db_obj = db.query(TimeSeries).get((x.date, x.symbol))
+            if db_obj is None:
+                db.add(TimeSeries(**x.dict()))
+            else:
+                db_obj.__dict__.update(x.dict())
         db.commit()
-        db.refresh(stock_in)
 
-        return stock_in
-
+    # TODO if above works well, remove below
     @fail_save
-    def batch_add_daily_time_series(self, *, db: Session, stock_in: Stock, time_series_in: List[Dict]) -> Stock:
+    def batch_add_daily_time_series(self, *, db: Session, stock: Stock, time_series: List[Dict]) -> Stock:
         """
         Batch insert historical daily timeseries candle stock data, continue insertion even
         if 1 entry fails convention.
         """
-        for row in time_series_in:
+        # https://stackoverflow.com/questions/7133007/sqlalchemy-get-max-min-avg-values-from-a-table
+        # TODO: get latest entry and add on the rest
+        # except, for the day where it collides, update, since it may be intraday
+        for row in time_series:
             attempt_entry = None
             try:
                 attempt_entry = TimeSeriesCreate(
                     date=row["datetime"],
-                    symbol=stock_in.symbol,
+                    symbol=stock.symbol,
                     low=row["low"],
                     high=row["high"],
                     open=row["open"],
@@ -118,16 +123,15 @@ class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
                 )
 
                 attempt_entry = TimeSeries(**attempt_entry.dict())
-                stock_in.timeseries.append(attempt_entry)  # Otherwise, add row
+                stock.timeseries.append(attempt_entry)  # Otherwise, add row
 
             except ValidationError as e:
                 log_msg(f"Failed to insert time series {row.__str__}.", "ERROR")
                 continue
 
-        db.commit()
-        db.refresh(stock_in)
-
-        return stock_in
+        self.commit_and_refresh(db, stock)
+        return stock
+    '''
 
     @fail_save
     def remove_all_hist(self, *, db: Session) -> None:

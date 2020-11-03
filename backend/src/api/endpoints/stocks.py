@@ -12,28 +12,19 @@ from src.core.utilities import HTTP400, log_msg
 from src.db.session import SessionLocal
 from src.domain_models.trading_hours import trading_hours_manager
 from src.game.stat_update_publisher import StatUpdatePublisher
-from src.real_time_market_data.composite_data_provider import CompositeDataProvider
-from src.real_time_market_data.setup import create_simulators
-from src.real_time_market_data.simulated_data_provider import SimulatedProvider
-from src.real_time_market_data.td_data_provider import TDProvider
+
+# from src.real_time_market_data.composite_data_provider import CompositeDataProvider
+# from src.real_time_market_data.setup import create_simulators
+# from src.real_time_market_data.simulated_data_provider import SimulatedProvider
+# from src.real_time_market_data.td_data_provider import TDProvider
 from src.schemas.response import Fail, Response, Success, return_response, return_result
 from src.schemas.stock import StockAPIout
 from twelvedata import TDClient
 
-API_URL = "https://api.twelvedata.com"
-API_KEY = settings.TD_API_KEY
-
 router = APIRouter()
 
 
-# Start implementation here, this file handles batch and single stock data retrieval
-# Can change to a different structure later
-
-# Retrieve all stocks
-TD = TDClient(apikey=API_KEY)
-market_data_provider = None
-
-# TODO move this to a separate place
+"""# TODO move this to a separate place
 # We can't use deps to get the database here, on_event is not part of FastAPI so it can't use depends apparently
 # https://github.com/tiangolo/fastapi/issues/425
 @router.on_event("startup")
@@ -55,7 +46,7 @@ def startup_event():
     market_data_provider.pre_start()
     market_data_provider.start()
     market_data_provider.subscribe(StatUpdatePublisher(db).update)
-    market_data_provider.subscribe(dm.PendingOrderExecutor(db).update)
+    market_data_provider.subscribe(dm.PendingOrderExecutor(db).update)"""
 
 
 # TODO rename: /stocks

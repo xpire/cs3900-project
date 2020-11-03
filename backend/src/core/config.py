@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     FIRE_BASE_CRED: Any
     STARTING_BALANCE: float
     COMMISSION_RATE: float
+    TIMEZONE: str
 
 
 class LocalSettings(BaseSettings):
@@ -56,4 +57,5 @@ with open(path.join(env_settings.abs_path, ".secrets", "env.yaml")) as e:
         FIRE_BASE_CRED=cred,
         STARTING_BALANCE=yaml_field["STARTING_BALANCE"],
         COMMISSION_RATE=yaml_field["COMMISSION_RATE"],
+        TIMEZONE=yaml_field["TIMEZONE"],
     )

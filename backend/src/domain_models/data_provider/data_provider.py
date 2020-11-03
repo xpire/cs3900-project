@@ -91,3 +91,6 @@ class DataProvider(ABC):
 
     def get_prev_day_close(self, symbol):
         return self.data[symbol]["prev_day_close"]
+
+    def curr_price(self, symbol):
+        return self.get_curr_day_close(symbol)

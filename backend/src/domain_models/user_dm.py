@@ -9,7 +9,7 @@ from src.game.achievement.achievement import UserAchievement
 from src.game.event.sub_events import StatUpdateEvent
 from src.game.setup.setup import achievements_list, event_hub, level_manager
 from src.models import UnlockedAchievement, User
-from src.schemas.response import Fail, Success, return_result
+from src.schemas.response import Fail, Result, Success, return_result
 
 RESET_WAIT_PERIOD_DAYS = 1
 
@@ -30,14 +30,13 @@ def save_to_db():
 
 # TODO save_to_db can be done at the end
 class UserDM:
-    def __init__(self, user: User, db: Session):
-        self.user = user  # TODO consider renaming
+    def __init__(self, user_m, db: Session):
+        self.user_m = user_m
         self.db = db
 
     def add_exp(self, amount: float):
         level_manager.add_exp(self, amount)
 
-    # @save_to_db
     def unlock_achievement(self, achievement_id: int):
         if achievement_id in self.model.unlocked_achievements:
             log_msg("Achievement is already unlocked by the user", "ERROR")
@@ -45,13 +44,8 @@ class UserDM:
 
         self.model.unlocked_achievements.append(UnlockedAchievement(achievement_id=achievement_id))
 
-    def save_to_db(self):
-        self.db.commit()
-        self.db.refresh(self.model)
-
-    # @save_to_db
     @return_result()
-    def reset(self):
+    def reset(self) -> Result:
         if not self.can_reset_portfolio():
             return Fail(f"Failed to reset, you last resetted {self.model.last_reset}.")
 
@@ -59,6 +53,11 @@ class UserDM:
 
         event_hub.publish(StatUpdateEvent(user=self.model))
         return Success("Reset successfully.")
+
+    def can_reset_portfolio(self):
+        if not self.model.last_reset:
+            return True
+        return (datetime.now() - self.model.last_reset).days >= RESET_WAIT_PERIOD_DAYS
 
     @property
     def exp(self):
@@ -127,213 +126,8 @@ class UserDM:
 
     @property
     def model(self):
-        return self.user
+        return self.user_m
 
-    def get_positions(self, p_type: str):
-        if p_type != "long" and p_type != "short":
-            log_msg(
-                "No such position. allowed are 'long' or'short'.",
-                "ERROR",
-            )
-            return
-
-        portfolio = self.model.long_positions if p_type == "long" else self.model.short_positions
-
-        ret = []
-
-        for position in portfolio:
-            entry = {}
-            entry["price"] = get_data_provider().get_curr_day_close(position.symbol)
-            # TODO: update this to get daily opening price, rather than prev day closing
-            entry["previous_price"] = get_data_provider().get_prev_day_close(position.symbol)
-            entry["symbol"] = position.symbol
-            entry["name"] = position.stock.name
-            entry["owned"] = position.qty
-            entry["average_paid"] = position.avg
-            entry["total_paid"] = position.avg * position.qty
-            entry["value"] = entry["price"] * position.qty
-            entry["profit"] = entry["value"] - entry["total_paid"]
-            entry["day_profit"] = (
-                entry["price"] - entry["previous_price"]
-            ) * position.qty  # TODO: fix, returns daily profit, but not for the portfolio
-            entry["day_return"] = entry["day_profit"] / entry["total_paid"]
-            entry["total_return"] = entry["profit"] / entry["total_paid"]
-
-            ret.append(entry)
-
-        return ret
-
-    def get_total_opening_values(self, p_type: str):
-        """
-        Returns total amount paid for long_positions or
-        total amount gained for short_positions
-        """
-        if p_type != "long" and p_type != "short":
-            log_msg(
-                "No such position. allowed are 'long' or'short'.",
-                "ERROR",
-            )
-            return
-
-        portfolio = self.model.long_positions if p_type == "long" else self.model.short_positions
-
-        value = 0
-        for position in portfolio:
-            value += position.qty * position.avg
-
-        return value
-
-    def get_total_closing_values(self, p_type: str):
-        """
-        Returns total current value of long_positions or
-        total current cost to cover short_positions
-        """
-        if p_type != "long" and p_type != "short":
-            log_msg(
-                "No such position. allowed are 'long' or'short'.",
-                "ERROR",
-            )
-            return
-
-        portfolio = self.model.long_positions if p_type == "long" else self.model.short_positions
-
-        value = 0
-        for position in portfolio:
-            curr_price = get_data_provider().get_curr_day_close(position.symbol)
-            value += position.qty * curr_price
-
-        return value
-
-    def get_long_profit(self):
-        """
-        Returns total profit if all long positions were closed
-        """
-        return self.get_total_closing_values("long") - self.get_total_opening_values("long")
-
-    def get_short_profit(self):
-        """
-        Returns total profit if all short positions were closed
-        """
-        return self.get_total_opening_values("short") - self.get_total_closing_values("short")
-
-    def get_portfolio_profit(self):
-        """
-        Returns total profit if all positions were closed
-        """
-        return self.get_long_profit() + self.get_short_profit()
-
-    def get_net_portfolio_value(self):
-        """
-        Returns total current value of long and short positions combined
-        """
-        return self.get_total_closing_values("long") - self.get_total_closing_values("short")
-
-    def get_net_value(self):
-        """
-        Returns total current value of the investor
-        """
-        return self.get_net_portfolio_value() + self.model.balance
-
-    def get_gross_value(self):
-        """
-        Available balance + value of longs
-        """
-        return self.model.balance + self.get_total_closing_values("long")
-
-    def get_short_balance(self):
-        """
-        Returns amount the investor can still short sell for
-        """
-        return self.get_gross_value() * self.short_allowance_balance - self.get_total_opening_values("short")
-
-    def get_long_return(self):
-        total_spent = self.get_total_opening_values("long")
-        if total_spent == 0:
-            return 0
-
-        return self.get_long_profit() / total_spent
-
-    def get_short_return(self):
-        total_spent = self.get_total_closing_values("short")
-        if total_spent == 0:
-            return 0
-
-        return self.get_short_profit() / total_spent
-
-    def get_portfolio_return(self):
-        total_spent = self.get_total_opening_values("long") + self.get_total_closing_values("short")
-
-        if total_spent == 0:
-            return 0
-
-        return self.get_portfolio_profit() / total_spent
-
-    def get_daily_profit(self, p_type: str):
-        if p_type != "long" and p_type != "short":
-            log_msg(
-                "No such position. allowed are 'long' or'short'.",
-                "ERROR",
-            )
-            return
-
-        portfolio = self.model.long_positions if p_type == "long" else self.model.short_positions
-
-        profit = 0
-        for position in portfolio:
-            curr_price = get_data_provider().get_curr_day_close(position.symbol)
-            opening_price = get_data_provider().get_prev_day_close(position.symbol)
-            profit += curr_price - opening_price
-
-        return profit if p_type == "long" else -profit
-
-    def get_daily_total_profit(self):
-        return self.get_daily_profit("long") + self.get_daily_profit("short")
-
-    def get_daily_long_return(self):
-        total_spent = self.get_total_opening_values("long")
-        if total_spent == 0:
-            return 0
-
-        return self.get_daily_profit("long") / total_spent
-
-    def get_daily_short_return(self):
-        total_spent = self.get_total_closing_values("short")
-        if total_spent == 0:
-            return 0
-
-        return self.get_daily_profit("short") / total_spent
-
-    def get_daily_total_return(self):
-        total_spent = self.get_total_opening_values("long") + self.get_total_closing_values("short")
-        if total_spent == 0:
-            return 0
-
-        return self.get_daily_total_profit() / total_spent
-
-    def compile_portfolio_stats(self):
-        stats = {}
-        stats["total_long_value"] = self.get_total_closing_values("long")
-        stats["total_short_value"] = self.get_total_closing_values("short")
-        stats["total_portfolio_value"] = self.get_net_portfolio_value()
-        stats["total_long_profit"] = self.get_long_profit()
-        stats["total_short_profit"] = self.get_short_profit()
-        stats["total_portfolio_profit"] = self.get_portfolio_profit()
-        stats["total_long_return"] = self.get_long_return()
-        stats["total_short_return"] = self.get_short_return()
-        stats["total_portfolio_return"] = self.get_portfolio_return()
-        stats["daily_long_profit"] = self.get_daily_profit("long")
-        stats["daily_short_profit"] = self.get_daily_profit("short")
-        stats["daily_total_profit"] = self.get_daily_total_profit()
-        stats["daily_long_return"] = self.get_daily_long_return()
-        stats["daily_short_return"] = self.get_daily_short_return()
-        stats["total_daily_return"] = self.get_daily_total_return()
-        stats["balance"] = self.model.balance
-        stats["short_balance"] = self.get_short_balance()
-        stats["total_value"] = self.get_net_value()
-
-        return stats
-
-    def can_reset_portfolio(self):
-        if not self.model.last_reset:
-            return True
-        return (datetime.now() - self.model.last_reset).days >= RESET_WAIT_PERIOD_DAYS
+    def save_to_db(self):
+        self.db.commit()
+        self.db.refresh(self.model)

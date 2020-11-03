@@ -1,34 +1,16 @@
 from datetime import datetime
-from functools import wraps
 
 from sqlalchemy.orm import Session
 from src import crud, schemas
+from src.core.config import settings
 from src.core.utilities import log_msg
-from src.domain_models.data_provider.setup import get_data_provider
 from src.game.achievement.achievement import UserAchievement
 from src.game.event.sub_events import StatUpdateEvent
 from src.game.setup.setup import achievements_list, event_hub, level_manager
-from src.models import UnlockedAchievement, User
+from src.models import UnlockedAchievement
 from src.schemas.response import Fail, Result, Success, return_result
 
-RESET_WAIT_PERIOD_DAYS = 1
 
-# TODO use this decorrator
-def save_to_db():
-    def wrapper(fn):
-        @wraps(fn)
-        def wrapped(self, *args, **kwargs):
-            result = self.fn(*args, **kwargs)
-            self.db.commit()
-            self.db.refresh(self.model)
-            return result
-
-        return wrapped
-
-    return wrapper
-
-
-# TODO save_to_db can be done at the end
 class UserDM:
     def __init__(self, user_m, db: Session):
         self.user_m = user_m
@@ -57,7 +39,7 @@ class UserDM:
     def can_reset_portfolio(self):
         if not self.model.last_reset:
             return True
-        return (datetime.now() - self.model.last_reset).days >= RESET_WAIT_PERIOD_DAYS
+        return (datetime.now() - self.model.last_reset).days >= settings.RESET_WAIT_PERIOD_DAYS
 
     @property
     def exp(self):
@@ -109,7 +91,7 @@ class UserDM:
         return self.model.uid
 
     @property
-    def short_allowance_balance(self):
+    def short_allowance_rate(self):
         if self.level >= 5:
             return 0.25
         elif self.level >= 10:

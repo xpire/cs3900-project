@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     STARTING_BALANCE: float
     COMMISSION_RATE: float
     TIMEZONE: str
+    RESET_WAIT_PERIOD_DAYS: int
 
 
 class LocalSettings(BaseSettings):
@@ -58,4 +59,5 @@ with open(path.join(env_settings.abs_path, ".secrets", "env.yaml")) as e:
         STARTING_BALANCE=yaml_field["STARTING_BALANCE"],
         COMMISSION_RATE=yaml_field["COMMISSION_RATE"],
         TIMEZONE=yaml_field["TIMEZONE"],
+        RESET_WAIT_PERIOD_DAYS=yaml_field["RESET_WAIT_PERIOD_DAYS"],
     )

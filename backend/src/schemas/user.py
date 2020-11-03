@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel as BaseSchema
+from src.core.config import settings
 from src.util.extended_types import Const
 
 
@@ -17,7 +18,7 @@ class UserBase(BaseSchema):
 
 class UserCreate(UserBase):
     uid: str
-    balance: float = Const(10000)
+    balance: float = Const(settings.STARTING_BALANCE)
     level: int = Const(1)
     exp: float = Const(0)
     resets: int = Const(0)

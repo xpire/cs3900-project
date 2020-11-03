@@ -60,7 +60,7 @@ async def create_user(
     check_user_exists(uid, db)
 
     # Create if doesn't exist
-    user = crud.user.create(db, obj=schemas.UserCreate(email=email, uid=uid, username=email, balance=STARTING_BALANCE))
+    user = crud.user.create(db, obj=schemas.UserCreate(email=email, uid=uid, username=email))
 
     return dm.UserDM(user, db).schema
 

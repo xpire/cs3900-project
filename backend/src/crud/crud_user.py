@@ -31,8 +31,9 @@ class CRUDUser(CRUDBase[User]):
     Module for user/auth related CRUD operations
     """
 
-    def fail_if_stock_missing(self, db, symbol, msg, log_level="WARNING"):
-        if not crud.stock.exists(db=db, symbol=symbol):
+    @return_result()
+    def fail_if_stock_missing(self, db, symbol, msg, log_level="WARNING") -> Result:
+        if not crud.stock.symbol_exists(db=db, symbol=symbol):
             Fail(msg).log(log_level).assert_ok()
 
     @fail_save

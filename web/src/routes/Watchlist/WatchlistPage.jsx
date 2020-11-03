@@ -2,28 +2,55 @@ import React, { useState } from "react";
 import { Card } from "@material-ui/core";
 
 import Page from "../../components/page/Page";
-import SortableTable from "../../components/common/SortableTable";
+import SortableTable, {
+  tableTypes,
+} from "../../components/common/SortableTable";
 import { useSnackbar } from "notistack";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import { format } from "../../utils/formatter";
 import useHandleSnack from "../../hooks/useHandleSnack";
 
 const headCells = [
-  { id: "symbol", numeric: false, disablePadding: false, label: "Symbol" },
-  { id: "name", numeric: false, disablePadding: false, label: "Name" },
-  { id: "exchange", numeric: false, disablePadding: false, label: "Exchange" },
-  { id: "price", numeric: true, disablePadding: false, label: "Price" },
-  { id: "open", numeric: true, disablePadding: false, label: "Open" },
+  {
+    id: "symbol",
+    formatType: tableTypes.TEXT,
+    disablePadding: false,
+    label: "Symbol",
+  },
+  {
+    id: "name",
+    formatType: tableTypes.TEXT,
+    disablePadding: false,
+    label: "Name",
+  },
+  {
+    id: "exchange",
+    formatType: tableTypes.TEXT,
+    disablePadding: false,
+    label: "Exchange",
+  },
+  {
+    id: "price",
+    formatType: tableTypes.CURRENCY,
+    disablePadding: false,
+    label: "Price",
+  },
+  {
+    id: "open",
+    formatType: tableTypes.CURRENCY,
+    disablePadding: false,
+    label: "Open",
+  },
   {
     id: "daily",
-    numeric: true,
+    formatType: tableTypes.CURRENCY,
     disablePadding: false,
     label: "Day Change",
     color: true,
   },
   {
     id: "dailyPercentage",
-    numeric: true,
+    formatType: tableTypes.FLOAT,
     disablePadding: false,
     label: "% Day Change",
     color: true,
@@ -49,8 +76,6 @@ const Watchlist = () => {
       };
     }
   );
-  console.log(data);
-  const { enqueueSnackbar } = useSnackbar();
   const handleSnack = useHandleSnack();
 
   return (

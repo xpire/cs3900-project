@@ -133,10 +133,10 @@ class ShortPortfolioStat(HalfPortfolioStat):
     """
 
     def opening_value(self, p):
-        return self._opening_abs_value(p)
+        return self._opening_value_abs(p)
 
     def closing_value(self, p):
-        return -self._closing_abs_value(p)
+        return -self._closing_value_abs(p)
 
     def buy_value(self, p):
         return self.closing_value(p)
@@ -195,10 +195,10 @@ class AccountStat:
             total_portfolio_return=self.portfolio.total_return(),
             daily_long_profit=self.long.total_daily_profit(),
             daily_short_profit=self.short.total_daily_profit(),
-            daily_total_profit=self.portfolio.total_daily_profit(),
+            daily_portfolio_profit=self.portfolio.total_daily_profit(),
             daily_long_return=self.long.total_daily_return(),
             daily_short_return=self.short.total_daily_return(),
-            total_daily_return=self.portfolio.total_daily_return(),
+            daily_portfolio_return=self.portfolio.total_daily_return(),
             balance=self.balance,
             short_balance=self.short_balance(),
             total_value=self.net_worth(),

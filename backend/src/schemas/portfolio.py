@@ -13,6 +13,7 @@ class PositionAPIout(BaseSchema):
     average_paid: float
     total_paid: float
     value: float
+    profit: float
     day_profit: float
     day_return: float
     total_return: float

@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Grid } from "@material-ui/core";
 
 import StockCard from "./StockCard";
@@ -53,6 +54,27 @@ const CardGrid = ({ data }) => {
       )}
     </Grid>
   );
+};
+
+CardGrid.propTypes = {
+  data: PropTypes.arrayOf(
+    PropTypes.shape({
+      /** The Stock's symbol code (e.g. "ABCDEF") */
+      symbol: PropTypes.string,
+      /** The Stock's name (e.g. "Apple Industry") */
+      name: PropTypes.string,
+      /** The Stock's Stock Exchange Acronym (e.g. "ASX") */
+      exchange: PropTypes.string,
+      /** The Stock's current closing price. (equivalent to current trading price) */
+      curr_close_price: PropTypes.float,
+      /** The Stock's previous closing price (equivalent to yesterday's closing trading price) */
+      prev_close_price: PropTypes.float,
+      /** Whether this card should display the Skeleton component to signify loading */
+      skeleton: PropTypes.bool,
+      /** Whether the Stock's Stock Market is open for trading */
+      is_trading: PropTypes.bool,
+    })
+  ),
 };
 
 export default CardGrid;

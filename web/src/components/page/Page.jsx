@@ -6,7 +6,9 @@ const CenteredDiv = styled.div`
   margin: auto;
   padding: 10px;
 `;
-
+/**
+ * Generic Page component with global page styles applied
+ */
 const Page = ({ children }) => {
   return <CenteredDiv>{children}</CenteredDiv>;
 };

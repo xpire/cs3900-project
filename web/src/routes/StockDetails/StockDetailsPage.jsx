@@ -14,7 +14,6 @@ import {
   CircularProgress,
 } from "@material-ui/core";
 import { Link, useParams, useHistory } from "react-router-dom";
-import { useSnackbar } from "notistack";
 
 import Page from "../../components/page/Page";
 import {
@@ -85,7 +84,6 @@ const StockDetails = () => {
   const [error, setError] = useState(false);
   const { symbol } = useParams();
   let history = useHistory();
-  const { enqueueSnackbar } = useSnackbar();
 
   const getRealTimeStockData = () => {
     axios
@@ -255,7 +253,7 @@ const StockDetails = () => {
             <StandardCard>
               <CardContent>
                 <Typography variant="h5">Further Information</Typography>
-
+                {/* TODO: populate this data with actual API */}
                 <Grid container direction="row">
                   <Grid item sm={6} xs={12}>
                     <TableInfo

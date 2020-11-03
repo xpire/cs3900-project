@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import PropTypes from "prop-types";
 import { useSnackbar, SnackbarContent } from "notistack";
 import {
   Typography,
@@ -27,6 +28,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/**
+ * A SnackBar component custom designed with a subtitle section and an icon
+ */
 const DetailedSnackbar = React.forwardRef((props, ref) => {
   const classes = useStyles();
   const { closeSnackbar } = useSnackbar();

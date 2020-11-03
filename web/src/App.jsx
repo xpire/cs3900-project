@@ -29,6 +29,7 @@ function App() {
         vertical: "top",
         horizontal: "center",
       }}
+      preventDuplicate
       ref={notistackRef}
       action={(key) => <Button onClick={onClickDismiss(key)}>OK</Button>}
     >

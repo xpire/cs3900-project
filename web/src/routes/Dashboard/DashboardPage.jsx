@@ -5,6 +5,7 @@ import { Skeleton } from "@material-ui/lab";
 import { AuthContext } from "../../utils/authentication";
 import Page from "../../components/page/Page";
 import { StandardCard, ColoredText } from "../../components/common/styled";
+import InteractiveRefresh from "../../components/common/InteractiveRefresh";
 import CardGrid from "../../components/common/CardGrid";
 import ApexCandlestick from "../../components/graph/ApexCandlestick";
 import axios from "../../utils/api";
@@ -38,7 +39,7 @@ const StatCard = ({ name, value, stat, today }) => {
                 {value ? value : <Skeleton />}
               </Typography>
             </Grid>
-            {/* TODO: implement these when backend is ready */}
+            {/* TODO: implement these extra statistics when backend is ready */}
             {stat && (
               <Grid item>
                 <ColoredText color={stat > 0 ? "green" : "red"} variant="h5">
@@ -71,9 +72,10 @@ const StatCard = ({ name, value, stat, today }) => {
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
   const [myValue, setValue] = useState(0);
+  const [forceUpdate, setForceUpdate] = useState(0);
   const [longData] = useRealTimeStockData(
     "/portfolio",
-    [],
+    [forceUpdate],
     [...Array(12)].map((_) => {
       return { skeleton: true };
     }),
@@ -81,13 +83,15 @@ const Dashboard = () => {
   );
   const [shortData] = useRealTimeStockData(
     "/portfolio",
-    [],
+    [forceUpdate],
     [...Array(12)].map((_) => {
       return { skeleton: true };
     }),
     (d) => d.short
   );
-  const [watchData] = useRealTimeStockData("/watchlist", [myValue]);
+
+  const [watchData] = useRealTimeStockData("/watchlist", [forceUpdate]);
+
   // const [balance, setBalance] = useState(0);
 
   const [stats, setStats] = useState([
@@ -101,8 +105,8 @@ const Dashboard = () => {
     axios
       .get("/portfolio/stats")
       .then((response) => {
-        setStats(
-          stats.map(({ valueKey, name }) => {
+        setStats((s) =>
+          s.map(({ valueKey, name }) => {
             return { name: name, value: format(response.data[valueKey]) };
           })
         );
@@ -126,12 +130,26 @@ const Dashboard = () => {
         <Grid item xs={12}>
           <StandardCard>
             <CardContent>
+              {" "}
+              <Typography variant="button">Cumulative Graph</Typography>
               <ApexCandlestick data={parsedApexData} />
             </CardContent>
           </StandardCard>
         </Grid>
         <Grid item xs={12}>
           <StandardCard>
+            <CardContent>
+              <Grid container alignItems="center" justify="space-between">
+                <Grid item>
+                  <Typography variant="button">Positions</Typography>
+                </Grid>
+                <Grid item>
+                  <InteractiveRefresh
+                    onClick={() => setForceUpdate(forceUpdate + 1)}
+                  />
+                </Grid>
+              </Grid>
+            </CardContent>
             <Tabs
               value={myValue}
               onChange={(_event, newValue) => {

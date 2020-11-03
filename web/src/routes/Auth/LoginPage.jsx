@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { Link as MaterialLink } from "@material-ui/core";
 import { Link, useHistory } from "react-router-dom";
 
-import { CenteredCard, CardHeading } from "../../components/common/styled";
+import {
+  CenteredCard,
+  CardHeading,
+  SubtitleLink,
+} from "../../components/common/styled";
 import app from "../../utils/firebase";
 import Page from "../../components/page/Page";
 import Login from "../../components/login/LoginComponent";
@@ -31,13 +34,9 @@ const LoginPage = () => {
       <CenteredCard>
         <CardHeading variant="h3">Sign In</CardHeading>
         <Login buttonText="login" submitHandler={SignIn} loading={loading} />
-        <MaterialLink to="/signup" component={Link} color="inherit">
-          {" "}
-          {
-            //TODO make it blue and more spacing
-          }
+        <SubtitleLink to="/signup" component={Link}>
           {"Don't have an account? Sign up"}
-        </MaterialLink>
+        </SubtitleLink>
       </CenteredCard>
       <Alert
         title={alertDetails.code}

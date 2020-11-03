@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import app from "./firebase";
-import { Typography, CircularProgress, useTheme } from "@material-ui/core";
+import { useTheme } from "@material-ui/core";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthState } from "react-firebase-hooks/auth";
 import styled from "styled-components";
-// import { useSnackbar } from "notistack";
-// import Confetti from "react-dom-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
 import Confetti from "react-confetti";
+import Logo from "../logo.svg";
 
 import axios from "./api";
 import { CenteredMotionDiv } from "../components/common/styled";
@@ -21,6 +20,9 @@ const auth = app.auth();
 
 export const AuthContext = React.createContext();
 
+/**
+ * A Component which wraps the Application, and provides a visualisation for authentication
+ */
 export const AuthProvider = ({ children }) => {
   const [user, loading] = useAuthState(auth);
   const theme = useTheme();
@@ -42,7 +44,7 @@ export const AuthProvider = ({ children }) => {
   const [lastJsonMessage] = useSockets();
   useEffect(() => {
     handleSnack(lastJsonMessage);
-  }, [lastJsonMessage]);
+  }, [lastJsonMessage, handleSnack]);
 
   const { width, height } = useWindowSize();
   return (
@@ -52,14 +54,25 @@ export const AuthProvider = ({ children }) => {
           <StyledCenteredMotionDiv
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, y: -10 }}
+            exit={{ opacity: 0, y: 0 }}
             transition={{ ease: "easeOut" }}
             key="validation"
             theme={theme}
-            style={{ padding: "10px" }}
           >
-            <Typography variant="h2">{"Validating your Session..."}</Typography>
-            <CircularProgress color="primary" size={50} />
+            <motion.img
+              src={Logo}
+              alt="X"
+              height="150px"
+              initial={{ scale: 0.85, opacity: 0.8 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{
+                duration: 1,
+                repeat: Infinity,
+                repeatType: "mirror",
+                ease: "easeOut",
+                // repeatDelay: 0.1,
+              }}
+            />
           </StyledCenteredMotionDiv>
         )}
         {!loading && (

@@ -1,7 +1,9 @@
 import React, { useContext } from "react";
 import { Route, Redirect } from "react-router-dom";
 import { AuthContext } from "./authentication";
-
+/**
+ * Custom Private Route implementation which redirects to login page if user is unauthenticated
+ */
 const PrivateRoute = ({ component: RouteComponent, isPublic, ...rest }) => {
   const { user } = useContext(AuthContext);
   return (

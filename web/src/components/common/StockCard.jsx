@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import {
   Card,
   CardActionArea,
@@ -11,27 +12,18 @@ import {
   styled,
 } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
-import { useHistory, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 // import styled from "styled-components";
-import { useSnackbar } from "notistack";
 
-import { ColoredText, StandardCard } from "./styled";
-import axios from "../../utils/api";
+import { ColoredText } from "./styled";
 import useHandleSnack from "../../hooks/useHandleSnack";
 import TradingHoursIndicator from "../common/TradingHoursIndicator";
 
 const StyledCard = styled(Card)({ margin: "10px" });
 
-/* Sample Parameters:
-<StockCard
-  symbol={"ABCDEF"}
-  name={"this is a sample"}
-  category={"ASX"}
-  price={"12345.67"}
-  delta={999.99}
-  key={"sample"}
-  skeleton={false}
-/> */
+/**
+ * A StockCard component to be used in CardGrid.
+ */
 
 const StockCard = ({
   symbol,
@@ -41,10 +33,8 @@ const StockCard = ({
   delta,
   online,
   skeleton,
-  watchButton = true,
+  watchButton,
 }) => {
-  let history = useHistory();
-  const { enqueueSnackbar } = useSnackbar();
   const handleSnack = useHandleSnack();
 
   return (
@@ -129,6 +119,29 @@ const StockCard = ({
       </CardActions>
     </StyledCard>
   );
+};
+
+StockCard.propTypes = {
+  /** The Stock's symbol code (e.g. "ABCDEF") */
+  symbol: PropTypes.string,
+  /** The Stock's name (e.g. "Apple Industry") */
+  name: PropTypes.string,
+  /** The Stock's Stock Exchange Acronym (e.g. "ASX") */
+  category: PropTypes.string,
+  /** The Stock's current closing price (e.g. "12345.67") */
+  price: PropTypes.string,
+  /** The Stock's current daily change percentage (e.g. 999.99) */
+  delta: PropTypes.string,
+  /** Whether the Stock's Stock Market is open for trading */
+  online: PropTypes.bool,
+  /** Whether this card should display the Skeleton component to signify loading */
+  skeleton: PropTypes.bool,
+  /** Whether to show the watch button */
+  watchButton: PropTypes.bool,
+};
+
+StockCard.defaultProps = {
+  watchButton: true,
 };
 
 export default StockCard;

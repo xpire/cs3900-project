@@ -1,10 +1,14 @@
 import React, { useState } from "react";
-import { Link as MaterialLink, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import { Link, useHistory, Redirect } from "react-router-dom";
 import styled from "styled-components";
 import { useSnackbar } from "notistack";
 
-import { CenteredCard, CardHeading } from "../../components/common/styled";
+import {
+  CenteredCard,
+  CardHeading,
+  SubtitleLink,
+} from "../../components/common/styled";
 import app, { useFirebaseAuth } from "../../utils/firebase";
 import Page from "../../components/page/Page";
 import Login from "../../components/login/LoginComponent";
@@ -16,7 +20,7 @@ export const CardBody = styled(Typography)`
 
 const ResetPasswordPage = () => {
   const [showAlert, alertDetails, createAlert, closeAlert] = useAlert();
-  const [mode, actionCode, continueUrl] = useFirebaseAuth();
+  const [mode, actionCode /*, continueUrl*/] = useFirebaseAuth();
   const [loading, setLoading] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   let history = useHistory();
@@ -78,9 +82,9 @@ const ResetPasswordPage = () => {
             repeat={true}
             loading={loading}
           />
-          <MaterialLink to="/signup" component={Link} color="inherit">
+          <SubtitleLink to="/signup" component={Link} color="inherit">
             {"Don't have an account? Sign up"}
-          </MaterialLink>
+          </SubtitleLink>
         </CenteredCard>
       ) : mode === "verifyEmail" ? (
         <CenteredCard>

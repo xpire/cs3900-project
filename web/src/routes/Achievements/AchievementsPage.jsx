@@ -1,8 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
-import useWebSocket, { ReadyState } from "react-use-websocket";
+import React, { useContext } from "react";
 import {
   Typography,
-  Card,
   Grid,
   LinearProgress,
   CardContent,

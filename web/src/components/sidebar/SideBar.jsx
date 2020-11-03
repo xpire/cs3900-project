@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import PropTypes from "prop-types";
 import {
   Drawer,
   List,
@@ -22,7 +23,9 @@ const StyledSideBar = styled.div`
   padding: 20px;
   width: 240px;
 `;
-
+/**
+ * SideBar material-ui component used for page navigation
+ */
 const SideBar = ({ isOpen, handleChange, variant }) => {
   const { user } = useContext(AuthContext);
   return (
@@ -60,6 +63,15 @@ const SideBar = ({ isOpen, handleChange, variant }) => {
       </List>
     </Drawer>
   );
+};
+
+SideBar.propTypes = {
+  /** Whether SideBar is currently open */
+  isOpen: PropTypes.bool,
+  /** a function that is called to close the SideBar */
+  handleChange: PropTypes.func,
+  /** a string defined by material-ui's SideBar component for specifying whether the drawer is temporary of permanent */
+  variant: PropTypes.string,
 };
 
 export default SideBar;

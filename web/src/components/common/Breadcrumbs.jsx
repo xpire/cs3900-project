@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import {
   Breadcrumbs,
   Link as MaterialLink,
@@ -6,6 +7,9 @@ import {
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
 
+/**
+ * Component that renders a material-ui breadcrumb
+ */
 const MyBreadcrumbs = ({ items }) => {
   return (
     <Breadcrumbs>

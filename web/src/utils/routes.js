@@ -34,8 +34,8 @@ import LeaderboardIcon from "@material-ui/icons/BarChart";
 import SupportPage from "../routes/Support/SupportPage";
 import SupportIcon from "@material-ui/icons/Help";
 
-/* 
-Structure: [
+/**
+ * An array of objects with the Structure: [
   {
     text: "Page Name",
     path: "page path",
@@ -46,8 +46,7 @@ Structure: [
     isShown: Is this shown in sidebar?,
   },
 ]
-*/
-
+ */
 export const Routes = [
   {
     text: "Dashboard",

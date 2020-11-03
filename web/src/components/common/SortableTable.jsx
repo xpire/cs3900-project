@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import {
   Grid,
   Table,
@@ -14,14 +15,17 @@ import {
   IconButton,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
-import FilterListIcon from "@material-ui/icons/FilterList";
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import TradingIcon from "@material-ui/icons/MonetizationOn";
 import { Link } from "react-router-dom";
 
 import { ColoredText } from "../common/styled";
+import InteractiveRefresh from "../common/InteractiveRefresh";
 import { format } from "../../utils/formatter";
 
+/**
+ * Calculates whether a row is less than b row at the orderBy index
+ */
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -32,12 +36,18 @@ function descendingComparator(a, b, orderBy) {
   return 0;
 }
 
+/**
+ * Returns ascending/descending comparator based on inputs
+ */
 function getComparator(order, orderBy) {
   return order === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
+/**
+ * Implements stableSort on array with comparator
+ */
 function stableSort(array, comparator) {
   const stabilizedThis = array.map((el, index) => [el, index]);
   stabilizedThis.sort((a, b) => {
@@ -48,6 +58,9 @@ function stableSort(array, comparator) {
   return stabilizedThis.map((el) => el[0]);
 }
 
+/**
+ * Renders TableHead with sorting capabilities
+ */
 const EnhancedTableHead = ({ order, orderBy, onRequestSort, headCells }) => {
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
@@ -83,7 +96,17 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort, headCells }) => {
   );
 };
 
-const EnhancedTableToolbar = ({ title }) => {
+EnhancedTableHead.propTypes = {
+  order: PropTypes.oneOf(["asc", "desc"]),
+  orderBy: PropTypes.string,
+  onRequestSort: PropTypes.func,
+  headCells: PropTypes.array,
+};
+
+/**
+ * Renders The table Toolbar, including title and refresh button.
+ */
+const EnhancedTableToolbar = ({ title, handleRefresh }) => {
   return (
     <Toolbar>
       <Grid
@@ -93,20 +116,26 @@ const EnhancedTableToolbar = ({ title }) => {
         alignItems="center"
       >
         <Grid item>
-          <Typography variant="h6" id="tableTitle" component="div">
+          <Typography variant="button" id="tableTitle" component="div">
             {title}
           </Typography>
         </Grid>
-        {/* <Grid item>
-          <Tooltip title="Filter list">
-            <IconButton aria-label="filter list">
-              <FilterListIcon />
-            </IconButton>
-          </Tooltip>
-        </Grid> */}
+        {handleRefresh && (
+          <Grid item>
+            <InteractiveRefresh
+              // aria-label="refresh"
+              onClick={handleRefresh}
+            />
+          </Grid>
+        )}
       </Grid>
     </Toolbar>
   );
+};
+
+EnhancedTableToolbar.propTypes = {
+  title: PropTypes.string,
+  handleRefresh: PropTypes.func,
 };
 
 export const tableTypes = {
@@ -118,12 +147,16 @@ export const tableTypes = {
   ID: "id",
 };
 
-export default function EnhancedTable({
+/**
+ * Sortable Table component for showing tabular data
+ */
+function EnhancedTable({
   data,
   header,
   title,
-  handleDelete = null,
-  buttons = true,
+  handleDelete, // = null,
+  buttons, // = true,
+  handleRefresh, // = null,
 }) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
@@ -136,7 +169,7 @@ export default function EnhancedTable({
 
   return (
     <div style={{ paddingBottom: "20px" }}>
-      <EnhancedTableToolbar title={title} />
+      <EnhancedTableToolbar title={title} handleRefresh={handleRefresh} />
       <TableContainer>
         <Table
           aria-labelledby="tableTitle"
@@ -256,3 +289,26 @@ export default function EnhancedTable({
     </div>
   );
 }
+
+EnhancedTable.propTypes = {
+  /** An array of data points */
+  data: PropTypes.array,
+  /** An array of objects defining parameters of each column's data type and formatting. */
+  header: PropTypes.array,
+  /** The title of the table */
+  title: PropTypes.string,
+  /** If defined, shows a button which runs the defined function to delete the row */
+  handleDelete: PropTypes.func,
+  /** Whether to show Stock Information and Trade pages for stocks (only applicable if the data is about stocks, should be false for other data) */
+  buttons: PropTypes.bool,
+  /** If defined, shows a button which runs the defined function to refresh the table */
+  handleRefresh: PropTypes.func,
+};
+
+EnhancedTable.defaultProps = {
+  handleDelete: null,
+  buttons: true,
+  handleRefresh: null,
+};
+
+export default EnhancedTable;

@@ -1,22 +1,22 @@
+from typing import List
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm
 from src import models
-from src.api.deps import check_symbol, get_current_user_dm, get_current_user_m, get_db
-from src.core.utilities import HTTP400
-from src.schemas.response import Response, Result, Success, return_response
+from src.api.deps import check_symbol, get_current_user_m, get_db
+from src.schemas.response import Response, Success, return_response
+from src.schemas.stock import StockAPIout
 
 router = APIRouter()
 
 
 @router.get("")
-async def get_watchlist(user_m: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)):
-    result = []
-    for x in user_m.watchlist:
-        stock = x.stock
-        result.append(dict(name=stock.name, symbol=stock.symbol, exhcnage=stock.exchange))
-    return result
+async def get_watchlist(
+    user_m: models.User = Depends(get_current_user_m), db: Session = Depends(get_db)
+) -> List[StockAPIout]:
+    return [x.stock for x in user_m.watchlist]
 
 
 @router.post("")

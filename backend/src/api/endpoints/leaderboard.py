@@ -21,9 +21,6 @@ async def get_leaderboard(
     rankings = [to_user_info(u) for u in crud.user.get_all_users(db)]
     rankings.sort(key=lambda u: u.net_worth, reverse=True)
 
-    print("=-" * 10)
-    print(rankings)
-    print("=-" * 10)
     return schemas.LeaderboardAPIout(rankings=rankings[:10], user_ranking=get_rank(rankings, user_m.uid))
 
 

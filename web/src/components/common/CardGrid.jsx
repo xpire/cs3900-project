@@ -35,7 +35,6 @@ const CardGrid = ({ data }) => {
             delta =
               (100 * (curr_close_price - prev_close_price)) / prev_close_price;
           }
-          console.log(is_trading);
           return (
             <Grid item md={4} sm={6} xs={12} key={index}>
               <StockCard

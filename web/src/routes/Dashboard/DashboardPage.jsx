@@ -135,7 +135,6 @@ const Dashboard = () => {
             <Tabs
               value={myValue}
               onChange={(_event, newValue) => {
-                console.log("setting value to", newValue);
                 setValue(newValue);
               }}
               indicatorColor="primary"

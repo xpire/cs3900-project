@@ -59,7 +59,13 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort, headCells }) => {
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={headCell.numeric ? "right" : "left"}
+            align={
+              headCell.formatType === "currency" ||
+              headCell.formatType === "float" ||
+              headCell.formatType === "number"
+                ? "right"
+                : "left"
+            }
             padding={headCell.disablePadding ? "none" : "default"}
             sortDirection={orderBy === headCell.id ? order : false}
           >
@@ -103,6 +109,15 @@ const EnhancedTableToolbar = ({ title }) => {
   );
 };
 
+export const tableTypes = {
+  TEXT: "text",
+  NUMBER: "number",
+  CURRENCY: "currency",
+  DATE: "date",
+  FLOAT: "float",
+  ID: "id",
+};
+
 export default function EnhancedTable({
   data,
   header,
@@ -140,17 +155,52 @@ export default function EnhancedTable({
               (row, index) => {
                 const labelId = `enhanced-table-checkbox-${index}`;
                 return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
-                    {header.map(({ id, numeric, disablePadding, color }) => {
-                      const value = numeric ? format(row[id]) : row[id];
+                  <TableRow hover role="checkbox" tabIndex={-1} key={index}>
+                    {header.map(({ id, formatType, disablePadding, color }) => {
+                      let value = "";
+                      switch (formatType) {
+                        case "date":
+                          const dateObject = new Date(row[id]);
+                          value = (
+                            <Tooltip
+                              title={`${dateObject.toLocaleString()}`}
+                              aria-label="add"
+                            >
+                              <Typography>
+                                {dateObject.toLocaleDateString()}
+                              </Typography>
+                            </Tooltip>
+                          );
+                          break;
+                        case "text":
+                          value = row[id];
+                          break;
+                        case "currency":
+                          value = `$${format(row[id])}`;
+                          break;
+                        case "id":
+                        case "number":
+                          value = Math.floor(row[id]);
+                          break;
+                        case "float":
+                          value = format(row[id]);
+                          break;
+                        default:
+                          value = row[id];
+                      }
                       return (
                         <TableCell
                           component="th"
                           id={labelId}
                           scope="row"
-                          align={numeric ? "right" : "left"}
+                          align={
+                            formatType === "currency" ||
+                            formatType === "float" ||
+                            formatType === "number"
+                              ? "right"
+                              : "left"
+                          }
                           padding={disablePadding ? "none" : "default"}
-                          key={id}
                         >
                           {color ? (
                             <ColoredText color={value > 0 ? "green" : "red"}>

@@ -2,13 +2,13 @@ from datetime import datetime
 
 import src.api.endpoints.stocks as stocks_api
 from sqlalchemy.orm import Session
+from src import schemas
 from src.core.utilities import log_msg
 from src.crud.crud_user import user
 from src.db.base_model import BaseModel
 from src.game.achievement.achievement import UserAchievement
 from src.game.setup.setup import achievements_list, level_manager
-from src.models import UnlockedAchievement
-from src.schemas import User, UserInDB
+from src.models import UnlockedAchievement, User
 
 RESET_WAIT_PERIOD_DAYS = 1
 
@@ -88,8 +88,8 @@ class UserDM:
 
     @property
     def schema(self):
-        return User(
-            **UserInDB.from_orm(self.user).dict(),
+        return schemas.User(
+            **schemas.UserInDB.from_orm(self.user).dict(),
             exp_until_next_level=self.exp_until_next_level,
             is_max_level=self.is_max_level
         )
@@ -320,15 +320,6 @@ class UserDM:
         for entry in self.user.watchlist:
             if entry.symbol == symbol:
                 return True
-        return False
-
-    def check_order_exists(self, id: int, is_limit: bool):
-        order_db = self.user.limit_orders if is_limit else self.user.after_orders
-
-        for order in order_db:
-            if order.id == id:
-                return True
-
         return False
 
     def can_reset_portfolio(self):

@@ -100,7 +100,7 @@ class RepeatedUpdateProvider(DataProvider):
         """
         Get stock given [symbol]
         """
-        return crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=symbol)
+        return crud.stock.get_stock_by_symbol(db=self.db, symbol=symbol)
 
 
 def seconds_until_next_minute(at_second=15):

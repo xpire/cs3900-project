@@ -20,7 +20,7 @@ from src.real_time_market_data.simulated_stock import StockSimulator
 
 patterns = [
     list(200 + 100 * np.sin(np.linspace(-np.pi, np.pi - np.pi / 14, 27))),
-    list(200 + 100 * np.cos(np.linspace(-np.pi, np.pi - np.pi / 14, 27))),
+    list(200 - 100 * np.sin(np.linspace(-np.pi, np.pi - np.pi / 14, 27))),
     list(it.chain(range(100, 600, 50), range(600, 100, -100))),
 ]
 
@@ -45,6 +45,6 @@ def create_simulators(db):
 
     simulators = []
     for symbol, day_patterns in stock_details.items():
-        stock = crud.stock.get_stock_by_symbol(db=db, stock_symbol=symbol)
+        stock = crud.stock.get_stock_by_symbol(db=db, symbol=symbol)
         simulators.append(StockSimulator(stock, day_patterns))
     return simulators

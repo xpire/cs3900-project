@@ -40,13 +40,13 @@ const headCells = [
     label: "Type",
   },
   {
-    id: "quantity",
+    id: "qty",
     formatType: tableTypes.NUMBER,
     disablePadding: false,
     label: "Quantity",
   },
   {
-    id: "price",
+    id: "limit_price",
     formatType: tableTypes.CURRENCY,
     disablePadding: false,
     label: "Price",
@@ -66,11 +66,10 @@ const Watchlist = () => {
           data={data}
           header={headCells}
           title="Limit Orders"
-          handleDelete={({ id, is_limit }) => {
-            handleSnack(
-              `/orders?identity=${id}&is_limit=${is_limit}`,
-              "delete"
-            ).then(() => setDeleted(deleted + 1));
+          handleDelete={({ id }) => {
+            handleSnack(`/orders?id=${id}`, "delete").then(() =>
+              setDeleted(deleted + 1)
+            );
           }}
         />
       </Card>

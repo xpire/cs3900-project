@@ -12,26 +12,19 @@ from typing import List, Optional
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
+from src import crud, models, schemas
 from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
 from src.crud.base import CRUDBase
 from src.crud.crud_stock import stock
-from src.models.after_order import AfterOrder
-from src.models.limit_order import LimitOrder
 from src.models.long_position import LongPosition
+from src.models.pending_order import AfterOrder, LimitOrder, PendingOrder
 from src.models.short_position import ShortPosition
 from src.models.transaction import Transaction
 from src.models.user import User
 from src.models.watch_list import WatchList
-from src.schemas.transaction import TradeType
-from src.schemas.user import (
-    AfterOrderCreate,
-    LimitOrderCreate,
-    TransactionCreate,
-    TransactionHistoryCreate,
-    UserCreate,
-    UserUpdate,
-)
+from src.schemas.transaction import OrderType, TradeType
+from src.schemas.user import TransactionHistoryCreate, UserCreate, UserUpdate
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -58,19 +51,13 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db.refresh(user_in)
         return user_in
 
-    def symbol_exist(self, db: Session, symbol_in: str):
-        """
-        Return True if the symbol exists
-        """
-        return stock.get_stock_by_symbol(db=db, stock_symbol=symbol_in) != None
-
     @fail_save
     def add_to_watch_list(self, *, db: Session, user_in: User, symbol_in: str) -> User:
         """
         Add a watchlist to the user_in's watchlist.
         """
         # BUG: adding existing stocks breaks the code, handle it
-        if self.symbol_exist(db=db, symbol_in=symbol_in):
+        if crud.stock.symbol_exists(db=db, symbol=symbol_in):
             requested_watchlist_entry = WatchList(user_id=user_in.uid, symbol=symbol_in)
 
             user_in.watchlist.append(requested_watchlist_entry)
@@ -89,7 +76,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Delete a watchlist for user_in.
         """
-        if self.symbol_exist(db=db, symbol_in=symbol_in):
+        if crud.stock.symbol_exists(db=db, symbol=symbol_in):
             search_result = None
             for entry in user_in.watchlist:
                 if entry.symbol == symbol_in:
@@ -128,7 +115,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         Add amount and price to portfolio
         """
-        if not self.symbol_exist(db=db, symbol_in=symbol_in):
+        if not crud.stock.symbol_exists(db=db, symbol=symbol_in):
             log_msg(
                 f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).",
                 "WARNING",
@@ -158,7 +145,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         Remove a stock from portfolio (selling). For type specify 'long' or 'short'
         """
 
-        if not self.symbol_exist(db=db, symbol_in=symbol_in):
+        if not crud.stock.symbol_exists(db=db, symbol=symbol_in):
             log_msg(
                 f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).",
                 "WARNING",
@@ -198,50 +185,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             db.commit()
             return True
         return False
-
-    @fail_save
-    def create_order(
-        self, *, db: Session, user_in: User, trade_type: TradeType, symbol: str, quantity: int, limit: float
-    ) -> User:
-        if self.symbol_exist(db=db, symbol_in=symbol):
-
-            stc = LimitOrderCreate(
-                user_id=user_in.uid,
-                symbol=symbol,
-                amount=quantity,
-                t_type=trade_type.name,
-                price=limit,
-            )
-
-            user_in.limit_orders.append(LimitOrder(**stc.__dict__))
-        else:
-            log_msg(
-                f"Adding a non-existent symbol on limit order of User(uid = {user_in.uid}).",
-                "WARNING",
-            )
-            return user_in
-
-        db.commit()
-        db.refresh(user_in)
-        return user_in
-
-    @fail_save
-    def delete_order(self, *, db: Session, user_in: User, identity: int) -> User:
-        std = None
-        for order in user_in.limit_orders:
-            if order.id == identity:
-                std = order
-
-        if std == None:
-            log_msg(f"No limit order of id {identity} exists. ", "ERROR")
-            return user_in
-        else:
-            user_in.limit_orders.remove(std)
-
-        db.commit()
-        db.refresh(user_in)
-
-        return user_in
 
     def reset_user_portfolio(self, *, user_in: User, db: Session) -> User:
 
@@ -286,57 +229,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db.commit()
         db.refresh(user_in)
         return user_in
-
-    @fail_save
-    def add_after_order(
-        self,
-        *,
-        db: Session,
-        user_in: User,
-        trade_type_in: TradeType,
-        amount_in: int,
-        symbol_in: str,
-        dt_in: datetime,
-    ) -> User:
-        """
-        Add an after order for the user.
-        """
-        if self.symbol_exist(db=db, symbol_in=symbol_in):
-            stc = AfterOrderCreate(
-                user_id=user_in.uid,
-                symbol=symbol_in,
-                amount=amount_in,
-                t_type=trade_type_in.name,
-                date_time=dt_in,
-            )
-
-            user_in.after_orders.append(AfterOrder(**stc.__dict__))
-        else:
-            log_msg(
-                f"Adding a non-existent symbol on after order of User(uid = {user_in.uid}).",
-                "WARNING",
-            )
-            return user_in
-
-        db.commit()
-        db.refresh(user_in)
-        return user_in
-
-    @fail_save
-    def delete_after_order(self, *, db: Session, user_in: User, identity: int) -> User:
-        std = None
-        for order in user_in.after_orders:
-            if order.id == identity:
-                std = order
-
-        if std == None:
-            log_msg(f"No after order of id {identity} exists. ", "ERROR")
-            return user_in
-        else:
-            user_in.after_orders.remove(std)
-
-        db.commit()
-        db.refresh(user_in)
 
 
 user = CRUDUser(User)

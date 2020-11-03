@@ -15,17 +15,23 @@ from src.schemas.time_series import TimeSeriesCreate
 
 
 class CRUDStock(CRUDBase[Stock, StockCreate, StockUpdate]):
-    def get_stock_by_symbol(self, *, db: Session, stock_symbol: str) -> Optional[Stock]:
+    def get_stock_by_symbol(self, *, db: Session, symbol: str) -> Optional[Stock]:
         """
         Get a single stock information
         """
-        return db.query(self.model).filter(self.model.symbol == stock_symbol).first()
+        return db.query(self.model).filter(self.model.symbol == symbol).first()
 
-    def get_stock_by_symbols(self, *, db: Session, stock_symbols: List[str]) -> Optional[List[Stock]]:
+    def get_stock_by_symbols(self, *, db: Session, symbols: List[str]) -> Optional[List[Stock]]:
         """
         Get multiple stock information by multiple symbols.
         """
-        return db.query(self.model).filter(self.model.symbol.in_(stock_symbols)).all()
+        return db.query(self.model).filter(self.model.symbol.in_(symbols)).all()
+
+    def symbol_exists(self, db: Session, symbol: str):
+        """
+        Return True if the symbol exists
+        """
+        return self.get_stock_by_symbol(db=db, symbol=symbol) is not None
 
     def get_all_stocks(self, *, db: Session) -> Optional[List[Stock]]:
         """

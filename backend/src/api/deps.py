@@ -35,7 +35,8 @@ def get_current_user_m(id_token: str = Header(None), db: Session = Depends(get_d
     user_m = crud.user.get_user_by_uid(db=db, uid=decode_token(id_token))
     if not user_m:
         raise HTTPException(
-            status_code=400, detail="no user exists",
+            status_code=400,
+            detail="no user exists",
         )
     return user_m
 
@@ -48,7 +49,7 @@ def get_current_user_dm(
 
 async def check_symbol(symbol: str, db: Session = Depends(get_db)):
 
-    if not crud.stock.get_stock_by_symbol(db=db, stock_symbol=symbol):
+    if not crud.stock.get_stock_by_symbol(db=db, symbol=symbol):
         raise HTTPException(status_code=400, detail="No such symbol exists")
 
     return symbol

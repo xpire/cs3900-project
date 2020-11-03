@@ -12,5 +12,6 @@ class BaseModel:
         return cls.__name__.lower()
 
     def dict(self):
-        # based on https://stackoverflow.com/questions/1958219/convert-sqlalchemy-row-object-to-python-dict
-        return {col.name: getattr(self, col.name) for col in self.__table__.columns}
+        d = self.__dict__.copy()
+        d.pop("_sa_instance_state", None)
+        return d

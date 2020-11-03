@@ -45,7 +45,7 @@ async def create_user(
 
 
 @router.get("/reset")
-@return_response
+@return_response()
 async def reset(user=Depends(get_current_user_dm)) -> Response:
     return user.reset()
 

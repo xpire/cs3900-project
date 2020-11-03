@@ -12,11 +12,10 @@ router = APIRouter()
 
 
 @router.get("")
-async def get_orders(
-    user: dm.UserDM = Depends(get_current_user_dm), db: Session = Depends(get_db)
-) -> List[schemas.PendingOrderAPIout]:
+async def get_orders(user: dm.UserDM = Depends(get_current_user_dm)) -> List[schemas.PendingOrderAPIout]:
     def to_response(order):
-        return schemas.PendingOrderAPIout(**order.__dict__, exchange=order.stock.exchange)
+        print(order.dict())
+        return schemas.PendingOrderAPIout(**order.dict(), exchange=order.stock.exchange)
 
     return [to_response(x) for x in user.model.pending_orders]
 

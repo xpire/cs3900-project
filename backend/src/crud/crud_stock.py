@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Optional
 
 from pydantic import ValidationError
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
@@ -51,10 +52,35 @@ class CRUDStock(CRUDBase[Stock]):
         """
         Retieve the sorted time series of the obj. Returns latest date first.
         """
-        # Need to reverse the order, since db returns in reverse order
-        # TODO: actually use order_by
-        return [x.__dict__ for x in stock.timeseries][::-1]
+        return [x.__dict__ for x in stock.time_series]
 
+    @fail_save
+    @return_result()
+    def update_time_series(self, *, db: Session, symbol: str, time_series: List[TimeSeriesCreate]) -> Result:
+        """
+        Update the newest entry of time series. Update last 2 entries u_time_series.
+        """
+        stock = self.get_stock_by_symbol(db=db, symbol=symbol)
+
+        if stock.time_series.count() == 0:
+            stock.time_series = [TimeSeries(**x.dict()) for x in time_series]
+
+        else:
+            latest_entry = stock.time_series[-1]
+
+            for x in time_series:
+                if symbol != x.symbol:
+                    log_msg(f"Updating time series for {symbol} but entry for {time_series.symbol} passed in.")
+
+                if x.date < latest_entry.date:
+                    continue
+                elif x.date == latest_entry.date:
+                    latest_entry.__dict__.update(x.dict())
+                else:
+                    stock.time_series.append(TimeSeries(**x.dict()))
+        db.commit()
+
+    '''
     @fail_save
     @return_result()
     def update_time_series(self, *, db: Session, timeseries: List[TimeSeriesCreate]) -> Result:
@@ -76,6 +102,9 @@ class CRUDStock(CRUDBase[Stock]):
         Batch insert historical daily timeseries candle stock data, continue insertion even
         if 1 entry fails convention.
         """
+        # https://stackoverflow.com/questions/7133007/sqlalchemy-get-max-min-avg-values-from-a-table
+        # TODO: get latest entry and add on the rest
+        # except, for the day where it collides, update, since it may be intraday
         for row in time_series:
             attempt_entry = None
             try:
@@ -98,6 +127,7 @@ class CRUDStock(CRUDBase[Stock]):
 
         self.commit_and_refresh(db, stock)
         return stock
+    '''
 
     @fail_save
     def remove_all_hist(self, *, db: Session) -> None:

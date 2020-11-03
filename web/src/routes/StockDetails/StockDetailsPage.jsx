@@ -89,7 +89,7 @@ const StockDetails = () => {
 
   const getRealTimeStockData = () => {
     axios
-      .get(`/stocks/stocks?symbols=${symbol}`)
+      .get(`/stocks/real_time?symbols=${symbol}`)
       .then((response) => {
         const data = response.data;
         setStockData(data[0]);

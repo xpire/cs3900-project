@@ -12,14 +12,13 @@ from src.schemas.stock import StockAPIout
 
 router = APIRouter()
 
-# TODO rename: /stocks
-@router.get("/symbols")
+
+@router.get("/")
 async def get_symbols(db: Session = Depends(get_db)) -> List[StockAPIout]:
     return crud.stock.get_multi_by_symbols(db=db, symbols=dm.get_data_provider().symbols)
 
 
-# TODO rename: /real_time
-@router.get("/stocks")
+@router.get("/real_time")
 async def get_stocks(
     symbols: List[str] = Query(None), db: Session = Depends(get_db)
 ) -> List[schemas.StockRealTimeAPIout]:

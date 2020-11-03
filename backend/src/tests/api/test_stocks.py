@@ -5,7 +5,7 @@ from src.core.config import settings
 
 
 def test_random_template(client: TestClient):
-    r = client.get("stocks/symbols")
+    r = client.get("/stocks")
 
     d = r.json()
     # INSERT MORE TESTS HERE

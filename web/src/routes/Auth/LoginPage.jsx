@@ -32,6 +32,10 @@ const LoginPage = () => {
         <CardHeading variant="h3">Sign In</CardHeading>
         <Login buttonText="login" submitHandler={SignIn} loading={loading} />
         <MaterialLink to="/signup" component={Link} color="inherit">
+          {" "}
+          {
+            //TODO make it blue and more spacing
+          }
           {"Don't have an account? Sign up"}
         </MaterialLink>
       </CenteredCard>

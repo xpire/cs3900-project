@@ -13,26 +13,63 @@ import { Skeleton } from "@material-ui/lab";
 import { Link } from "react-router-dom";
 
 import { AuthContext } from "../../utils/authentication";
-import axios from "../../utils/api";
 import Page from "../../components/page/Page";
 import { StandardCard } from "../../components/common/styled";
 import useApi from "../../hooks/useApi";
 import { format } from "../../utils/formatter";
-import SortableTable from "../../components/common/SortableTable";
+import SortableTable, {
+  tableTypes,
+} from "../../components/common/SortableTable";
 
 const headCells = [
-  { id: "index", numeric: false, disablePadding: false, label: "Index" },
-  { id: "t_type", numeric: false, disablePadding: false, label: "Trade Type" },
-  { id: "symbol", numeric: false, disablePadding: false, label: "Symbol" },
-  { id: "name", numeric: false, disablePadding: false, label: "Name" },
-  { id: "amount", numeric: false, disablePadding: false, label: "Quantity" },
+  {
+    id: "index",
+    formatType: tableTypes.ID,
+    disablePadding: false,
+    label: "Id",
+  },
+  {
+    id: "timestamp",
+    formatType: tableTypes.DATE,
+    disablePadding: false,
+    label: "Timestamp",
+  },
+  {
+    id: "t_type",
+    formatType: tableTypes.TEXT,
+    disablePadding: false,
+    label: "Trade Type",
+  },
+  {
+    id: "symbol",
+    formatType: tableTypes.TEXT,
+    disablePadding: false,
+    label: "Symbol",
+  },
+  {
+    id: "name",
+    formatType: tableTypes.TEXT,
+    disablePadding: false,
+    label: "Name",
+  },
+  {
+    id: "amount",
+    formatType: tableTypes.NUMBER,
+    disablePadding: false,
+    label: "Quantity",
+  },
   {
     id: "price",
-    numeric: true,
+    formatType: tableTypes.CURRENCY,
     disablePadding: false,
     label: "Price",
   },
-  { id: "value", numeric: true, disablePadding: false, label: "Value" },
+  {
+    id: "value",
+    formatType: tableTypes.CURRENCY,
+    disablePadding: false,
+    label: "Value",
+  },
 ];
 
 const Profile = () => {
@@ -117,15 +154,11 @@ const Profile = () => {
         </Grid>
         <Grid item xs={12}>
           <StandardCard>
-            {/* <CardContent> */}
-            {/* <Typography variant="h2">Transaction History</Typography> */}
-            {/* <Skeleton /> */}
             <SortableTable
               data={mappedTransactionData}
               header={headCells}
               title="Transaction History"
             />
-            {/* </CardContent> */}
           </StandardCard>
         </Grid>
       </Grid>

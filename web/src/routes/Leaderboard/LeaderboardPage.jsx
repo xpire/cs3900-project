@@ -1,22 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@material-ui/core";
 
-import SortableTable from "../../components/common/SortableTable";
+import SortableTable, {
+  tableTypes,
+} from "../../components/common/SortableTable";
 import Page from "../../components/page/Page";
 import axios from "../../utils/api";
 
 const headCells = [
-  { id: "rank", numeric: false, disablePadding: false, label: "Rank" },
-  { id: "username", numeric: false, disablePadding: false, label: "Name" },
+  {
+    id: "rank",
+    formatType: tableTypes.TEXT,
+    disablePadding: false,
+    label: "Rank",
+  },
+  {
+    id: "username",
+    formatType: tableTypes.TEXT,
+    disablePadding: false,
+    label: "Name",
+  },
   {
     id: "net_worth",
-    numeric: true,
+    formatType: tableTypes.CURRENCY,
     disablePadding: false,
     label: "Net Worth",
   },
   {
     id: "level",
-    numeric: true,
+    formatType: tableTypes.CURRENCY,
     disablePadding: false,
     label: "Level",
   },
@@ -28,7 +40,6 @@ const Leaderboard = () => {
     axios
       .get("/leaderboard")
       .then((response) => {
-        console.log({ response });
         setData(
           response.data.rankings.map((elem, index) => {
             return { ...elem, rank: index + 1 };

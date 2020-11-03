@@ -4,7 +4,6 @@ import OfflineIcon from "@material-ui/icons/NightsStay";
 import OnlineIcon from "@material-ui/icons/Brightness4";
 
 const TradingHoursIndicator = ({ online }) => {
-  console.log(online);
   return (
     <Tooltip
       title={

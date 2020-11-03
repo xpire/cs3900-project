@@ -48,7 +48,10 @@ const SignUpPage = () => {
           </CardHeading>
         ) : (
           <>
-            <CardHeading variant="h3">Sign Up</CardHeading>
+            <CardHeading variant="h3">Sign Up</CardHeading>{" "}
+            {
+              //TODO why sign up instead of register
+            }
             <Login
               buttonText="register"
               submitHandler={SignUp}

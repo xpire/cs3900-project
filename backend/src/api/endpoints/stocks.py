@@ -7,7 +7,7 @@ from src import domain_models as dm
 from src import schemas
 from src.api.deps import check_symbol, get_db
 from src.domain_models.trading_hours import trading_hours_manager
-from src.schemas.response import Fail
+from src.schemas.response import RaiseFail
 from src.schemas.stock import StockAPIout
 
 router = APIRouter()
@@ -28,18 +28,16 @@ async def get_stocks(
 
     stocks = crud.stock.get_multi_by_symbols(db=db, symbols=symbols)
     if len(stocks) != len(symbols):
-        Fail(f"Following symbols are requested but do not exist: {set(symbols) - set(stocks)}").assert_ok()
+        RaiseFail(f"Following symbols are requested but do not exist: {set(symbols) - set(stocks)}")
 
-    ret = []
-    for stock in stocks:
-        ret.append(
-            schemas.StockRealTimeAPIout(
-                **stock.dict(),
-                **dm.get_data_provider().data[stock.symbol],
-                trading_hours_info=trading_hours_manager.get_trading_hours_info(stock),
-            )
+    def to_schema(stock):
+        return schemas.StockRealTimeAPIout(
+            **stock.dict(),
+            **dm.get_data_provider().data[stock.symbol],
+            trading_hours_info=trading_hours_manager.get_trading_hours_info(stock),
         )
-    return ret
+
+    return [to_schema(stock) for stock in stocks]
 
 
 @router.get("/time_series")

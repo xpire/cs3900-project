@@ -57,6 +57,7 @@ def get_result_maker(success):
 
 Success = get_result_maker(True)
 Fail = get_result_maker(False)
+RaiseFail = lambda msg="", data=None: Fail(msg, data).as_response()
 
 
 class ResultException(Exception):

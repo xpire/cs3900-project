@@ -16,6 +16,8 @@ from src.real_time_market_data.composite_data_provider import CompositeDataProvi
 from src.real_time_market_data.setup import create_simulators
 from src.real_time_market_data.simulated_data_provider import SimulatedProvider
 from src.real_time_market_data.td_data_provider import TDProvider
+from src.schemas.response import Fail, Response, Success, return_response, return_result
+from src.schemas.stock import StockAPIout
 from twelvedata import TDClient
 
 API_URL = "https://api.twelvedata.com"
@@ -56,45 +58,31 @@ def startup_event():
         log_msg("There are no stocks in the database, not polling for data.", "WARNING")
 
 
+# TODO rename: /stocks
 @router.get("/symbols")
-async def get_symbols(db: Session = Depends(get_db)):
-    ret = []
+async def get_symbols(db: Session = Depends(get_db)) -> List[StockAPIout]:
+    return crud.stock.get_all_stocks(db=db)[:12]
 
-    stocks = crud.stock.get_all_stocks(db=db)[:12]
+
+# TODO rename: /real_time
+@router.get("/stocks")
+async def get_stocks(
+    symbols: List[str] = Query(None), db: Session = Depends(get_db)
+) -> List[schemas.StockRealTimeAPIout]:
+    if not symbols:
+        return []
+
+    stocks = crud.stock.get_stock_by_symbols(db=db, symbols=symbols)
+    if len(stocks) != len(symbols):
+        Fail(f"Following symbols are requested but do not exist: {set(symbols) - set(stocks)}").assert_ok()
+
+    ret = []
     for stock in stocks:
         ret.append(
-            {
-                "symbol": stock.symbol,
-                "name": stock.name,
-                "exchange": stock.exchange,
-            }
-        )
-
-    return ret
-
-
-@router.get("/stocks")
-async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get_db)):
-    # TODO clean up
-    ret = []
-    if not symbols:
-        return ret
-
-    # Can make for efficient later
-    for symbol in symbols:
-        stock = crud.stock.get_stock_by_symbol(db=db, symbol=symbol)
-        if stock is None:
-            raise HTTPException(status_code=404, detail="Item not found")
-
-        ret.append(
-            dict(
-                symbol=symbol,
-                name=stock.name,
-                exchange=stock.exchange,
-                curr_close_price=market_data_provider.get_curr_day_close(symbol),
-                prev_close_price=market_data_provider.get_prev_day_close(symbol),
-                commission=settings.COMMISSION_RATE,
-                **trading_hours_manager.get_trading_hours_info(stock),
+            schemas.StockRealTimeAPIout(
+                **stock.dict(),
+                **market_data_provider.data[stock.symbol],
+                trading_hours_info=trading_hours_manager.get_trading_hours_info(stock),
             )
         )
     return ret

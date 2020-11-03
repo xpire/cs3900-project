@@ -17,6 +17,7 @@ class CRUDStock(CRUDBase[Stock]):
         """
         return self.query(db).get(symbol)
 
+    # TODO rename
     def get_stock_by_symbols(self, *, db: Session, symbols: List[str]) -> List[Stock]:
         """
         Get multiple stock by multiple symbols.

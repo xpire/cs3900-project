@@ -1,7 +1,7 @@
-from datetime import datetime, timedelta, time
+from datetime import datetime, time, timedelta
 
 from pytz import timezone
-from src import crud
+from src import crud, schemas
 from src.core.utilities import HTTP400, as_delta
 
 
@@ -20,7 +20,7 @@ class TradingHoursManager:
     def get_trading_hours_info(self, stock):
         exchange = self.get_exchange(stock.exchange)
         is_trading = self.is_trading(stock)
-        return dict(is_trading=is_trading, open=exchange.open, close=exchange.close)
+        return schemas.TradingHoursInfo(is_trading=is_trading, open=exchange.open, close=exchange.close)
 
     def is_trading_day(self, stock, date):
         exchange = self.get_exchange(stock.exchange)  # TODO this should later return a proper db object

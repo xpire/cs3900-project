@@ -47,11 +47,6 @@ function NumberFormatCustom(props) {
       isNumericString
       prefix="$"
       fixedDecimalScale
-      isAllowed={(values) => {
-        const { floatValue } = values;
-        return floatValue <= maxValue;
-      }}
-      // isAllowed={(val) => val < maxValue}
       allowNegative={false}
       decimalScale={2}
     />
@@ -110,7 +105,7 @@ const Trading = () => {
   };
 
   // API calls
-  const [locked, lockedLoading] = useApi(`/user`, []); // check if functionality is locked
+  const [locked, lockedLoading] = useApi(`/user`, [update]); // check if functionality is locked
   const [portfolioData, portfolioLoading] = useApi(`/portfolio`, [update]); // check owned stock for sell and cover
   const [portfolioStats, portfolioStatsLoading] = useApi(`/portfolio/stats`, [
     update,
@@ -146,13 +141,12 @@ const Trading = () => {
 
   // state inaccessible to user
   const [maxValue, setMaxValue] = useState(0);
-  const [maxLimit, setMaxLimit] = useState(0);
   const [portfolioAllocation, setPortfolioAllocation] = useState(0);
   const [commission, setCommission] = useState(1.005);
   const [price, setPrice] = useState(0);
   const [finalQuantity, setFinalQuantity] = useState(0);
   const [previousBalance, setPreviousBalance] = useState(100);
-  const [actualPrice, setActualPrice] = useState(0);
+  const [actualPrice, setActualPrice] = useState(100);
 
   const loading =
     lockedLoading ||
@@ -166,50 +160,46 @@ const Trading = () => {
   useEffect(() => {
     if (!loading) {
       setPreviousBalance(portfolioStats.total_long_value);
-      setCommission(
+      const commissionConst = // for use inside this useeffect (as useState does not run until next rerender)
         state.tradeType === "buy" || state.tradeType === "short"
           ? 1 + rawCommission // buy  and short
-          : 1 - rawCommission // sell and cover
-      );
-      setActualPrice(
-        state.orderType === "limit" ? state.limitOrderPrice : closePrice
-      );
+          : 1 - rawCommission; // sell and cover
+      setCommission(commissionConst);
+      const actualPriceConst =
+        state.orderType === "limit" ? state.limitOrderPrice : closePrice; // for use inside this useeffect (as useState does not run until next rerender)
+      setActualPrice(actualPriceConst);
       switch (state.tradeType) {
         case "buy":
           setMaxValue(
             Math.floor(
               state.purchaseBy === "quantity"
-                ? portfolioStats.balance / actualPrice
-                : portfolioStats.balance
+                ? portfolioStats.balance / (actualPriceConst * commissionConst) // take into account commission
+                : portfolioStats.balance / commissionConst
             )
           );
-          setMaxLimit(portfolioStats.balance);
           break;
         case "sell":
           const longData = portfolioData.long.find(
             ({ symbol }) => symbol === state.symbol
           );
-          if (longData?.owned) {
-            setMaxValue(
-              state.purchaseBy === "quantity"
-                ? longData.owned
-                : longData.owned * actualPrice
-            );
-            setMaxLimit(longData.owned * actualPrice);
-          } else {
-            setMaxValue(0);
-            setMaxLimit(0);
-          }
+          longData?.owned
+            ? setMaxValue(
+                state.purchaseBy === "quantity"
+                  ? longData.owned
+                  : longData.owned * actualPriceConst
+              )
+            : setMaxValue(0);
+
           break;
         case "short":
           setMaxValue(
             Math.floor(
               state.purchaseBy === "quantity"
-                ? portfolioStats.short_balance / actualPrice
+                ? portfolioStats.short_balance /
+                    (actualPriceConst * commissionConst) // take into account commission
                 : portfolioStats.short_balance
             )
           );
-          setMaxLimit(portfolioStats.short_balance);
           break;
         case "cover":
           const shortData = portfolioData.short.find(
@@ -219,20 +209,10 @@ const Trading = () => {
             ? setMaxValue(
                 state.purchaseBy === "quantity"
                   ? shortData.owned
-                  : shortData.owned * actualPrice
+                  : shortData.owned * actualPriceConst
               )
             : setMaxValue(0);
-          if (shortData?.owned) {
-            setMaxValue(
-              state.purchaseBy === "quantity"
-                ? shortData.owned
-                : shortData.owned * actualPrice
-            );
-            setMaxLimit(shortData.owned * actualPrice);
-          } else {
-            setMaxValue(0);
-            setMaxLimit(0);
-          }
+
           break;
         default:
       }
@@ -240,17 +220,9 @@ const Trading = () => {
         Math.floor(
           state.purchaseBy === "quantity"
             ? state.quantity
-            : state.quantity / actualPrice
+            : state.quantity / actualPriceConst
         )
       );
-      // if (finalQuantity > maxValue) {
-      /* TODO: after setting quantity, changing trade to limit and then setting limit
-               to unreasonable levels to make trade works so you can make a 7 figure trade */
-      //   setFinalQuantity(Math.floor(maxValue));
-      // }
-
-      // console.log(finalQuantity);
-      // setPrice(closePrice * finalQuantity * commission);
     }
   }, [loading, state, update]);
   useEffect(() => setPrice(actualPrice * finalQuantity * commission), [
@@ -426,7 +398,6 @@ const Trading = () => {
                     value={state.limitOrderPrice}
                     onChange={setLimitOrderPrice}
                     InputProps={{
-                      inputProps: { maxValue: maxLimit },
                       inputComponent: NumberFormatCustom,
                     }}
                   />

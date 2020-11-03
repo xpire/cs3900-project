@@ -79,7 +79,10 @@ const MyHeader = ({ toggleMenu }) => {
               color="primary"
               onClick={handleLogin}
             >
-              login
+              login{" "}
+              {
+                // why not sign in?
+              }
             </HeaderButton>
           )}
         </Toolbar>

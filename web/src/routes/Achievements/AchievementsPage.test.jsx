@@ -57,10 +57,14 @@ describe("Achievements Page", () => {
   //       <AchievementsPage />
   //     </AuthContext.Provider>
   //   );
-  //   mockedData.default.map(async ({ name }) => {
-  //     const visibleText = await screen.findAllByText(name);
-  //     expect(visibleText).toHaveLength(1);
-  //   });
+  //   // mockedData.default.map(async ({ name }) => {
+
+  //   //   // console.log({ visibleText });
+  //   //   // console.log({ name });
+  //   //   // console.log({ name, visibleText });
+  //   //   // expect(visibleText).toEqual("sssssss");
+  //   //   // expect(visibleText).toHaveLength(1);
+  //   // });
   //   // waitFor has an error, cannot use
   //   // await waitFor(() => {
   //   //   // expect(getByText('the lion king')).toBeInTheDocument()

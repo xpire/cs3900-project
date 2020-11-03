@@ -45,16 +45,18 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "canvas": "^2.6.1",
+    "enzyme": "^3.11.0",
+    "husky": "^4.3.0",
     "jest-canvas-mock": "^2.3.0",
     "jest-styled-components": "^6.3.3",
     "prettier": "^1.18.2",
-    "serve": "^11.3.2",
-    "husky": "^4.3.0"
+    "serve": "^11.3.2"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:debug": "react-scripts --inspect-brk test --runInBand --no-cache",
     "serve": "serve -s build",
     "eject": "react-scripts eject"
   },

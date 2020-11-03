@@ -60,6 +60,7 @@ const Market = () => {
               </InputAdornment>
             }
             inputProps={{ style: { fontSize: 40 } }}
+            aria-label="search"
           />
         </Grid>
         <Grid item xs={12}>

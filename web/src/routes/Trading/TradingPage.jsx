@@ -14,12 +14,14 @@ import {
   TableCell,
   TableHead,
   TableBody,
+  TextField,
 } from "@material-ui/core";
 import QuantityIcon from "@material-ui/icons/LocalAtm";
 import ValueIcon from "@material-ui/icons/MonetizationOn";
 import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
 import { useLocation, useHistory } from "react-router-dom";
 import { useDebounce } from "react-use";
+import NumberFormat from "react-number-format";
 // import { DateTimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 // import DateFnsUtils from "@date-io/date-fns";
 
@@ -30,6 +32,26 @@ import { format } from "../../utils/formatter";
 import { StandardCard } from "../../components/common/styled";
 import useHandleSnack from "../../hooks/useHandleSnack";
 import TradingHoursIndicator from "../../components/common/TradingHoursIndicator";
+
+function NumberFormatCustom(props) {
+  const { inputRef, onChange, maxValue, ...other } = props;
+  console.log({ maxValue });
+  return (
+    <NumberFormat
+      {...other}
+      getInputRef={inputRef}
+      onValueChange={(values) => {
+        onChange(values.value);
+      }}
+      thousandSeparator
+      isNumericString
+      prefix="$"
+      fixedDecimalScale
+      allowNegative={false}
+      decimalScale={2}
+    />
+  );
+}
 
 const Trading = () => {
   const search = useLocation().search;
@@ -43,6 +65,7 @@ const Trading = () => {
     purchaseBy: "quantity",
     orderType: "market",
     quantity: 0,
+    limitOrderPrice: 100,
     // date: new Date(),
   };
 
@@ -50,18 +73,15 @@ const Trading = () => {
   const setSymbol = (value) => {
     setState({ ...state, symbol: value });
     history.push(`?symbol=${value}`);
-    console.log({ state });
   };
-  const setTradeType = (value) => {
+  const setTradeType = (value) =>
     setState({ ...state, tradeType: value, quantity: 0 });
-    console.log({ state, type: "trade" });
-  };
-  const setPurchaseBy = (value) => {
+  const setPurchaseBy = (value) =>
     setState({ ...state, purchaseBy: value, quantity: 0 });
-    console.log({ state, type: "purchase" });
-  };
   const setQuantity = (value) => setState({ ...state, quantity: value });
   const setOrderType = (value) => setState({ ...state, orderType: value });
+  const setLimitOrderPrice = (value) =>
+    setState({ ...state, limitOrderPrice: value });
   const [update, setUpdate] = useState(0);
 
   const handleInputChange = (event) => {
@@ -85,7 +105,7 @@ const Trading = () => {
   };
 
   // API calls
-  const [locked, lockedLoading] = useApi(`/user`, []); // check if functionality is locked
+  const [locked, lockedLoading] = useApi(`/user`, [update]); // check if functionality is locked
   const [portfolioData, portfolioLoading] = useApi(`/portfolio`, [update]); // check owned stock for sell and cover
   const [portfolioStats, portfolioStatsLoading] = useApi(`/portfolio/stats`, [
     update,
@@ -126,6 +146,7 @@ const Trading = () => {
   const [price, setPrice] = useState(0);
   const [finalQuantity, setFinalQuantity] = useState(0);
   const [previousBalance, setPreviousBalance] = useState(100);
+  const [actualPrice, setActualPrice] = useState(100);
 
   const loading =
     lockedLoading ||
@@ -139,18 +160,21 @@ const Trading = () => {
   useEffect(() => {
     if (!loading) {
       setPreviousBalance(portfolioStats.total_long_value);
-      setCommission(
+      const commissionConst = // for use inside this useeffect (as useState does not run until next rerender)
         state.tradeType === "buy" || state.tradeType === "short"
           ? 1 + rawCommission // buy  and short
-          : 1 - rawCommission // sell and cover
-      );
+          : 1 - rawCommission; // sell and cover
+      setCommission(commissionConst);
+      const actualPriceConst =
+        state.orderType === "limit" ? state.limitOrderPrice : closePrice; // for use inside this useeffect (as useState does not run until next rerender)
+      setActualPrice(actualPriceConst);
       switch (state.tradeType) {
         case "buy":
           setMaxValue(
             Math.floor(
               state.purchaseBy === "quantity"
-                ? portfolioStats.balance / closePrice
-                : portfolioStats.balance
+                ? portfolioStats.balance / (actualPriceConst * commissionConst) // take into account commission
+                : portfolioStats.balance / commissionConst
             )
           );
           break;
@@ -162,15 +186,17 @@ const Trading = () => {
             ? setMaxValue(
                 state.purchaseBy === "quantity"
                   ? longData.owned
-                  : longData.owned * closePrice
+                  : longData.owned * actualPriceConst
               )
             : setMaxValue(0);
+
           break;
         case "short":
           setMaxValue(
             Math.floor(
               state.purchaseBy === "quantity"
-                ? portfolioStats.short_balance / closePrice
+                ? portfolioStats.short_balance /
+                    (actualPriceConst * commissionConst) // take into account commission
                 : portfolioStats.short_balance
             )
           );
@@ -183,9 +209,10 @@ const Trading = () => {
             ? setMaxValue(
                 state.purchaseBy === "quantity"
                   ? shortData.owned
-                  : shortData.owned * closePrice
+                  : shortData.owned * actualPriceConst
               )
             : setMaxValue(0);
+
           break;
         default:
       }
@@ -193,14 +220,13 @@ const Trading = () => {
         Math.floor(
           state.purchaseBy === "quantity"
             ? state.quantity
-            : state.quantity / closePrice
+            : state.quantity / actualPriceConst
         )
       );
-      // setPrice(closePrice * finalQuantity * commission);
     }
   }, [loading, state, update]);
-  useEffect(() => setPrice(closePrice * finalQuantity * commission), [
-    closePrice,
+  useEffect(() => setPrice(actualPrice * finalQuantity * commission), [
+    actualPrice,
     finalQuantity,
     commission,
   ]);
@@ -223,7 +249,7 @@ const Trading = () => {
       `/trade/${state.orderType}/${state.tradeType}?symbol=${
         state.symbol
       }&quantity=${state.quantity}${
-        state.orderType === "limit" ? `&limit=${closePrice}` : ""
+        state.orderType === "limit" ? `&limit=${actualPrice}` : ""
       }`,
       "post"
     ).then(() => {
@@ -231,7 +257,6 @@ const Trading = () => {
       setUpdate(update + 1);
       setState(defaultState);
     });
-    // TODO: update trade page
   };
 
   return (
@@ -275,13 +300,13 @@ const Trading = () => {
                 <ToggleButton value="sell">Sell</ToggleButton>
                 <ToggleButton
                   value="short"
-                  disabled={lockedLoading ? true : locked.level <= 5}
+                  disabled={lockedLoading ? true : locked.level < 5}
                 >
                   Short
                 </ToggleButton>
                 <ToggleButton
                   value="cover"
-                  disabled={lockedLoading ? true : locked.level <= 5}
+                  disabled={lockedLoading ? true : locked.level < 5}
                 >
                   Cover
                 </ToggleButton>
@@ -357,12 +382,28 @@ const Trading = () => {
                 <ToggleButton value="market">Market</ToggleButton>
                 <ToggleButton
                   value="limit"
-                  disabled={lockedLoading ? true : locked.level <= 3}
+                  disabled={lockedLoading ? true : locked.level < 3}
                 >
                   Limit
                 </ToggleButton>
               </ToggleButtonGroup>
             </Grid>
+            {state.orderType === "limit" && (
+              <>
+                <Grid item xs={3}>
+                  Limit Price
+                </Grid>
+                <Grid item xs={9}>
+                  <TextField
+                    value={state.limitOrderPrice}
+                    onChange={setLimitOrderPrice}
+                    InputProps={{
+                      inputComponent: NumberFormatCustom,
+                    }}
+                  />
+                </Grid>
+              </>
+            )}
             {(state.tradeType === "buy" || state.tradeType === "sell") && (
               <>
                 <Grid item xs={12}>
@@ -392,7 +433,7 @@ const Trading = () => {
             <TableBody>
               <TableRow>
                 <TableCell>Price per share</TableCell>
-                <TableCell align="right">{`$${format(closePrice)}`}</TableCell>
+                <TableCell align="right">{`$${format(actualPrice)}`}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>Shares</TableCell>
@@ -401,7 +442,7 @@ const Trading = () => {
               <TableRow>
                 <TableCell>Commission</TableCell>
                 <TableCell align="right">{`$${format(
-                  rawCommission * closePrice * finalQuantity
+                  rawCommission * actualPrice * finalQuantity
                 )}`}</TableCell>
               </TableRow>
               <TableRow>

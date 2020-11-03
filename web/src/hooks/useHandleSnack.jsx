@@ -17,7 +17,6 @@ const useHandleSnack = () => {
         }
       })
       .catch((err) => {
-        console.log("handlesnack", err.response.status);
         switch (err.response.status) {
           case 400:
             enqueueSnackbar(`${err.response.data.detail}`, {

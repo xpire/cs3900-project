@@ -66,18 +66,6 @@ class ResultException(Exception):
         self.result = result
 
 
-# Coded based on: https://stackoverflow.com/questions/42043226/using-a-coroutine-as-decorator
-def return_response():
-    def wrapper(fn):
-        @wraps(fn)
-        async def wrapped(*args, **kwargs) -> Response:
-            return (await fn(*args, **kwargs)).as_response()
-
-        return wrapped
-
-    return wrapper
-
-
 def return_result():
     def wrapper(fn):
         @wraps(fn)
@@ -87,6 +75,23 @@ def return_result():
                 return Success() if res is None else res
             except ResultException as e:
                 return e.result
+
+        return wrapped
+
+    return wrapper
+
+
+# Coded based on: https://stackoverflow.com/questions/42043226/using-a-coroutine-as-decorator
+def return_response():
+    def wrapper(fn):
+        @wraps(fn)
+        async def wrapped(*args, **kwargs) -> Response:
+            try:
+                res = await fn(*args, **kwargs)
+                res = Success() if res is None else res
+            except ResultException as e:
+                res = e.result
+            return res.as_response()
 
         return wrapped
 

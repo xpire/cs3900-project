@@ -44,7 +44,6 @@ async def create_user(
     return crud.user.create(db, obj=schemas.UserCreate(email=email, uid=uid, username=email))
 
 
-# TODO endpoint
 @router.get("/reset")
 @return_response
 async def reset(user=Depends(get_current_user_dm)) -> Response:

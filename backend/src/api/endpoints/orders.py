@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from src import crud
@@ -10,7 +12,9 @@ router = APIRouter()
 
 
 @router.get("")
-async def get_orders(user: dm.UserDM = Depends(get_current_user_dm), db: Session = Depends(get_db)):
+async def get_orders(
+    user: dm.UserDM = Depends(get_current_user_dm), db: Session = Depends(get_db)
+) -> List[schemas.PendingOrderAPIout]:
     def to_response(order):
         return schemas.PendingOrderAPIout(**order.__dict__, exchange=order.stock.exchange)
 
@@ -24,6 +28,5 @@ async def delete_order(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Response:
-
     crud.pending_order.delete_order(db=db, id=id, user=user).assert_ok()
     return Success("Order successfully cancelled")

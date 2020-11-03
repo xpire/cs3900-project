@@ -85,7 +85,7 @@ def method_wrapper(router_method):
     def method_wrapped(*args, **kwargs):
         def wrapper(endpoint):
             @wraps(endpoint)
-            async def wrapped(*args, **kwargs) -> Response:
+            async def wrapped(*args, **kwargs):
                 try:
                     res = await endpoint(*args, **kwargs)
                     return res.as_response() if isinstance(res, Result) else res

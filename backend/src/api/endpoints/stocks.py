@@ -47,6 +47,8 @@ async def get_stock_data(
 
 
 @router.get("/trading_hours")
-async def get_trading_hours(symbol: str = Depends(check_symbol), db: Session = Depends(get_db)):  # TODO define schema
+async def get_trading_hours(
+    symbol: str = Depends(check_symbol), db: Session = Depends(get_db)
+) -> schemas.TradingHoursInfo:
     stock = crud.stock.get_by_symbol(db=db, symbol=symbol)
     return trading_hours_manager.get_trading_hours_info(stock)

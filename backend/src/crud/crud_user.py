@@ -22,9 +22,6 @@ from src.models.watchlist import WatchList
 from src.schemas.response import Fail, Result, return_result
 from src.schemas.transaction import TradeType
 
-# TODO config
-STARTING_BALANCE = 10000
-
 
 class CRUDUser(CRUDBase[User]):
     """
@@ -157,7 +154,7 @@ class CRUDUser(CRUDBase[User]):
         Reset portfolio, transaction history, and balance
         """
         # reset
-        user.balance = STARTING_BALANCE
+        user.balance = settings.STARTING_BALANCE
         user.long_positions = []
         user.short_positions = []
         user.transactions = []
@@ -198,78 +195,3 @@ class CRUDUser(CRUDBase[User]):
 
 
 user = CRUDUser(User)
-
-
-'''
-
-    @fail_save
-    @return_result
-    def make_trade(
-        self,
-        *,
-        symbol: str,
-        qty: int,
-        price: float,
-        is_long: bool,
-        db: Session,
-        user: User,
-    ) -> Result:
-        """
-        Add/deduct stock qty to [user]'s portfolio
-        """
-        self.fail_if_stock_missing(
-            db, symbol, f"Cannot add a non-existent stock to the portfolio of User(uid = {user.uid})."
-        )
-
-        if qty == 0:
-            return Fail("Quantity to trade cannot be 0").log("WARNING")
-
-        positions = user.long_positions if is_long else user.short_positions
-        pos = find(positions, symbol=symbol)
-
-        if qty > 0:
-            self.add_to_position(
-                symbol=symbol, qty=qty, price=price, is_long=is_long, pos=pos, positions=positions, user=user
-            ).assert_ok()
-        else:
-            self.deduct_from_position(qty=-qty, pos=pos, positions=positions, user=user).assert_ok()
-
-        self.commit_and_refresh(db, user)
-
-    @return_result
-    def add_to_position(
-        self,
-        *,
-        symbol,
-        qty,
-        price,
-        is_long,
-        pos,
-        positions,
-        user: User,
-    ) -> Result:
-        if pos is None:
-            # TODO refactor this code
-            Position = LongPosition if is_long else ShortPosition
-            positions.append(Position(user_id=user.uid, symbol=symbol, qty=qty, avg=price))
-
-        else:
-            # compute running average
-            new_avg = (pos.avg * pos.qty + qty * price) / (pos.qty + qty)
-            new_qty = pos.qty + qty
-
-            pos.avg, pos.qty = new_avg, new_qty
-
-    @return_result
-    def deduct_from_position(self, *, qty, pos, positions, user: User) -> Result:
-        if pos is None:
-            return Fail(f"Cannot deduct a stock that User(uid = {user.uid}) does not own.").log("WARNING")
-
-        new_qty = pos.qty - qty
-        if new_qty < 0:
-            return Fail(f"Deducting more than owned of User(uid = {user.uid}).").log("WARNING")
-        elif new_qty == 0:
-            positions.remove(pos)
-        else:
-            pos.qty = new_qty
-'''

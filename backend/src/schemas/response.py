@@ -37,8 +37,10 @@ class Result(BaseSchema):
         else:
             raise HTTP400(self.msg)
 
-    def assert_ok(self):
-        if not self.success:
+    def ok(self):
+        if self.success:
+            return self.data  # TODO this might error if not set? test separately
+        else:
             raise ResultException(self)
 
     def __bool__(self):
@@ -47,10 +49,7 @@ class Result(BaseSchema):
 
 def get_result_maker(success):
     def result_maker(msg="", data=None) -> Result:
-        if data is None:
-            return Result(msg=msg, success=success)
-        else:
-            return Result(msg=msg, success=success, data=data)
+        return Result(msg=msg, success=success, data=data)
 
     return result_maker
 
@@ -72,7 +71,7 @@ def return_result():
         def wrapped(*args, **kwargs) -> Result:
             try:
                 res = fn(*args, **kwargs)
-                return Success() if res is None else res
+                return res if isinstance(res, Result) else Success(data=res)
             except ResultException as e:
                 return e.result
 
@@ -81,18 +80,31 @@ def return_result():
     return wrapper
 
 
-# Coded based on: https://stackoverflow.com/questions/42043226/using-a-coroutine-as-decorator
-def return_response():
-    def wrapper(fn):
-        @wraps(fn)
-        async def wrapped(*args, **kwargs) -> Response:
-            try:
-                res = await fn(*args, **kwargs)
-                res = Success() if res is None else res
-            except ResultException as e:
-                res = e.result
-            return res.as_response()
+def method_wrapper(router_method):
+    @wraps(router_method)
+    def method_wrapped(*args, **kwargs):
+        def wrapper(endpoint):
+            @wraps(endpoint)
+            async def wrapped(*args, **kwargs) -> Response:
+                try:
+                    res = await endpoint(*args, **kwargs)
+                    return res.as_response() if isinstance(res, Result) else res
+                except ResultException as e:
+                    return e.result.as_response()
 
-        return wrapped
+            return router_method(*args, **kwargs)(wrapped)
 
-    return wrapper
+        return wrapper
+
+    return method_wrapped
+
+
+def ResultAPIRouter():
+    from fastapi import APIRouter
+
+    router = APIRouter()
+    router.get = method_wrapper(router.get)
+    router.post = method_wrapper(router.post)
+    router.put = method_wrapper(router.put)
+    router.delete = method_wrapper(router.delete)
+    return router

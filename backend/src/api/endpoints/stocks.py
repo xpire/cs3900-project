@@ -1,16 +1,16 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import Depends, Query
 from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm
 from src import schemas
 from src.api.deps import check_symbol, get_db
 from src.domain_models.trading_hours import trading_hours_manager
-from src.schemas.response import RaiseFail
+from src.schemas.response import RaiseFail, ResultAPIRouter
 from src.schemas.stock import StockAPIout
 
-router = APIRouter()
+router = ResultAPIRouter()
 
 
 @router.get("/")

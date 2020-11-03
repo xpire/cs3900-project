@@ -41,10 +41,8 @@ class RepeatedUpdateProvider(DataProvider):
         print("===== INITIALISING MARKET DATA =====")
         for symbol, stock_data in data.items():
             print(f"Number of entries for {symbol}: {len(stock_data)}")
-            # TODO test performance of this
             time_series = stock_data_as_time_series(symbol, stock_data)
             crud.stock.update_time_series(db=self.db, symbol=symbol, time_series=time_series)
-            # crud.stock.batch_add_daily_time_series(db=self.db, stock=self.get_stock(symbol), time_series=stock_data)
         print("===== FINISHED INITIALISATION =====")
         self.cache_latest_data(data)
 
@@ -64,7 +62,6 @@ class RepeatedUpdateProvider(DataProvider):
         data = self.get_update_data()
         for symbol, stock_data in data.items():
             time_series = stock_data_as_time_series(symbol, stock_data)
-            # TODO what is the difference between this one and the one above?
             crud.stock.update_time_series(db=self.db, symbol=symbol, time_series=time_series)
         self.cache_latest_data(data)
         self.notify()
@@ -112,24 +109,18 @@ class RepeatedUpdateProvider(DataProvider):
 
 
 def stock_data_as_time_series(symbol, stock_data) -> List[TimeSeriesDBcreate]:
-    # try: TODO
-    time_series = []
-    for day_data in stock_data:
-        time_series.append(
-            TimeSeriesDBcreate(
-                date=day_data["datetime"],
-                symbol=symbol,
-                low=day_data["low"],
-                high=day_data["high"],
-                open=day_data["open"],
-                close=day_data["close"],
-                volume=day_data["volume"],
-            )
+    def to_timeseries_schema(day_data):
+        return TimeSeriesDBcreate(
+            date=day_data["datetime"],
+            symbol=symbol,
+            low=day_data["low"],
+            high=day_data["high"],
+            open=day_data["open"],
+            close=day_data["close"],
+            volume=day_data["volume"],
         )
-    # except ValidationError as e:
-    #     log_msg(f"Failed to update time series {e.__str__}.", "ERROR")
-    #     return stock
-    return time_series
+
+    return [to_timeseries_schema(x) for x in stock_data]
 
 
 def seconds_until_next_minute(at_second=15):

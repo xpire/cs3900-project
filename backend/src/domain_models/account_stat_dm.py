@@ -49,7 +49,6 @@ class PortfolioStat(ABC):
     def total_daily_return(self):
         return self.percentage_return(self.total_daily_profit())
 
-    # TODO cache it here
     def total(self, stat):
         return total(self.positions, stat)
 

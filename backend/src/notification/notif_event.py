@@ -8,14 +8,12 @@ from src.util.auto_name_enum import AutoName
 from src.util.extended_types import Const
 
 
-# TODO possibly merge with game event, sharing the event hub
 class NotifEventType(str, AutoName):
     LEVEL_UP = auto()
     ACHIEVEMENT_UNLOCKED = auto()
     FEATURE_UNLOCKED = auto()
 
 
-# TODO move to separate directly
 class UnlockableFeatureType(str, AutoName):
     LIMIT_ORDER = auto()
     SHORT_25 = auto()

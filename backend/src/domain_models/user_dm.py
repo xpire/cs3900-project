@@ -76,7 +76,6 @@ class UserDM:
     def is_max_level(self):
         return level_manager.is_max_level(self)
 
-    # TODO can be replaced by using crud Query(Achievements.id)
     @property
     def unlocked_achievement_ids(self):
         return set(x.achievement_id for x in self.model.unlocked_achievements)

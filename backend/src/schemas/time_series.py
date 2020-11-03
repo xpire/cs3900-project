@@ -14,5 +14,11 @@ class TimeSeriesBase(BaseSchema):
     volume: int
 
 
-class TimeSeriesCreate(TimeSeriesBase):
+class TimeSeriesDBcreate(TimeSeriesBase):
     pass
+
+
+class TimeSeriesAPIout(TimeSeriesBase):
+
+    class Config:
+        orm_mode=True

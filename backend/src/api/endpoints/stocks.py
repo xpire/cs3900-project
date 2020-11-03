@@ -5,13 +5,15 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm
+from src import schemas
 from src.api.deps import check_symbol, get_db
 from src.core.config import settings
 from src.core.utilities import HTTP400, log_msg
 from src.db.session import SessionLocal
 from src.domain_models.trading_hours import trading_hours_manager
 from src.game.stat_update_publisher import StatUpdatePublisher
-from src.real_time_market_data.composite_data_provider import CompositeDataProvider
+from src.real_time_market_data.composite_data_provider import \
+    CompositeDataProvider
 from src.real_time_market_data.setup import create_simulators
 from src.real_time_market_data.simulated_data_provider import SimulatedProvider
 from src.real_time_market_data.td_data_provider import TDProvider
@@ -104,9 +106,10 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
 
 
 @router.get("/time_series")  # TODO days param is not currently being used
-async def get_stock_data(symbol: str = Depends(check_symbol), db: Session = Depends(get_db), days: int = 90):
-    stock = crud.stock.get_stock_by_symbol(db=db, symbol=symbol)
-    return crud.stock.get_time_series(db=db, stock=stock)
+async def get_stock_data(
+    symbol: str = Depends(check_symbol), db: Session = Depends(get_db), days: int = 90
+) -> List[schemas.TimeSeriesAPIout]:
+    return crud.stock.get_time_series(db=db, symbol=symbol, days=days)
 
 
 # TODO change check_symbol to get_by_symbol

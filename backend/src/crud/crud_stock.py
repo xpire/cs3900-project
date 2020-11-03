@@ -1,7 +1,5 @@
 from typing import Any, Dict, List, Optional
 
-from pydantic import ValidationError
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 from src.core.config import settings
 from src.core.utilities import fail_save, log_msg
@@ -9,7 +7,7 @@ from src.crud.base import CRUDBase
 from src.models.stock import Stock
 from src.models.time_series import TimeSeries
 from src.schemas.response import Fail, Result, return_result
-from src.schemas.time_series import TimeSeriesCreate
+from src.schemas.time_series import TimeSeriesDBcreate
 
 
 class CRUDStock(CRUDBase[Stock]):
@@ -48,17 +46,17 @@ class CRUDStock(CRUDBase[Stock]):
         db.commit()
         return ds
 
-    def get_time_series(self, *, db: Session, stock: Stock) -> List[Dict]:
+    def get_time_series(self, *, db: Session, symbol: str, days: int) -> List[Dict]:
         """
-        Retieve the sorted time series of the obj. Returns latest date first.
+        Retieve the sorted time series of the obj. Returns latest date first
         """
-        return [x.__dict__ for x in stock.time_series]
+        return db.query(TimeSeries).filter_by(symbol=symbol).order_by(TimeSeries.date.desc()).limit(days).all()
 
     @fail_save
     @return_result()
-    def update_time_series(self, *, db: Session, symbol: str, time_series: List[TimeSeriesCreate]) -> Result:
+    def update_time_series(self, *, db: Session, symbol: str, time_series: List[TimeSeriesDBcreate]) -> Result:
         """
-        Update the newest entry of time series. Update last 2 entries u_time_series.
+        Update the newest entry of time series
         """
         stock = self.get_stock_by_symbol(db=db, symbol=symbol)
 
@@ -66,7 +64,7 @@ class CRUDStock(CRUDBase[Stock]):
             stock.time_series = [TimeSeries(**x.dict()) for x in time_series]
 
         else:
-            latest_entry = stock.time_series[-1]
+            latest_entry = max((x for x in stock.time_series), key=lambda x: x.date)
 
             for x in time_series:
                 if symbol != x.symbol:

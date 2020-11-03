@@ -5,7 +5,7 @@ from threading import Lock, Thread
 from typing import List
 
 from src import crud
-from src.schemas.time_series import TimeSeriesCreate
+from src.schemas.time_series import TimeSeriesDBcreate
 
 from .data_provider import DataProvider
 
@@ -107,12 +107,12 @@ class RepeatedUpdateProvider(DataProvider):
         return crud.stock.get_stock_by_symbol(db=self.db, symbol=symbol)
 
 
-def stock_data_as_time_series(symbol, stock_data) -> List[TimeSeriesCreate]:
+def stock_data_as_time_series(symbol, stock_data) -> List[TimeSeriesDBcreate]:
     # try: TODO
     time_series = []
     for day_data in stock_data:
         time_series.append(
-            TimeSeriesCreate(
+            TimeSeriesDBcreate(
                 date=day_data["datetime"],
                 symbol=symbol,
                 low=day_data["low"],

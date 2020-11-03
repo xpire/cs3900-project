@@ -56,11 +56,6 @@ def startup_event():
         log_msg("There are no stocks in the database, not polling for data.", "WARNING")
 
 
-# @router.on_event("shutdown")
-# def startup_event():
-#     market_data_provider.close()
-
-
 @router.get("/symbols")
 async def get_symbols(db: Session = Depends(get_db)):
     ret = []
@@ -80,6 +75,7 @@ async def get_symbols(db: Session = Depends(get_db)):
 
 @router.get("/stocks")
 async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get_db)):
+    # TODO clean up
     ret = []
     if not symbols:
         return ret
@@ -97,7 +93,7 @@ async def get_stocks(symbols: List[str] = Query(None), db: Session = Depends(get
                 exchange=stock.exchange,
                 curr_close_price=market_data_provider.get_curr_day_close(symbol),
                 prev_close_price=market_data_provider.get_prev_day_close(symbol),
-                commission=0.005,  # TODO move to a config
+                commission=settings.COMMISSION_RATE,
                 **trading_hours_manager.get_trading_hours_info(stock),
             )
         )
@@ -112,6 +108,6 @@ async def get_stock_data(
 
 
 @router.get("/trading_hours")
-async def get_trading_hours(symbol: str = Depends(check_symbol), db: Session = Depends(get_db)):
+async def get_trading_hours(symbol: str = Depends(check_symbol), db: Session = Depends(get_db)):  # TODO define schema
     stock = crud.stock.get_stock_by_symbol(db=db, symbol=symbol)
     return trading_hours_manager.get_trading_hours_info(stock)

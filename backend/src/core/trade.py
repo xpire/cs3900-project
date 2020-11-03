@@ -1,13 +1,16 @@
 import src.api.endpoints.stocks as stocks_api
+from src.core.config import settings
 from src.domain_models.user_dm import UserDM
 
 
 def get_stock_price(symbol: str):
     return stocks_api.market_data_provider.get_curr_day_close(symbol)
 
-#TODO CONFIG
+
+# TODO CONFIG
 def apply_commission(price: float, is_buying: bool = True):
-    return price * 1.005 if is_buying else price * 0.995
+    rate = 1 + (1 if is_buying else -1) * settings.COMMISION_RATE
+    return price * rate
 
 
 def check_owned(user: UserDM, qty: int, symbol: str, positions):

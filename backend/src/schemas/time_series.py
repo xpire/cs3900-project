@@ -1,5 +1,4 @@
 from datetime import date
-from typing import Optional
 
 from pydantic import BaseModel as BaseSchema
 
@@ -14,5 +13,10 @@ class TimeSeriesBase(BaseSchema):
     volume: int
 
 
-class TimeSeriesCreate(TimeSeriesBase):
+class TimeSeriesDBcreate(TimeSeriesBase):
     pass
+
+
+class TimeSeriesAPIout(TimeSeriesBase):
+    class Config:
+        orm_mode = True

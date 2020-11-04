@@ -5,7 +5,6 @@ import DetailedSnackbar from "../components/common/DetailedSnackbar";
 const useHandleSocketSnack = (setCelebration) => {
   const { enqueueSnackbar } = useSnackbar();
   return (lastJsonMessage) => {
-    console.log(`Inside handleSnack: ${JSON.stringify(lastJsonMessage)}`);
     switch (lastJsonMessage?.type) {
       case "auth":
         enqueueSnackbar(`${lastJsonMessage.msg}`, {

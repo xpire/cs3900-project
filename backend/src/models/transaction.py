@@ -7,13 +7,13 @@ from src.db.base_model import BaseModel
 
 class Transaction(BaseModel):
     id = Column(Integer, primary_key=True)
-    date_time = Column(DateTime)
     user_id = Column(String, ForeignKey("user.uid"))
-    price = Column(Float, nullable=False)
-    action = Column(String)  # buy/sell/short/cover
     symbol = Column(String, ForeignKey("stock.symbol"))
-    amount = Column(Integer, nullable=False)
-    stock_info = relationship(
+    qty = Column(Integer, nullable=False)
+    price = Column(Float, nullable=False)
+    trade_type = Column(String)  # buy/sell/short/cover
+    timestamp = Column(DateTime)
+    stock = relationship(
         "Stock",
         backref="transactions",
         cascade="save-update, merge",

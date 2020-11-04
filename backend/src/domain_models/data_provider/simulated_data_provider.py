@@ -1,6 +1,6 @@
 import datetime as dt
 
-from src.real_time_market_data.repeated_update_provider import RepeatedUpdateProvider
+from .repeated_update_provider import RepeatedUpdateProvider
 
 
 class SimulatedProvider(RepeatedUpdateProvider):
@@ -21,5 +21,5 @@ class SimulatedProvider(RepeatedUpdateProvider):
         # TODO: specify timezone?
         msg = {}
         for s in self.simulators:
-            msg[s.symbol] = s.make_request_by_days(now, days)  # TODO fill-in
+            msg[s.symbol] = s.make_request_by_days(now, days)
         return msg

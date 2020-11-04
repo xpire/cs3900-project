@@ -2,8 +2,10 @@ import time
 from abc import abstractmethod
 from datetime import datetime
 from threading import Lock, Thread
+from typing import List
 
 from src import crud
+from src.schemas.time_series import TimeSeriesDBcreate
 
 from .data_provider import DataProvider
 
@@ -17,7 +19,7 @@ class RepeatedUpdateProvider(DataProvider):
     def __init__(self, symbol_to_exchange, repeat_in_x_seconds, db, **kwargs):
         super().__init__(**kwargs)
 
-        self.symbols = list(symbol_to_exchange.keys())
+        self._symbols = list(symbol_to_exchange.keys())
         self.symbol_to_exchange = symbol_to_exchange
         self.db = db
 
@@ -39,9 +41,8 @@ class RepeatedUpdateProvider(DataProvider):
         print("===== INITIALISING MARKET DATA =====")
         for symbol, stock_data in data.items():
             print(f"Number of entries for {symbol}: {len(stock_data)}")
-            crud.stock.batch_add_daily_time_series(
-                db=self.db, stock_in=self.get_stock(symbol), time_series_in=stock_data
-            )
+            time_series = stock_data_as_time_series(symbol, stock_data)
+            crud.stock.update_time_series(db=self.db, symbol=symbol, time_series=time_series)
         print("===== FINISHED INITIALISATION =====")
         self.cache_latest_data(data)
 
@@ -60,8 +61,8 @@ class RepeatedUpdateProvider(DataProvider):
         """
         data = self.get_update_data()
         for symbol, stock_data in data.items():
-            # TODO what is the difference between this one and the one above?
-            crud.stock.update_time_series(db=self.db, stock_in=self.get_stock(symbol), u_time_series=stock_data)
+            time_series = stock_data_as_time_series(symbol, stock_data)
+            crud.stock.update_time_series(db=self.db, symbol=symbol, time_series=time_series)
         self.cache_latest_data(data)
         self.notify()
 
@@ -100,7 +101,26 @@ class RepeatedUpdateProvider(DataProvider):
         """
         Get stock given [symbol]
         """
-        return crud.stock.get_stock_by_symbol(db=self.db, stock_symbol=symbol)
+        return crud.stock.get_by_symbol(db=self.db, symbol=symbol)
+
+    @property
+    def symbols(self):
+        return self._symbols
+
+
+def stock_data_as_time_series(symbol, stock_data) -> List[TimeSeriesDBcreate]:
+    def to_timeseries_schema(day_data):
+        return TimeSeriesDBcreate(
+            date=day_data["datetime"],
+            symbol=symbol,
+            low=day_data["low"],
+            high=day_data["high"],
+            open=day_data["open"],
+            close=day_data["close"],
+            volume=day_data["volume"],
+        )
+
+    return [to_timeseries_schema(x) for x in stock_data]
 
 
 def seconds_until_next_minute(at_second=15):

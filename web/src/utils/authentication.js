@@ -41,7 +41,6 @@ export const AuthProvider = ({ children }) => {
 
   const [lastJsonMessage] = useSockets();
   useEffect(() => {
-    console.log({ lastJsonMessage });
     handleSnack(lastJsonMessage);
   }, [lastJsonMessage]);
 

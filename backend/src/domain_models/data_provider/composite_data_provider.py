@@ -42,3 +42,10 @@ class CompositeDataProvider(DataProvider):
             self.id += 1
 
         return (self._data, self.id)
+
+    @property
+    def symbols(self):
+        symbols = set()
+        for p in self.providers:
+            symbols.update(p.symbols)
+        return symbols

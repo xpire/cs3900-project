@@ -1,12 +1,9 @@
 from datetime import timedelta
 from typing import List, Optional
 
-from pytz import timezone
 from src.schemas.exchange import ExchangeFromDB
 
 # Trading hours retrieved from https://www.thebalance.com/stock-market-hours-4773216
-# TODO migrate to db
-
 delta = lambda hours, minutes=0: timedelta(hours=hours, minutes=minutes)
 exchanges = dict(
     ASX=ExchangeFromDB(name="ASX", open=delta(10), close=delta(16), timezone="Australia/Sydney"),

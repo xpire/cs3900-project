@@ -1,8 +1,8 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel as BaseSchema
-from src.schemas.transaction import TradeType
+from src.core.config import settings
 from src.util.extended_types import Const
 
 
@@ -18,7 +18,7 @@ class UserBase(BaseSchema):
 
 class UserCreate(UserBase):
     uid: str
-    balance: float = Const(10000)
+    balance: float = Const(settings.STARTING_BALANCE)
     level: int = Const(1)
     exp: float = Const(0)
     resets: int = Const(0)
@@ -43,47 +43,21 @@ class UserInDB(UserInDBBase):
     uid: str
 
 
-class TransactionBase(BaseSchema):
-    date_time: datetime
-    user_id: str
-    price: float
-    action: str
-    symbol: str
-    amount: int
+class LeaderboardUserBase(BaseSchema):
+    username: str
+    email: str
+    level: int
+    net_worth: float
 
 
-class TransactionCreate(TransactionBase):
+class LeaderboardUserWithUid(LeaderboardUserBase):
+    uid: str
+
+
+class LeaderboardUserAPIout(LeaderboardUserBase):
     pass
 
 
-class LimitOrderBase(BaseSchema):
-    user_id: str
-    symbol: str
-    amount: int
-    t_type: str
-    price: float
-
-
-class LimitOrderCreate(LimitOrderBase):
-    pass
-
-
-class LimitOrderDelete(LimitOrderBase):
-    pass
-
-
-class TransactionHistoryCreate(BaseSchema):
-    user_id: str
-    price: float
-    action: str
-    symbol: str
-    amount: int
-    date_time: datetime
-
-
-class AfterOrderCreate(BaseSchema):
-    user_id: str
-    symbol: str
-    amount: int
-    t_type: TradeType
-    date_time: datetime
+class LeaderboardAPIout(BaseSchema):
+    rankings: List[LeaderboardUserAPIout]
+    user_ranking: int

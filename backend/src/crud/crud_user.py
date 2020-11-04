@@ -10,333 +10,188 @@
 from datetime import datetime
 from typing import List, Optional
 
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
+from src import crud
 from src.core.config import settings
-from src.core.utilities import fail_save, log_msg
+from src.core.utilities import fail_save, find
 from src.crud.base import CRUDBase
-from src.crud.crud_stock import stock
-from src.models.after_order import AfterOrder
-from src.models.limit_order import LimitOrder
-from src.models.long_position import LongPosition
-from src.models.short_position import ShortPosition
+from src.models.position import LongPosition, ShortPosition
 from src.models.transaction import Transaction
 from src.models.user import User
-from src.models.watch_list import WatchList
+from src.models.watchlist import WatchList
+from src.schemas.response import Fail, Result, return_result
 from src.schemas.transaction import TradeType
-from src.schemas.user import (
-    AfterOrderCreate,
-    LimitOrderCreate,
-    TransactionCreate,
-    TransactionHistoryCreate,
-    UserCreate,
-    UserUpdate,
-)
 
 
-class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
+class CRUDUser(CRUDBase[User]):
     """
     Module for user/auth related CRUD operations
     """
 
-    def get_all_users(self, db: Session) -> List[User]:
-        return db.query(self.model).all()
+    @return_result()
+    def fail_if_stock_missing(self, db, symbol, msg, log_level="WARNING") -> Result:
+        if not crud.stock.symbol_exists(db=db, symbol=symbol):
+            Fail(msg).log(log_level).assert_ok()
 
+    @fail_save
+    def get_all_users(self, db: Session) -> List[User]:
+        return self.query(db).all()
+
+    @fail_save
     def get_user_by_uid(self, *, db: Session, uid: str) -> Optional[User]:
         """
-        Return the corresponding user by token.
+        Return the corresponding user by uid.
         """
-        return db.query(self.model).filter(self.model.uid == uid).first()  # Field is unique
+        return self.query(db).get(uid)
 
     @fail_save
-    def update_balance(self, *, db: Session, user_in: User, balance_in: float) -> User:
+    @return_result()
+    def add_to_watchlist(self, *, db: Session, user: User, symbol: str) -> Result:
         """
-        Only update the balance of the user.
+        Add a watchlist to the user's watchlist.
         """
-        user_in.balance = balance_in
-        db.commit()
-        db.refresh(user_in)
-        return user_in
+        self.fail_if_stock_missing(
+            db, symbol, f"Cannot add a non-existent stock to watchlist of User(uid = {user.uid})."
+        )
 
-    def symbol_exist(self, db: Session, symbol_in: str):
-        """
-        Return True if the symbol exists
-        """
-        return stock.get_stock_by_symbol(db=db, stock_symbol=symbol_in) != None
+        if find(user.watchlist, symbol=symbol) is not None:
+            return Fail(f"Symbol {symbol} already exists in watchlist.")
 
-    @fail_save
-    def add_to_watch_list(self, *, db: Session, user_in: User, symbol_in: str) -> User:
-        """
-        Add a watchlist to the user_in's watchlist.
-        """
-        # BUG: adding existing stocks breaks the code, handle it
-        if self.symbol_exist(db=db, symbol_in=symbol_in):
-            requested_watchlist_entry = WatchList(user_id=user_in.uid, symbol=symbol_in)
-
-            user_in.watchlist.append(requested_watchlist_entry)
-            db.commit()
-            db.refresh(user_in)
-            return user_in
-        else:
-            log_msg(
-                f"Adding a non-existent symbol to watchlist of User(uid = {user_in.uid}).",
-                "WARNING",
-            )
-            return user_in
+        user.watchlist.append(WatchList(user_id=user.uid, symbol=symbol))
+        self.commit_and_refresh(db, user)
 
     @fail_save
-    def delete_from_watch_list(self, *, db: Session, user_in: User, symbol_in: str) -> User:
+    @return_result()
+    def delete_from_watchlist(self, *, db: Session, user: User, symbol: str) -> Result:
         """
-        Delete a watchlist for user_in.
+        Delete a watchlist for user.
         """
-        if self.symbol_exist(db=db, symbol_in=symbol_in):
-            search_result = None
-            for entry in user_in.watchlist:
-                if entry.symbol == symbol_in:
-                    search_result = entry
-                    break
+        self.fail_if_stock_missing(
+            db, symbol, f"Cannot delete a non-existent stock from watchlist of User(uid = {user.uid})."
+        )
 
-            if search_result == None:
-                log_msg(
-                    f"Deleting a non-existent stock from watchlist of User(uid = {user_in.uid})",
-                    "WARNING",
-                )
-            else:
-                user_in.watchlist.remove(search_result)
-                db.commit()
-                db.refresh(user_in)
+        entry = find(user.watchlist, symbol=symbol)
+        if entry is None:
+            return Fail(f"Cannot delete a stock that is not in watchlist of User(uid = {user.uid}).").log("WARNING")
 
-            return user_in
-        else:
-            log_msg(
-                f"Deleting a non-existent symbol from watchlist of User(uid = {user_in.uid}).",
-                "WARNING",
-            )
-            return user_in
+        user.watchlist.remove(entry)
+        self.commit_and_refresh(db, user)
 
     @fail_save
+    @return_result()
     def add_transaction(
         self,
         *,
-        db: Session,
-        user_in: User,
+        symbol: str,
+        qty: int,
+        price: float,
         is_long: bool,
-        symbol_in: str,
-        amount_in: int,
-        price_in: float,
-    ) -> User:
+        db: Session,
+        user: User,
+    ) -> Result:
         """
-        Add amount and price to portfolio
+        Add stock qty to portfolio
         """
-        if not self.symbol_exist(db=db, symbol_in=symbol_in):
-            log_msg(
-                f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).",
-                "WARNING",
-            )
-            return user_in
+        self.fail_if_stock_missing(
+            db, symbol, f"Cannot add a non-existent stock to the portfolio of User(uid = {user.uid})."
+        )
 
-        positions = user_in.long_positions if is_long else user_in.short_positions
-        pos = next((x for x in positions if x.symbol == symbol_in), None)
+        positions = user.long_positions if is_long else user.short_positions
+        pos = find(positions, symbol=symbol)
 
         if pos is None:
             Position = LongPosition if is_long else ShortPosition
-            positions.append(Position(user_id=user_in.uid, symbol=symbol_in, amount=amount_in, avg=price_in))
+            positions.append(Position(user_id=user.uid, symbol=symbol, qty=qty, avg=price))
         else:
-            # running average used here
-            new_avg = (pos.avg * pos.amount + amount_in * price_in) / (pos.amount + amount_in)
-            new_amount = pos.amount + amount_in
+            # compute running average
+            new_avg = (pos.avg * pos.qty + qty * price) / (pos.qty + qty)
+            new_qty = pos.qty + qty
 
-            pos.avg, pos.amount = new_avg, new_amount
+            pos.avg, pos.qty = new_avg, new_qty
 
-        db.commit()
-        db.refresh(user_in)
-        return user_in
+        self.commit_and_refresh(db, user)
 
     @fail_save
-    def deduct_transaction(self, *, db: Session, user_in: User, is_long: bool, symbol_in: str, amount_in: int) -> User:
+    @return_result()
+    def deduct_transaction(self, *, db: Session, user: User, is_long: bool, symbol: str, qty: int) -> Result:
         """
-        Remove a stock from portfolio (selling). For type specify 'long' or 'short'
+        Deduct stock qty from portfolio
         """
+        self.fail_if_stock_missing(
+            db, symbol, f"Cannot deduct a non-existent stock from the portfolio of User(uid = {user.uid})."
+        )
 
-        if not self.symbol_exist(db=db, symbol_in=symbol_in):
-            log_msg(
-                f"Adding a non-existent symbol on portfolio of User(uid = {user_in.uid}).",
-                "WARNING",
-            )
-            return user_in
-
-        positions = user_in.long_positions if is_long else user_in.short_positions
-        pos = next((x for x in positions if x.symbol == symbol_in), None)
+        positions = user.long_positions if is_long else user.short_positions
+        pos = find(positions, symbol=symbol)
 
         if pos is None:
-            log_msg(
-                f"Deducting a non-existent stock of User(uid = {user_in.uid}).",
-                "WARNING",
-            )
-            return user_in
+            return Fail(f"Cannot deduct a stock that User(uid = {user.uid}) does not own.").log("WARNING")
 
-        new_amount = pos.amount - amount_in
-        if new_amount < 0:
-            log_msg(
-                f"Deducting more than owned of User(uid = {user_in.uid}).",
-                "WARNING",
-            )
-        elif new_amount == 0:
-            positions.remove(pos) if is_long else positions.remove(pos)
+        new_qty = pos.qty - qty
+        if new_qty < 0:
+            return Fail(f"Deducting more than owned of User(uid = {user.uid}).").log("WARNING")
+        elif new_qty == 0:
+            positions.remove(pos)
         else:
-            pos.amount = new_amount
+            pos.qty = new_qty
 
-        db.commit()
-        db.refresh(user_in)
-        return user_in
+        self.commit_and_refresh(db, user)
 
     @fail_save
-    def delete_user_by_email(self, db: Session, *, email: str) -> bool:
-        obj = db.query(self.model).filter(self.model.email == email).first()
-        if obj:
-            db.delete(obj)
-            db.commit()
-            return True
-        return False
+    @return_result()
+    def delete_user_by_email(self, db: Session, *, email: str) -> Result:
+        user = self.query(db).filter_by(email=email).first()
+        if user is None:
+            return Fail(f"User of email {email} does not exist").log("WARNING")
+
+        db.delete(user)
+        db.commit()
 
     @fail_save
-    def create_order(
-        self, *, db: Session, user_in: User, trade_type: TradeType, symbol: str, quantity: int, limit: float
-    ) -> User:
-        if self.symbol_exist(db=db, symbol_in=symbol):
+    @return_result()
+    def reset(self, *, user: User, db: Session) -> Result:
+        """
+        Reset portfolio, transaction history, and balance
+        """
+        # reset
+        user.balance = settings.STARTING_BALANCE
+        user.long_positions = []
+        user.short_positions = []
+        user.transactions = []
 
-            stc = LimitOrderCreate(
-                user_id=user_in.uid,
-                symbol=symbol,
-                amount=quantity,
-                t_type=trade_type.name,
-                price=limit,
-            )
+        # set new reset time and amount
+        user.resets += 1
+        user.last_reset = datetime.now()
 
-            user_in.limit_orders.append(LimitOrder(**stc.__dict__))
-        else:
-            log_msg(
-                f"Adding a non-existent symbol on limit order of User(uid = {user_in.uid}).",
-                "WARNING",
-            )
-            return user_in
-
-        db.commit()
-        db.refresh(user_in)
-        return user_in
+        self.commit_and_refresh(db, user)
 
     @fail_save
-    def delete_order(self, *, db: Session, user_in: User, identity: int) -> User:
-        std = None
-        for order in user_in.limit_orders:
-            if order.id == identity:
-                std = order
-
-        if std == None:
-            log_msg(f"No limit order of id {identity} exists. ", "ERROR")
-            return user_in
-        else:
-            user_in.limit_orders.remove(std)
-
-        db.commit()
-        db.refresh(user_in)
-
-        return user_in
-
-    def reset_user_portfolio(self, *, user_in: User, db: Session) -> User:
-
-        # Reset portfolio and transaction history
-        user_in.long_positions = []
-        user_in.short_positions = []
-        user_in.transactions = []
-
-        # Set new reset time and amount
-        user_in.resets += 1
-        user_in.last_reset = datetime.now()
-
-        db.commit()
-        db.refresh(user_in)
-
-        return user_in
-
-    @fail_save
+    @return_result()
     def add_history(
         self,
         *,
+        symbol: str,
+        qty: int,
+        price: float,
+        trade_type: TradeType,
+        timestamp: datetime,
         db: Session,
-        user_in: User,
-        date_time_in: datetime,
-        price_in: float,
-        trade_type_in: TradeType,
-        amount_in: int,
-        symbol_in: str,
-    ) -> User:
+        user: User,
+    ) -> Result:
         """
         Add to the historical transaction.
         """
-        requested_record = TransactionHistoryCreate(
-            date_time=date_time_in,
-            user_id=user_in.uid,
-            price=price_in,
-            action=trade_type_in.name,
-            symbol=symbol_in,
-            amount=amount_in,
+        user.transaction_hist.append(
+            Transaction(
+                user_id=user.uid,
+                symbol=symbol,
+                qty=qty,
+                price=price,
+                trade_type=trade_type.name,
+                timestamp=timestamp,
+            )
         )
-        user_in.transaction_hist.append(Transaction(**requested_record.__dict__))
-        db.commit()
-        db.refresh(user_in)
-        return user_in
-
-    @fail_save
-    def add_after_order(
-        self,
-        *,
-        db: Session,
-        user_in: User,
-        trade_type_in: TradeType,
-        amount_in: int,
-        symbol_in: str,
-        dt_in: datetime,
-    ) -> User:
-        """
-        Add an after order for the user.
-        """
-        if self.symbol_exist(db=db, symbol_in=symbol_in):
-            stc = AfterOrderCreate(
-                user_id=user_in.uid,
-                symbol=symbol_in,
-                amount=amount_in,
-                t_type=trade_type_in.name,
-                date_time=dt_in,
-            )
-
-            user_in.after_orders.append(AfterOrder(**stc.__dict__))
-        else:
-            log_msg(
-                f"Adding a non-existent symbol on after order of User(uid = {user_in.uid}).",
-                "WARNING",
-            )
-            return user_in
-
-        db.commit()
-        db.refresh(user_in)
-        return user_in
-
-    @fail_save
-    def delete_after_order(self, *, db: Session, user_in: User, identity: int) -> User:
-        std = None
-        for order in user_in.after_orders:
-            if order.id == identity:
-                std = order
-
-        if std == None:
-            log_msg(f"No after order of id {identity} exists. ", "ERROR")
-            return user_in
-        else:
-            user_in.after_orders.remove(std)
-
-        db.commit()
-        db.refresh(user_in)
+        self.commit_and_refresh(db, user)
 
 
 user = CRUDUser(User)

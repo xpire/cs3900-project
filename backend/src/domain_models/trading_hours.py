@@ -1,7 +1,7 @@
-from datetime import datetime, timedelta, time
+from datetime import datetime, time, timedelta
 
 from pytz import timezone
-from src import crud
+from src import crud, schemas
 from src.core.utilities import HTTP400, as_delta
 
 
@@ -17,16 +17,17 @@ class TradingHoursManager:
         is_in_range = open <= time and time <= close
         return is_in_range and self.is_trading_day(stock, date)
 
-    def get_trading_hours_info(self, stock):
+    def get_trading_hours_info(self, stock) -> schemas.TradingHoursInfo:
         exchange = self.get_exchange(stock.exchange)
         is_trading = self.is_trading(stock)
-        return dict(is_trading=is_trading, open=exchange.open, close=exchange.close)
+        return schemas.TradingHoursInfo(is_trading=is_trading, open=exchange.open, close=exchange.close)
 
     def is_trading_day(self, stock, date):
-        exchange = self.get_exchange(stock.exchange)  # TODO this should later return a proper db object
+        exchange = self.get_exchange(stock.exchange)
         return exchange.simulated or date.weekday() <= 4
 
     def get_exchange(self, exchange):
+        # TODO return Result instead of raising
         exchange = crud.exchange.get_exchange_by_name(exchange)
         if exchange is None:
             raise HTTP400("Exchange for the given symbol not found.")

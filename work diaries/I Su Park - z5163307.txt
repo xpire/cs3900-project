@@ -78,3 +78,16 @@ Week 6:
 - technical obstacle 1: there was an issue with TwelveData, where when we polled for 365days' worth of data, we'd only get 7 or 10 entries. I was able to solve this by simply contacting the customer service
 - technical obstacle 2: the existing trading logic (i.e. executing trades, calculating costs, commission fee, updating db, etc.) were spread across the code base and had lots of redundant code. Hence, I focused most of my development effort this week refactoring the trading logic, which in the end was very beneficial, because it allowed me to get my features done very easily (e.g. granting experience points for trading could be implemented in 1 line).
 - plan for next week: work on simulated stock data, refactor the backend codebase even more, start looking at frontend codebase so that I can start working on prettifying the frontend next next week
+
+Week 7:
+- planned last week: work on simulated stock data, refactor the backend codebase even more, start looking at frontend codebase so that I can start working on prettifying the frontend next next week
+- implemented full fledged stock data whose timeseries data is randomly generated, and I refactored the order domain model (which is a relatively large chunk of code)
+- because refactoring took much longer than I imagined, I did not get around to look at frontend much, but on the other hand, I was able to devise some more ideas about how I want to prettify the frontend, so hopefully there won't be much delay caused by me not being able to complete this task by the end of this week
+- techinical obstacle: refactoring the code for orders was quite challenging, just like last week, but by applying the template pattern and few python tricks, I was able to achieve what I see as quite clean and well-organised code
+- plan for next week: I will be very busy with other subjects, so I won't be able to work on this project much, but I want to finish refactoring the backend codebase completely, and start redesigning frontend UI (i.e. draw sketches)
+
+Week 8:
+- plan for next week: finish refactoring the backend codebase completely, and start redesigning frontend UI (i.e. draw sketches)
+- I was able to finish refactoring: all domain models (split user into user and statistic calculation code), all endpoints, all schemas, and all game features
+- technical obstacle: there were issues with some of domain model code raising HTTP400 exceptions intentionally and making the whole server crash, so I introduced what I call "Result" system which makes propagation of success/failure through the codebase and logging them easy.
+- I realised I also need to add in more achievements so I decided to work on that too, and managed to come up with a variety

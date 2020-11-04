@@ -1,28 +1,34 @@
-from typing import Optional
+from datetime import timedelta
 
 from pydantic import BaseModel as BaseSchema
+from src.core.config import settings
+from src.util.extended_types import Const
+
+
+class TradingHoursInfo(BaseSchema):
+    is_trading: bool
+    open: timedelta
+    close: timedelta
 
 
 class StockBase(BaseSchema):
+    symbol: str
+    name: str
+    exchange: str
+    industry: str
+    currency: str
+    type: str
+
+
+class StockAPIout(StockBase):
     pass
 
 
-class StockCreate(StockBase):
-    pass
-
-
-class StockUpdate(StockBase):
-    pass
-
-
-class StockInDBBase(StockBase):
-    class Config:
-        orm_mode = True
-
-
-class Stock(StockInDBBase):
-    pass
-
-
-class StockInDB(StockInDBBase):
-    pass
+class StockRealTimeAPIout(StockBase):
+    curr_day_close: float
+    curr_day_open: float
+    prev_day_close: float
+    commission: float = Const(settings.COMMISSION_RATE)
+    is_trading: bool
+    open: timedelta
+    close: timedelta

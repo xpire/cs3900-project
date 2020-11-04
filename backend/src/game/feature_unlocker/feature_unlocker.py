@@ -1,9 +1,11 @@
-from src.game import feature_unlocker
 from src.game.event.event import GameEvent, GameEventType
 from src.notification import FeatureUnlockedEvent, UnlockableFeatureType, notif_hub
 
 
 class FeatureUnlocker:
+    def __init__(self, features):
+        self.features = features
+
     def update(self, event: GameEvent):
         if event.event_type is GameEventType.LEVEL_UP:
             event = self.unlock(event.user, event.new_level)
@@ -12,21 +14,22 @@ class FeatureUnlocker:
                 notif_hub.publish(event)
 
     def unlock(self, user, level):
-        if level == 3:
-            return FeatureUnlockedEvent(
-                user=user, feature_type=UnlockableFeatureType.LIMIT_ORDER, msg="You can now make limit orders!"
-            )
-        elif level == 5:
-            return FeatureUnlockedEvent(
-                user=user, feature_type=UnlockableFeatureType.SHORT_25, msg="You can now make short orders!"
-            )
-        elif level == 10:
-            return FeatureUnlockedEvent(
-                user=user,
-                feature_type=UnlockableFeatureType.SHORT_50,
-                msg="You can now short up to 50% of your net worth!",
-            )
+        for feature_type, info in self.features.items():
+            if info["level"] == level:
+                return FeatureUnlockedEvent(user=user, feature_type=feature_type, msg=info["msg"])
         return None
 
+    def level_required(self, feature_type):
+        info = self.features.get(feature_type, None)
+        if info is None:
+            return None
+        return info["level"]
 
-feature_unlocker = FeatureUnlocker()
+
+features = {
+    UnlockableFeatureType.LIMIT_ORDER: dict(level=3, msg="You can now make limit orders!"),
+    UnlockableFeatureType.SHORT_25: dict(level=5, msg="You can now make short orders!"),
+    UnlockableFeatureType.SHORT_50: dict(level=10, msg="You can now short up to 50% of your net worth!"),
+}
+
+feature_unlocker = FeatureUnlocker(features)

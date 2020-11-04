@@ -2,11 +2,12 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 
 from src.core import trade
-from src.core.utilities import HTTP400
 from src.crud import crud_user
 from src.game.event.sub_events import StatUpdateEvent
+from src.game.feature_unlocker.feature_unlocker import feature_unlocker
 from src.game.setup.setup import event_hub
-from src.schemas.response import Fail, Response, Result, return_result
+from src.notification.notif_event import UnlockableFeatureType
+from src.schemas.response import Fail, Result, return_result
 from src.schemas.transaction import TradeType
 
 
@@ -28,7 +29,7 @@ class Trade(ABC):
         # Assume qty > 0 check done by order_dm.Order
         total_price = self.price * self.qty
         trade_price = trade.apply_commission(total_price, self.is_buying)
-        self.check(total_price, trade_price).assert_ok()
+        self.check(total_price, trade_price).ok()
         self.apply_trade(trade_price)
 
         # Add exp equivalent to the amount of commission deducted
@@ -41,26 +42,25 @@ class Trade(ABC):
         if self.is_opening:
             crud_user.user.add_transaction(
                 db=self.db,
-                user_in=self.model,
+                user=self.model,
                 is_long=self.is_long,
-                symbol_in=self.symbol,
-                amount_in=self.qty,
-                price_in=self.price,
+                symbol=self.symbol,
+                qty=self.qty,
+                price=self.price,
             )
         else:
             crud_user.user.deduct_transaction(
-                db=self.db, user_in=self.model, is_long=self.is_long, symbol_in=self.symbol, amount_in=self.qty
+                db=self.db, user=self.model, is_long=self.is_long, symbol=self.symbol, qty=self.qty
             )
-        new_balance = self.model.balance + trade_price * (-1 if self.is_buying else 1)
-        crud_user.user.update_balance(db=self.db, user_in=self.model, balance_in=new_balance)
+        self.user.balance += trade_price * (-1 if self.is_buying else 1)
         crud_user.user.add_history(
             db=self.db,
-            user_in=self.model,
-            date_time_in=datetime.now(),
-            price_in=self.price,
-            trade_type_in=self.trade_type,
-            amount_in=self.qty,
-            symbol_in=self.symbol,
+            user=self.model,
+            timestamp=datetime.now(),
+            price=self.price,
+            trade_type=self.trade_type,
+            qty=self.qty,
+            symbol=self.symbol,
         )
 
     @abstractmethod
@@ -133,13 +133,16 @@ class ShortTrade(Trade):
 
     @return_result()
     def check(self, total_price, trade_price) -> Result:
-        if self.user.level < 5:
-            return Fail(f"Insufficient level. Reach level 5 to short sell")
+        level_short_25 = feature_unlocker.level_required(UnlockableFeatureType.SHORT_25)
+        level_short_50 = feature_unlocker.level_required(UnlockableFeatureType.SHORT_50)
+
+        if self.user.level < level_short_25:
+            return Fail(f"Insufficient level. Reach level {level_short_25} to short sell")
 
         if not trade.check_short_balance(self.user, total_price):
-            if self.user.level < 10:
+            if self.user.level < level_short_50:
                 return Fail(
-                    f"Insufficient short balance. Reach level 10, buy to cover or increase net worth to short more."
+                    f"Insufficient short balance. Reach level {level_short_50}, buy to cover or increase net worth to short more."
                 )
             else:
                 return Fail(f"Insufficient short balance. Buy to cover or increase net worth to short more.")
@@ -153,8 +156,9 @@ class CoverTrade(Trade):
 
     @return_result()
     def check(self, total_price, trade_price) -> Result:
-        if self.user.level < 5:
-            return Fail(f"Insufficient level. Reach level 5 to buy-to-cover")
+        level_short_25 = feature_unlocker.level_required(UnlockableFeatureType.SHORT_25)
+        if self.user.level < level_short_25:
+            return Fail(f"Insufficient level. Reach level {level_short_25} to buy-to-cover")
 
         if not trade.check_owned_shorts(self.user, self.qty, self.symbol):
             return Fail("Cannot cover more than owed")

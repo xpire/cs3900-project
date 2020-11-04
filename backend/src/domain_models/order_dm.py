@@ -5,8 +5,10 @@ from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm
 from src import schemas
-from src.core import trade
+from src.core.utilities import find
 from src.domain_models import trading_hours
+from src.game.feature_unlocker.feature_unlocker import feature_unlocker
+from src.notification.notif_event import UnlockableFeatureType
 from src.schemas.response import Fail, Result, Success, return_result
 from src.schemas.transaction import OrderType, TradeType
 
@@ -30,7 +32,7 @@ class Order(ABC):
 
     @return_result()
     def submit(self) -> Result:
-        self.check_submit().assert_ok()
+        self.check_submit().ok()
 
         # If the order can be executed immediately, execute
         if self.try_execute():
@@ -59,7 +61,10 @@ class Order(ABC):
         return trading_hours.trading_hours_manager.is_trading(self.get_stock())
 
     def get_stock(self):
-        return crud.stock.get_stock_by_symbol(db=self.db, symbol=self.symbol)
+        return crud.stock.get_by_symbol(db=self.db, symbol=self.symbol)
+
+    def get_curr_price(self):
+        return dm.get_data_provider().curr_price(self.symbol)
 
     @abstractproperty
     def order_type(self):
@@ -102,14 +107,18 @@ class LimitOrder(Order):
 
     @return_result()
     def check_submit(self) -> Result:
-        super().check_submit().assert_ok()
+        level_limit = feature_unlocker.level_required(UnlockableFeatureType.LIMIT_ORDER)
+        if self.user.level < level_limit:
+            return Fail(f"You must be level {level_limit} or above to make limit orders.")
+
+        super().check_submit().ok()
 
         if self.limit_price < 0:
             return Fail("Limit value cannot be negative")
 
     @return_result()
     def _try_execute(self) -> Result:
-        curr_price = trade.get_stock_price(self.symbol)
+        curr_price = self.get_curr_price()
         if not self.can_execute(curr_price):
             return Fail()
 
@@ -139,7 +148,7 @@ class MarketOrder(Order):
     @return_result()
     def _try_execute(self) -> Result:
         if not self.is_pending:
-            return self.execute(trade.get_stock_price(self.symbol))
+            return self.execute(self.get_curr_price())
 
         return self.try_execute_pending()
 
@@ -151,14 +160,13 @@ class MarketOrder(Order):
         if datetime.now() < open_datetime:
             return Fail()
 
-        open_price = next((x.open for x in stock.timeseries if x.date == open_datetime.date()), None)
-
-        if open_price is None:
+        time_series = find(stock.time_series, date=open_datetime.date())
+        if time_series is None:
             return Fail(
                 f"Cannot execute market order because open price data for stock {stock.symbol} does not exist."
             ).log()
 
-        self.execute(open_price)
+        self.execute(time_series.open)
 
     @property
     def schema(self):

@@ -1,9 +1,8 @@
 from .achievement import UnlockedAchievement
-from .long_position import LongPosition
 from .pending_order import AfterOrder, LimitOrder, PendingOrder
-from .short_position import ShortPosition
+from .position import LongPosition, Position, ShortPosition
 from .stock import Stock
 from .time_series import TimeSeries
 from .transaction import Transaction
 from .user import User
-from .watch_list import WatchList
+from .watchlist import WatchList

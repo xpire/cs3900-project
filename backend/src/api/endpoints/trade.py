@@ -1,29 +1,21 @@
-from datetime import datetime
-
-from fastapi import APIRouter, Depends
+from fastapi import Depends
 from sqlalchemy.orm import Session
 from src import domain_models as dm
 from src.api.deps import check_symbol, get_current_user_dm, get_db
-from src.core import trade
-from src.core.utilities import HTTP400
-from src.crud import crud_user, stock
-from src.domain_models.trade_dm import Trade
-from src.domain_models.trading_hours import trading_hours_manager
-from src.schemas.response import Response, return_response, return_result
+from src.schemas.response import Result, ResultAPIRouter
 from src.schemas.transaction import TradeType
 
-router = APIRouter()
+router = ResultAPIRouter()
 
 # TODO change endpoint parameter names
 def market_order_endpoint(endpoint, trade_type):
     @router.post(endpoint)
-    @return_response()
     async def market_order(
         quantity: int,
         symbol: str = Depends(check_symbol),
         user: dm.UserDM = Depends(get_current_user_dm),
         db: Session = Depends(get_db),
-    ) -> Response:
+    ) -> Result:
         return dm.MarketOrder(symbol=symbol, qty=quantity, user=user, db=db, trade_type=trade_type).submit()
 
     return market_order
@@ -31,14 +23,13 @@ def market_order_endpoint(endpoint, trade_type):
 
 def limit_order_endpoint(endpoint, trade_type):
     @router.post(endpoint)
-    @return_response()
     async def limit_order(
         quantity: int,
         limit: float,
         symbol: str = Depends(check_symbol),
         user: dm.UserDM = Depends(get_current_user_dm),
         db: Session = Depends(get_db),
-    ) -> Response:
+    ) -> Result:
         return dm.LimitOrder(
             limit_price=limit, symbol=symbol, qty=quantity, user=user, db=db, trade_type=trade_type
         ).submit()

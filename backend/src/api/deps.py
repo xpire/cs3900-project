@@ -49,7 +49,7 @@ def get_current_user_dm(
 
 async def check_symbol(symbol: str, db: Session = Depends(get_db)):
 
-    if not crud.stock.get_stock_by_symbol(db=db, symbol=symbol):
+    if not crud.stock.get_by_symbol(db=db, symbol=symbol):
         raise HTTPException(status_code=400, detail="No such symbol exists")
 
     return symbol

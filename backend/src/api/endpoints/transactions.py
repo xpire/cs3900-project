@@ -1,29 +1,18 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from src import domain_models
-from src.api.deps import get_current_user_dm, get_db
+from typing import List
 
-router = APIRouter()
+from fastapi import Depends
+from src import schemas
+from src.api.deps import get_current_user_m
+from src.models.user import User
+from src.schemas.response import ResultAPIRouter
+from src.schemas.transaction import TransactionAPIout
+
+router = ResultAPIRouter()
 
 
-@router.get("")
-async def get_transactions(
-    user: domain_models.UserDM = Depends(get_current_user_dm),
-    db: Session = Depends(get_db),
-):
-    ret = []
+@router.get("/")
+async def get_transactions(user_m: User = Depends(get_current_user_m)) -> List[TransactionAPIout]:
+    def to_schema(t):
+        return schemas.TransactionAPIout(**t.dict(), name=t.stock.name)
 
-    for transaction in user.model.transaction_hist:
-        ret += [
-            {
-                "t_type": transaction.action,
-                "symbol": transaction.symbol,
-                "name": transaction.stock_info.name,
-                "amount": transaction.amount,
-                "price": transaction.price,
-                "value": transaction.amount * transaction.price,
-                "timestamp": transaction.date_time,
-            }
-        ]
-
-    return ret
+    return [to_schema(t) for t in user_m.transaction_hist]

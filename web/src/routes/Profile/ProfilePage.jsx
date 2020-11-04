@@ -34,7 +34,7 @@ const headCells = [
     label: "Timestamp",
   },
   {
-    id: "t_type",
+    id: "trade_type",
     formatType: tableTypes.TEXT,
     disablePadding: false,
     label: "Trade Type",
@@ -52,7 +52,7 @@ const headCells = [
     label: "Name",
   },
   {
-    id: "amount",
+    id: "qty",
     formatType: tableTypes.NUMBER,
     disablePadding: false,
     label: "Quantity",

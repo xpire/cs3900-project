@@ -111,7 +111,7 @@ const Trading = () => {
     update,
   ]); // check overall stats
   const [rawCommission, rawCommissionLoading] = useApi(
-    `/stocks/stocks?symbols=${state.symbol}`,
+    `/stocks/real_time?symbols=${state.symbol}`,
     [
       //check current close price for stock
       state.symbol,
@@ -121,16 +121,16 @@ const Trading = () => {
     (data) => data[0].commission
   );
   const [closePrice, closePriceLoading] = useApi(
-    `/stocks/stocks?symbols=${state.symbol}`,
+    `/stocks/real_time?symbols=${state.symbol}`,
     [
       //check current close price for stock
       state.symbol,
     ],
     100,
-    (data) => data[0].curr_close_price
+    (data) => data[0].curr_day_close
   );
   const [online, onlineLoading] = useApi(
-    `/stocks/stocks?symbols=${state.symbol}`,
+    `/stocks/real_time?symbols=${state.symbol}`,
     [
       //check current close price for stock
       state.symbol,

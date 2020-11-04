@@ -53,11 +53,15 @@ init-db() {
 # Get the git hook tests
 setup-test() {
     echo "Setting up git hook tests...";
-    # NO ONE SHOULD EVER DO THIS, BUT STUFF IT
     git_dir="../.git/hooks";
-    echo "pytest -v backend/src/tests" >> ${git_dir}/temp_pytest;
-    test -f ${git_dir}/pre-push && cat ${git_dir}/pre-push >> ${git_dir}/temp_pytest && rm ${git_dir}/pre-push;
-    mv ${git_dir}/temp_pytest ${git_dir}/pre-push && chmod +x ${git_dir}/pre-push && echo "Cool";
+
+    # yeet the pytest file
+    cp src/util/pytest.sh ${git_dir}
+    
+    # delete file create file blah blah blah...
+    echo ". \"\$(dirname "\$0")/pytest.sh\"" >> ${git_dir}/pytest_temp;
+    test -f ${git_dir}/pre-push && awk '!/pytest/' ${git_dir}/pre-push >> ${git_dir}/pytest_temp && rm ${git_dir}/pre-push;
+    mv ${git_dir}/pytest_temp ${git_dir}/pre-push && chmod +x ${git_dir}/pre-push && echo "Cool";
 }
 
 explode() {
@@ -153,13 +157,17 @@ elif [ $# -eq 1 ]; then
             setup-test;
         ;;
 
+        "setup-pythonpath")
+            set-python-path;
+        ;; 
+
         "run-test")
             title-bar; 
             set-python-path;
             pytest -v src/tests;
         ;;
-        *) echo "Please provide the correct path.";;
+        *) echo "Please provide the correct function name.";;
     esac
 else
     echo "Please provide the correct amount of arguments, check the README file for usage.";
-fi
+fi 

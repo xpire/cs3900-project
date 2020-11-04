@@ -56,14 +56,14 @@ def log_msg(msg: str, level: str) -> None:
     handles printing not actually raising any errors
     """
     logger = logging.getLogger("backend logger")
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    if not logger.handlers:
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        ch = logging.StreamHandler()
+        ch.setFormatter(formatter)
+        ch.setLevel(logging.DEBUG)
 
-    ch = logging.StreamHandler()
-    ch.setFormatter(formatter)
-    ch.setLevel(logging.DEBUG)
-
-    logger.setLevel(logging.DEBUG)
-    logger.addHandler(ch)
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(ch)
 
     plvs = defaultdict(lambda: None)
     log_lvs = {

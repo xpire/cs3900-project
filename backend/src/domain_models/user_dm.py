@@ -35,13 +35,13 @@ class UserDM:
 
         crud.user.reset(user=self.model, db=self.db)
 
-        event_hub.publish(StatUpdateEvent(user=self.model))
+        event_hub.publish(StatUpdateEvent(user=self))
         return Success("Reset successfully.")
 
     def can_reset_portfolio(self):
         if not self.model.last_reset:
             return True
-        return (datetime.now() - self.model.last_reset).days >= settings.RESET_WAIT_PERIOD_DAYS
+        return (datetime.now() - self.model.last_reset).seconds >= settings.RESET_WAIT_PERIOD_SECONDS
 
     @property
     def exp(self):

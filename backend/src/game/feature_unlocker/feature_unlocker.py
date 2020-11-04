@@ -19,8 +19,11 @@ class FeatureUnlocker:
                 return FeatureUnlockedEvent(user=user, feature_type=feature_type, msg=info["level"])
         return None
 
-    def required(self, feature_type):
-        return self.features.get(feature_type, None)
+    def level_required(self, feature_type):
+        info = self.features.get(feature_type, None)
+        if info is None:
+            return None
+        return info["level"]
 
 
 features = {

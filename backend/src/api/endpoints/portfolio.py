@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import Depends
 from src import domain_models as dm
 from src import schemas
 from src.api.deps import get_current_user_dm
+from src.schemas.response import ResultAPIRouter
 
-router = APIRouter()
+router = ResultAPIRouter()
 
 
 @router.get("")

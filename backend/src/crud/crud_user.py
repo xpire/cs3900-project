@@ -31,7 +31,7 @@ class CRUDUser(CRUDBase[User]):
     @return_result()
     def fail_if_stock_missing(self, db, symbol, msg, log_level="WARNING") -> Result:
         if not crud.stock.symbol_exists(db=db, symbol=symbol):
-            Fail(msg).log(log_level).assert_ok()
+            Fail(msg).log(log_level).ok()
 
     @fail_save
     def get_all_users(self, db: Session) -> List[User]:

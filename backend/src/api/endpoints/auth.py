@@ -1,7 +1,7 @@
 from json.decoder import JSONDecodeError
 from typing import List
 
-from fastapi import APIRouter, Depends, Header, WebSocket, WebSocketDisconnect
+from fastapi import Depends, Header, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 from src import crud, models, schemas
 from src.api.deps import (
@@ -13,11 +13,12 @@ from src.api.deps import (
     get_db,
 )
 from src.core.async_exit import AppStatus
+from src.domain_models.user_dm import UserDM
 from src.game.achievement.achievement import UserAchievement
 from src.notification.notifier import Notifier, notif_hub
-from src.schemas.response import Response, return_response
+from src.schemas.response import Result, ResultAPIRouter
 
-router = APIRouter()
+router = ResultAPIRouter()
 
 
 @router.get("")
@@ -45,8 +46,7 @@ async def create_user(
 
 
 @router.get("/reset")
-@return_response()
-async def reset(user=Depends(get_current_user_dm)) -> Response:
+async def reset(user: UserDM = Depends(get_current_user_dm)) -> Result:
     return user.reset()
 
 
@@ -59,7 +59,7 @@ async def get_user_balance(user_m: models.User = Depends(get_current_user_m)) ->
 
 
 @router.get("/achievements")
-async def achievements(user=Depends(get_current_user_dm)) -> List[UserAchievement]:
+async def achievements(user: UserDM = Depends(get_current_user_dm)) -> List[UserAchievement]:
     """
     List of achievements and whether or not they are unlocked by the user
     """

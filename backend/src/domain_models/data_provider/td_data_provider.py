@@ -20,7 +20,7 @@ class TDProvider(RepeatedUpdateProvider):
         request = self.td.time_series(
             symbol=self.symbols_and_exchanges,
             interval="1day",
-            timezone=settings.TIMEZONE,  # TODO make config, and set defaultdatetime timezone using https://stackoverflow.com/questions/1301493/setting-timezone-in-python
+            timezone=settings.TIMEZONE,  # TODO consider setting defaultdatetime timezone using https://stackoverflow.com/questions/1301493/setting-timezone-in-python
             outputsize=365,
             start_date=start_date,
         )

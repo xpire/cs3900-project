@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql.schema import PrimaryKeyConstraint
 from sqlalchemy.sql.sqltypes import DateTime
 from src.db.base_model import BaseModel
 

@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel as BaseSchema
 from src.core.config import settings
-from src.util.extended_types import Const
+from src.core.utilities import Const
 
 
 class UserBase(BaseSchema):
@@ -24,23 +24,16 @@ class UserCreate(UserBase):
     resets: int = Const(0)
 
 
-class UserUpdate(UserBase):
-    pass
-
-
-class UserInDBBase(UserBase):
-    class Config:
-        orm_mode = True
-
-
-class User(UserInDBBase):
+class UserAPIout(UserBase):
     exp_until_next_level: Optional[float]
     is_max_level: bool
 
 
-# probably not needed?
-class UserInDB(UserInDBBase):
+class UserDBout(UserBase):
     uid: str
+
+    class Config:
+        orm_mode = True
 
 
 class LeaderboardUserBase(BaseSchema):

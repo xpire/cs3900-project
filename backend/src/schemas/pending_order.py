@@ -2,8 +2,8 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel as BaseSchema
+from src.core.utilities import Const
 from src.schemas.transaction import OrderType, TradeType
-from src.util.extended_types import Const
 
 
 class PendingOrderBase(BaseSchema):

@@ -8,7 +8,7 @@ from src.core.utilities import Const
 
 class UserBase(BaseSchema):
     username: str
-    email: str  # TODO change this to EmailStr (e.g. i.p@gmail == ip@gmail)
+    email: str
     balance: float
     level: int
     exp: float

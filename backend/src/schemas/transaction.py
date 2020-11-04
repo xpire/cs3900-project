@@ -20,6 +20,7 @@ class TradeType(str, AutoName):
     COVER = auto()
 
 
+# TODO
 class Transaction(BaseSchema):
     user: Any  # UserDM
     order_type: OrderType

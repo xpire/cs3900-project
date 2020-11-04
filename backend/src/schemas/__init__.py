@@ -1,3 +1,4 @@
+from .exchange import Exchange
 from .pending_order import LimitOrderDBcreate, MarketOrderDBcreate, PendingOrderAPIout, PendingOrderDBcreate
 from .portfolio import PortfolioAPIout, PortfolioStatAPIout, PositionAPIout
 from .stock import StockAPIout, StockRealTimeAPIout, TradingHoursInfo

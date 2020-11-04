@@ -1,6 +1,6 @@
 import datetime
 import random
-from typing import Dict
+from typing import Dict, List
 
 import src.models as md
 from fastapi.testclient import TestClient
@@ -11,7 +11,7 @@ from src.core.config import settings
 from .utils import random_email, random_float, random_lower_string
 
 
-def generate_random_user(is_init: bool) -> md.User:
+def generate_random_user(*, is_init: bool) -> Dict:
     return {
         "uid": random_lower_string(length=(1, 128), rand_length=True),
         "email": random_email(),
@@ -25,6 +25,14 @@ def generate_random_user(is_init: bool) -> md.User:
         else randomtimestamp(start_year=datetime.datetime.now().year, text=False),
     }
 
+
+def generate_k_users(*, init: bool, k: int) -> List[Dict]:  
+    res = []
+    for i in range(k): 
+        if (init and i == 0):
+            res.append(generate_random_user(is_init=init))
+        else: 
+            res.append(generate_random_user(is_init=False))
 
 # Ignore the below code, just some useless code that might be useful later.
 

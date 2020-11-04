@@ -30,7 +30,7 @@ class Order(ABC):
 
     @return_result()
     def submit(self) -> Result:
-        self.check_submit().assert_ok()
+        self.check_submit().ok()
 
         # If the order can be executed immediately, execute
         if self.try_execute():
@@ -105,7 +105,7 @@ class LimitOrder(Order):
 
     @return_result()
     def check_submit(self) -> Result:
-        super().check_submit().assert_ok()
+        super().check_submit().ok()
 
         if self.limit_price < 0:
             return Fail("Limit value cannot be negative")

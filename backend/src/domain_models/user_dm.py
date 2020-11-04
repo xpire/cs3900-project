@@ -33,7 +33,7 @@ class UserDM:
 
         crud.user.reset(user=self.model, db=self.db)
 
-        event_hub.publish(StatUpdateEvent(user=self.model))
+        event_hub.publish(StatUpdateEvent(user=self))
         return Success("Reset successfully.")
 
     def can_reset_portfolio(self):

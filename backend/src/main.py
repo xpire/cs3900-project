@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from starlette.middleware.cors import CORSMiddleware
 
 from src.api.api import api_router
 from src.core.config import settings
+from src.schemas.response import Result, ResultException
 
 app = FastAPI(title=settings.PROJECT_NAME)
 

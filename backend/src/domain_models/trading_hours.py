@@ -2,11 +2,12 @@ from datetime import datetime, time, timedelta
 
 from pytz import timezone
 from src import crud, schemas
-from src.core.utilities import HTTP400, as_delta
+from src.core.utilities import as_delta
+from src.schemas.response import Fail
 
 
 class TradingHoursManager:
-    def is_trading(self, stock):
+    def is_trading(self, stock) -> bool:
         exchange = self.get_exchange(stock.exchange)
         curr_datetime = datetime.now(timezone(exchange.timezone))
         date, time = curr_datetime.date(), as_delta(curr_datetime.time())
@@ -27,11 +28,9 @@ class TradingHoursManager:
         return exchange.simulated or date.weekday() <= 4
 
     def get_exchange(self, exchange):
-        # TODO return Result instead of raising
         exchange = crud.exchange.get_exchange_by_name(exchange)
         if exchange is None:
-            raise HTTP400("Exchange for the given symbol not found.")
-
+            return Fail("Exchange for the given symbol not found.").ok()
         return exchange
 
 

@@ -12,14 +12,22 @@ import inspect
 import logging
 import os
 from collections import defaultdict
+from enum import Enum
 from os import path
 from typing import Dict, List
 
 from fastapi import HTTPException
+from pydantic import Field
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 HTTP400 = lambda detail: HTTPException(status_code=400, detail=detail)
+Const = lambda x: Field(x, const=x)
+
+
+class AutoName(Enum):
+    def _generate_next_value_(name, start, count, last_values):
+        return name
 
 
 def find(iterable, default=None, **kwargs):

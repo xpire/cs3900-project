@@ -1,6 +1,10 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { TextField, Grid, Button, LinearProgress } from "@material-ui/core";
 
+/**
+ * Login form component used in most authentication pages.
+ */
 const Login = ({
   buttonText,
   submitHandler,
@@ -79,6 +83,28 @@ const Login = ({
       </Grid>
     </form>
   );
+};
+
+Login.propTypes = {
+  /** Text to display in the button */
+  buttonText: PropTypes.string,
+  /** submitHandler function that is called on submission */
+  submitHandler: PropTypes.func,
+  /** Whether to show a second password field for sign up page password verification */
+  repeat: PropTypes.bool,
+  /** Whether to show an Email field for Login and Sign Up */
+  email: PropTypes.bool,
+  /** Whether to show a Username field for Sign Up */
+  username: PropTypes.bool,
+  /** Whether component should display a loading indicator when submission is loading */
+  loading: PropTypes.bool,
+};
+
+Login.defaultProps = {
+  repeat: false,
+  email: true,
+  username: false,
+  loading: false,
 };
 
 export default Login;

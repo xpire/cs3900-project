@@ -3,6 +3,9 @@ import React from "react";
 import { ThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 
+/**
+ * A material-ui theme provider to style all material-ui components used within
+ */
 const MyThemeProvider = ({ children }) => {
   const prefersDarkMode = true;
   // useMediaQuery("(prefers-color-scheme: dark)") || darkMode;

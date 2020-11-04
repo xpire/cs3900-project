@@ -3,9 +3,8 @@ from enum import auto
 from typing import Any
 
 from pydantic import BaseModel as BaseSchema
+from src.core.utilities import AutoName, Const
 from src.game.achievement.achievement import Achievement
-from src.util.auto_name_enum import AutoName
-from src.util.extended_types import Const
 
 
 class NotifEventType(str, AutoName):

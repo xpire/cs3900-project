@@ -24,7 +24,7 @@ router = ResultAPIRouter()
 
 
 @router.get("")
-async def get_user(user=Depends(get_current_user_dm)) -> schemas.User:
+async def get_user(user=Depends(get_current_user_dm)) -> schemas.UserAPIout:
     return user.schema
 
 

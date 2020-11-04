@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { Link as MaterialLink } from "@material-ui/core";
 import { Link } from "react-router-dom";
 
-import { CenteredCard, CardHeading } from "../../components/common/styled";
+import {
+  CenteredCard,
+  CardHeading,
+  SubtitleLink,
+} from "../../components/common/styled";
 import app, { ActionCodeSettings } from "../../utils/firebase";
 import axios from "../../utils/api";
 import Page from "../../components/page/Page";
@@ -48,20 +51,17 @@ const SignUpPage = () => {
           </CardHeading>
         ) : (
           <>
-            <CardHeading variant="h3">Sign Up</CardHeading>{" "}
-            {
-              //TODO why sign up instead of register
-            }
+            <CardHeading variant="h3">Sign Up</CardHeading>
             <Login
-              buttonText="register"
+              buttonText="Sign Up"
               submitHandler={SignUp}
               repeat={true}
               username={true}
               loading={loading}
             />
-            <MaterialLink to="/signin" component={Link} color="inherit">
+            <SubtitleLink to="/signin" component={Link}>
               {"Already have an account? Sign in"}
-            </MaterialLink>
+            </SubtitleLink>
           </>
         )}
       </CenteredCard>

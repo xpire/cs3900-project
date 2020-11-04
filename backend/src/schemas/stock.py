@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from pydantic import BaseModel as BaseSchema
 from src.core.config import settings
-from src.util.extended_types import Const
+from src.core.utilities import Const
 
 
 class TradingHoursInfo(BaseSchema):

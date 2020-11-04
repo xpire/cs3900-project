@@ -36,6 +36,7 @@ const headCells = [
 
 const Leaderboard = () => {
   const [data, setData] = useState([]);
+  const [refresh, setRefresh] = useState(0);
   useEffect(() => {
     axios
       .get("/leaderboard")
@@ -47,7 +48,7 @@ const Leaderboard = () => {
         );
       })
       .catch((err) => console.log(err));
-  }, []);
+  }, [refresh]);
 
   return (
     <Page>
@@ -57,6 +58,7 @@ const Leaderboard = () => {
           header={headCells}
           title="Leaderboard"
           buttons={false}
+          handleRefresh={() => setRefresh(refresh + 1)}
         />
       </Card>
     </Page>

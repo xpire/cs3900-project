@@ -6,16 +6,10 @@ import {
   Button,
   useScrollTrigger,
   Slide,
-  // Link as MaterialLink,
 } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
-// import MenuIcon from "@material-ui/icons/Menu";
 import styled from "styled-components";
-import {
-  useHistory,
-  useLocation,
-  // Link
-} from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 
 import app from "../../utils/firebase";
 import { AuthContext } from "../../utils/authentication";
@@ -30,6 +24,9 @@ const HeaderTitle = styled(Typography)`
   flex-grow: 1;
 `;
 
+/**
+ * Header component for the website, with a button which opens the SideBar component
+ */
 const MyHeader = ({ toggleMenu }) => {
   const trigger = useScrollTrigger({ target: window }); // disable Slide for now
   const { user } = useContext(AuthContext);
@@ -71,7 +68,7 @@ const MyHeader = ({ toggleMenu }) => {
               color="primary"
               onClick={handleLogout}
             >
-              logout
+              Sign Out
             </HeaderButton>
           ) : (
             <HeaderButton
@@ -79,10 +76,7 @@ const MyHeader = ({ toggleMenu }) => {
               color="primary"
               onClick={handleLogin}
             >
-              login{" "}
-              {
-                // why not sign in?
-              }
+              Sign In
             </HeaderButton>
           )}
         </Toolbar>

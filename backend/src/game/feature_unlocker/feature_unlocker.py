@@ -16,7 +16,7 @@ class FeatureUnlocker:
     def unlock(self, user, level):
         for feature_type, info in self.features.items():
             if info["level"] == level:
-                return FeatureUnlockedEvent(user=user, feature_type=feature_type, msg=info["level"])
+                return FeatureUnlockedEvent(user=user, feature_type=feature_type, msg=info["msg"])
         return None
 
     def level_required(self, feature_type):

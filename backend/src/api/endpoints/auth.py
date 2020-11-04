@@ -29,6 +29,7 @@ async def get_user(user=Depends(get_current_user_dm)) -> schemas.User:
 @router.post("")
 async def create_user(
     email: str,
+    username: str,
     id_token: str = Header(None),
     db: Session = Depends(get_db),
 ) -> schemas.user:
@@ -42,7 +43,7 @@ async def create_user(
     check_user_exists(uid, db)
 
     # Create if doesn't exist
-    return crud.user.create(db, obj=schemas.UserCreate(email=email, uid=uid, username=email))
+    return crud.user.create(db, obj=schemas.UserCreate(email=email, uid=uid, username=username))
 
 
 @router.get("/reset")

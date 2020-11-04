@@ -6,8 +6,10 @@ from src.core.config import settings
 from src.core.utilities import log_msg
 from src.game.achievement.achievement import UserAchievement
 from src.game.event.sub_events import StatUpdateEvent
+from src.game.feature_unlocker.feature_unlocker import feature_unlocker
 from src.game.setup.setup import achievements_list, event_hub, level_manager
 from src.models import UnlockedAchievement
+from src.notification.notif_event import UnlockableFeatureType
 from src.schemas.response import Fail, Result, Success, return_result
 
 
@@ -39,7 +41,7 @@ class UserDM:
     def can_reset_portfolio(self):
         if not self.model.last_reset:
             return True
-        return (datetime.now() - self.model.last_reset).days >= settings.RESET_WAIT_PERIOD_DAYS
+        return (datetime.now() - self.model.last_reset).seconds >= settings.RESET_WAIT_PERIOD_SECONDS
 
     @property
     def exp(self):
@@ -91,9 +93,9 @@ class UserDM:
 
     @property
     def short_allowance_rate(self):
-        if self.level >= 5:
+        if self.level >= feature_unlocker.level_required(UnlockableFeatureType.SHORT_25):
             return 0.25
-        elif self.level >= 10:
+        elif self.level >= feature_unlocker.level_required(UnlockableFeatureType.SHORT_50):
             return 0.5
         return 0
 

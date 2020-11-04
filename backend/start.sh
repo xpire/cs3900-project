@@ -55,9 +55,14 @@ setup-test() {
     echo "Setting up git hook tests...";
     # NO ONE SHOULD EVER DO THIS, BUT STUFF IT
     git_dir="../.git/hooks";
-    echo "pytest -v backend/src/tests" >> ${git_dir}/temp_pytest;
-    test -f ${git_dir}/pre-push && cat ${git_dir}/pre-push >> ${git_dir}/temp_pytest && rm ${git_dir}/pre-push;
-    mv ${git_dir}/temp_pytest ${git_dir}/pre-push && chmod +x ${git_dir}/pre-push && echo "Cool";
+
+    # yeet this line for execution
+    echo "bash backend/start.sh setup-pythonpath && !(pytest -v backend/src/tests) && exit 1;" >> ${git_dir}/pytest.sh && chmod -x ${git_dir}/pytest.sh; 
+    
+    # delete file create file blah blah blah...
+    echo ". \"\$(dirname "\$0")/pytest.sh\"" >> ${git_dir}/pytest_temp;
+    test -f ${git_dir}/pre-push && awk '!/pytest/' ${git_dir}/pre-push >> ${git_dir}/pytest_temp && rm ${git_dir}/pre-push;
+    mv ${git_dir}/pytest_temp ${git_dir}/pre-push && chmod +x ${git_dir}/pre-push && echo "Cool";
 }
 
 explode() {
@@ -153,6 +158,10 @@ elif [ $# -eq 1 ]; then
             setup-test;
         ;;
 
+        "setup-pythonpath")
+            set-python-path;
+        ;; 
+
         "run-test")
             title-bar; 
             set-python-path;
@@ -162,4 +171,4 @@ elif [ $# -eq 1 ]; then
     esac
 else
     echo "Please provide the correct amount of arguments, check the README file for usage.";
-fi
+fi 

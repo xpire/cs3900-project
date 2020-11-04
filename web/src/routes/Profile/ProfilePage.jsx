@@ -1,10 +1,9 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext } from "react";
 import {
   Typography,
   Grid,
   LinearProgress,
   CardActionArea,
-  Card,
   CardContent,
   CardActions,
   Button,

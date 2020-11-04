@@ -56,7 +56,7 @@ const headCells = [
 
 const Watchlist = () => {
   const [deleted, setDeleted] = useState(0);
-  const [data, loading] = useApi("/orders", [deleted]);
+  const [data] = useApi("/orders", [deleted]);
   const handleSnack = useHandleSnack();
 
   return (
@@ -71,6 +71,7 @@ const Watchlist = () => {
               setDeleted(deleted + 1)
             );
           }}
+          handleRefresh={() => setDeleted(deleted + 1)}
         />
       </Card>
     </Page>

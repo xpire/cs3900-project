@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../utils/api";
-import { TextField, CircularProgress, InputAdornment } from "@material-ui/core";
+import { TextField, CircularProgress } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 
 // import TradingHoursIndicator from "../../components/common/TradingHoursIndicator";
@@ -33,7 +33,7 @@ const AutoCompleteTextField = ({ value, setValue }) => {
     if (!open) {
       setOptions([]);
     }
-  }, []);
+  }, [open]);
   return (
     <Autocomplete
       open={open}

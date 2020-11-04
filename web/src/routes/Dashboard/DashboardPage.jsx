@@ -1,10 +1,12 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Typography, Tab, Tabs, Grid, CardContent } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
+import styled from "styled-components";
 
 import { AuthContext } from "../../utils/authentication";
 import Page from "../../components/page/Page";
 import { StandardCard, ColoredText } from "../../components/common/styled";
+import InteractiveRefresh from "../../components/common/InteractiveRefresh";
 import CardGrid from "../../components/common/CardGrid";
 import ApexCandlestick from "../../components/graph/ApexCandlestick";
 import axios from "../../utils/api";
@@ -12,6 +14,11 @@ import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import { format } from "../../utils/formatter";
 
 import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
+
+const CardsSpaceDiv = styled.div`
+  // min-height: 75vh;
+  min-height: 100vh;
+`;
 
 const parsedApexData = TimeSeriesData.AAPL.values
   .map(({ datetime, open, close, high, low }) => {
@@ -38,7 +45,7 @@ const StatCard = ({ name, value, stat, today }) => {
                 {value ? value : <Skeleton />}
               </Typography>
             </Grid>
-            {/* TODO: implement these when backend is ready */}
+            {/* TODO: implement these extra statistics when backend is ready */}
             {stat && (
               <Grid item>
                 <ColoredText color={stat > 0 ? "green" : "red"} variant="h5">
@@ -71,9 +78,10 @@ const StatCard = ({ name, value, stat, today }) => {
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
   const [myValue, setValue] = useState(0);
+  const [forceUpdate, setForceUpdate] = useState(0);
   const [longData] = useRealTimeStockData(
     "/portfolio",
-    [],
+    [forceUpdate],
     [...Array(12)].map((_) => {
       return { skeleton: true };
     }),
@@ -81,28 +89,27 @@ const Dashboard = () => {
   );
   const [shortData] = useRealTimeStockData(
     "/portfolio",
-    [],
+    [forceUpdate],
     [...Array(12)].map((_) => {
       return { skeleton: true };
     }),
     (d) => d.short
   );
-  const [watchData] = useRealTimeStockData("/watchlist", [myValue]);
-  // const [balance, setBalance] = useState(0);
+
+  const [watchData] = useRealTimeStockData("/watchlist", [forceUpdate]);
 
   const [stats, setStats] = useState([
     { name: "Portfolio Value", valueKey: "total_portfolio_value" },
     { name: "Net Value", valueKey: "total_value" },
     { name: "Profit", valueKey: "total_portfolio_profit" },
     { name: "Available Balance", valueKey: "balance" },
-    // { name: "Net Value", value: 26992.23, stat: 23, today: 2 }, e.g. format
   ]);
   useEffect(() => {
     axios
       .get("/portfolio/stats")
       .then((response) => {
-        setStats(
-          stats.map(({ valueKey, name }) => {
+        setStats((s) =>
+          s.map(({ valueKey, name }) => {
             return { name: name, value: format(response.data[valueKey]) };
           })
         );
@@ -126,12 +133,25 @@ const Dashboard = () => {
         <Grid item xs={12}>
           <StandardCard>
             <CardContent>
+              <Typography variant="button">Cumulative Graph</Typography>
               <ApexCandlestick data={parsedApexData} />
             </CardContent>
           </StandardCard>
         </Grid>
         <Grid item xs={12}>
           <StandardCard>
+            <CardContent>
+              <Grid container alignItems="center" justify="space-between">
+                <Grid item>
+                  <Typography variant="button">Positions</Typography>
+                </Grid>
+                <Grid item>
+                  <InteractiveRefresh
+                    onClick={() => setForceUpdate(forceUpdate + 1)}
+                  />
+                </Grid>
+              </Grid>
+            </CardContent>
             <Tabs
               value={myValue}
               onChange={(_event, newValue) => {
@@ -146,11 +166,13 @@ const Dashboard = () => {
               <Tab label="Watchlist" />
             </Tabs>
           </StandardCard>
-          <CardGrid
-            data={
-              myValue === 0 ? longData : myValue === 1 ? shortData : watchData
-            }
-          />
+          <CardsSpaceDiv>
+            <CardGrid
+              data={
+                myValue === 0 ? longData : myValue === 1 ? shortData : watchData
+              }
+            />
+          </CardsSpaceDiv>
         </Grid>
       </Grid>
     </Page>

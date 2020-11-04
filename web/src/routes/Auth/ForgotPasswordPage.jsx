@@ -1,15 +1,13 @@
 import React, { useState } from "react";
-import {
-  Link as MaterialLink,
-  TextField,
-  Grid,
-  Button,
-  LinearProgress,
-} from "@material-ui/core";
+import { TextField, Grid, Button, LinearProgress } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import { useSnackbar } from "notistack";
 
-import { CenteredCard, CardHeading } from "../../components/common/styled";
+import {
+  CenteredCard,
+  CardHeading,
+  SubtitleLink,
+} from "../../components/common/styled";
 import app, { ActionCodeSettings } from "../../utils/firebase";
 import Page from "../../components/page/Page";
 import Alert, { useAlert } from "../../components/common/Alert";
@@ -73,9 +71,9 @@ const ForgotPasswordPage = () => {
                 </Grid>
               </Grid>
             </form>
-            <MaterialLink to="/signin" component={Link} color="inherit">
+            <SubtitleLink to="/signin" component={Link} color="inherit">
               {"Remember your password? Sign in"}
-            </MaterialLink>
+            </SubtitleLink>
           </>
         )}
       </CenteredCard>

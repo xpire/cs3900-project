@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, Tabs, Tab } from "@material-ui/core";
+import { Card, Tabs, Tab } from "@material-ui/core";
 
 import SortableTable, {
   tableTypes,
@@ -83,6 +83,7 @@ const headCells = [
 const Portfolio = () => {
   const [long, setLong] = useState([]);
   const [short, setShort] = useState([]);
+  const [refresh, setRefresh] = useState(0);
   const [tab, setTab] = useState(0);
   useEffect(() => {
     axios
@@ -92,7 +93,7 @@ const Portfolio = () => {
         setShort(response.data.short);
       })
       .catch((err) => console.log(err));
-  }, []);
+  }, [refresh]);
   return (
     <Page>
       <Card>
@@ -109,9 +110,19 @@ const Portfolio = () => {
           <Tab label="Shorts" />
         </Tabs>
         {tab === 0 ? (
-          <SortableTable data={long} header={headCells} title="Portfolio" />
+          <SortableTable
+            data={long}
+            header={headCells}
+            title="Portfolio"
+            handleRefresh={() => setRefresh(refresh + 1)}
+          />
         ) : (
-          <SortableTable data={short} header={headCells} title="Portfolio" />
+          <SortableTable
+            data={short}
+            header={headCells}
+            title="Portfolio"
+            handleRefresh={() => setRefresh(refresh + 1)}
+          />
         )}
       </Card>
     </Page>

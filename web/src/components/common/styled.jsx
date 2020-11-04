@@ -4,6 +4,7 @@ import {
   Typography,
   styled as materialStyled,
   useTheme,
+  Link,
 } from "@material-ui/core";
 import styled from "styled-components";
 import { motion } from "framer-motion";
@@ -61,4 +62,8 @@ export const InnerCard = materialStyled(Card)({
   margin: "10px",
   padding: "10px",
   height: "80%",
+});
+
+export const SubtitleLink = styled(Link)({
+  marginTop: "10px",
 });

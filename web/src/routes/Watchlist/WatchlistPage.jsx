@@ -5,7 +5,6 @@ import Page from "../../components/page/Page";
 import SortableTable, {
   tableTypes,
 } from "../../components/common/SortableTable";
-import { useSnackbar } from "notistack";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import { format } from "../../utils/formatter";
 import useHandleSnack from "../../hooks/useHandleSnack";
@@ -60,7 +59,7 @@ const headCells = [
 const Watchlist = () => {
   // const [data, setData] = useState([]);
   const [deleted, setDeleted] = useState(0);
-  const [data, loading] = useRealTimeStockData("/watchlist", [deleted], []);
+  const [data] = useRealTimeStockData("/watchlist", [deleted], []);
   const mappedData = data.map(
     ({ curr_day_close, exchange, name, curr_day_open, symbol }) => {
       return {
@@ -90,6 +89,7 @@ const Watchlist = () => {
               setDeleted(deleted + 1)
             );
           }}
+          handleRefresh={() => setDeleted(deleted + 1)}
         />
       </Card>
     </Page>

@@ -105,6 +105,9 @@ class LimitOrder(Order):
 
     @return_result()
     def check_submit(self) -> Result:
+        if self.user.level < 3:
+            return Fail("You must be level 3 or above to make limit orders.")
+
         super().check_submit().assert_ok()
 
         if self.limit_price < 0:

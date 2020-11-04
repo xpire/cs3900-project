@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Typography, Tab, Tabs, Grid, CardContent } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
+import styled from "styled-components";
 
 import { AuthContext } from "../../utils/authentication";
 import Page from "../../components/page/Page";
@@ -13,6 +14,11 @@ import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import { format } from "../../utils/formatter";
 
 import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
+
+const CardsSpaceDiv = styled.div`
+  // min-height: 75vh;
+  min-height: 100vh;
+`;
 
 const parsedApexData = TimeSeriesData.AAPL.values
   .map(({ datetime, open, close, high, low }) => {
@@ -92,14 +98,11 @@ const Dashboard = () => {
 
   const [watchData] = useRealTimeStockData("/watchlist", [forceUpdate]);
 
-  // const [balance, setBalance] = useState(0);
-
   const [stats, setStats] = useState([
     { name: "Portfolio Value", valueKey: "total_portfolio_value" },
     { name: "Net Value", valueKey: "total_value" },
     { name: "Profit", valueKey: "total_portfolio_profit" },
     { name: "Available Balance", valueKey: "balance" },
-    // { name: "Net Value", value: 26992.23, stat: 23, today: 2 }, e.g. format
   ]);
   useEffect(() => {
     axios
@@ -130,7 +133,6 @@ const Dashboard = () => {
         <Grid item xs={12}>
           <StandardCard>
             <CardContent>
-              {" "}
               <Typography variant="button">Cumulative Graph</Typography>
               <ApexCandlestick data={parsedApexData} />
             </CardContent>
@@ -164,11 +166,13 @@ const Dashboard = () => {
               <Tab label="Watchlist" />
             </Tabs>
           </StandardCard>
-          <CardGrid
-            data={
-              myValue === 0 ? longData : myValue === 1 ? shortData : watchData
-            }
-          />
+          <CardsSpaceDiv>
+            <CardGrid
+              data={
+                myValue === 0 ? longData : myValue === 1 ? shortData : watchData
+              }
+            />
+          </CardsSpaceDiv>
         </Grid>
       </Grid>
     </Page>

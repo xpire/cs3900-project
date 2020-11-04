@@ -75,9 +75,10 @@ const DetailedSnackbar = React.forwardRef((props, ref) => {
         <CardActions>
           <Button
             size="small"
-            onClick={() =>
-              history.push(eventType === "LEVEL_UP" ? "/profile" : "/support")
-            }
+            onClick={() => {
+              history.push(eventType === "LEVEL_UP" ? "/profile" : "/support");
+              handleDismiss();
+            }}
           >
             Show me
           </Button>

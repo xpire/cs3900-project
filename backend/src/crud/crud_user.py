@@ -175,6 +175,7 @@ class CRUDUser(CRUDBase[User]):
         price: float,
         trade_type: TradeType,
         timestamp: datetime,
+        is_cancelled: bool = False,
         db: Session,
         user: User,
     ) -> Result:
@@ -188,6 +189,7 @@ class CRUDUser(CRUDBase[User]):
                 qty=qty,
                 price=price,
                 trade_type=trade_type.name,
+                is_cancelled=is_cancelled,
                 timestamp=timestamp,
             )
         )

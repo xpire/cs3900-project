@@ -13,6 +13,13 @@ from src.schemas.response import Fail, Result, Success, return_result
 from src.schemas.transaction import OrderType, TradeType
 
 
+class ExecutionFailedException(Exception):
+    def __init__(self, result, price):
+        super().__init__()
+        self.result = result
+        self.price = price
+
+
 class Order(ABC):
     order_type: OrderType = None
 
@@ -35,11 +42,16 @@ class Order(ABC):
         self.check_submit().ok()
 
         # If the order can be executed immediately, execute
-        if self.try_execute():
-            return Success("Order executed successfully")
-        else:
-            crud.pending_order.create_order(db=self.db, order=self.schema)
-            return Success("Order placed successfully")
+        try:
+            if self.try_execute():
+                return Success("Order executed successfully")
+            else:
+                crud.pending_order.create_order(db=self.db, order=self.schema)
+                return Success("Order placed successfully")
+        except ExecutionFailedException as e:
+            result = e.result
+            result.msg = f"Submitted order failed to execute: {result.msg}"
+            return result
 
     @return_result()
     def try_execute(self) -> Result:
@@ -52,10 +64,16 @@ class Order(ABC):
     def _try_execute(self) -> Result:
         pass
 
-    def execute(self, price):
-        dm.Trade.new(
+    @return_result()
+    def execute(self, price) -> Result:
+        result = dm.Trade.new(
             self.trade_type, symbol=self.symbol, qty=self.qty, price=price, user=self.user, db=self.db
         ).execute()
+
+        if not result.success:
+            raise ExecutionFailedException(result=result, price=price)
+
+        return result
 
     def is_trading(self):
         return trading_hours.trading_hours_manager.is_trading(self.get_stock())
@@ -123,7 +141,7 @@ class LimitOrder(Order):
             return Fail()
 
         print(f"executing limit order {self.symbol}")
-        self.execute(curr_price)
+        return self.execute(self.limit_price)
 
     def can_execute(self, curr_price):
         trade_type = dm.Trade.subclass(self.trade_type)
@@ -147,10 +165,10 @@ class MarketOrder(Order):
 
     @return_result()
     def _try_execute(self) -> Result:
-        if not self.is_pending:
+        if self.is_pending:
+            return self.try_execute_pending()
+        else:
             return self.execute(self.get_curr_price())
-
-        return self.try_execute_pending()
 
     @return_result()
     def try_execute_pending(self) -> Result:
@@ -166,7 +184,7 @@ class MarketOrder(Order):
                 f"Cannot execute market order because open price data for stock {stock.symbol} does not exist."
             ).log()
 
-        self.execute(time_series.open)
+        return self.execute(time_series.open)
 
     @property
     def schema(self):
@@ -185,6 +203,23 @@ class PendingOrderExecutor:
             self.execute_pending_orders(user, user_m.after_orders, MarketOrder)
 
     def execute_pending_orders(self, user, pending_orders, order_cls):
-        for order in pending_orders:
-            if order_cls.from_orm(user, self.db, order).try_execute():
-                crud.pending_order.delete_order(db=self.db, id=order.id)
+        for order_m in pending_orders:
+            order = order_cls.from_orm(user, self.db, order_m)
+
+            try:
+                if order.try_execute():
+                    crud.pending_order.delete_order(db=self.db, id=order_m.id)
+
+            except ExecutionFailedException as e:
+                e.result.log()
+                crud.pending_order.delete_order(db=self.db, id=order_m.id)
+                crud.user.add_history(
+                    symbol=order.symbol,
+                    qty=order.qty,
+                    price=e.price,
+                    trade_type=order.trade_type,
+                    timestamp=datetime.now(),
+                    is_cancelled=True,
+                    db=self.db,
+                    user=user.model,
+                )

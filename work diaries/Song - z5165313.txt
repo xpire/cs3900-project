@@ -46,3 +46,11 @@ Implemented logic to allow for after market hours trading - coverting all transa
 to be executed at opening of next trading day.
 Also discussed with team options to allow 'backtracing' - the recovery of orders during times
 when the server is not running. Ultimately fell through due to limited number of API calls.
+    May attempt at the end if there is enough time
+    Basic logic would be using opening and closing prices to determine if an order could execute
+    Need to solve for server shutdown on the day of an order being placed.
+
+Week 8:
+Working on tutorial pages - markdown for content, then standard api to be exposed
+Did some bug fixes on limit trading
+Working on PyTests and PyDocs

@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from src.api.endpoints import auth, leaderboard, orders, portfolio, stocks, trade, transactions, watchlist
 from src.db import base_model_import_all as base_model
+from src.db.session import SessionLocal
 
 api_router = APIRouter()
 api_router.include_router(stocks.router, prefix="/stocks", tags=["stocks"])
@@ -16,3 +17,7 @@ api_router.include_router(transactions.router, prefix="/transactions", tags=["tr
 from src.domain_models.data_provider.setup import get_data_provider
 
 get_data_provider()
+
+from src.crud.crud_user import user
+
+user.insert_init_users(db=SessionLocal())

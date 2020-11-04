@@ -3,6 +3,7 @@ import random
 from typing import Dict, List
 
 import src.models as md
+import src.schemas as sch
 from fastapi.testclient import TestClient
 from randomtimestamp import randomtimestamp
 from sqlalchemy.orm import Session
@@ -26,66 +27,24 @@ def generate_random_user(*, is_init: bool) -> Dict:
     }
 
 
-def generate_k_users(*, init: bool, k: int) -> List[Dict]:  
+def generate_k_ranodm_users(*, init: bool, k: int) -> List[Dict]:
     res = []
-    for i in range(k): 
-        if (init and i == 0):
+    for i in range(k):
+        if init and i == 0:
             res.append(generate_random_user(is_init=init))
-        else: 
+        else:
             res.append(generate_random_user(is_init=False))
 
-# Ignore the below code, just some useless code that might be useful later.
 
-# user.add_transaction(db=ins, user_in=t_u, t_type="long", p_symbol="AAPL", p_amount=12, price=67.3)
-# user.add_transaction(db=ins, user_in=t_u, t_type="long", p_symbol="AAPL", p_amount=12, price=67.3)
-# user.add_transaction(db=ins, user_in=t_u, t_type="long", p_symbol="AAPL", p_amount=12, price=67.3)
-
-
-# user.add_transaction(db=ins, user_in=t_u, t_type="short", p_symbol="AAPL", p_amount=12, price=67.3)
-# user.add_transaction(db=ins, user_in=t_u, t_type="short", p_symbol="AAPL", p_amount=12, price=67.3)
-# user.add_transaction(db=ins, user_in=t_u, t_type="short", p_symbol="AAPL", p_amount=12, price=67.3)
-
-
-# user.deduct_transaction(db=ins, user_in=t_u, t_type="long", p_symbol="AAPL", p_amount=24)
-
-
-# user.add_after_order(
-#     db=ins,
-#     user_in=t_u,
-#     trade_type_in=TradeType.BUY,
-#     amount_in=40,
-#     symbol_in="AAPL",
-#     dt_in=dt.now(),
-# )
-
-# user.add_after_order(
-#     db=ins,
-#     user_in=t_u,
-#     trade_type_in=TradeType.BUY,
-#     amount_in=30,
-#     symbol_in="CBA",
-#     dt_in=dt.now(),
-# )
-
-# user.add_after_order(
-#     db=ins,
-#     user_in=t_u,
-#     trade_type_in=TradeType.BUY,
-#     amount_in=50,
-#     symbol_in="AAPL",
-#     dt_in=dt.now(),
-# )
-
-
-# for x in t_u.transaction_hist:
-#     print(x.__dict__)
-
-# user.delete_after_order(db=ins, user_in=t_u, identity=1)
-# user.delete_after_order(db=ins, user_in=t_u, identity=2)
-# user.delete_after_order(db=ins, user_in=t_u, identity=3)
-# user.add_history(db=ins, user_in=t_u, price_in=3.45, trade_type_in=TradeType.BUY, amount_in=34, symbol_in="AAPL")
-# user.add_history(db=ins, user_in=t_u, price_in=6.75, trade_type_in=TradeType.SELL, amount_in=20, symbol_in="CBA")
-
-
-# for x in t_u.transaction_hist:
-#     print(x.__dict__)
+def generate_k_create_schemas(*, k: int) -> List[sch.UserCreate]:
+    res = []
+    for i in range(k):
+        temp = generate_random_user(is_init=True)
+        res.append(
+            sch.UserCreate(
+                email=temp["email"],
+                uid=temp["uid"],
+                username=temp["username"],
+            )
+        )
+    return res

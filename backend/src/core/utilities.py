@@ -6,22 +6,28 @@
     Purpose: Some utility functions used by core 
         features, maybe it can be used by other modules too 
 """
+import csv
 import datetime as dt
 import inspect
 import logging
 import os
 from collections import defaultdict
+from os import path
+from typing import Dict, List
 
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
 
 HTTP400 = lambda detail: HTTPException(status_code=400, detail=detail)
+
 
 def find(iterable, default=None, **kwargs):
     """
     Find the first element in the iterable whose attribute values match
     those specified by the keyword arguments
     """
+
     def is_match(x):
         try:
             for name, value in kwargs.items():
@@ -32,6 +38,7 @@ def find(iterable, default=None, **kwargs):
             return False
 
     return next((x for x in iterable if is_match(x)), default)
+
 
 def find_path_curr_f() -> str:
     """
@@ -103,3 +110,11 @@ def db_uri_generator(*, proj_root: str, db_name: str) -> str:
     Generate the URI that sqlalchemy uses for db connection.'
     """
     return "sqlite:///" + os.path.join(proj_root, "database", db_name + ".sqlite3")
+
+
+def ret_initial_users(proj_root: str) -> List[Dict]:
+    """
+    Insert the initial users
+    """
+    with open(path.join(proj_root, "database", "initial_users.csv"), mode="r") as file:
+        return [sd for sd in csv.DictReader(file)]

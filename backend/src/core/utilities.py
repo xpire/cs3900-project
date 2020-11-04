@@ -11,17 +11,27 @@ import inspect
 import logging
 import os
 from collections import defaultdict
+from enum import Enum
 
 from fastapi import HTTPException
+from pydantic import Field
 from sqlalchemy.exc import SQLAlchemyError
 
 HTTP400 = lambda detail: HTTPException(status_code=400, detail=detail)
+Const = lambda x: Field(x, const=x)
+
+
+class AutoName(Enum):
+    def _generate_next_value_(name, start, count, last_values):
+        return name
+
 
 def find(iterable, default=None, **kwargs):
     """
     Find the first element in the iterable whose attribute values match
     those specified by the keyword arguments
     """
+
     def is_match(x):
         try:
             for name, value in kwargs.items():
@@ -32,6 +42,7 @@ def find(iterable, default=None, **kwargs):
             return False
 
     return next((x for x in iterable if is_match(x)), default)
+
 
 def find_path_curr_f() -> str:
     """

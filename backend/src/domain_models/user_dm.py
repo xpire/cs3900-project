@@ -101,8 +101,8 @@ class UserDM:
 
     @property
     def schema(self):
-        return schemas.User(
-            **schemas.UserInDB.from_orm(self.model).dict(),
+        return schemas.UserAPIout(
+            **schemas.UserDBout.from_orm(self.model).dict(),
             exp_until_next_level=self.exp_until_next_level,
             is_max_level=self.is_max_level,
         )

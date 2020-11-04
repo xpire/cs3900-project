@@ -4,14 +4,14 @@ from typing import List
 from pydantic import BaseModel as BaseSchema
 from src import crud
 from src.core.utilities import as_delta
-from src.schemas.exchange import ExchangeFromDB
+from src.schemas.exchange import Exchange
 
 
 class Pattern(BaseSchema):
     datetime: dt.datetime
     open: float
     close: float
-    exchange: ExchangeFromDB
+    exchange: Exchange
 
     def end_price(self, intraday=True):
         return self.intraday_price() if intraday else self.close

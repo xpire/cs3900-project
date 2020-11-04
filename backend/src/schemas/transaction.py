@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel as BaseSchema
 from pydantic import validator
-from src.util.auto_name_enum import AutoName
+from src.core.utilities import AutoName
 from typing_extensions import Literal
 
 
@@ -20,6 +20,7 @@ class TradeType(str, AutoName):
     COVER = auto()
 
 
+# TODO
 class Transaction(BaseSchema):
     user: Any  # UserDM
     order_type: OrderType

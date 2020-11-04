@@ -2,10 +2,10 @@
 Created separately to [event.py] to avoid dependency cycles with e.g. Achievement
 """
 
+from src.core.utilities import Const
 from src.game.achievement.achievement import Achievement
 from src.game.event.event import GameEvent, GameEventType
 from src.schemas.transaction import Transaction
-from src.util.extended_types import Const
 
 
 class TransactionEvent(GameEvent):

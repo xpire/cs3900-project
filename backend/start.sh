@@ -53,11 +53,10 @@ init-db() {
 # Get the git hook tests
 setup-test() {
     echo "Setting up git hook tests...";
-    # NO ONE SHOULD EVER DO THIS, BUT STUFF IT
     git_dir="../.git/hooks";
 
-    # yeet this line for execution
-    echo "bash backend/start.sh setup-pythonpath && !(pytest -v backend/src/tests) && exit 1;" >> ${git_dir}/pytest.sh && chmod -x ${git_dir}/pytest.sh; 
+    # yeet the pytest file
+    cp src/util/pytest.sh ${git_dir}
     
     # delete file create file blah blah blah...
     echo ". \"\$(dirname "\$0")/pytest.sh\"" >> ${git_dir}/pytest_temp;
@@ -167,7 +166,7 @@ elif [ $# -eq 1 ]; then
             set-python-path;
             pytest -v src/tests;
         ;;
-        *) echo "Please provide the correct path.";;
+        *) echo "Please provide the correct function name.";;
     esac
 else
     echo "Please provide the correct amount of arguments, check the README file for usage.";

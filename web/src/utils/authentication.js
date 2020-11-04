@@ -32,11 +32,13 @@ export const AuthProvider = ({ children }) => {
         .getIdToken()
         .then((token) => {
           axios.defaults.headers.common["id-token"] = token;
+          console.log("setting token: ", token);
+          console.log("yayeet");
         })
         .catch((e) => {
-          delete axios.defaults.headers.common["id-token"];
+          console.log(`delete axios.defaults.headers.common["id-token"];`);
         });
-  }, [user]);
+  }, [user, loading]);
 
   const [celebration, setCelebration] = useState(false);
   const handleSnack = useHandleSocketSnack(setCelebration);
@@ -44,7 +46,7 @@ export const AuthProvider = ({ children }) => {
   const [lastJsonMessage] = useSockets();
   useEffect(() => {
     handleSnack(lastJsonMessage);
-  }, [lastJsonMessage, handleSnack]);
+  }, [lastJsonMessage]);
 
   const { width, height } = useWindowSize();
   return (

@@ -9,8 +9,8 @@ const useHandleSocketSnack = (setCelebration) => {
       case "auth":
         enqueueSnackbar(`${lastJsonMessage.msg}`, {
           variant: "info",
-          // preventDuplicate: true,
-          // key: `${lastJsonMessage.msg}`,
+          preventDuplicate: true,
+          key: `${lastJsonMessage.msg}`,
         });
         break;
       case "notif":

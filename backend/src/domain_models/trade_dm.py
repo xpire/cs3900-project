@@ -4,7 +4,9 @@ from datetime import datetime
 from src.core import trade
 from src.crud import crud_user
 from src.game.event.sub_events import StatUpdateEvent
+from src.game.feature_unlocker.feature_unlocker import feature_unlocker
 from src.game.setup.setup import event_hub
+from src.notification.notif_event import UnlockableFeatureType
 from src.schemas.response import Fail, Result, return_result
 from src.schemas.transaction import TradeType
 
@@ -131,13 +133,16 @@ class ShortTrade(Trade):
 
     @return_result()
     def check(self, total_price, trade_price) -> Result:
-        if self.user.level < 5:
-            return Fail(f"Insufficient level. Reach level 5 to short sell")
+        level_short_25 = feature_unlocker.level_required(UnlockableFeatureType.SHORT_25)
+        level_short_50 = feature_unlocker.level_required(UnlockableFeatureType.SHORT_50)
+
+        if self.user.level < level_short_25:
+            return Fail(f"Insufficient level. Reach level {level_short_25} to short sell")
 
         if not trade.check_short_balance(self.user, total_price):
-            if self.user.level < 10:
+            if self.user.level < level_short_50:
                 return Fail(
-                    f"Insufficient short balance. Reach level 10, buy to cover or increase net worth to short more."
+                    f"Insufficient short balance. Reach level {level_short_50}, buy to cover or increase net worth to short more."
                 )
             else:
                 return Fail(f"Insufficient short balance. Buy to cover or increase net worth to short more.")
@@ -151,8 +156,9 @@ class CoverTrade(Trade):
 
     @return_result()
     def check(self, total_price, trade_price) -> Result:
-        if self.user.level < 5:
-            return Fail(f"Insufficient level. Reach level 5 to buy-to-cover")
+        level_short_25 = feature_unlocker.level_required(UnlockableFeatureType.SHORT_25)
+        if self.user.level < level_short_25:
+            return Fail(f"Insufficient level. Reach level {level_short_25} to buy-to-cover")
 
         if not trade.check_owned_shorts(self.user, self.qty, self.symbol):
             return Fail("Cannot cover more than owed")

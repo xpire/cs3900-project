@@ -7,6 +7,8 @@ from src import domain_models as dm
 from src import schemas
 from src.core.utilities import find
 from src.domain_models import trading_hours
+from src.game.feature_unlocker.feature_unlocker import feature_unlocker
+from src.notification.notif_event import UnlockableFeatureType
 from src.schemas.response import Fail, Result, Success, return_result
 from src.schemas.transaction import OrderType, TradeType
 
@@ -105,6 +107,10 @@ class LimitOrder(Order):
 
     @return_result()
     def check_submit(self) -> Result:
+        level_limit = feature_unlocker.level_required(UnlockableFeatureType.LIMIT_ORDER)
+        if self.user.level < level_limit:
+            return Fail(f"You must be level {level_limit} or above to make limit orders.")
+
         super().check_submit().ok()
 
         if self.limit_price < 0:

@@ -48,6 +48,7 @@ class TransactionAPIout(BaseSchema):
     price: float
     value: float = None
     trade_type: TradeType
+    is_cancelled: bool
     timestamp: datetime
 
     @validator("value", pre=True)

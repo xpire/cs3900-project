@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 
+from src import crud
 from src.core import trade
-from src.crud import crud_user
 from src.game.event.sub_events import StatUpdateEvent
 from src.game.feature_unlocker.feature_unlocker import feature_unlocker
 from src.game.setup.setup import event_hub
@@ -40,7 +40,7 @@ class Trade(ABC):
 
     def apply_trade(self, trade_price):
         if self.is_opening:
-            crud_user.user.add_transaction(
+            crud.user.add_transaction(
                 db=self.db,
                 user=self.model,
                 is_long=self.is_long,
@@ -49,18 +49,18 @@ class Trade(ABC):
                 price=self.price,
             )
         else:
-            crud_user.user.deduct_transaction(
+            crud.user.deduct_transaction(
                 db=self.db, user=self.model, is_long=self.is_long, symbol=self.symbol, qty=self.qty
             )
         self.user.balance += trade_price * (-1 if self.is_buying else 1)
-        crud_user.user.add_history(
-            db=self.db,
-            user=self.model,
-            timestamp=datetime.now(),
+        crud.user.add_history(
+            symbol=self.symbol,
+            qty=self.qty,
             price=self.price,
             trade_type=self.trade_type,
-            qty=self.qty,
-            symbol=self.symbol,
+            timestamp=datetime.now(),
+            db=self.db,
+            user=self.model,
         )
 
     @abstractmethod

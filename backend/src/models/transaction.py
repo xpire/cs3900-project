@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Float, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import DateTime
 from src.db.base_model import BaseModel
@@ -12,6 +12,7 @@ class Transaction(BaseModel):
     price = Column(Float, nullable=False)
     trade_type = Column(String)  # buy/sell/short/cover
     timestamp = Column(DateTime)
+    is_cancelled = Column(Boolean)
     stock = relationship(
         "Stock",
         backref="transactions",

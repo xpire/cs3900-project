@@ -11,3 +11,8 @@ api_router.include_router(trade.router, prefix="/trade", tags=["trade"])
 api_router.include_router(orders.router, prefix="/orders", tags=["orders"])
 api_router.include_router(leaderboard.router, prefix="/leaderboard", tags=["leaderboard"])
 api_router.include_router(transactions.router, prefix="/transactions", tags=["transactions"])
+
+### startup
+from src.domain_models.data_provider.setup import get_data_provider
+
+get_data_provider()

@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends
+from fastapi import Depends
 from sqlalchemy.orm import Session
 from src import crud, schemas
 from src.api.deps import get_current_user_m, get_db
 from src.domain_models import UserDM
 from src.domain_models.account_stat_dm import AccountStat
 from src.models.user import User
+from src.schemas.response import ResultAPIRouter
 
-router = APIRouter()
+router = ResultAPIRouter()
 
 
 @router.get("")

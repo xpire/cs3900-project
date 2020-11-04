@@ -2,13 +2,12 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 
 from src.core import trade
-from src.core.utilities import HTTP400
 from src.crud import crud_user
 from src.game.event.sub_events import StatUpdateEvent
 from src.game.feature_unlocker.feature_unlocker import feature_unlocker
 from src.game.setup.setup import event_hub
 from src.notification.notif_event import UnlockableFeatureType
-from src.schemas.response import Fail, Response, Result, return_result
+from src.schemas.response import Fail, Result, return_result
 from src.schemas.transaction import TradeType
 
 
@@ -30,7 +29,7 @@ class Trade(ABC):
         # Assume qty > 0 check done by order_dm.Order
         total_price = self.price * self.qty
         trade_price = trade.apply_commission(total_price, self.is_buying)
-        self.check(total_price, trade_price).assert_ok()
+        self.check(total_price, trade_price).ok()
         self.apply_trade(trade_price)
 
         # Add exp equivalent to the amount of commission deducted

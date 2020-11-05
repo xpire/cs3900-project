@@ -2,15 +2,14 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 
 from src import crud
-from src.core import trade
+from src.core.config import settings
+from src.core.utilities import find
 from src.domain_models.account_stat_dm import AccountStat
 from src.game.event.sub_events import StatUpdateEvent, TransactionEvent
 from src.game.feature_unlocker.feature_unlocker import feature_unlocker
 from src.game.setup.setup import event_hub
 from src.notification.notif_event import UnlockableFeatureType
 from src.schemas.response import Fail, Result, return_result
-
-# TODO move to schemas .__init__?
 from src.schemas.transaction import (
     ClosingTransaction,
     OpeningTransaction,
@@ -21,7 +20,6 @@ from src.schemas.transaction import (
 )
 
 
-# TODO move logic from trade.py to here
 class Trade(ABC):
     trade_type: TradeType = None
     is_buying: bool
@@ -41,7 +39,7 @@ class Trade(ABC):
     def execute(self) -> Result:
         # Assume qty > 0 check done by order_dm.Order
         total_price = self.price * self.qty
-        trade_price = trade.apply_commission(total_price, self.is_buying)
+        trade_price = apply_commission(total_price, self.is_buying)
         self.check(total_price, trade_price).ok()
 
         t = self.transaction_schema
@@ -133,7 +131,7 @@ class SellTrade(Trade):
 
     @return_result()
     def check(self, total_price, trade_price) -> Result:
-        if not trade.check_owned_longs(self.user, self.qty, self.symbol):
+        if not check_owned_longs(self.user, self.qty, self.symbol):
             return Fail("Cannot sell more than owned")
 
 
@@ -148,7 +146,7 @@ class ShortTrade(Trade):
         if self.user.level < level_short_25:
             return Fail(f"Insufficient level. Reach level {level_short_25} to short sell")
 
-        if not trade.check_short_balance(self.user, total_price):
+        if not check_short_balance(self.user, total_price):
             if self.user.level < level_short_50:
                 return Fail(
                     f"Insufficient short balance. Reach level {level_short_50}, buy to cover or increase net worth to short more."
@@ -166,11 +164,33 @@ class CoverTrade(Trade):
         if self.user.level < level_short_25:
             return Fail(f"Insufficient level. Reach level {level_short_25} to buy-to-cover")
 
-        if not trade.check_owned_shorts(self.user, self.qty, self.symbol):
+        if not check_owned_shorts(self.user, self.qty, self.symbol):
             return Fail("Cannot cover more than owed")
 
         if self.model.balance < trade_price:
             return Fail("Insufficient balance")
+
+
+def apply_commission(price: float, is_buying: bool = True):
+    rate = 1 + (1 if is_buying else -1) * settings.COMMISSION_RATE
+    return price * rate
+
+
+def check_owned(qty: int, symbol: str, positions):
+    pos = find(positions, symbol=symbol)
+    return pos is not None and qty <= pos.qty
+
+
+def check_owned_longs(user, qty: int, symbol: str):
+    return check_owned(qty, symbol, user.model.long_positions)
+
+
+def check_owned_shorts(user, qty: int, symbol: str):
+    return check_owned(qty, symbol, user.model.short_positions)
+
+
+def check_short_balance(user, total_price: float):
+    return total_price <= AccountStat(user).short_balance()
 
 
 Trade.register([BuyTrade, SellTrade, ShortTrade, CoverTrade])

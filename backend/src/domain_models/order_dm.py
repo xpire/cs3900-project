@@ -206,7 +206,6 @@ class PendingOrderExecutor:
     def __init__(self, db: Session):
         self.db = db
 
-    # TODO place db.flush/expire/commit in correct places if needed
     def update(self):
         for user_m in crud.user.get_all_users(db=self.db):
             user = dm.UserDM(user_m, self.db)

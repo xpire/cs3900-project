@@ -223,6 +223,9 @@ class AccountStat:
     def short_allowance_rate(self):
         return self.user.short_allowance_rate
 
+    def get_net_worth_history(self):
+        return self.user.model.net_worth_history[::-1]  # Reverse the list so latest is first
+
 
 class PortfolioWorthPublisher:
     def __init__(self, db):
@@ -237,9 +240,9 @@ class PortfolioWorthPublisher:
     def publish_portfolio_worth(self, user_m):
         user_dm = dm.UserDM(user_m, self.db)
         net_worth = AccountStat(user_dm).net_worth()
-        print(net_worth)
 
-        # TODO: connect to crud
+        # Add to historical table
+        crud.user.add_historical_portfolio(user=user_m, db=self.db, timestamp=datetime.now(), net_worth=net_worth)
 
 
 def curr_price(symbol):

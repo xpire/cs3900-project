@@ -15,6 +15,7 @@ from src import crud
 from src.core.config import settings
 from src.core.utilities import fail_save, find
 from src.crud.base import CRUDBase
+from src.models.net_worth_timeseries import NetWorthTimeSeries
 from src.models.position import LongPosition, ShortPosition
 from src.models.transaction import Transaction
 from src.models.user import User
@@ -80,14 +81,7 @@ class CRUDUser(CRUDBase[User]):
     @fail_save
     @return_result()
     def add_transaction(
-        self,
-        *,
-        symbol: str,
-        qty: int,
-        price: float,
-        is_long: bool,
-        db: Session,
-        user: User,
+        self, *, symbol: str, qty: int, price: float, is_long: bool, db: Session, user: User,
     ) -> Result:
         """
         Add stock qty to portfolio
@@ -193,6 +187,16 @@ class CRUDUser(CRUDBase[User]):
                 timestamp=timestamp,
             )
         )
+        self.commit_and_refresh(db, user)
+
+    @fail_save
+    @return_result()
+    def add_historical_portfolio(self, *, user: User, db: Session, timestamp: datetime, net_worth: float) -> Result:
+        """
+        Add entry for historical portfolio data
+        """
+        user.net_worth_history.append(NetWorthTimeSeries(user_id=user.uid, timestamp=timestamp, net_worth=net_worth,))
+
         self.commit_and_refresh(db, user)
 
 

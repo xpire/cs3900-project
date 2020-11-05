@@ -2,6 +2,7 @@ import itertools as it
 
 import numpy as np
 from src import crud
+from src.core.config import settings
 
 from .composite_data_provider import CompositeDataProvider
 from .simulated_data_provider import SimulatedProvider
@@ -54,23 +55,25 @@ def cached_get_data_provider():
 
         db = SessionLocal()
 
-        real_stocks = crud.stock.get_all_stocks(db=db, simulated=False)
+        real_stocks = crud.stock.get_all_stocks(db=db, simulated=False)[:30]
         sim_stocks = crud.stock.get_all_stocks(db=db, simulated=True)
 
         def make_symbol_to_exchange(stocks):
             return {stock.symbol: stock.exchange for stock in stocks}
 
-        # p1 = TDProvider(db=db, symbol_to_exchange=make_symbol_to_exchange(real_stocks), api_key=settings.TD_API_KEY)
+        p1 = TDProvider(db=db, symbol_to_exchange=make_symbol_to_exchange(real_stocks), api_key=settings.TD_API_KEY)
         p2 = SimulatedProvider(
             db=db, symbol_to_exchange=make_symbol_to_exchange(sim_stocks), simulators=create_simulators(db)
         )
 
-        provider = CompositeDataProvider([p2])  # p1
+        provider = CompositeDataProvider([p1, p2])
         provider.pre_start()
         provider.start()
         provider.subscribe(StatUpdatePublisher(db).update)
         provider.subscribe(dm.PendingOrderExecutor(db).update)
-        provider.subscribe(dm.PortfolioWorthPublisher(db).update)
+
+        # Subscribe to TD data provider, tick every 1 minute
+        p1.subscribe(dm.PortfolioWorthPublisher(db).update)
 
         return provider
 

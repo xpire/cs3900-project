@@ -208,6 +208,7 @@ class CRUDUser(CRUDBase[User]):
         for user in users:
             if crud.user.get_user_by_uid(db=db, uid=user["uid"]) == None:
                 crud.user.create(db=db, obj=UserCreate(**user))
+        log_msg("Done...", "INFO")
 
     @fail_save
     @return_result()

@@ -24,12 +24,12 @@ const CardsSpaceDiv = styled.div`
   min-height: 100vh;
 `;
 
-const parsedApexData = TimeSeriesData.AAPL.values
-  .map(({ datetime, open, close, high, low }) => {
-    // return { x: new Date(datetime), y: [open, high, low, close] };
-    return [new Date(datetime), open];
-  })
-  .slice(0, 120);
+// const parsedApexData = TimeSeriesData.AAPL.values
+//   .map(({ datetime, open, close, high, low }) => {
+//     // return { x: new Date(datetime), y: [open, high, low, close] };
+//     return [new Date(datetime), open];
+//   })
+//   .slice(0, 120);
 
 const StatCard = ({ name, value, stat, today }) => {
   const [delta] = useColoredText(stat);

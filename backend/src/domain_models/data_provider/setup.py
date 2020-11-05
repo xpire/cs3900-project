@@ -1,42 +1,42 @@
 import itertools as it
+from datetime import timedelta
 
 import numpy as np
 
 from src import crud
 from src.core.config import settings
+from src.schemas.exchange import Exchange
 
 from .composite_data_provider import CompositeDataProvider
 from .simulated_data_provider import SimulatedProvider
 from .simulated_stock import StockSimulator
 from .td_data_provider import TDProvider
 
+delta = lambda hours: timedelta(hours=hours)
+
 patterns = [
-    list(200 + 100 * np.sin(np.linspace(-np.pi, np.pi - np.pi / 14, 27))),
-    list(200 - 100 * np.sin(np.linspace(-np.pi, np.pi - np.pi / 14, 27))),
-    list(it.chain(range(100, 600, 50), range(600, 100, -100))),
+    list(it.chain(range(1000, 50, -50), range(50, 1000, 50))),
+    list(it.chain(range(50, 1000, 50), range(1000, 50, -50))),
 ]
 
-stock_details = dict(
-    sim00=patterns[0],
-    sim01=patterns[1],
-    sim02=patterns[2],
-    sim10=patterns[0],
-    sim11=patterns[1],
-    sim12=patterns[2],
-    sim20=patterns[0],
-    sim21=patterns[1],
-    sim22=patterns[2],
-    sim30=patterns[0],
-    sim31=patterns[1],
-    sim32=patterns[2],
-)
+stock_patterns = {}
+exchange_info = {}
+
+for i in range(24):
+    symbol = f"sim{i:02.0f}"
+    exchange = f"XD{i:02.0f}"
+    stock_patterns[symbol + "a"] = patterns[0]
+    stock_patterns[symbol + "b"] = patterns[1]
+    exchange_info[exchange] = Exchange(
+        name=exchange, open=delta(i), close=delta(i + 1), timezone=settings.TIMEZONE, simulated=True
+    )
 
 
 def create_simulators(db):
-    global stock_details
+    global stock_patterns
 
     simulators = []
-    for symbol, day_patterns in stock_details.items():
+    for symbol, day_patterns in stock_patterns.items():
         stock = crud.stock.get_by_symbol(db=db, symbol=symbol)
         simulators.append(StockSimulator(stock, day_patterns))
     return simulators
@@ -56,8 +56,7 @@ def cached_get_data_provider():
 
         db = SessionLocal()
 
-        # Subscribe to only 30 stocks for now #TODO: reduce the number of stocks in the DB
-        real_stocks = crud.stock.get_all_stocks(db=db, simulated=False)[:10]
+        real_stocks = crud.stock.get_all_stocks(db=db, simulated=False)[:40]
         sim_stocks = crud.stock.get_all_stocks(db=db, simulated=True)
 
         def make_symbol_to_exchange(stocks):

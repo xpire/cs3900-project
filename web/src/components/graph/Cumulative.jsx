@@ -31,6 +31,7 @@ const Cumulative = ({ data }) => {
           tooltip: {
             enabled: true,
           },
+          decimalsInFloat: 0,
         },
       }}
       series={[{ data: data }]}

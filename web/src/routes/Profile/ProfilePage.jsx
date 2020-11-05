@@ -11,6 +11,8 @@ import {
 import { Skeleton } from "@material-ui/lab";
 import { Link } from "react-router-dom";
 
+import InteractiveRefresh from "../../components/common/InteractiveRefresh";
+import Cumulative from "../../components/graph/Cumulative";
 import { AuthContext } from "../../utils/authentication";
 import Page from "../../components/page/Page";
 import { StandardCard } from "../../components/common/styled";
@@ -100,6 +102,14 @@ const Profile = () => {
     return { ...e, index: index + 1 };
   });
 
+  const [graphUpdate, setGraphUpdate] = useState(0);
+  const [graph, graphLoading] = useApi("/portfolio/history", [], [], (data) => {
+    // console.log(data);
+    const newData = data.map((e) => [new Date(e.timestamp), e.net_worth]);
+    console.log({ data, newData });
+    return newData;
+  });
+
   return (
     <Page>
       <Grid container direction="row">
@@ -142,10 +152,18 @@ const Profile = () => {
         <Grid item xs={12} sm={12} md={6}>
           <StandardCard>
             <CardContent>
-              <Typography variant="h3">Graph</Typography>
-              <Typography variant="h3">
-                <Skeleton />
-              </Typography>
+              <Grid container justify="space-between" alignItems="center">
+                <Grid item>
+                  <Typography variant="button">Cumulative Graph</Typography>
+                </Grid>
+
+                <Grid item>
+                  <InteractiveRefresh
+                    onClick={() => setGraphUpdate(graphUpdate + 1)}
+                  />
+                </Grid>
+              </Grid>
+              {!graphLoading && <Cumulative data={graph} />}
             </CardContent>
           </StandardCard>
         </Grid>

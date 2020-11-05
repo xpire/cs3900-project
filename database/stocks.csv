@@ -49,7 +49,6 @@ sim23a,Ecksdee UNSW,XD23,Simulated,Private,AUD
 sim23b,Ecksdee UNSW,XD23,Simulated,Private,AUD
 TLS,Telstra Corporation,ASX,Communication,Private,AUD
 SVW,Seven Group Holdings Ltd,ASX,Communication,Private,AUD
-TPG,TPG Telecom Ltd,ASX,Communication,Private,AUD
 APT,Afterpay Ltd,ASX,Financial,Private,AUD
 CBA,Commonwealth Bank of Australia,ASX,Financial,Private,AUD
 IAG,Insurance Australia Group Ltd,ASX,Financial,Private,AUD
@@ -76,20 +75,17 @@ NDQ,BetaShares NASDAQ 100 ETF,ASX,Technology,ETF,AUD
 XRO,Xero Ltd,ASX,Technology,Private,AUD
 EOS,Electro Optic System Holdings Ltd,ASX,Technology,Private,AUD
 QAN,Qantas Airways Ltd,ASX,Transportation,Private,AUD
-SYD,Sydney Airport,ASX,Transportation,Private,AUD
 T,AT&T Inc,NYSE,Communication,Private,USD
-FB,Facebook Inc,NYSE,Communication,Private,USD
-CSCO,Cisco Inc,NYSE,Communication,Private,USD
+FB,Facebook Inc,NASDAQ,Communication,Private,USD
+CSCO,Cisco Inc,NASDAQ,Communication,Private,USD
 DIS,Walt Disney Company,NYSE,Entertainment,Private,USD
 BAC,Bank of America Corp,NYSE,Financial,Private,USD
 MA,Mastercard Inc,NYSE,Financial,Private,USD
 MTB,M&T Bank Corp,NYSE,Financial,Private,USD
 JNJ,Johnson & Johnson,NYSE,Health Care,Private,USD
 MDT,Medtronic Plc,NYSE,Health Care,Private,USD
-BRKb,Berkshire Hathaway Inc - Class B,NYSE,Misc,Private,USD
+BRK.B,Berkshire Hathaway Inc - Class B,NYSE,Misc,Private,USD
 VYM,Vanguard High Dividend Yield ETF,NYSE,Misc,ETF,USD
-GVAL,Cambria Global Value ETF,NYSE,Misc,ETF,USD
-DVEM,WisdomTree Emerging Markets ESG Fund,NYSE,Misc,ETF,USD
 IWL,iShares Russell Top 200 ETF,NYSE,Misc,ETF,USD
 SPG,Simon Property Group Inc,NYSE,Real Estate,Private,USD
 VNQ,Vanguard Real Estate ETF,NYSE,Real Estate,ETF,USD
@@ -99,12 +95,12 @@ WMT,Walmart Inc,NYSE,Retail,Private,USD
 KO,Coca-Cola Company,NYSE,Retail/Food,Private,USD
 MCD,McDonald's Corp,NYSE,Retail/Food,Private,USD
 K,Kellogg Company,NYSE,Retail/Food,Private,USD
-AMD,AMD Inc,NYSE,Retail/Technology,Private,USD
-AAPL,Apple Inc,NYSE,Technology,Private,USD
+AMD,AMD Inc,NASDAQ,Retail/Technology,Private,USD
+AAPL,Apple Inc,NASDAQ,Technology,Private,USD
 HPQ,HP Inc,NYSE,Technology,Private,USD
-MSFT,Microsoft Corp,NYSE,Technology,Private,USD
-QQQ,Invesco QQQ Trust,NYSE,Technology,ETF,USD
-TSLA,Tesla Inc,NYSE,Transportation,Private,USD
+MSFT,Microsoft Corp,NASDAQ,Technology,Private,USD
+QQQ,Invesco QQQ Trust,NASDAQ,Technology,ETF,USD
+TSLA,Tesla Inc,NASDAQ,Transportation,Private,USD
 BA,Boeing Co,NYSE,Transportation,Private,USD
 GM,General Motors Company,NYSE,Transportation,Private,USD
 VOD,Vodafone,LSE,Communication,Private,GBP
@@ -112,8 +108,6 @@ STJ,St James's Place PLC,LSE,Financial,Private,GBP
 MDC,Mediclinic International,LSE,Health Care,Private,GBP
 SEQI,Sequoia Economic Infrastructure Income Fund Ltd,LSE,Misc,ETF,GBP
 BYG,Big Yellow Group PLC,LSE,Real Estate,Private,GBP
-BP.,BP,LSE,Resources,Private,GBP
 KGF,Kingfisher PLC,LSE,Retail,Private,GBP
 ABF,AB Foods,LSE,Retail/Food,Private,GBP
 MCRO,Micro Focus,LSE,Technology,Private,GBP
-RR.,Rolls-Royce Holdings,LSE,Transportation,Private,GBP

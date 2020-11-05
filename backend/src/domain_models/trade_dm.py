@@ -3,9 +3,7 @@ from datetime import datetime
 
 from src import crud
 from src.core import trade
-from src.core.utilities import find
 from src.domain_models.account_stat_dm import AccountStat
-from src.game import event
 from src.game.event.sub_events import StatUpdateEvent, TransactionEvent
 from src.game.feature_unlocker.feature_unlocker import feature_unlocker
 from src.game.setup.setup import event_hub
@@ -17,6 +15,7 @@ from src.schemas.transaction import (
     ClosingTransaction,
     OpeningTransaction,
     TradeType,
+    Transaction,
     TransactionBase,
     TransactionDBcreate,
 )
@@ -46,13 +45,18 @@ class Trade(ABC):
         self.check(total_price, trade_price).ok()
 
         t = self.transaction_schema
+        if self.is_opening:
+            event_t = OpeningTransaction(**t.dict())
+        else:
+            event_t = ClosingTransaction(**t.dict(), **AccountStat(self.user).get_profit_info_for_transaction(t))
+
         self.apply_trade(trade_price, t)
 
         # Add exp equivalent to the amount of commission deducted
         fee = abs(trade_price - total_price)
         self.user.add_exp(fee)
 
-        self.dispatch_events(t)
+        self.dispatch_events(event_t)
 
     def apply_trade(self, trade_price, t: TransactionBase):
         t = TransactionDBcreate(**t.dict())
@@ -60,13 +64,8 @@ class Trade(ABC):
         self.user.balance += trade_price * (-1 if self.is_buying else 1)
         crud.user.add_history(t=t, db=self.db, user=self.model)
 
-    def dispatch_events(self, t: TransactionBase):
-        if self.is_opening:
-            t = OpeningTransaction(**t.dict())
-        else:
-            t = ClosingTransaction(**t.dict(), **AccountStat(self.user).get_profit_info_for_transaction(t))
-
-        event_hub.publish(TransactionEvent(user=self.user, transaction=t))
+    def dispatch_events(self, event_t: Transaction):
+        event_hub.publish(TransactionEvent(user=self.user, transaction=event_t))
         event_hub.publish(StatUpdateEvent(user=self.user))
 
     @abstractmethod

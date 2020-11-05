@@ -13,13 +13,6 @@ class OrderType(str, AutoName):
     LIMIT = auto()
 
 
-# class TradeType(str, AutoName):
-#     BUY = auto()
-#     SELL = auto()
-#     SHORT = auto()
-#     COVER = auto()
-
-
 class TradeType(str, Enum):
     BUY = (True, True, True)
     SELL = (False, True, False)
@@ -73,7 +66,6 @@ class ClosingTransaction(Transaction):
 
 
 class TransactionDBcreate(TransactionBase):
-    # TODO use
     pass
 
 

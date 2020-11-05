@@ -13,15 +13,15 @@ def ret_has_reached_level(level):
 
 achievements = [
     Achievement(
-        id=1,
-        name="Good start",
-        description="Reach level 3",
+        id=1000,
+        name="First level up :D",
+        description="Reach level 2",
         exp=0,
         event_type=GameEventType.LEVEL_UP,
-        can_unlock=ret_has_reached_level(3),
+        can_unlock=ret_has_reached_level(2),
     ),
     Achievement(
-        id=2,
+        id=1001,
         name="Halfway there!",
         description="Reach level 5",
         exp=0,
@@ -29,8 +29,8 @@ achievements = [
         can_unlock=ret_has_reached_level(5),
     ),
     Achievement(
-        id=3,
-        name="Max Level!",
+        id=1002,
+        name="!!! MAX LEVEL !!!",
         description=f"Reach level {MAX_LEVEL}",
         exp=0,
         event_type=GameEventType.LEVEL_UP,

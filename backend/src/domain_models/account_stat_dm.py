@@ -170,6 +170,8 @@ class CombinedPortfolioStat(PortfolioStat):
 class AccountStat:
     def __init__(self, user):
         self.user = user
+        user.db.refresh(user.model)
+
         self.long = LongPortfolioStat(self.get_positions(is_long=True))
         self.short = ShortPortfolioStat(self.get_positions(is_long=False))
         self.portfolio = CombinedPortfolioStat(self.long, self.short)

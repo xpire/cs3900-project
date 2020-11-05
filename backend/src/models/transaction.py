@@ -11,6 +11,7 @@ class Transaction(BaseModel):
     qty = Column(Integer, nullable=False)
     price = Column(Float, nullable=False)
     trade_type = Column(String)  # buy/sell/short/cover
+    order_type = Column(String)  # buy/sell/short/cover
     timestamp = Column(DateTime)
     is_cancelled = Column(Boolean)
     stock = relationship(

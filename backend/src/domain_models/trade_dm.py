@@ -3,26 +3,40 @@ from datetime import datetime
 
 from src import crud
 from src.core import trade
-from src.game.event.sub_events import StatUpdateEvent
+from src.core.utilities import find
+from src.domain_models.account_stat_dm import AccountStat
+from src.game import event
+from src.game.event.sub_events import StatUpdateEvent, TransactionEvent
 from src.game.feature_unlocker.feature_unlocker import feature_unlocker
 from src.game.setup.setup import event_hub
 from src.notification.notif_event import UnlockableFeatureType
 from src.schemas.response import Fail, Result, return_result
-from src.schemas.transaction import TradeType
+
+# TODO move to schemas .__init__?
+from src.schemas.transaction import (
+    ClosingTransaction,
+    OpeningTransaction,
+    TradeType,
+    TransactionBase,
+    TransactionDBcreate,
+)
 
 
+# TODO move logic from trade.py to here
 class Trade(ABC):
     trade_type: TradeType = None
     is_buying: bool
     is_long: bool
     is_opening: bool
 
-    def __init__(self, symbol, qty, price, db, user):
+    def __init__(self, symbol, qty, price, order_type, db, user):
         self.symbol = symbol
         self.qty = qty
         self.price = price
+        self.order_type = order_type
         self.db = db
         self.user = user
+        self._transaction_schema = None
 
     @return_result()
     def execute(self) -> Result:
@@ -30,38 +44,30 @@ class Trade(ABC):
         total_price = self.price * self.qty
         trade_price = trade.apply_commission(total_price, self.is_buying)
         self.check(total_price, trade_price).ok()
-        self.apply_trade(trade_price)
+
+        t = self.transaction_schema
+        self.apply_trade(trade_price, t)
 
         # Add exp equivalent to the amount of commission deducted
         fee = abs(trade_price - total_price)
         self.user.add_exp(fee)
 
-        event_hub.publish(StatUpdateEvent(user=self.user))
+        self.dispatch_events(t)
 
-    def apply_trade(self, trade_price):
-        if self.is_opening:
-            crud.user.add_transaction(
-                db=self.db,
-                user=self.model,
-                is_long=self.is_long,
-                symbol=self.symbol,
-                qty=self.qty,
-                price=self.price,
-            )
-        else:
-            crud.user.deduct_transaction(
-                db=self.db, user=self.model, is_long=self.is_long, symbol=self.symbol, qty=self.qty
-            )
+    def apply_trade(self, trade_price, t: TransactionBase):
+        t = TransactionDBcreate(**t.dict())
+        crud.user.update_transaction(t=t, db=self.db, user=self.model)
         self.user.balance += trade_price * (-1 if self.is_buying else 1)
-        crud.user.add_history(
-            symbol=self.symbol,
-            qty=self.qty,
-            price=self.price,
-            trade_type=self.trade_type,
-            timestamp=datetime.now(),
-            db=self.db,
-            user=self.model,
-        )
+        crud.user.add_history(t=t, db=self.db, user=self.model)
+
+    def dispatch_events(self, t: TransactionBase):
+        if self.is_opening:
+            t = OpeningTransaction(**t.dict())
+        else:
+            t = ClosingTransaction(**t.dict(), **AccountStat(self.user).get_profit_info_for_transaction(t))
+
+        event_hub.publish(TransactionEvent(user=self.user, transaction=t))
+        event_hub.publish(StatUpdateEvent(user=self.user))
 
     @abstractmethod
     @return_result()
@@ -78,15 +84,28 @@ class Trade(ABC):
 
     @property
     def is_buying(self):
-        return self.__class__.is_buying
+        return self.trade_type.is_buying
 
     @property
     def is_long(self):
-        return self.__class__.is_long
+        return self.trade_type.is_long
 
     @property
     def is_opening(self):
-        return self.__class__.is_opening
+        return self.trade_type.is_opening
+
+    @property
+    def transaction_schema(self):
+        if self._transaction_schema is None:
+            self._transaction_schema = TransactionBase(
+                symbol=self.symbol,
+                qty=self.qty,
+                price=self.price,
+                timestamp=datetime.now(),
+                order_type=self.order_type,
+                trade_type=self.trade_type,
+            )
+        return self._transaction_schema
 
     @classmethod
     def register(cls, subclasses):

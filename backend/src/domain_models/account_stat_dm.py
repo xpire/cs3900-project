@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
 
 from src import schemas
+from src.core.utilities import find
 from src.domain_models.data_provider.setup import get_data_provider
+from src.schemas.transaction import TradeType
 
 
 def position_to_dict(p):
@@ -208,6 +210,13 @@ class AccountStat:
             return schemas.PositionAPIout(**position_to_dict(p))
 
         return [to_position_schema(p) for p in self.get_positions(is_long)]
+
+    def get_profit_info_for_transaction(self, t: schemas.TransactionBase):
+        is_long = t.trade_type in [TradeType.BUY, TradeType.SELL]
+        p = find(self.get_positions(is_long), symbol=t.symbol)
+        profit_per_unit = (t.price - p.avg) * (1 if is_long else -1)
+        buy_value = p.avg if is_long else t.price
+        return dict(profit=profit_per_unit * t.qty, profit_percentage=div(profit_per_unit, buy_value))
 
     def get_positions(self, is_long=True):
         return self.user.model.long_positions if is_long else self.user.model.short_positions

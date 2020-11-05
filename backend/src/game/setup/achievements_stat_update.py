@@ -17,7 +17,8 @@ def ret_has_reached_balance(value):
 
 def ret_has_reached_net_worth(value):
     def has_reached_net_worth(e: StatUpdateEvent):
-        return e.user.get_net_value() >= value
+        # return e.user.() >= value
+        return True
 
     return has_reached_net_worth
 

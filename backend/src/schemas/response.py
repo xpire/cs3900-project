@@ -39,7 +39,7 @@ class Result(BaseSchema):
 
     def ok(self):
         if self.success:
-            return self.data  # TODO this might error if not set? test separately
+            return self.data
         else:
             raise ResultException(self)
 

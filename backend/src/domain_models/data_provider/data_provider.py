@@ -1,17 +1,5 @@
 from abc import ABC, abstractmethod, abstractproperty
 
-"""
-TODO
-- how to test limit order execution etc.
-- limit order test: don't use latest data, but use lo and high since we get data
-in blocks of 5
-- confirmation message: Executed at ... / indicate positions on the stock?
-- after you trade, we want to see immediate changes to the balance, networth, short/long networths,
-and portfolio
-- portfolio - inventory system: hover to see more details, click for even more
-- floaty + button?
-"""
-
 
 class DataProvider(ABC):
     """

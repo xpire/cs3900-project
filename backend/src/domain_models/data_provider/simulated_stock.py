@@ -67,7 +67,6 @@ class StockSimulator:
         return data
 
     def make_request(self, start, end):
-        # TODO test what happens when start == end
         data = self.historical_data(start, end)
         intraday_data = self.intraday_data(end)
 

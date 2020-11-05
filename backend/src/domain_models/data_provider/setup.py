@@ -55,6 +55,7 @@ def cached_get_data_provider():
 
         db = SessionLocal()
 
+        # Subscribe to only 30 stocks for now #TODO: reduce the number of stocks in the DB
         real_stocks = crud.stock.get_all_stocks(db=db, simulated=False)[:30]
         sim_stocks = crud.stock.get_all_stocks(db=db, simulated=True)
 

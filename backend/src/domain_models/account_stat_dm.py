@@ -5,6 +5,7 @@ from src import crud
 from src import domain_models as dm
 from src import schemas
 from src.domain_models.data_provider.setup import get_data_provider
+from src.models.net_worth_timeseries import NetWorthTimeSeries
 
 
 def position_to_dict(p):
@@ -224,7 +225,14 @@ class AccountStat:
         return self.user.short_allowance_rate
 
     def get_net_worth_history(self):
-        return self.user.model.net_worth_history[::-1]  # Reverse the list so latest is first
+        data = []
+        for entry in self.user.model.net_worth_history:
+            data += [schemas.NetWorthTimeSeriesBase(timestamp=entry.timestamp, net_worth=entry.net_worth,)]
+
+        # Append latest net worth
+        data += [schemas.NetWorthTimeSeriesBase(timestamp=datetime.now(), net_worth=self.net_worth())]
+
+        return data[::-1]  # Reverse the list so latest is first,
 
 
 class PortfolioWorthPublisher:

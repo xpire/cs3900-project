@@ -25,5 +25,5 @@ async def get_portfolio_stats(user: dm.UserDM = Depends(get_current_user_dm),) -
 @router.get("/history")
 async def get_net_worth_history(
     user: dm.UserDM = Depends(get_current_user_dm),
-) -> List[schemas.NetWorthTimeSeriesAPIout]:
+) -> List[schemas.NetWorthTimeSeriesBase]:
     return dm.AccountStat(user).get_net_worth_history()

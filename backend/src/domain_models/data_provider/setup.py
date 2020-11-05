@@ -70,6 +70,8 @@ def cached_get_data_provider():
         provider.start()
         provider.subscribe(StatUpdatePublisher(db).update)
         provider.subscribe(dm.PendingOrderExecutor(db).update)
+        provider.subscribe(dm.PortfolioWorthPublisher(db).update)
+
         return provider
 
     return get_data_provider

@@ -1,4 +1,5 @@
 <p align="center">
+    <img src="https://raw.githubusercontent.com/unsw-cse-capstone-project/capstone-project-comp3900-f13a-ecksdee/master/web/src/logo.svg?token=AHIETN3VKVIIITLJ6UWZA6S7VURPS" width="165" height="70" align="center">
    <img src="https://www.unsw.edu.au/sites/all/themes/mobileunswcorporate/logo.png" width="165" height="70" align="center">
  </p>
 

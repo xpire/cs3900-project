@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 
-from src import crud, schemas
-from src.api.deps import get_current_user_dm
+from src import crud
+from src import domain_models as dm
+from src import schemas
 from src.domain_models.data_provider.setup import get_data_provider
 
 
@@ -223,6 +224,24 @@ class AccountStat:
         return self.user.short_allowance_rate
 
 
+class PortfolioWorthPublisher:
+    def __init__(self, db):
+        self.db = db
+
+    def update(self):
+        user_models = crud.user.get_all_users(self.db)
+
+        for user_m in user_models:
+            self.publish_portfolio_worth(user_m)
+
+    def publish_portfolio_worth(self, user_m):
+        user_dm = dm.UserDM(user_m, self.db)
+        net_worth = AccountStat(user_dm).net_worth()
+        print(net_worth)
+
+        # TODO: connect to crud
+
+
 def curr_price(symbol):
     return get_data_provider().curr_price(symbol)
 
@@ -237,23 +256,4 @@ def div(a, b, default=0):
 
 def total(positions, stat):
     return sum((stat(p) for p in positions))
-
-
-class PortfolioWorthPublisher:
-    def __init__(self, db):
-        self.db = db
-
-    def update(self):
-        user_models = crud.user.get_all_users(self.db)
-
-        for user_m in user_models:
-            self.publish_portfolio_worth(user_m)
-
-    def publish_portfolio_worth(self, user_m):
-        user_dm = get_current_user_dm(user_m, self.db)
-
-        net_worth = AccountStat(user_dm).net_worth()
-        print(net_worth)
-
-        # TODO: connect to crud
 

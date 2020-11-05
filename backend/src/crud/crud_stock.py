@@ -45,6 +45,11 @@ class CRUDStock(CRUDBase[Stock]):
         Insert batch amount of basic stock data from existing model. Note that no type
         checks as the file is pretty much static.
         """
+
+        # wipe the table
+        num_rows_deleted = db.query(Stock).delete()
+        log_msg(f"{num_rows_deleted} rows deleted from stock table.", "INFO")
+
         ds = [dict(x) for x in csv_stocks]
         db.bulk_insert_mappings(self.model, ds)
         db.commit()

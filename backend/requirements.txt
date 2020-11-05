@@ -1,3 +1,4 @@
+setuptools==50.3.2
 aiofiles==0.5.0
 aniso8601==7.0.0
 appdirs==1.4.4
@@ -19,7 +20,7 @@ email-validator==1.1.1
 fastapi==0.61.1
 firebase-admin==4.4.0
 firebase-token-generator==2.0.1
-gevent==20.9.0
+gevent==20.9.0ls
 google-api-core==1.22.4
 google-api-python-client==1.12.3
 google-auth==1.22.1

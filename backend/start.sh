@@ -107,7 +107,6 @@ if [ $# -eq 3 ]; then
 
             check-wake;
             init-db;
-            setup-test;
         ;; 
         *) echo "Variable name error.";;
     esac

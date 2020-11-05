@@ -13,8 +13,8 @@ This is the repository for the COMP3900 project, do not commit bad code or Ian w
 ## Members and Development Roles
 
 
-| SCRUM MASTER | FULL STACK | FRONTEND  | BACKEND   | BACKEND    |
-|--------------|------------|-----------|-----------|------------|
+| SCRUM MASTER | FULL STACK DEVELOPER | FRONTEND DEVELOPER | BACKEND DEVELOPER | BACKEND DEVELOPER |
+|:--------------:|:------------:|:-----------:|:-----------:|:------------:|
 | Peiyu Tang   |  Ian Park  | Justin Or | Song Fang | George Bai |
 
 

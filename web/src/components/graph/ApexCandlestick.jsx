@@ -11,8 +11,18 @@ const Candlestick = ({ data }) => {
           mode: theme.palette.type,
         },
         chart: {
-          type: "candlestick",
+          type: "area",
           height: 350,
+          zoom: {
+            autoScaleYaxis: true,
+          },
+        },
+        dataLabels: {
+          enabled: false,
+        },
+        markers: {
+          size: 0,
+          style: "hollow",
         },
         xaxis: {
           type: "datetime",
@@ -24,7 +34,7 @@ const Candlestick = ({ data }) => {
         },
       }}
       series={[{ data: data }]}
-      type="candlestick"
+      type="area"
     />
   );
 };

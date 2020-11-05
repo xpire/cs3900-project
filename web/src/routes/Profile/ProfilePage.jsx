@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   Typography,
   Grid,
@@ -81,6 +81,19 @@ const Profile = () => {
     ({ user_ranking }) => user_ranking
   );
 
+  const [expPercentage, setExpPercentage] = useState(0);
+  useEffect(() => {
+    if (
+      data &&
+      data.exp_until_next_level &&
+      data.exp_until_next_level !== null
+    ) {
+      setExpPercentage(
+        (data.exp / (data.exp_until_next_level + data.exp)) * 100
+      );
+    }
+  }, [data]);
+
   const [transactionData] = useApi("/transactions");
 
   const mappedTransactionData = transactionData.map((e, index) => {
@@ -101,24 +114,9 @@ const Profile = () => {
                   Net: ${format(data.balance)}
                 </Typography>
                 <Typography variant="h5">
-                  Level {data.level} (
-                  {data.exp_until_next_level === null
-                    ? 100
-                    : format(
-                        (data.exp / (data.exp_until_next_level + data.exp)) *
-                          100
-                      )}
-                  %)
+                  Level {data.level} ({format(expPercentage)}%)
                 </Typography>
-                <LinearProgress
-                  value={
-                    data.exp_until_next_level === null
-                      ? 100
-                      : (data.exp / (data.exp_until_next_level + data.exp)) *
-                        100
-                  }
-                  variant="determinate"
-                />
+                <LinearProgress value={expPercentage} variant="determinate" />
               </CardContent>
             </CardActionArea>
             <CardActions>

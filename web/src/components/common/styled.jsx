@@ -1,13 +1,12 @@
-import React from "react";
 import {
   Card,
   Typography,
   styled as materialStyled,
-  useTheme,
   Link,
 } from "@material-ui/core";
 import styled from "styled-components";
 import { motion } from "framer-motion";
+import ReactMarkdown from "react-markdown";
 
 export const CenteredCard = styled(Card)`
   width: min(90vw, 500px);
@@ -28,30 +27,6 @@ export const CenteredMotionDiv = styled(motion.div)`
   flex-direction: column;
 `;
 
-const StyledColoredText = materialStyled(Typography)({
-  color: (props) => props.color,
-});
-
-export const green = { dark: "#c1ff7a", light: "#689f38" };
-export const red = { dark: "#ef5350", light: "#f50057" };
-
-export const ColoredText = ({ children, color, ...restProps }) => {
-  const theme = useTheme();
-  return (
-    <StyledColoredText
-      style={{
-        color:
-          color === "green"
-            ? green[theme.palette.type]
-            : red[theme.palette.type],
-      }}
-      {...restProps}
-    >
-      {children}
-    </StyledColoredText>
-  );
-};
-
 export const StandardCard = materialStyled(Card)({
   margin: "10px",
   // padding: "10px",
@@ -67,3 +42,22 @@ export const InnerCard = materialStyled(Card)({
 export const SubtitleLink = styled(Link)({
   marginTop: "10px",
 });
+
+export const StyledMarkdown = styled(ReactMarkdown)`
+  blockquote {
+    margin: 0;
+    margin-top: 0;
+    margin-bottom: 16px;
+    padding: 0 15px;
+    color: #777;
+    border-left: 4px solid #ddd;
+  }
+
+  blockquote > :first-child {
+    margin-top: 0;
+  }
+
+  blockquote > :last-child {
+    margin-bottom: 0;
+  }
+`;

@@ -19,7 +19,7 @@ import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import TradingIcon from "@material-ui/icons/MonetizationOn";
 import { Link } from "react-router-dom";
 
-import { ColoredText } from "../common/styled";
+import ColoredText from "../common/ColoredText";
 import InteractiveRefresh from "../common/InteractiveRefresh";
 import { format } from "../../utils/formatter";
 
@@ -75,7 +75,8 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort, headCells }) => {
             align={
               headCell.formatType === "currency" ||
               headCell.formatType === "float" ||
-              headCell.formatType === "number"
+              headCell.formatType === "number" ||
+              headCell.formatType === "percentage"
                 ? "right"
                 : "left"
             }
@@ -145,6 +146,7 @@ export const tableTypes = {
   DATE: "date",
   FLOAT: "float",
   ID: "id",
+  PERCENTAGE: "percentage",
 };
 
 /**
@@ -197,7 +199,7 @@ function EnhancedTable({
                           value = (
                             <Tooltip
                               title={`${dateObject.toLocaleString()}`}
-                              aria-label="add"
+                              aria-label="timestamp"
                             >
                               <Typography>
                                 {dateObject.toLocaleDateString()}
@@ -208,15 +210,14 @@ function EnhancedTable({
                         case "text":
                           value = row[id];
                           break;
-                        case "currency":
-                          value = `$${format(row[id])}`;
-                          break;
                         case "id":
                         case "number":
-                          value = Math.floor(row[id]);
+                          value = Math.floor(row[id]); // integer
                           break;
                         case "float":
-                          value = format(row[id]);
+                        case "currency":
+                        case "percentage":
+                          value = format(row[id]); // 2 decimal place
                           break;
                         default:
                           value = row[id];
@@ -229,7 +230,8 @@ function EnhancedTable({
                           align={
                             formatType === "currency" ||
                             formatType === "float" ||
-                            formatType === "number"
+                            formatType === "number" ||
+                            formatType === "percentage"
                               ? "right"
                               : "left"
                           }
@@ -238,10 +240,16 @@ function EnhancedTable({
                           {color ? (
                             <ColoredText color={value > 0 ? "green" : "red"}>
                               {value > 0 && "+"}
+                              {formatType === "currency" && "$"}
                               {value}
+                              {formatType === "percentage" && "%"}
                             </ColoredText>
                           ) : (
-                            <>{value}</>
+                            <>
+                              {formatType === "currency" && "$"}
+                              {value}
+                              {formatType === "percentage" && "%"}
+                            </>
                           )}
                         </TableCell>
                       );

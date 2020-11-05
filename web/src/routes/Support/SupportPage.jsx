@@ -13,7 +13,7 @@ import { useSnackbar } from "notistack";
 
 import { AuthContext } from "../../utils/authentication";
 import Page from "../../components/page/Page";
-import { StandardCard } from "../../components/common/styled";
+import { StandardCard, StyledMarkdown } from "../../components/common/styled";
 import useApi from "../../hooks/useApi";
 import Alert, { useAlert } from "../../components/common/Alert";
 import useHandleSnack from "../../hooks/useHandleSnack";
@@ -97,6 +97,32 @@ const Support = () => {
       <StandardCard>
         <CardContent>
           <Typography variant="h3">Tutorials</Typography>
+          <StyledMarkdown>
+            {`# Hello
+            
+*world*
+
+> this is block but hy this is block but hy 
+> this is block but hy this is block but hy 
+> this is block but hy this is block but hy 
+> this is block but hy this is block but hy 
+> this is block but hy this is block but hy 
+> this is block but hy this is block but hy 
+> this is block but hy this is block but hy 
+> this is block but hy this is block but hy 
+> this is block but hy this is block but hy 
+> this is block but hy this is block but hy 
+> this is block but hy this is block but hy 
+> this is block but hy this is block but hy 
+> this is block but hy this is block but hy 
+> this is block but hy this is block but hy 
+> this is block but hy this is block but hy 
+> this is block but hy this is block but hy 
+> this is block but hy this is block but hy 
+
+
+`}
+          </StyledMarkdown>
         </CardContent>
       </StandardCard>
       <Alert

@@ -5,7 +5,10 @@ import styled from "styled-components";
 
 import { AuthContext } from "../../utils/authentication";
 import Page from "../../components/page/Page";
-import { StandardCard, ColoredText } from "../../components/common/styled";
+import { StandardCard } from "../../components/common/styled";
+import ColoredText, {
+  useColoredText,
+} from "../../components/common/ColoredText";
 import InteractiveRefresh from "../../components/common/InteractiveRefresh";
 import CardGrid from "../../components/common/CardGrid";
 import ApexCandlestick from "../../components/graph/ApexCandlestick";
@@ -22,11 +25,13 @@ const CardsSpaceDiv = styled.div`
 
 const parsedApexData = TimeSeriesData.AAPL.values
   .map(({ datetime, open, close, high, low }) => {
-    return { x: new Date(datetime), y: [open, high, low, close] };
+    // return { x: new Date(datetime), y: [open, high, low, close] };
+    return [new Date(datetime), open];
   })
   .slice(0, 120);
 
 const StatCard = ({ name, value, stat, today }) => {
+  const [delta] = useColoredText(stat);
   return (
     <StandardCard style={{ minHeight: "130px" }}>
       <CardContent>
@@ -63,6 +68,7 @@ const StatCard = ({ name, value, stat, today }) => {
                 <ColoredText
                   variant="subtitle2"
                   color={stat > 0 ? "green" : "red"}
+                  delta={delta}
                 >
                   {today}
                 </ColoredText>

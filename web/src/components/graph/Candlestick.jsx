@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import { green, red } from "../common/styled";
+import { green, red } from "../common/ColoredText";
 
 import { format } from "d3-format";
 import { timeFormat } from "d3-time-format";

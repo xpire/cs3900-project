@@ -20,7 +20,6 @@ email-validator==1.1.1
 fastapi==0.61.1
 firebase-admin==4.4.0
 firebase-token-generator==2.0.1
-gevent==20.9.0ls
 google-api-core==1.22.4
 google-api-python-client==1.12.3
 google-auth==1.22.1
@@ -57,7 +56,6 @@ pluggy==0.13.1
 poyo==0.5.0
 promise==2.3
 protobuf==3.13.0
-psycopg2==2.8.6
 py==1.9.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8

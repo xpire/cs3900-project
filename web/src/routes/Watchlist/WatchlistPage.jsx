@@ -49,7 +49,7 @@ const headCells = [
   },
   {
     id: "dailyPercentage",
-    formatType: tableTypes.FLOAT,
+    formatType: tableTypes.PERCENTAGE,
     disablePadding: false,
     label: "% Day Change",
     color: true,

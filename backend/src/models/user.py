@@ -38,3 +38,6 @@ class User(BaseModel):
     resets = Column(Integer, nullable=False, default=0)
     last_reset = Column(DateTime, nullable=True)
     unlocked_achievements = has("UnlockedAchievement")
+
+    # net worth history
+    net_worth_history = has("NetWorthTimeSeries")

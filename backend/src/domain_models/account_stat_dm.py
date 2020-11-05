@@ -1,9 +1,13 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 
+from src import crud
+from src import domain_models as dm
 from src import schemas
 from src.core.utilities import find
 from src.domain_models.data_provider.setup import get_data_provider
-from src.schemas.transaction import TradeType
+from src.models.net_worth_timeseries import NetWorthTimeSeries
+from src.schemas.transaction import TradeType  # TODO: why is this imported if not used?
 
 
 def position_to_dict(p):
@@ -230,6 +234,39 @@ class AccountStat:
     @property
     def short_allowance_rate(self):
         return self.user.short_allowance_rate
+
+    def get_net_worth_history(self):
+        data = []
+        for entry in self.user.model.net_worth_history:
+            data += [
+                schemas.NetWorthTimeSeriesBase(
+                    timestamp=entry.timestamp,
+                    net_worth=entry.net_worth,
+                )
+            ]
+
+        # Append latest net worth
+        data += [schemas.NetWorthTimeSeriesBase(timestamp=datetime.now(), net_worth=self.net_worth())]
+
+        return data[::-1]  # Reverse the list so latest is first,
+
+
+class PortfolioWorthPublisher:
+    def __init__(self, db):
+        self.db = db
+
+    def update(self):
+        user_models = crud.user.get_all_users(self.db)
+
+        for user_m in user_models:
+            self.publish_portfolio_worth(user_m)
+
+    def publish_portfolio_worth(self, user_m):
+        user_dm = dm.UserDM(user_m, self.db)
+        net_worth = AccountStat(user_dm).net_worth()
+
+        # Add to historical table
+        crud.user.add_historical_portfolio(user=user_m, db=self.db, timestamp=datetime.now(), net_worth=net_worth)
 
 
 def curr_price(symbol):

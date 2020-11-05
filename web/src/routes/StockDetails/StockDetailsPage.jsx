@@ -16,11 +16,10 @@ import {
 import { Link, useParams, useHistory } from "react-router-dom";
 
 import Page from "../../components/page/Page";
-import {
-  ColoredText,
-  CenteredCard,
-  StandardCard,
-} from "../../components/common/styled";
+import { CenteredCard, StandardCard } from "../../components/common/styled";
+import ColoredText, {
+  useColoredText,
+} from "../../components/common/ColoredText";
 import Candlestick from "../../components/graph/Candlestick";
 import { Skeleton } from "@material-ui/lab";
 import axios from "../../utils/api";
@@ -115,7 +114,7 @@ const StockDetails = () => {
 
   const pollStockData = () => {
     axios
-      .get(`/stocks/time_series?symbol=${symbol}&days=90`)
+      .get(`/stocks/time_series?symbol=${symbol}&days=3650`)
       .then((response) => {
         let data = response.data;
         data = data
@@ -139,6 +138,8 @@ const StockDetails = () => {
   useEffect(pollStockData, []);
 
   const handleSnack = useHandleSnack();
+
+  const [delta] = useColoredText(latestPrice);
 
   return (
     <Page>
@@ -174,23 +175,29 @@ const StockDetails = () => {
                     )}
                   </Grid>
                   <Grid item md={12} sm={6}>
-                    <Grid item>
-                      <ColoredText
-                        color={dayGain > 0 ? "green" : "red"}
-                        variant="h2"
-                        align="right"
-                      >
-                        {loading ? <Skeleton /> : `${format(dayGain)}%`}
-                      </ColoredText>
+                    <Grid item container direction="row-reverse">
+                      <Grid item>
+                        <ColoredText
+                          color={dayGain > 0 ? "green" : "red"}
+                          variant="h2"
+                          align="right"
+                          delta={delta}
+                        >
+                          {loading ? <Skeleton /> : `${format(dayGain)}%`}
+                        </ColoredText>
+                      </Grid>
                     </Grid>
-                    <Grid item>
-                      <ColoredText
-                        color={dayGain > 0 ? "green" : "red"}
-                        variant="h3"
-                        align="right"
-                      >
-                        {loading ? <Skeleton /> : `$${format(latestPrice)}`}
-                      </ColoredText>
+                    <Grid item container direction="row-reverse">
+                      <Grid item>
+                        <ColoredText
+                          color={dayGain > 0 ? "green" : "red"}
+                          variant="h3"
+                          align="right"
+                          delta={delta}
+                        >
+                          {loading ? <Skeleton /> : `$${format(latestPrice)}`}
+                        </ColoredText>
+                      </Grid>
                     </Grid>
                   </Grid>
                 </Grid>

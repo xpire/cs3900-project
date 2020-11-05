@@ -1,7 +1,7 @@
 import React from "react";
 import Chart from "react-apexcharts";
 import { useTheme } from "@material-ui/core";
-const Candlestick = ({ data }) => {
+const Cumulative = ({ data }) => {
   const theme = useTheme();
 
   return (
@@ -11,8 +11,18 @@ const Candlestick = ({ data }) => {
           mode: theme.palette.type,
         },
         chart: {
-          type: "candlestick",
+          type: "area",
           height: 350,
+          zoom: {
+            autoScaleYaxis: true,
+          },
+        },
+        dataLabels: {
+          enabled: false,
+        },
+        markers: {
+          size: 0,
+          style: "hollow",
         },
         xaxis: {
           type: "datetime",
@@ -21,12 +31,13 @@ const Candlestick = ({ data }) => {
           tooltip: {
             enabled: true,
           },
+          decimalsInFloat: 0,
         },
       }}
       series={[{ data: data }]}
-      type="candlestick"
+      type="area"
     />
   );
 };
 
-export default Candlestick;
+export default Cumulative;

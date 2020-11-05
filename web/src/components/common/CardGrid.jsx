@@ -40,7 +40,7 @@ const CardGrid = ({ data }) => {
                 category={exchange}
                 price={format(curr_day_close)} //{curr_day_close?.toFixed(2)}
                 delta={format(delta)} //{delta?.toFixed(2)}
-                key={index}
+                key={symbol}
                 online={is_trading}
                 skeleton={skeleton}
               />

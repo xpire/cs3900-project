@@ -18,7 +18,6 @@ class NotificationHub:
         uid = event.user.uid
 
         if uid not in self.notifiers:
-            log_msg("Matching user to notify event is not found", "ERROR")
             return
 
         for notifier in self.notifiers[uid].values():

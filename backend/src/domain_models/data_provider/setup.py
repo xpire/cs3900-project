@@ -13,8 +13,8 @@ from .td_data_provider import TDProvider
 delta = lambda hours: timedelta(hours=hours)
 
 patterns = [
-    list(it.chain(range(1000, 50, -50), range(50, 1000, 50))),
-    list(it.chain(range(50, 1000, 50), range(1000, 50, -50))),
+    list(it.chain(range(2000, 100, -100), range(100, 2000, 100))),
+    list(it.chain(range(100, 2000, 100), range(2000, 100, -100))),
 ]
 
 stock_patterns = {}
@@ -54,18 +54,18 @@ def cached_get_data_provider():
 
         db = SessionLocal()
 
-        real_stocks = crud.stock.get_all_stocks(db=db, simulated=False)[:40]
+        real_stocks = crud.stock.get_all_stocks(db=db, simulated=False)[:20]
         sim_stocks = crud.stock.get_all_stocks(db=db, simulated=True)
 
         def make_symbol_to_exchange(stocks):
             return {stock.symbol: stock.exchange for stock in stocks}
 
         p1 = TDProvider(db=db, symbol_to_exchange=make_symbol_to_exchange(real_stocks), api_key=settings.TD_API_KEY)
-        # p2 = SimulatedProvider(
-        #     db=db, symbol_to_exchange=make_symbol_to_exchange(sim_stocks), simulators=create_simulators(db)
-        # )
+        p2 = SimulatedProvider(
+            db=db, symbol_to_exchange=make_symbol_to_exchange(sim_stocks), simulators=create_simulators(db)
+        )
 
-        provider = CompositeDataProvider([p1])
+        provider = CompositeDataProvider([p1, p2])
         provider.pre_start()
         provider.start()
         provider.subscribe(StatUpdatePublisher(db).update)

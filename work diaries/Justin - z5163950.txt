@@ -50,3 +50,13 @@ Connected previously mocked Dashboard to backend API
 
 Week 7
 
+Fixed trade page with a textfield to populate limit order price.
+Fixed trade page bug with allowing users to trade more than they could own, by calculating estimated stock price more accurately
+Added documentation to a majority of the frontend code with jsdoc and PropTypes
+
+Week 8
+
+Many small visual fixes and bug fixes such as trade's order price not updating correctly and notifications duplicating
+Fixed bug where sometimes authenticated requests are rejected as id token has expired
+Implemented novel feature where live updated data is visually highlighted
+Implemented cumulative graph for dashboard and user page.   

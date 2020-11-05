@@ -25,6 +25,7 @@ const useHandleSocketSnack = (setCelebration) => {
           ),
         });
         break;
+      // case "orders": //TODO: limit order executed notification
       default:
     }
   };

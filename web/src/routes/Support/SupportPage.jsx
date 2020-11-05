@@ -7,16 +7,20 @@ import {
   TableCell,
   Button,
   CardContent,
+  Chip,
+  Grid,
+  CardActionArea,
 } from "@material-ui/core";
 import app, { ActionCodeSettings } from "../../utils/firebase";
 import { useSnackbar } from "notistack";
 
 import { AuthContext } from "../../utils/authentication";
 import Page from "../../components/page/Page";
-import { StandardCard, StyledMarkdown } from "../../components/common/styled";
+import { StandardCard } from "../../components/common/styled";
 import useApi from "../../hooks/useApi";
 import Alert, { useAlert } from "../../components/common/Alert";
 import useHandleSnack from "../../hooks/useHandleSnack";
+import TutorialDialog, { tutorials } from "../../tutorial/TutorialDialog";
 
 const Support = () => {
   const { user } = useContext(AuthContext);
@@ -51,6 +55,15 @@ const Support = () => {
       setRestartAlert(false);
     });
   };
+
+  const [locked, lockedLoading] = useApi(`/user`, []); // check if functionality is locked
+  const [chosen, setChosen] = useState({});
+  const [open, setOpen] = useState(false);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   return (
     <Page>
       <StandardCard>
@@ -94,37 +107,47 @@ const Support = () => {
           </TableBody>
         </Table>
       </StandardCard>
-      <StandardCard>
-        <CardContent>
-          <Typography variant="h3">Tutorials</Typography>
-          <StyledMarkdown>
-            {`# Hello
-            
-*world*
 
-> this is block but hy this is block but hy 
-> this is block but hy this is block but hy 
-> this is block but hy this is block but hy 
-> this is block but hy this is block but hy 
-> this is block but hy this is block but hy 
-> this is block but hy this is block but hy 
-> this is block but hy this is block but hy 
-> this is block but hy this is block but hy 
-> this is block but hy this is block but hy 
-> this is block but hy this is block but hy 
-> this is block but hy this is block but hy 
-> this is block but hy this is block but hy 
-> this is block but hy this is block but hy 
-> this is block but hy this is block but hy 
-> this is block but hy this is block but hy 
-> this is block but hy this is block but hy 
-> this is block but hy this is block but hy 
+      <Typography variant="h3">Tutorials</Typography>
+      <Grid container>
+        {tutorials.map((tut) => {
+          return (
+            <Grid md={4} sm={6} xs={12} key={tut.title}>
+              <StandardCard>
+                <CardActionArea
+                  disabled={lockedLoading ? true : locked.level < tut.unlock}
+                  onClick={() => {
+                    console.log(tut);
+                    setChosen(tut);
+                    setOpen(true);
+                  }}
+                >
+                  <CardContent>
+                    <Typography variant="h4">{tut.title}</Typography>
+                    <Chip
+                      label={`Lv. ${tut.unlock}`}
+                      color={
+                        lockedLoading
+                          ? "default"
+                          : locked.level < tut.unlock
+                          ? "default"
+                          : "primary"
+                      }
+                    />
+                  </CardContent>
+                </CardActionArea>
+              </StandardCard>
+            </Grid>
+          );
+        })}
+      </Grid>
+      <TutorialDialog
+        open={open}
+        title={chosen.title}
+        body={chosen.body}
+        handleClose={handleClose}
+      />
 
-
-`}
-          </StyledMarkdown>
-        </CardContent>
-      </StandardCard>
       <Alert
         title="Are you sure?"
         text="You will be logged out and receive an email giving you instructions on how to reset your password"

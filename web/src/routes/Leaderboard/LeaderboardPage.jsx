@@ -28,7 +28,7 @@ const headCells = [
   },
   {
     id: "level",
-    formatType: tableTypes.CURRENCY,
+    formatType: tableTypes.NUMBER,
     disablePadding: false,
     label: "Level",
   },

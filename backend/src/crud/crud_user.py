@@ -168,6 +168,7 @@ class CRUDUser(CRUDBase[User]):
         user.long_positions = []
         user.short_positions = []
         user.transactions = []
+        user.net_worth_history = []
 
         # set new reset time and amount
         user.resets += 1

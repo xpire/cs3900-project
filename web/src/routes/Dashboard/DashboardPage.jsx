@@ -17,7 +17,7 @@ import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import useApi from "../../hooks/useApi";
 import { format } from "../../utils/formatter";
 
-import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
+// import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
 
 const CardsSpaceDiv = styled.div`
   // min-height: 75vh;
@@ -176,15 +176,34 @@ const Dashboard = () => {
                 </Grid>
                 <Grid item>
                   <InteractiveRefresh
-                    onClick={() =>
-                      setForceUpdate(
-                        myValue === 0
-                          ? forceUpdate.long + 1
-                          : myValue === 1
-                          ? forceUpdate.short + 1
-                          : forceUpdate.watch
-                      )
-                    }
+                    onClick={() => {
+                      switch (myValue) {
+                        case 0:
+                          setForceUpdate({
+                            ...forceUpdate,
+                            long: forceUpdate.long + 1,
+                          });
+                          break;
+                        case 1:
+                          setForceUpdate({
+                            ...forceUpdate,
+                            long: forceUpdate.short + 1,
+                          });
+                          break;
+                        case 2:
+                          setForceUpdate({
+                            ...forceUpdate,
+                            long: forceUpdate.watch + 1,
+                          });
+                          break;
+                        default:
+                      }
+                      // myValue === 0
+                      // ? forceUpdate.long + 1
+                      // : myValue === 1
+                      // ? forceUpdate.short + 1
+                      // : forceUpdate.watch
+                    }}
                   />
                 </Grid>
               </Grid>

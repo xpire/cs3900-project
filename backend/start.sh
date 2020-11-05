@@ -56,7 +56,7 @@ setup-test() {
     git_dir="../.git/hooks";
 
     # yeet the pytest file
-    cp src/util/pytest.sh ${git_dir}
+    cp src/tests/pytest.sh ${git_dir}
     
     # delete file create file blah blah blah...
     echo ". \"\$(dirname "\$0")/pytest.sh\"" >> ${git_dir}/pytest_temp;

@@ -56,3 +56,11 @@ We started the second sprint. My role was in the backend, developing API's for p
 
 Group To Do:
 - Develop pytests/unittests for the backend 
+
+Week 7
+
+I implemented the backend for resetting users and keeping track for the number of resets. We also enforce that users don't reset too often by making them wait a certain time. I also worked on exposing API's for the leaderboard that displays the most valuable site-wide accounts. We've managed to introduce test-stubs for the pytests we plan to write, there was also much code refactoring that improved the quality and organisation of the source code. We are almost done with the features we planned to implement, our main priority is to code tests.
+
+Group To DO:
+- Implement pytests for the backend
+- Work on project report

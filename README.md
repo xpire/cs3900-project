@@ -9,15 +9,14 @@
 This is the repository for the COMP3900 project, do not commit bad code or Ian will be angry 😈😈😈. The project selected is `Investment Simulator`, the application name is "Xecute the Deal". 
 
 <br/>
+
 ## Members and Development Roles
 
-<center>
 
 | SCRUM MASTER | FULL STACK | FRONTEND  | BACKEND   | BACKEND    |
 |--------------|------------|-----------|-----------|------------|
 | Peiyu Tang   |  Ian Park  | Justin Or | Song Fang | George Bai |
 
-</center>
 
 <br/>
 

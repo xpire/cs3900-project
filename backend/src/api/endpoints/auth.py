@@ -13,6 +13,8 @@ from src.api.deps import (
     get_db,
 )
 from src.core.async_exit import AppStatus
+from src.core.config import env_settings
+from src.core.utilities import ret_initial_users
 from src.domain_models.user_dm import UserDM
 from src.game.achievement.achievement import UserAchievement
 from src.notification.notifier import Notifier, notif_hub

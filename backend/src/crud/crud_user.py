@@ -12,8 +12,8 @@ from typing import List, Optional
 
 from sqlalchemy.orm import Session
 from src import crud
-from src.core.config import settings
-from src.core.utilities import fail_save, find
+from src.core.config import env_settings, settings
+from src.core.utilities import fail_save, find, log_msg, ret_initial_users
 from src.crud.base import CRUDBase
 from src.models.position import LongPosition, ShortPosition
 from src.models.transaction import Transaction
@@ -21,6 +21,7 @@ from src.models.user import User
 from src.models.watchlist import WatchList
 from src.schemas.response import Fail, Result, return_result
 from src.schemas.transaction import TradeType
+from src.schemas.user import UserCreate
 
 
 class CRUDUser(CRUDBase[User]):
@@ -194,6 +195,13 @@ class CRUDUser(CRUDBase[User]):
             )
         )
         self.commit_and_refresh(db, user)
+
+    def insert_init_users(self, db: Session):
+        log_msg("Inserting initial users...", "INFO")
+        users = ret_initial_users(proj_root=str(env_settings.proj_root))
+        for user in users:
+            if crud.user.get_user_by_uid(db=db, uid=user["uid"]) == None:
+                crud.user.create(db=db, obj=UserCreate(**user))
 
 
 user = CRUDUser(User)

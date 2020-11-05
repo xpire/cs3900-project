@@ -1,7 +1,7 @@
 import React from "react";
 import Chart from "react-apexcharts";
 import { useTheme } from "@material-ui/core";
-const Candlestick = ({ data }) => {
+const Cumulative = ({ data }) => {
   const theme = useTheme();
 
   return (
@@ -39,4 +39,4 @@ const Candlestick = ({ data }) => {
   );
 };
 
-export default Candlestick;
+export default Cumulative;

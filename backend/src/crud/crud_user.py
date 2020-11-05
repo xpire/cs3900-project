@@ -15,6 +15,7 @@ from src import crud
 from src.core.config import env_settings, settings
 from src.core.utilities import fail_save, find, log_msg, ret_initial_users
 from src.crud.base import CRUDBase
+from src.models.net_worth_timeseries import NetWorthTimeSeries
 from src.models.position import LongPosition, ShortPosition
 from src.models.transaction import Transaction
 from src.models.user import User
@@ -207,6 +208,22 @@ class CRUDUser(CRUDBase[User]):
         for user in users:
             if crud.user.get_user_by_uid(db=db, uid=user["uid"]) == None:
                 crud.user.create(db=db, obj=UserCreate(**user))
+
+    @fail_save
+    @return_result()
+    def add_historical_portfolio(self, *, user: User, db: Session, timestamp: datetime, net_worth: float) -> Result:
+        """
+        Add entry for historical portfolio data
+        """
+        user.net_worth_history.append(
+            NetWorthTimeSeries(
+                user_id=user.uid,
+                timestamp=timestamp,
+                net_worth=net_worth,
+            )
+        )
+
+        self.commit_and_refresh(db, user)
 
 
 user = CRUDUser(User)

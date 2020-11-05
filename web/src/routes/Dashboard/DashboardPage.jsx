@@ -11,9 +11,10 @@ import ColoredText, {
 } from "../../components/common/ColoredText";
 import InteractiveRefresh from "../../components/common/InteractiveRefresh";
 import CardGrid from "../../components/common/CardGrid";
-import ApexCandlestick from "../../components/graph/ApexCandlestick";
+import Cumulative from "../../components/graph/Cumulative";
 import axios from "../../utils/api";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
+import useApi from "../../hooks/useApi";
 import { format } from "../../utils/formatter";
 
 import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
@@ -84,10 +85,14 @@ const StatCard = ({ name, value, stat, today }) => {
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
   const [myValue, setValue] = useState(0);
-  const [forceUpdate, setForceUpdate] = useState(0);
+  const [forceUpdate, setForceUpdate] = useState({
+    long: 0,
+    short: 0,
+    watch: 0,
+  });
   const [longData] = useRealTimeStockData(
     "/portfolio",
-    [forceUpdate],
+    [forceUpdate.long],
     [...Array(12)].map((_) => {
       return { skeleton: true };
     }),
@@ -95,14 +100,22 @@ const Dashboard = () => {
   );
   const [shortData] = useRealTimeStockData(
     "/portfolio",
-    [forceUpdate],
+    [forceUpdate.short],
     [...Array(12)].map((_) => {
       return { skeleton: true };
     }),
     (d) => d.short
   );
 
-  const [watchData] = useRealTimeStockData("/watchlist", [forceUpdate]);
+  const [watchData] = useRealTimeStockData("/watchlist", [forceUpdate.watch]);
+
+  const [graphUpdate, setGraphUpdate] = useState(0);
+  const [graph, graphLoading] = useApi("/portfolio/history", [], [], (data) => {
+    // console.log(data);
+    const newData = data.map((e) => [new Date(e.timestamp), e.net_worth]);
+    console.log({ data, newData });
+    return newData;
+  });
 
   const [stats, setStats] = useState([
     { name: "Portfolio Value", valueKey: "total_portfolio_value" },
@@ -139,8 +152,18 @@ const Dashboard = () => {
         <Grid item xs={12}>
           <StandardCard>
             <CardContent>
-              <Typography variant="button">Cumulative Graph</Typography>
-              <ApexCandlestick data={parsedApexData} />
+              <Grid container justify="space-between" alignItems="center">
+                <Grid item>
+                  <Typography variant="button">Cumulative Graph</Typography>
+                </Grid>
+
+                <Grid item>
+                  <InteractiveRefresh
+                    onClick={() => setGraphUpdate(graphUpdate + 1)}
+                  />
+                </Grid>
+              </Grid>
+              {!graphLoading && <Cumulative data={graph} />}
             </CardContent>
           </StandardCard>
         </Grid>
@@ -153,7 +176,15 @@ const Dashboard = () => {
                 </Grid>
                 <Grid item>
                   <InteractiveRefresh
-                    onClick={() => setForceUpdate(forceUpdate + 1)}
+                    onClick={() =>
+                      setForceUpdate(
+                        myValue === 0
+                          ? forceUpdate.long + 1
+                          : myValue === 1
+                          ? forceUpdate.short + 1
+                          : forceUpdate.watch
+                      )
+                    }
                   />
                 </Grid>
               </Grid>

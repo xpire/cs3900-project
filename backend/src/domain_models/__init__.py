@@ -1,4 +1,4 @@
-from .account_stat_dm import AccountStat
+from .account_stat_dm import AccountStat, PortfolioWorthPublisher
 from .data_provider.setup import get_data_provider
 from .order_dm import LimitOrder, MarketOrder, PendingOrderExecutor
 from .trade_dm import BuyTrade, CoverTrade, SellTrade, ShortTrade, Trade

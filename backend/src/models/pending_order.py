@@ -1,7 +1,7 @@
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, Enum, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from src.db.base_model import BaseModel
-from src.schemas.transaction import OrderType
+from src.schemas.transaction import OrderType, TradeType
 
 
 class PendingOrder(BaseModel):
@@ -10,8 +10,8 @@ class PendingOrder(BaseModel):
     symbol = Column(String, ForeignKey("stock.symbol"))
     qty = Column(Integer, nullable=False)
     timestamp = Column(DateTime, nullable=False)
-    trade_type = Column(String, nullable=False)  # buy/sell/short/cover
-    order_type = Column(String, nullable=False)  # limit/market
+    trade_type = Column(Enum(TradeType), nullable=False)
+    order_type = Column(Enum(OrderType), nullable=False)
     stock = relationship(
         "Stock",
         cascade="save-update, merge",

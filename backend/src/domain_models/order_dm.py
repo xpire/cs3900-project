@@ -100,9 +100,9 @@ class Order(ABC):
             symbol=order.symbol,
             qty=order.qty,
             timestamp=order.timestamp,
+            trade_type=order.trade_type,
             user=user,
             db=db,
-            trade_type=TradeType[order.trade_type],
             is_pending=True,
         )
 

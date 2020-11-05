@@ -193,8 +193,8 @@ class CRUDUser(CRUDBase[User]):
                 qty=t.qty,
                 price=t.price,
                 timestamp=t.timestamp,
-                order_type=t.order_type.name,
-                trade_type=t.trade_type.name,  # TODO could be simplified if we change to enum on models
+                order_type=t.order_type,
+                trade_type=t.trade_type,
                 is_cancelled=is_cancelled,
             )
         )

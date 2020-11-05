@@ -32,7 +32,7 @@ achievements.extend(
             description="Have balance over 150000",
             exp=20,
             event_type=GameEventType.STAT_UPDATE,
-            can_unlock=ret_has_reached_balance(15000),
+            can_unlock=ret_has_reached_balance(150000),
         ),
         Achievement(
             id=2010,

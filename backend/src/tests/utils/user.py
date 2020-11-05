@@ -48,3 +48,7 @@ def generate_k_create_schemas(*, k: int) -> List[sch.UserCreate]:
             )
         )
     return res
+
+
+# def insert_cheat_users(*, users: List[Dict]):
+#     for u in users:

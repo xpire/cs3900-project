@@ -1,6 +1,7 @@
 from datetime import timedelta
 from typing import List, Optional
 
+from src.domain_models.data_provider.setup import exchange_info
 from src.schemas.exchange import Exchange
 
 # Trading hours retrieved from https://www.thebalance.com/stock-market-hours-4773216
@@ -10,10 +11,7 @@ exchanges = dict(
     NYSE=Exchange(name="NYSE", open=delta(9, 30), close=delta(16), timezone="America/New_York"),
     NASDAQ=Exchange(name="NASDAQ", open=delta(9, 30), close=delta(16), timezone="America/New_York"),
     LSE=Exchange(name="LSE", open=delta(8), close=delta(16, 30), timezone="Europe/London"),
-    XD00=Exchange(name="XD00", open=delta(0), close=delta(6), timezone="Australia/Sydney", simulated=True),
-    XD06=Exchange(name="XD06", open=delta(6), close=delta(12), timezone="Australia/Sydney", simulated=True),
-    XD12=Exchange(name="XD12", open=delta(12), close=delta(18), timezone="Australia/Sydney", simulated=True),
-    XD18=Exchange(name="XD18", open=delta(18), close=delta(24), timezone="Australia/Sydney", simulated=True),
+    **exchange_info
 )
 
 

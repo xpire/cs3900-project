@@ -14,10 +14,10 @@ from src.schemas.transaction import OrderType, TradeType
 
 
 class ExecutionFailedException(Exception):
-    def __init__(self, result, price):
+    def __init__(self, result, transaction):
         super().__init__()
         self.result = result
-        self.price = price
+        self.transaction = transaction
 
 
 class Order(ABC):
@@ -66,12 +66,18 @@ class Order(ABC):
 
     @return_result()
     def execute(self, price) -> Result:
-        result = dm.Trade.new(
-            self.trade_type, symbol=self.symbol, qty=self.qty, price=price, user=self.user, db=self.db
-        ).execute()
-
+        trade = dm.Trade.new(
+            self.trade_type,
+            symbol=self.symbol,
+            qty=self.qty,
+            price=price,
+            order_type=self.order_type,
+            user=self.user,
+            db=self.db,
+        )
+        result = trade.execute()
         if not result.success:
-            raise ExecutionFailedException(result=result, price=price)
+            raise ExecutionFailedException(result=result, transaction=trade.transaction_schema)
 
         return result
 
@@ -94,9 +100,9 @@ class Order(ABC):
             symbol=order.symbol,
             qty=order.qty,
             timestamp=order.timestamp,
+            trade_type=order.trade_type,
             user=user,
             db=db,
-            trade_type=TradeType[order.trade_type],
             is_pending=True,
         )
 
@@ -114,6 +120,12 @@ class Order(ABC):
             order_type=self.__class__.order_type,
             timestamp=self.timestamp,
         )
+
+    def make_trade(self):
+        return
+
+    def make_transaction_schema(self):
+        return
 
 
 class LimitOrder(Order):
@@ -144,8 +156,7 @@ class LimitOrder(Order):
         return self.execute(self.limit_price)
 
     def can_execute(self, curr_price):
-        trade_type = dm.Trade.subclass(self.trade_type)
-        if trade_type.is_buying:
+        if self.trade_type.is_buying:
             return curr_price <= self.limit_price
         else:
             return curr_price >= self.limit_price
@@ -214,11 +225,7 @@ class PendingOrderExecutor:
                 e.result.log()
                 crud.pending_order.delete_order(db=self.db, id=order_m.id)
                 crud.user.add_history(
-                    symbol=order.symbol,
-                    qty=order.qty,
-                    price=e.price,
-                    trade_type=order.trade_type,
-                    timestamp=datetime.now(),
+                    t=schemas.TransactionDBcreate(**e.transaction.dict()),
                     is_cancelled=True,
                     db=self.db,
                     user=user.model,

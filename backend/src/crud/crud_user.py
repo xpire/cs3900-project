@@ -20,7 +20,7 @@ from src.models.transaction import Transaction
 from src.models.user import User
 from src.models.watchlist import WatchList
 from src.schemas.response import Fail, Result, return_result
-from src.schemas.transaction import TradeType
+from src.schemas.transaction import TradeType, TransactionBase, TransactionDBcreate
 from src.schemas.user import UserCreate
 
 
@@ -80,33 +80,41 @@ class CRUDUser(CRUDBase[User]):
 
     @fail_save
     @return_result()
+    def update_transaction(self, *, t: TransactionDBcreate, db: Session, user: User) -> Result:
+
+        if t.trade_type.is_opening:
+            return self.add_transaction(t=t, db=db, user=user)
+        else:
+            return self.deduct_transaction(t=t, db=db, user=user)
+
+    @fail_save
+    @return_result()
     def add_transaction(
         self,
         *,
-        symbol: str,
-        qty: int,
-        price: float,
-        is_long: bool,
+        t: TransactionDBcreate,
         db: Session,
         user: User,
     ) -> Result:
         """
         Add stock qty to portfolio
         """
+        is_long = t.trade_type.is_long
+
         self.fail_if_stock_missing(
-            db, symbol, f"Cannot add a non-existent stock to the portfolio of User(uid = {user.uid})."
+            db, t.symbol, f"Cannot add a non-existent stock to the portfolio of User(uid = {user.uid})."
         )
 
         positions = user.long_positions if is_long else user.short_positions
-        pos = find(positions, symbol=symbol)
+        pos = find(positions, symbol=t.symbol)
 
         if pos is None:
             Position = LongPosition if is_long else ShortPosition
-            positions.append(Position(user_id=user.uid, symbol=symbol, qty=qty, avg=price))
+            positions.append(Position(user_id=user.uid, symbol=t.symbol, qty=t.qty, avg=t.price))
         else:
             # compute running average
-            new_avg = (pos.avg * pos.qty + qty * price) / (pos.qty + qty)
-            new_qty = pos.qty + qty
+            new_avg = (pos.avg * pos.qty + t.qty * t.price) / (pos.qty + t.qty)
+            new_qty = pos.qty + t.qty
 
             pos.avg, pos.qty = new_avg, new_qty
 
@@ -114,21 +122,21 @@ class CRUDUser(CRUDBase[User]):
 
     @fail_save
     @return_result()
-    def deduct_transaction(self, *, db: Session, user: User, is_long: bool, symbol: str, qty: int) -> Result:
+    def deduct_transaction(self, *, db: Session, user: User, t: TransactionDBcreate) -> Result:
         """
         Deduct stock qty from portfolio
         """
         self.fail_if_stock_missing(
-            db, symbol, f"Cannot deduct a non-existent stock from the portfolio of User(uid = {user.uid})."
+            db, t.symbol, f"Cannot deduct a non-existent stock from the portfolio of User(uid = {user.uid})."
         )
 
-        positions = user.long_positions if is_long else user.short_positions
-        pos = find(positions, symbol=symbol)
+        positions = user.long_positions if t.trade_type.is_long else user.short_positions
+        pos = find(positions, symbol=t.symbol)
 
         if pos is None:
             return Fail(f"Cannot deduct a stock that User(uid = {user.uid}) does not own.").log("WARNING")
 
-        new_qty = pos.qty - qty
+        new_qty = pos.qty - t.qty
         if new_qty < 0:
             return Fail(f"Deducting more than owned of User(uid = {user.uid}).").log("WARNING")
         elif new_qty == 0:
@@ -171,11 +179,7 @@ class CRUDUser(CRUDBase[User]):
     def add_history(
         self,
         *,
-        symbol: str,
-        qty: int,
-        price: float,
-        trade_type: TradeType,
-        timestamp: datetime,
+        t: TransactionDBcreate,
         is_cancelled: bool = False,
         db: Session,
         user: User,
@@ -186,12 +190,13 @@ class CRUDUser(CRUDBase[User]):
         user.transaction_hist.append(
             Transaction(
                 user_id=user.uid,
-                symbol=symbol,
-                qty=qty,
-                price=price,
-                trade_type=trade_type.name,
+                symbol=t.symbol,
+                qty=t.qty,
+                price=t.price,
+                timestamp=t.timestamp,
+                order_type=t.order_type,
+                trade_type=t.trade_type,
                 is_cancelled=is_cancelled,
-                timestamp=timestamp,
             )
         )
         self.commit_and_refresh(db, user)

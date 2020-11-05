@@ -2,7 +2,7 @@ from enum import auto
 from typing import Any
 
 from pydantic import BaseModel as BaseSchema
-from src.util.auto_name_enum import AutoName
+from src.core.utilities import AutoName
 
 
 class GameEventType(str, AutoName):

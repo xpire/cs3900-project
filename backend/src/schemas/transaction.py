@@ -1,10 +1,10 @@
 from datetime import datetime
-from enum import auto
+from enum import Enum, auto
 from typing import Any
 
 from pydantic import BaseModel as BaseSchema
 from pydantic import validator
-from src.util.auto_name_enum import AutoName
+from src.core.utilities import AutoName
 from typing_extensions import Literal
 
 
@@ -13,21 +13,46 @@ class OrderType(str, AutoName):
     LIMIT = auto()
 
 
-class TradeType(str, AutoName):
-    BUY = auto()
-    SELL = auto()
-    SHORT = auto()
-    COVER = auto()
+class TradeType(str, Enum):
+    BUY = (True, True, True)
+    SELL = (False, True, False)
+    SHORT = (False, False, True)
+    COVER = (True, False, False)
+
+    def __new__(cls, is_buying, is_long, is_opening):
+        obj = str.__new__(cls)
+        obj._value_ = None
+        obj.is_buying = is_buying
+        obj.is_long = is_long
+        obj.is_opening = is_opening
+        return obj
+
+    def __init__(self, *args):
+        self._value_ = self._name_
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self._value_ == other._value_
+        return False
+
+    def __hash__(self):
+        return hash(self._value_)
+
+    def __ne__(self, other):
+        return not self == other
 
 
-class Transaction(BaseSchema):
-    user: Any  # UserDM
+class TransactionBase(BaseSchema):
+    symbol: str
+    qty: int
+    price: float
+    timestamp: datetime
     order_type: OrderType
     trade_type: TradeType
-    symbol: str
-    quantity: int
-    brokerage_fee: float
-    trade_timestamp: datetime
+
+
+class Transaction(TransactionBase):
+    user: Any  # UserDM
 
 
 class OpeningTransaction(Transaction):
@@ -40,14 +65,13 @@ class ClosingTransaction(Transaction):
     profit_percentage: float
 
 
-class TransactionAPIout(BaseSchema):
-    symbol: str
-    name: str
-    qty: int
-    price: float
+class TransactionDBcreate(TransactionBase):
+    pass
+
+
+class TransactionAPIout(TransactionBase):
     value: float = None
-    trade_type: TradeType
-    timestamp: datetime
+    is_cancelled: bool
 
     @validator("value", pre=True)
     def compute_value(cls, v, *, values, **kwargs):

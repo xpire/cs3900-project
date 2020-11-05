@@ -13,6 +13,8 @@ from src.api.deps import (
     get_db,
 )
 from src.core.async_exit import AppStatus
+from src.core.config import env_settings
+from src.core.utilities import ret_initial_users
 from src.domain_models.user_dm import UserDM
 from src.game.achievement.achievement import UserAchievement
 from src.notification.notifier import Notifier, notif_hub
@@ -22,7 +24,7 @@ router = ResultAPIRouter()
 
 
 @router.get("")
-async def get_user(user=Depends(get_current_user_dm)) -> schemas.User:
+async def get_user(user=Depends(get_current_user_dm)) -> schemas.UserAPIout:
     return user.schema
 
 

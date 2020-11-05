@@ -29,7 +29,7 @@ achievements.extend(
         Achievement(
             id=2000,
             name="LOTS OF CA$H",
-            description="Have balance over 15000",
+            description="Have balance over 150000",
             exp=20,
             event_type=GameEventType.STAT_UPDATE,
             can_unlock=ret_has_reached_balance(15000),
@@ -37,10 +37,10 @@ achievements.extend(
         Achievement(
             id=2010,
             name="Doubled up",
-            description="Have net worth over 20000",
+            description="Have net worth over 200000",
             exp=20,
             event_type=GameEventType.STAT_UPDATE,
-            can_unlock=ret_has_reached_net_worth(20000),
+            can_unlock=ret_has_reached_net_worth(200000),
         ),
         Achievement(
             id=2011,

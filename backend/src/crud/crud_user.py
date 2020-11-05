@@ -80,7 +80,8 @@ class CRUDUser(CRUDBase[User]):
     @fail_save
     @return_result()
     def update_transaction(self, *, t: TransactionDBcreate, db: Session, user: User) -> Result:
-        if t.trade_type in [TradeType.BUY, TradeType.SHORT]:
+
+        if t.trade_type.is_opening:
             return self.add_transaction(t=t, db=db, user=user)
         else:
             return self.deduct_transaction(t=t, db=db, user=user)
@@ -97,7 +98,7 @@ class CRUDUser(CRUDBase[User]):
         """
         Add stock qty to portfolio
         """
-        is_long = t.trade_type in [TradeType.BUY, TradeType.SELL]
+        is_long = t.trade_type.is_long
 
         self.fail_if_stock_missing(
             db, t.symbol, f"Cannot add a non-existent stock to the portfolio of User(uid = {user.uid})."
@@ -124,13 +125,11 @@ class CRUDUser(CRUDBase[User]):
         """
         Deduct stock qty from portfolio
         """
-        is_long = t.trade_type in [TradeType.BUY, TradeType.SELL]
-
         self.fail_if_stock_missing(
             db, t.symbol, f"Cannot deduct a non-existent stock from the portfolio of User(uid = {user.uid})."
         )
 
-        positions = user.long_positions if is_long else user.short_positions
+        positions = user.long_positions if t.trade_type.is_long else user.short_positions
         pos = find(positions, symbol=t.symbol)
 
         if pos is None:

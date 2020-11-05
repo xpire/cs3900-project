@@ -122,9 +122,6 @@ class Trade(ABC):
 
 class BuyTrade(Trade):
     trade_type = TradeType.BUY
-    is_buying = True
-    is_long = True
-    is_opening = True
 
     @return_result()
     def check(self, total_price, trade_price) -> Result:
@@ -134,9 +131,6 @@ class BuyTrade(Trade):
 
 class SellTrade(Trade):
     trade_type = TradeType.SELL
-    is_buying = False
-    is_long = True
-    is_opening = False
 
     @return_result()
     def check(self, total_price, trade_price) -> Result:
@@ -146,9 +140,6 @@ class SellTrade(Trade):
 
 class ShortTrade(Trade):
     trade_type = TradeType.SHORT
-    is_buying = False
-    is_long = False
-    is_opening = True
 
     @return_result()
     def check(self, total_price, trade_price) -> Result:
@@ -169,9 +160,6 @@ class ShortTrade(Trade):
 
 class CoverTrade(Trade):
     trade_type = TradeType.COVER
-    is_buying = True
-    is_long = False
-    is_opening = False
 
     @return_result()
     def check(self, total_price, trade_price) -> Result:

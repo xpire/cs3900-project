@@ -212,7 +212,7 @@ class AccountStat:
         return [to_position_schema(p) for p in self.get_positions(is_long)]
 
     def get_profit_info_for_transaction(self, t: schemas.TransactionBase):
-        is_long = t.trade_type in [TradeType.BUY, TradeType.SELL]
+        is_long = t.trade_type.is_long
         p = find(self.get_positions(is_long), symbol=t.symbol)
         profit_per_unit = (t.price - p.avg) * (1 if is_long else -1)
         buy_value = p.avg if is_long else t.price

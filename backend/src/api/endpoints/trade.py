@@ -16,7 +16,6 @@ def market_order_endpoint(endpoint, trade_type):
         user: dm.UserDM = Depends(get_current_user_dm),
         db: Session = Depends(get_db),
     ) -> Result:
-        print(trade_type)
         return dm.MarketOrder(symbol=symbol, qty=quantity, user=user, db=db, trade_type=trade_type).submit()
 
     return market_order

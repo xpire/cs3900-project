@@ -14,10 +14,10 @@ from src.schemas.transaction import OrderType, TradeType
 
 
 class ExecutionFailedException(Exception):
-    def __init__(self, result, price):
+    def __init__(self, result, transaction):
         super().__init__()
         self.result = result
-        self.price = price
+        self.transaction = transaction
 
 
 class Order(ABC):
@@ -66,9 +66,6 @@ class Order(ABC):
 
     @return_result()
     def execute(self, price) -> Result:
-        print("-" * 20)
-        print(self.trade_type)
-        print("-" * 20)
         trade = dm.Trade.new(
             self.trade_type,
             symbol=self.symbol,
@@ -159,8 +156,7 @@ class LimitOrder(Order):
         return self.execute(self.limit_price)
 
     def can_execute(self, curr_price):
-        trade_type = dm.Trade.subclass(self.trade_type)
-        if trade_type.is_buying:
+        if self.trade_type.is_buying:
             return curr_price <= self.limit_price
         else:
             return curr_price >= self.limit_price

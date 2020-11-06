@@ -34,10 +34,16 @@ const headCells = [
     label: "Exchange",
   },
   {
-    id: "type",
+    id: "trade_type",
     formatType: tableTypes.TEXT,
     disablePadding: false,
-    label: "Type",
+    label: "Trade Type",
+  },
+  {
+    id: "order_type",
+    formatType: tableTypes.TEXT,
+    disablePadding: false,
+    label: "Order Type",
   },
   {
     id: "qty",

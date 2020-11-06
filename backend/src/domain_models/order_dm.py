@@ -1,16 +1,16 @@
 from abc import ABC, abstractmethod, abstractproperty
 from datetime import datetime
 
-from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm
 from src import schemas
 from src.core.utilities import find
+from src.db.session import SessionThreadLocal
 from src.domain_models import trading_hours
 from src.game.feature_unlocker.feature_unlocker import feature_unlocker
 from src.notification.notif_event import UnlockableFeatureType
 from src.schemas.response import Fail, Result, Success, return_result
-from src.schemas.transaction import OrderType, TradeType
+from src.schemas.transaction import OrderType
 
 
 class ExecutionFailedException(Exception):
@@ -203,29 +203,28 @@ class MarketOrder(Order):
 
 
 class PendingOrderExecutor:
-    def __init__(self, db: Session):
-        self.db = db
-
     def update(self):
-        for user_m in crud.user.get_all_users(db=self.db):
-            user = dm.UserDM(user_m, self.db)
+        db = SessionThreadLocal()
+        for user_m in crud.user.get_all_users(db=db):
+            user = dm.UserDM(user_m, db)
             self.execute_pending_orders(user, user_m.limit_orders, LimitOrder)
             self.execute_pending_orders(user, user_m.after_orders, MarketOrder)
 
     def execute_pending_orders(self, user, pending_orders, order_cls):
+        db = SessionThreadLocal()
         for order_m in pending_orders:
-            order = order_cls.from_orm(user, self.db, order_m)
+            order = order_cls.from_orm(user, db, order_m)
 
             try:
                 if order.try_execute():
-                    crud.pending_order.delete_order(db=self.db, id=order_m.id)
+                    crud.pending_order.delete_order(db=db, id=order_m.id)
 
             except ExecutionFailedException as e:
                 e.result.log()
-                crud.pending_order.delete_order(db=self.db, id=order_m.id)
+                crud.pending_order.delete_order(db=db, id=order_m.id)
                 crud.user.add_history(
                     t=schemas.TransactionDBcreate(**e.transaction.dict()),
                     is_cancelled=True,
-                    db=self.db,
+                    db=db,
                     user=user.model,
                 )

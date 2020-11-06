@@ -1,8 +1,6 @@
 import itertools as it
 from datetime import timedelta
 
-import numpy as np
-
 from src import crud
 from src.core.config import settings
 from src.schemas.exchange import Exchange
@@ -70,11 +68,11 @@ def cached_get_data_provider():
         provider = CompositeDataProvider([p1, p2])
         provider.pre_start()
         provider.start()
-        provider.subscribe(StatUpdatePublisher(db).update)
-        provider.subscribe(dm.PendingOrderExecutor(db).update)
+        provider.subscribe(StatUpdatePublisher().update)
+        provider.subscribe(dm.PendingOrderExecutor().update)
 
         # Subscribe to TD data provider, tick every 1 minute
-        p1.subscribe(dm.PortfolioWorthPublisher(db).update)
+        p1.subscribe(dm.PortfolioWorthPublisher().update)
 
         return provider
 

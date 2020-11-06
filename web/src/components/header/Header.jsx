@@ -11,6 +11,7 @@ import IconButton from "@material-ui/core/IconButton";
 import styled from "styled-components";
 import { useHistory, useLocation } from "react-router-dom";
 
+import axios from "../../utils/api";
 import app from "../../utils/firebase";
 import { AuthContext } from "../../utils/authentication";
 import { locationToRoutes } from "../../utils/routes";
@@ -47,6 +48,8 @@ const MyHeader = ({ toggleMenu }) => {
 
   const handleLogout = () => {
     app.auth().signOut();
+    delete axios.defaults.headers.common["id-token"];
+    console.log("header now:", axios.defaults.headers.common["id-token"]);
     history.push("/");
   };
 

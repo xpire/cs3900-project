@@ -5,6 +5,7 @@ from threading import Lock, Thread
 from typing import List
 
 from src import crud
+from src.db.session import SessionThreadLocal
 from src.schemas.time_series import TimeSeriesDBcreate
 
 from .data_provider import DataProvider
@@ -62,7 +63,7 @@ class RepeatedUpdateProvider(DataProvider):
         data = self.get_update_data()
         for symbol, stock_data in data.items():
             time_series = stock_data_as_time_series(symbol, stock_data)
-            crud.stock.update_time_series(db=self.db, symbol=symbol, time_series=time_series)
+            crud.stock.update_time_series(db=SessionThreadLocal(), symbol=symbol, time_series=time_series)
         self.cache_latest_data(data)
         self.notify()
 

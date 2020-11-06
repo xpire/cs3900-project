@@ -5,9 +5,8 @@ from src import crud
 from src import domain_models as dm
 from src import schemas
 from src.core.utilities import find
+from src.db.session import SessionThreadLocal
 from src.domain_models.data_provider.setup import get_data_provider
-from src.models.net_worth_timeseries import NetWorthTimeSeries
-from src.schemas.transaction import TradeType  # TODO: why is this imported if not used?
 
 
 def position_to_dict(p):
@@ -252,21 +251,22 @@ class AccountStat:
 
 
 class PortfolioWorthPublisher:
-    def __init__(self, db):
-        self.db = db
-
     def update(self):
-        user_models = crud.user.get_all_users(self.db)
+        db = SessionThreadLocal()
+
+        user_models = crud.user.get_all_users(db)
 
         for user_m in user_models:
             self.publish_portfolio_worth(user_m)
 
     def publish_portfolio_worth(self, user_m):
-        user_dm = dm.UserDM(user_m, self.db)
+        db = SessionThreadLocal()
+
+        user_dm = dm.UserDM(user_m, db)
         net_worth = AccountStat(user_dm).net_worth()
 
         # Add to historical table
-        crud.user.add_historical_portfolio(user=user_m, db=self.db, timestamp=datetime.now(), net_worth=net_worth)
+        crud.user.add_historical_portfolio(user=user_m, db=db, timestamp=datetime.now(), net_worth=net_worth)
 
 
 def curr_price(symbol):

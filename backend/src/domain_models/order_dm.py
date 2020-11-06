@@ -121,12 +121,6 @@ class Order(ABC):
             timestamp=self.timestamp,
         )
 
-    def make_trade(self):
-        return
-
-    def make_transaction_schema(self):
-        return
-
 
 class LimitOrder(Order):
     order_type = OrderType.LIMIT

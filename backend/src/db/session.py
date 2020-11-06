@@ -1,9 +1,10 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker
 from src.core.config import settings
 
 production_engine = create_engine(settings.SQLITE_DB_URI, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(bind=production_engine)  # autocommit = False, autoflush = False
+SessionThreadLocal = scoped_session(SessionLocal)
 
 
 def get_test_session():

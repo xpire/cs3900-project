@@ -1,5 +1,6 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/unsw-cse-capstone-project/capstone-project-comp3900-f13a-ecksdee/master/web/src/logo.svg?token=AHIETN3VKVIIITLJ6UWZA6S7VURPS" width="165" height="70" align="center">
+   <img src="https://raw.githubusercontent.com/unsw-cse-capstone-project/capstone-project-comp3900-f13a-ecksdee/master/web/public/logo512.png?token=AHJHQ44J3VAZHXHPHB7F2227VU7DY" width="70" height="70" padding="35" align="center"> 
+   <img width="70">
    <img src="https://www.unsw.edu.au/sites/all/themes/mobileunswcorporate/logo.png" width="165" height="70" align="center">
  </p>
 

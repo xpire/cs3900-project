@@ -105,8 +105,9 @@ def fail_save(func):
             log_msg(str(e._message), "ERROR")
             return None
 
-    # Modified based on https://stackoverflow.com/questions/35241643/convert-datetime-time-into-datetime-timedelta-in-python-3-4
     return inner
+
+    # Modified based on https://stackoverflow.com/questions/35241643/convert-datetime-time-into-datetime-timedelta-in-python-3-4
 
 
 def as_delta(time: dt.time):

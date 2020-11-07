@@ -18,6 +18,7 @@ class PendingOrderBase(BaseSchema):
 
 class PendingOrderAPIout(PendingOrderBase):
     id: int
+    name:str
     exchange: str
 
 

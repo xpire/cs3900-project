@@ -39,7 +39,7 @@ def create_first_trade_achievements():
             Achievement(
                 id=id,
                 **data[(order_type, trade_type)],
-                description=f"Make your first {str(trade_type).lower()} {str(order_type).lower()} order",  # TODO make another function to prettify
+                description=f"Make your first {str(trade_type).lower()} {str(order_type).lower()} order",
                 event_type=GameEventType.TRANSACTION,
                 can_unlock=ret_is_first_trade(trade_type=trade_type, order_type=order_type),
             )

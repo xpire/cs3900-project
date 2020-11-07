@@ -70,9 +70,10 @@ class TransactionDBcreate(TransactionBase):
 
 
 class TransactionAPIout(TransactionBase):
+    name: str
     value: float = None
     is_cancelled: bool
 
-    @validator("value", pre=True)
+    @validator("value", pre=True, always=True)
     def compute_value(cls, v, *, values, **kwargs):
         return values["price"] * values["qty"]

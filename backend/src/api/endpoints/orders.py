@@ -14,7 +14,7 @@ router = ResultAPIRouter()
 @router.get("")
 async def get_orders(user: dm.UserDM = Depends(get_current_user_dm)) -> List[schemas.PendingOrderAPIout]:
     def to_schema(order):
-        return schemas.PendingOrderAPIout(**order.dict(), exchange=order.stock.exchange)
+        return schemas.PendingOrderAPIout(**order.dict(), exchange=order.stock.exchange, name=order.stock.name)
 
     return [to_schema(x) for x in user.model.pending_orders]
 

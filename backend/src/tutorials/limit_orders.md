@@ -2,7 +2,7 @@
 
 **Congrats on leveling up!**
 
-Are you tired of constantly having to monitor the stock market, waiting for that dream companies shares to reach the price you want? Well, wait no more with **_Limit Orders_**, the time saving trading tool!<br>
+Are you tired of constantly having to monitor the stock market, waiting for that dream company's shares to reach the price you want? Well, wait no more with **_Limit Orders_**, the time saving trading tool!<br>
 
 Limit orders allow you to place an order for a stock when it reaches a price that you set. You can also cancel these orders from the Orders page at any time _before_ they execute if you change your mind.<br>
 

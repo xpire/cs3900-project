@@ -19,7 +19,7 @@ All the numbers and statistics can get a little confusing, so here's a quick run
 * Total paid: the total (estimated) amount you paid for those stocks
 * Value: the current value of that stock in your portfolio
 * Gain: how much money you have earned or lost from that stock overall
-* Day Profit: how much moeny you have earned or lost from that stock today
+* Day Profit: how much money you have earned or lost from that stock today
 * Return: the percentage increase or decrease of that stocks value
 <br>
 

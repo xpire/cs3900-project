@@ -1,6 +1,8 @@
-import datetime
+import datetime as dt
+import math
 import random
-from typing import Dict, List, Optional
+from datetime import timedelta
+from typing import Callable, Dict, List, Optional
 
 import src.models as md
 import src.schemas as sch
@@ -9,6 +11,7 @@ from sqlalchemy.orm import Session
 from src.core.config import settings
 from src.core.utilities import log_msg
 from src.db.base_model import BaseModel
+from src.domain_models.user_dm import UserDM
 from src.models import all_models
 
 from .utils import random_email, random_float, random_lower_string
@@ -23,9 +26,9 @@ def generate_random_user(*, is_init: bool) -> Dict:
         "level": 0 if is_init else random.randint(0, 10),
         "exp": 0 if is_init else random_float(interval=(0, 100)),
         "resets": 0 if is_init else random.randint(0, 10),
-        "last_reset": datetime.datetime.now()
+        "last_reset": dt.datetime.now()
         if is_init
-        else randomtimestamp(start_year=datetime.datetime.now().year, text=False),
+        else randomtimestamp(start_year=dt.datetime.now().year, text=False),
     }
 
 
@@ -75,3 +78,9 @@ def set_db_state(
 
     else:
         log_msg(f"Cannot add model {model.__class__} to database.", "ERROR")
+
+def user_diff_checker(db: Session,test_users: List[Dict], checker: Callable, ):
+    md_objs = set_db_state(db=db, model=md.User, state=test_users)
+    user_dms = [UserDM(user_m=md, db=db) for md in md_objs]
+    for dm, user in zip(user_dms, test_users):
+        checker(dm=dm, user=user)

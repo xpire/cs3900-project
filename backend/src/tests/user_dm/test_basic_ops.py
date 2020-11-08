@@ -1,51 +1,58 @@
+import datetime as dt
+import math
+import random
+from datetime import timedelta
+from typing import Any, Dict
+
 import src.crud as crud
 import src.models as md
 import src.schemas as sch
 import src.tests.utils.common as common_utils
+from freezegun import freeze_time
 from sqlalchemy.orm import Session
-from src.domain_models.user_dm import UserDM
+from src.core.config import settings
 from src.tests.utils.utils import clean_up
+
+test_users = common_utils.generate_k_ranodm_users(
+    init=3,
+    k=10,
+    shuffle=True,
+)
+
+@clean_up
+def test_propertie_test(db: Session):
+    def basic_property_checker(dm: Any, user: Dict) -> None:    
+        assert user["exp"] == dm.exp
+        assert user["level"] == dm.level
+        assert user["balance"] == dm.balance
+        assert user["uid"] == dm.uid
+
+    common_utils.user_diff_checker(db=db, test_users=test_users, checker=basic_property_checker, )
+    
 
 
 @clean_up
-def test_user_dm_create(db: Session):
-    test_users = common_utils.generate_k_ranodm_users(
-        init=3,
-        k=10,
-        shuffle=True,
-    )
-    md_objs = common_utils.set_db_state(db=db, model=md.User, state=test_users)
-    user_dms = [UserDM(user_m=md, db=db) for md in md_objs]
+def test_can_reset_portfolio(db: Session):
+    def can_reset_portfolio_checker(dm: Any, user: Dict): 
+        s = random.randint(1, settings.RESET_WAIT_PERIOD_SECONDS)
+        for ind, test_time in [(c, user['last_reset'] + dt.timedelta(seconds=settings.RESET_WAIT_PERIOD_SECONDS) + c * dt.timedelta(seconds=s)) for c in range(-1, 2)]:
+            with freeze_time(test_time):
+                if (ind < 0): assert not dm.can_reset_portfolio() 
+                else: assert dm.can_reset_portfolio()
 
-    for dm, ur in zip(user_dms, test_users):
-        assert ur["exp"] == dm.exp
-        assert ur["level"] == dm.level
-        assert ur["balance"] == dm.balance
-        assert ur["uid"] == dm.uid
+    common_utils.user_diff_checker(db=db, test_users=test_users, checker=can_reset_portfolio_checker, )
 
+@clean_up 
+@freeze_time(dt.datetime.now() + dt.timedelta(seconds=settings.RESET_WAIT_PERIOD_SECONDS))
+def test_reset_portfolio(db: Session):
+    def reset_portfolio_checker(dm: Any, user: Dict):
+        res = dm.reset()
+        assert res.success
+        assert dm.balance == settings.STARTING_BALANCE
+        assert dm.model.long_positions == []
+        assert dm.model.short_positions == []
+        assert dm.model.transactions == []
+        assert dm.model.net_worth_history == []
+        assert dm.model.resets == (user['resets'] + 1)
 
-# import src.crud as crud
-# import src.models as md
-# import src.schemas as sch
-# from sqlalchemy.orm import Session
-# from src.tests.utils.user import *
-
-# K = 5
-# test_users = generate_k_ranodm_users(init=True, k=K)
-# gkcs = generate_k_create_schemas(k=K)
-
-
-# def test_create_users(db: Session) -> None:
-#     for u in gkcs:
-#         crud.user.create(db=db(), obj=u)
-
-#     all_users = crud.user.get_all_users(db=db())
-
-#     for index, user in enumerate(all_users):
-#         assert user.uid == gkcs[index].uid
-#         assert user.email == gkcs[index].email
-#         assert user.username == gkcs[index].username
-
-
-# def test_get_all_users(db: Session) -> None:
-#     assert True
+    common_utils.user_diff_checker(db=db, test_users=test_users, checker=reset_portfolio_checker, )

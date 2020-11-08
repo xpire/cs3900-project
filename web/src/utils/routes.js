@@ -11,7 +11,6 @@ import ForgotPasswordIcon from "@material-ui/icons/VpnKey";
 // private
 import DashboardPage from "../routes/Dashboard/DashboardPage";
 import DashboardIcon from "@material-ui/icons/Dashboard";
-import TradingPage from "../routes/Trading/TradingPage";
 import TradingIcon from "@material-ui/icons/MonetizationOn";
 import PortfolioPage from "../routes/Portfolio/PortfolioPage";
 import PortfolioIcon from "@material-ui/icons/TrackChanges";
@@ -92,15 +91,6 @@ export const Routes = [
     isPublic: false,
     exact: false,
     isShown: false,
-  },
-  {
-    text: "Trading",
-    path: "/trade",
-    component: TradingPage,
-    icon: <TradingIcon />,
-    isPublic: false,
-    exact: false,
-    isShown: true,
   },
   {
     text: "Orders",

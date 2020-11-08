@@ -27,6 +27,10 @@ import axios from "../../utils/api";
 import { format } from "../../utils/formatter";
 import useHandleSnack from "../../hooks/useHandleSnack";
 import TradingHoursIndicator from "../../components/common/TradingHoursIndicator";
+import Trade  from  "../../components/trade/TradingPage" 
+import Icon from '@material-ui/core/Icon';
+import SaveIcon from '@material-ui/icons/Save';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 
 function createData(name, value) {
   return { name, value };
@@ -146,7 +150,7 @@ const StockDetails = () => {
       {!error ? (
         <Grid container direction="row" alignItems="stretch">
           <Grid item md={3} sm={12} xs={12}>
-            <StandardCard>
+            <StandardCard style={{position: "relative"}}>
               <CardContent>
                 <Grid
                   direction="row"
@@ -202,25 +206,26 @@ const StockDetails = () => {
                   </Grid>
                 </Grid>
               </CardContent>
-              <CardActions>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  onClick={() => {
-                    handleSnack(`/watchlist?symbol=${symbol}`, "post");
-                  }}
-                >
-                  Watch
-                </Button>
+     
 
                 <Button
                   variant="outlined"
-                  color="primary"
-                  onClick={() => history.push(`/trade?symbol=${symbol}`)}
+                  color="primary" 
+          
+                  size="large"
+                  startIcon={<VisibilityIcon />}
+                  onClick={() => {
+                    handleSnack(`/watchlist?symbol=${symbol}`, "post");
+                  }}
+                  style={{
+                    position: "absolute",
+                    bottom: "0",
+                    padding: "10px",
+                    width: "100%"                }}
                 >
-                  Trade
+                  Watch
                 </Button>
-              </CardActions>
+         
             </StandardCard>
           </Grid>
           <Grid item md={9} sm={12} xs={12}>
@@ -256,23 +261,13 @@ const StockDetails = () => {
               </CardContent>
             </StandardCard>
           </Grid>
-          <Grid item xs={12}>
-            <StandardCard>
-              <CardContent>
-                <Typography variant="h5">Further Information</Typography>
-                {/* TODO: populate this data with actual API */}
-                <Grid container direction="row">
-                  <Grid item sm={6} xs={12}>
-                    <TableInfo
-                      rows={rows.slice(0, Math.floor(rows.length / 2))}
-                    />
-                  </Grid>
-                  <Grid item sm={6} xs={12}>
-                    <TableInfo rows={rows.slice(Math.floor(rows.length / 2))} />
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </StandardCard>
+          <Grid item xs={6}>
+          <StandardCard>
+            basic
+          </StandardCard>
+          </Grid>
+          <Grid item xs={6}>
+          < Trade symbol={symbol} /> 
           </Grid>
         </Grid>
       ) : (
@@ -299,6 +294,8 @@ const StockDetails = () => {
           </CardActions>
         </CenteredCard>
       )}
+      
+    
     </Page>
   );
 };

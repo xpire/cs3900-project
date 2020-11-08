@@ -29,7 +29,7 @@ import Page from "../../components/page/Page";
 import useApi from "../../hooks/useApi";
 import AutoCompleteTextField from "../../components/common/AutoCompleteTextField";
 import { format } from "../../utils/formatter";
-import { StandardCard } from "../../components/common/styled";
+import { BasicCard, StandardCard } from "../../components/common/styled";
 import useHandleSnack from "../../hooks/useHandleSnack";
 import TradingHoursIndicator from "../../components/common/TradingHoursIndicator";
 
@@ -53,14 +53,13 @@ function NumberFormatCustom(props) {
   );
 }
 
-const Trading = () => {
+const Trading = ({symbol}) => {
   const search = useLocation().search;
   let history = useHistory();
   const [submitLoading, setSubmitLoading] = useState(false);
 
   // State accessible to users
   const defaultState = {
-    symbol: new URLSearchParams(search).get("symbol"),
     tradeType: "buy",
     purchaseBy: "quantity",
     orderType: "market",
@@ -70,10 +69,6 @@ const Trading = () => {
   };
 
   const [state, setState] = useState(defaultState);
-  const setSymbol = (value) => {
-    setState({ ...state, symbol: value });
-    history.push(`?symbol=${value}`);
-  };
   const setTradeType = (value) =>
     setState({ ...state, tradeType: value, quantity: 0 });
   const setPurchaseBy = (value) =>
@@ -111,29 +106,29 @@ const Trading = () => {
     update,
   ]); // check overall stats
   const [rawCommission, rawCommissionLoading] = useApi(
-    `/stocks/real_time?symbols=${state.symbol}`,
+    `/stocks/real_time?symbols=${symbol}`,
     [
       //check current close price for stock
-      state.symbol,
+      symbol,
       update,
     ],
     0.005,
     (data) => data[0].commission
   );
   const [closePrice, closePriceLoading] = useApi(
-    `/stocks/real_time?symbols=${state.symbol}`,
+    `/stocks/real_time?symbols=${symbol}`,
     [
       //check current close price for stock
-      state.symbol,
+      symbol,
     ],
     100,
     (data) => data[0].curr_day_close
   );
   const [online, onlineLoading] = useApi(
-    `/stocks/real_time?symbols=${state.symbol}`,
+    `/stocks/real_time?symbols=${symbol}`,
     [
       //check current close price for stock
-      state.symbol,
+      symbol,
     ],
     false,
     (data) => data[0].is_trading
@@ -180,7 +175,7 @@ const Trading = () => {
           break;
         case "sell":
           const longData = portfolioData.long.find(
-            ({ symbol }) => symbol === state.symbol
+            (elem) => elem.symbol === symbol
           );
           longData?.owned
             ? setMaxValue(
@@ -203,7 +198,7 @@ const Trading = () => {
           break;
         case "cover":
           const shortData = portfolioData.short.find(
-            ({ symbol }) => symbol === state.symbol
+            (elem) => elem.symbol === symbol
           );
           shortData?.owned
             ? setMaxValue(
@@ -247,7 +242,7 @@ const Trading = () => {
     setSubmitLoading(true);
     handleSnack(
       `/trade/${state.orderType}/${state.tradeType}?symbol=${
-        state.symbol
+        symbol
       }&quantity=${state.quantity}${
         state.orderType === "limit" ? `&limit=${actualPrice}` : ""
       }`,
@@ -259,9 +254,8 @@ const Trading = () => {
     });
   };
 
-  return (
-    <Page>
-      <StandardCard>
+  return (<>
+      <BasicCard>
         <CardContent>
           <Grid
             container
@@ -269,16 +263,7 @@ const Trading = () => {
             justify="center"
             alignItems="center"
             spacing={2}
-          >
-            <Grid item xs={3}>
-              Symbol:
-            </Grid>
-            <Grid item xs={9}>
-              <AutoCompleteTextField
-                value={state.symbol}
-                setValue={setSymbol}
-              />
-            </Grid>
+          > 
             <Grid item xs={3}>
               Trading hours:
             </Grid>
@@ -420,8 +405,8 @@ const Trading = () => {
             )}
           </Grid>
         </CardContent>
-      </StandardCard>
-      <StandardCard>
+      </BasicCard>
+      <BasicCard>
         <CardContent>
           <Table size="small">
             <TableHead>
@@ -468,8 +453,7 @@ const Trading = () => {
             Submit
           </Button>
         </CardActions>
-      </StandardCard>
-    </Page>
+      </BasicCard></>
   );
 };
 

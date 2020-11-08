@@ -1,3 +1,7 @@
+"""
+Database model for portfolio positions - longs and shorts
+"""
+
 from sqlalchemy import Column, Float, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 from src.db.base_model import BaseModel

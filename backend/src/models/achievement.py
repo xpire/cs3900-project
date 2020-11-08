@@ -1,3 +1,7 @@
+"""
+Database model for achievements
+"""
+
 from sqlalchemy import Column, ForeignKey, Integer, String
 from src.db.base_model import BaseModel
 

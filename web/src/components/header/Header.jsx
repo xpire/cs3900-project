@@ -11,6 +11,7 @@ import IconButton from "@material-ui/core/IconButton";
 import styled from "styled-components";
 import { useHistory, useLocation } from "react-router-dom";
 
+import axios from "../../utils/api";
 import app from "../../utils/firebase";
 import { AuthContext } from "../../utils/authentication";
 import { locationToRoutes } from "../../utils/routes";
@@ -24,11 +25,21 @@ const HeaderTitle = styled(Typography)`
   flex-grow: 1;
 `;
 
+const ElevationScroll = ({ children }) => {
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 0,
+  });
+
+  return React.cloneElement(children, {
+    elevation: trigger ? 4 : 0,
+  });
+};
+
 /**
  * Header component for the website, with a button which opens the SideBar component
  */
 const MyHeader = ({ toggleMenu }) => {
-  const trigger = useScrollTrigger({ target: window }); // disable Slide for now
   const { user } = useContext(AuthContext);
   let location = useLocation();
   const [headerTitle, setHeaderTitle] = useState("Investment Simulator");
@@ -47,6 +58,8 @@ const MyHeader = ({ toggleMenu }) => {
 
   const handleLogout = () => {
     app.auth().signOut();
+    delete axios.defaults.headers.common["id-token"];
+    console.log("header now:", axios.defaults.headers.common["id-token"]);
     history.push("/");
   };
 
@@ -55,7 +68,7 @@ const MyHeader = ({ toggleMenu }) => {
   };
 
   return (
-    <Slide appear={false} direction="down" in={!trigger}>
+    <ElevationScroll>
       <AppBar position="sticky" color="secondary">
         <Toolbar>
           <IconButton edge="start" onClick={toggleMenu}>
@@ -81,7 +94,7 @@ const MyHeader = ({ toggleMenu }) => {
           )}
         </Toolbar>
       </AppBar>
-    </Slide>
+    </ElevationScroll>
   );
 };
 

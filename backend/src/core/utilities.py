@@ -103,6 +103,10 @@ def fail_save(func):
             return ret
         except SQLAlchemyError as e:
             log_msg(str(e._message), "ERROR")
+            if "orig" in e:
+                log_msg(e.orig)
+            if "params" in e:
+                log_msg(e.params)
             return None
 
     return inner

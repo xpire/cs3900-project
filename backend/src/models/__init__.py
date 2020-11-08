@@ -6,3 +6,14 @@ from .time_series import TimeSeries
 from .transaction import Transaction
 from .user import User
 from .watchlist import WatchList
+
+all_models = [
+    UnlockedAchievement,
+    PendingOrder,
+    Position,
+    Stock,
+    TimeSeries,
+    Transaction,
+    User,
+    WatchList,
+]

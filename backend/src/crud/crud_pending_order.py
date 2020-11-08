@@ -1,3 +1,7 @@
+"""
+CRUD operations for pending orders (limit and after market)
+"""
+
 from sqlalchemy.orm import Session
 from src import crud, schemas
 from src.core.utilities import fail_save
@@ -14,7 +18,16 @@ class CRUDPendingOrder(CRUDBase[PendingOrder]):
         *,
         db: Session,
         order: schemas.PendingOrderDBcreate,
-    ) -> bool:
+    ) -> Result:
+        """Adds a pending to the database
+
+        Args:
+            db (Session): database session
+            order (schemas.PendingOrderDBcreate): order to be added
+
+        Returns:
+            Result: Success/Fail
+        """
         if not crud.stock.symbol_exists(db=db, symbol=order.symbol):
             return Fail(f"Cannot add a non-existent symbol as a pending order of User(uid = {order.user_id}).")
 
@@ -26,8 +39,10 @@ class CRUDPendingOrder(CRUDBase[PendingOrder]):
     @fail_save
     @return_result()
     def delete_order(self, *, db: Session, id: int, user=None) -> Result:
-        """
-        If [user] is specified, the order must be owned by the user
+        """Deletes a pending order from the database. If user is specified, order must exist for the user.
+
+        Returns:
+            Result: Success/Fail
         """
         order_m = self.query(db).get(id)
 

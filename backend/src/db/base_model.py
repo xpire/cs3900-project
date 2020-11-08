@@ -1,4 +1,6 @@
-from typing import Any
+"""
+Base schema for table creation - sets the table name
+"""
 
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 

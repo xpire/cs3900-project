@@ -1,9 +1,12 @@
+"""
+Checks if the database is awake - creates if not, else passes the instance
+"""
+
 import logging
 from typing import Any
 
 from src.db.session import SessionLocal
-from tenacity import (after_log, before_log, retry, stop_after_attempt,
-                      wait_fixed)
+from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

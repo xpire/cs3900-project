@@ -1,3 +1,7 @@
+"""
+Schema for each stocks information
+"""
+
 from datetime import timedelta
 
 from pydantic import BaseModel as BaseSchema

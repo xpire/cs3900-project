@@ -1,3 +1,7 @@
+"""
+Scehma for responses to frontend
+"""
+
 from functools import wraps
 from typing import Any, Optional
 
@@ -6,17 +10,13 @@ from src.core.utilities import HTTP400, log_msg
 
 
 class Response(BaseSchema):
-    """
-    Generic API response type
-    """
+    """Generic API response type"""
 
     msg: str
 
 
 class Result(BaseSchema):
-    """
-    Internal return type
-    """
+    """Internal return type"""
 
     msg: str = ""
     success: bool
@@ -66,6 +66,8 @@ class ResultException(Exception):
 
 
 def return_result():
+    """Allows short circuiting of results - handles ResultException"""
+
     def wrapper(fn):
         @wraps(fn)
         def wrapped(*args, **kwargs) -> Result:
@@ -81,6 +83,12 @@ def return_result():
 
 
 def method_wrapper(router_method):
+    """Given a router method (e.g. router.get) this modifies the method such that the routed endpoint functions are automatically decorated by return_result
+
+    Args:
+        router_method: HTTP router method (get/post/delete etc.)
+    """
+
     @wraps(router_method)
     def method_wrapped(*args, **kwargs):
         def wrapper(endpoint):

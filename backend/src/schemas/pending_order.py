@@ -1,3 +1,7 @@
+"""
+Schema for pending orders - Limit Orders and After Market Orders
+"""
+
 from datetime import datetime
 from typing import Optional
 
@@ -18,7 +22,7 @@ class PendingOrderBase(BaseSchema):
 
 class PendingOrderAPIout(PendingOrderBase):
     id: int
-    name:str
+    name: str
     exchange: str
 
 

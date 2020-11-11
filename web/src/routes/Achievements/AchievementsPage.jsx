@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   Typography,
   Grid,
@@ -7,7 +7,7 @@ import {
   Chip,
 } from "@material-ui/core";
 
-// import useSockets from "../../hooks/useSockets";
+import { format } from "../../utils/formatter";
 import { AuthContext } from "../../utils/authentication";
 import Page from "../../components/page/Page";
 import { StandardCard } from "../../components/common/styled";
@@ -15,26 +15,32 @@ import useApi from "../../hooks/useApi";
 
 const Achievements = () => {
   const { user } = useContext(AuthContext);
-
-  // const [lastJsonMessage, messageHistory, connectionStatus] = useSockets();
-  // const [achievements, setAchievements] = useState([]);
-
-  // useEffect(() => {
-  //   axios.get("/user/achievements").then((response) => {
-  //     setAchievements(response.data);
-  //     console.log(response.data);
-  //   });
-  // }, []);
-
   const [data] = useApi("/user/achievements");
+  const [userData, userDataLoading] = useApi("/user");
+  const [expPercentage, setExpPercentage] = useState(0);
+  useEffect(() => {
+    if (
+      userData &&
+      userData.exp_until_next_level &&
+      userData.exp_until_next_level !== null
+    ) {
+      setExpPercentage(
+        (userData.exp / (userData.exp_until_next_level + userData.exp)) * 100
+      );
+    }
+  }, [userData]);
 
   return (
     <Page>
       <StandardCard>
         <CardContent>
           <Typography variant="h2">{user.email}</Typography>
-          <Typography>{`Level ${5}`}</Typography>
-          <LinearProgress variant="determinate" value={40} />
+          {!userDataLoading && (
+            <Typography>
+              Level {userData.level} ({format(expPercentage)}%)
+            </Typography>
+          )}
+          <LinearProgress variant="determinate" value={expPercentage} />
         </CardContent>
       </StandardCard>
       <StandardCard>
@@ -58,7 +64,7 @@ const Achievements = () => {
                   >
                     {name}
                   </Typography>
-                  <Chip label={`${exp} xp`} />
+                  <Chip label={`${exp} xp`} size="small" />
                   <Typography>{description}</Typography>
                 </CardContent>
               </StandardCard>

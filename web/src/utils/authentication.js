@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
           console.log("yayeet");
         })
         .catch((e) => {
-          console.log(`delete axios.defaults.headers.common["id-token"];`);
+          // console.log(`delete axios.defaults.headers.common["id-token"];`);
         });
   }, [user, loading]);
 
@@ -83,7 +83,6 @@ export const AuthProvider = ({ children }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ ease: "easeOut" }}
             key="application"
-            style={{ overflow: "hidden" }}
           >
             <AuthContext.Provider
               value={{

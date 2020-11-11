@@ -11,9 +11,13 @@ const useSockets = () => {
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
     socketUrl,
     {
-      onOpen: () => console.log("opened"),
+      onOpen: () => console.log("useSockets: opened"),
+      onClose: () => console.log("useSockets: closed"),
+      onMessage: () => console.log("useSockets: onMessage"),
+      onError: () => console.log("useSockets: onError"),
       // will attempt to reconnect on all close events, such as server shutting down
       shouldReconnect: (closeEvent) => true,
+      retryOnError: true,
       reconnectAttempts: 20,
       reconnectInterval: 3000,
       share: true,

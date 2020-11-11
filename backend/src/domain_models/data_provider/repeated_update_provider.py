@@ -1,3 +1,7 @@
+"""
+This file updates stock information every minute to allow live updates and day trading
+"""
+
 import time
 from abc import abstractmethod
 from datetime import datetime

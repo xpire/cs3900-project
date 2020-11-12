@@ -1,6 +1,5 @@
 from fastapi import APIRouter
 from src.api.endpoints import auth, leaderboard, orders, portfolio, stocks, trade, transactions, watchlist
-from src.db import base_model_import_all as base_model
 from src.db.session import SessionLocal
 
 api_router = APIRouter()

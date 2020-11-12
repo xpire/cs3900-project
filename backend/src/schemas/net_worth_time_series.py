@@ -1,3 +1,8 @@
+"""
+Schema for portfolio's net worth time series
+Primarily used for graphing purposes to track users position values
+"""
+
 from datetime import datetime
 from typing import List
 

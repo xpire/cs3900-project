@@ -12,4 +12,4 @@ To place a market order, simply head over to the TRADE page, select either **BUY
 --->
 When you **BUY** stocks in a company, this is also referred to as "opening a _long_ position" - as opposed to _short_ positions which we'll see later. You can then _close_ these positions by placing a **SELL** order on the stocks you own.<br>
 
-So essentially, you will earn money if a companies stock price goes **up** after you buy it. Don't forget that you'll be charged a little bit of commission every time an order executes though!
+So essentially, you will earn money if a company's stock price goes **up** after you buy it. Don't forget that you'll be charged a little bit of commission every time an order executes though!

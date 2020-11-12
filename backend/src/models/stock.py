@@ -1,3 +1,7 @@
+"""
+Database model for each stocks information
+"""
+
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 from src.db.base_model import BaseModel

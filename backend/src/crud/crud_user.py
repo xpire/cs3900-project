@@ -1,11 +1,6 @@
 """
-    File name: crud_user.py
-    Author: Peiyu Tang
-    Date created: 10/15/2020
-    Python Version: 3.7.3
-    Purpose: Handles user CRUD operations on database 
+CRUD operations for user
 """
-
 
 from datetime import datetime
 from typing import List, Optional
@@ -21,7 +16,7 @@ from src.models.transaction import Transaction
 from src.models.user import User
 from src.models.watchlist import WatchList
 from src.schemas.response import Fail, Result, return_result
-from src.schemas.transaction import TradeType, TransactionBase, TransactionDBcreate
+from src.schemas.transaction import TransactionDBcreate
 from src.schemas.user import UserCreate
 
 
@@ -32,25 +27,57 @@ class CRUDUser(CRUDBase[User]):
 
     @return_result()
     def fail_if_stock_missing(self, db, symbol, msg, log_level="WARNING") -> Result:
+        """Read the title
+
+        Args:
+            db (Session): database session
+            symbol (str): stock symbol
+            msg (str): failure message
+            log_level (str, optional): severity level. Defaults to "WARNING".
+
+        Returns:
+            Result: Success/Fail
+        """
         if not crud.stock.symbol_exists(db=db, symbol=symbol):
             Fail(msg).log(log_level).ok()
 
     @fail_save
     def get_all_users(self, db: Session) -> List[User]:
+        """Gets all users in the database
+
+        Args:
+            db (Session): database session
+
+        Returns:
+            List[User]: list of all users
+        """
         return self.query(db).all()
 
     @fail_save
     def get_user_by_uid(self, *, db: Session, uid: str) -> Optional[User]:
-        """
-        Return the corresponding user by uid.
+        """Read the title
+
+        Args:
+            db (Session): database session
+            uid (str): user ID
+
+        Returns:
+            Optional[User]: user with corresponding user ID
         """
         return self.query(db).get(uid)
 
     @fail_save
     @return_result()
     def add_to_watchlist(self, *, db: Session, user: User, symbol: str) -> Result:
-        """
-        Add a watchlist to the user's watchlist.
+        """Adds a stock to the users watchlist
+
+        Args:
+            db (Session): database session
+            user (User): user model
+            symbol (str): stock symbol
+
+        Returns:
+            Result: Success/Fail
         """
         self.fail_if_stock_missing(
             db, symbol, f"Cannot add a non-existent stock to watchlist of User(uid = {user.uid})."
@@ -65,8 +92,15 @@ class CRUDUser(CRUDBase[User]):
     @fail_save
     @return_result()
     def delete_from_watchlist(self, *, db: Session, user: User, symbol: str) -> Result:
-        """
-        Delete a watchlist for user.
+        """Deletes a stock from the users watchlist
+
+        Args:
+            db (Session): database session
+            user (User): user model
+            symbol (str): stock symbol
+
+        Returns:
+            Result: Success/Fail
         """
         self.fail_if_stock_missing(
             db, symbol, f"Cannot delete a non-existent stock from watchlist of User(uid = {user.uid})."
@@ -82,7 +116,16 @@ class CRUDUser(CRUDBase[User]):
     @fail_save
     @return_result()
     def update_transaction(self, *, t: TransactionDBcreate, db: Session, user: User) -> Result:
+        """Updates the database with an executed trade (buy, sell, short, cover)
 
+        Args:
+            t (TransactionDBcreate): transaction details to add (longs/shorts)
+            db (Session): database session
+            user (User): user model
+
+        Returns:
+            Result: Success/Fail
+        """
         if t.trade_type.is_opening:
             return self.add_transaction(t=t, db=db, user=user)
         else:
@@ -97,8 +140,15 @@ class CRUDUser(CRUDBase[User]):
         db: Session,
         user: User,
     ) -> Result:
-        """
-        Add stock qty to portfolio
+        """Udpates database with a purchase trade
+
+        Args:
+            t (TransactionDBcreate): transaction details
+            db (Session): database session
+            user (User): user model
+
+        Returns:
+            Result: Success/Fail
         """
         is_long = t.trade_type.is_long
 
@@ -124,8 +174,15 @@ class CRUDUser(CRUDBase[User]):
     @fail_save
     @return_result()
     def deduct_transaction(self, *, db: Session, user: User, t: TransactionDBcreate) -> Result:
-        """
-        Deduct stock qty from portfolio
+        """Update database with a sale transaction
+
+        Args:
+            db (Session): database session
+            user (User): user model
+            t (TransactionDBcreate): transaction details
+
+        Returns:
+            Result: Success/Fail
         """
         self.fail_if_stock_missing(
             db, t.symbol, f"Cannot deduct a non-existent stock from the portfolio of User(uid = {user.uid})."
@@ -150,6 +207,15 @@ class CRUDUser(CRUDBase[User]):
     @fail_save
     @return_result()
     def delete_user_by_email(self, db: Session, *, email: str) -> Result:
+        """Read the title
+
+        Args:
+            db (Session): database session
+            email (str): email address of user
+
+        Returns:
+            Result: Success/Fail
+        """
         user = self.query(db).filter_by(email=email).first()
         if user is None:
             return Fail(f"User of email {email} does not exist").log("WARNING")
@@ -160,8 +226,14 @@ class CRUDUser(CRUDBase[User]):
     @fail_save
     @return_result()
     def reset(self, *, user: User, db: Session) -> Result:
-        """
-        Reset portfolio, transaction history, and balance
+        """Reset the users portfolio, balance, and transaction history
+
+        Args:
+            user (User): user model
+            db (Session): database session
+
+        Returns:
+            Result: Sucess/Fail
         """
         # reset
         user.balance = settings.STARTING_BALANCE
@@ -186,8 +258,16 @@ class CRUDUser(CRUDBase[User]):
         db: Session,
         user: User,
     ) -> Result:
-        """
-        Add to the historical transaction.
+        """Adds a transaction to the users transaction history
+
+        Args:
+            t (TransactionDBcreate): transaction details
+            db (Session): database session
+            user (User): user model
+            is_cancelled (bool, optional): if the transaction was executed or cancelled. Defaults to False.
+
+        Returns:
+            Result: Success/Fail
         """
         user.transaction_hist.append(
             Transaction(
@@ -204,6 +284,11 @@ class CRUDUser(CRUDBase[User]):
         self.commit_and_refresh(db, user)
 
     def insert_init_users(self, db: Session):
+        """Inserts a batch of inital users into the database (primarily for demo/testing purposes)
+
+        Args:
+            db (Session): database session
+        """
         log_msg("Inserting initial users...", "INFO")
         users = ret_initial_users(proj_root=str(env_settings.proj_root))
         for user in users:
@@ -214,8 +299,16 @@ class CRUDUser(CRUDBase[User]):
     @fail_save
     @return_result()
     def add_historical_portfolio(self, *, user: User, db: Session, timestamp: datetime, net_worth: float) -> Result:
-        """
-        Add entry for historical portfolio data
+        """Adds a snapshot of the users portfolio value to their history (graphing purposes)
+
+        Args:
+            user (User): user model
+            db (Session): database session
+            timestamp (datetime): time of snapshot
+            net_worth (float): current worth
+
+        Returns:
+            Result: Success/Fail
         """
         user.net_worth_history.append(
             NetWorthTimeSeries(

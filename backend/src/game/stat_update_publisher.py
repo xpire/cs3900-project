@@ -1,3 +1,7 @@
+"""
+Helper to notify the event hub of any updates to the statistics page
+"""
+
 from src import crud
 from src.db.session import SessionThreadLocal
 from src.domain_models.user_dm import UserDM

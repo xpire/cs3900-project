@@ -34,11 +34,21 @@ class Order(ABC):
 
     @return_result()
     def check_submit(self) -> Result:
+        """Negative quantity check
+
+        Returns:
+            Result: Success/Fail
+        """
         if self.qty <= 0:
             return Fail(f"Must {self.trade_type} positive quantity")
 
     @return_result()
     def submit(self) -> Result:
+        """Attempts to execute the order, handling both 'move to pending' and 'failed to execute'
+
+        Returns:
+            Result: Success/Fail
+        """
         self.check_submit().ok()
 
         # If the order can be executed immediately, execute
@@ -55,6 +65,11 @@ class Order(ABC):
 
     @return_result()
     def try_execute(self) -> Result:
+        """Differentiates between after hours orders and regular
+
+        Returns:
+            Result: Success/Fail
+        """
         if not self.is_trading():
             return Fail()
 
@@ -66,6 +81,17 @@ class Order(ABC):
 
     @return_result()
     def execute(self, price) -> Result:
+        """Executes a trade given its parameters
+
+        Args:
+            price (float): price of the trade
+
+        Raises:
+            ExecutionFailedException: Order could not be executed due to an issue on the users side (e.g. not enough money)
+
+        Returns:
+            Result: Success/Fail
+        """
         trade = dm.Trade.new(
             self.trade_type,
             symbol=self.symbol,
@@ -82,12 +108,27 @@ class Order(ABC):
         return result
 
     def is_trading(self):
+        """Checks if a stocks' exchange is currently open
+
+        Returns:
+            bool: True if trading
+        """
         return trading_hours.trading_hours_manager.is_trading(self.get_stock())
 
     def get_stock(self):
+        """Gets a Stock object
+
+        Returns:
+            Stock: Stock object
+        """
         return crud.stock.get_by_symbol(db=self.db, symbol=self.symbol)
 
     def get_curr_price(self):
+        """Gets latest market price of a stock
+
+        Returns:
+            float: latest market price
+        """
         return dm.get_data_provider().curr_price(self.symbol)
 
     @abstractproperty
@@ -131,6 +172,11 @@ class LimitOrder(Order):
 
     @return_result()
     def check_submit(self) -> Result:
+        """Saftey checks: level requirements are met, set price not negative
+
+        Returns:
+            Result: Success/Fail
+        """
         level_limit = feature_unlocker.level_required(UnlockableFeatureType.LIMIT_ORDER)
         if self.user.level < level_limit:
             return Fail(f"You must be level {level_limit} or above to make limit orders.")
@@ -150,6 +196,14 @@ class LimitOrder(Order):
         return self.execute(self.limit_price)
 
     def can_execute(self, curr_price):
+        """Checks whether or not the conditions for the limit order have been reached
+
+        Args:
+            curr_price (float): current price of the stock
+
+        Returns:
+            bool: True if limit price has been reached
+        """
         if self.trade_type.is_buying:
             return curr_price <= self.limit_price
         else:
@@ -177,6 +231,11 @@ class MarketOrder(Order):
 
     @return_result()
     def try_execute_pending(self) -> Result:
+        """Attempts to execute after market orders placed previously, at the opening price of the stock
+
+        Returns:
+            Result: Success/Fail
+        """
         stock = self.get_stock()
         exchange = crud.exchange.get_exchange_by_name(stock.exchange)
         open_datetime = trading_hours.next_open(self.timestamp, exchange)
@@ -205,6 +264,13 @@ class PendingOrderExecutor:
             self.execute_pending_orders(user, user_m.after_orders, MarketOrder)
 
     def execute_pending_orders(self, user, pending_orders, order_cls):
+        """Loops through currently pending orders, testing whether their execution conditions have been met
+
+        Args:
+            user (User): user model
+            pending_orders (Orders): database list of penidng orders
+            order_cls (PendingOrder): type of pending order
+        """
         db = SessionThreadLocal()
         for order_m in pending_orders:
             order = order_cls.from_orm(user, db, order_m)

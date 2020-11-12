@@ -1,3 +1,7 @@
+"""
+Statistic achievements
+"""
+
 from src.domain_models.account_stat_dm import AccountStat
 from src.game.achievement.achievement import Achievement
 from src.game.event.event import GameEventType
@@ -11,6 +15,12 @@ BALANCE AND NET WORTH
 
 
 def ret_has_reached_balance(value):
+    """Checks if the user has reached a certain balance
+
+    Args:
+        value (float): value to be reached
+    """
+
     def has_reached_balance(e: StatUpdateEvent):
         return e.user.balance >= value
 
@@ -18,6 +28,12 @@ def ret_has_reached_balance(value):
 
 
 def ret_has_reached_net_worth(value):
+    """Checks if the user has reached a certain net worth
+
+    Args:
+        value (float): value to be reached
+    """
+
     def has_reached_net_worth(e: StatUpdateEvent):
         return AccountStat(e.user).net_worth() >= value
 
@@ -59,6 +75,13 @@ POSITIONS
 
 
 def ret_has_n_positions(*, n, is_long):
+    """Checks if the user has reached a certain number of positions
+
+    Args:
+        n (int): number of positions
+        is_long (bool): True if checking for number of long positions, False for short
+    """
+
     def has_n_positions(e: StatUpdateEvent):
         positions = e.user.model.long_positions if is_long else e.user.model.short_positions
         return len(positions) >= n

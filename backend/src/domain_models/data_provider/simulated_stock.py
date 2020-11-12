@@ -1,3 +1,10 @@
+"""
+Model for simulated stocks.
+Formed by some predicatable and deterministic pattern for easier demonstrations
+and testing.
+All necessary information is mocked.
+"""
+
 import datetime as dt
 from typing import List
 

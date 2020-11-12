@@ -1,8 +1,7 @@
-from asyncio import Event, TimeoutError, wait_for
+from asyncio import Event
 
 from fastapi import WebSocket
 from src.core.async_exit import wait_until_exit
-from src.core.utilities import log_msg
 
 from .notif_event import NotifEvent
 
@@ -67,10 +66,20 @@ class Notifier:
         self.has_event = Event()
 
     def update(self, event: NotifEvent):
+        """Publishes an event to the notifier
+
+        Args:
+            event (NotifEvent): the event to publish
+        """
         self.events.append(event)
         self.has_event.set()
 
     async def flush(self, ws: WebSocket):
+        """Sends all events to the client and clears the event backlog
+
+        Args:
+            ws (WebSocket): client websocket
+        """
         await wait_until_exit(self.has_event.wait())
 
         for event in self.events:

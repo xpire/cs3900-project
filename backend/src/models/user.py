@@ -1,3 +1,7 @@
+"""
+Database model for user information
+"""
+
 from sqlalchemy import Column, DateTime, Float, Integer, String
 from sqlalchemy.orm import relationship
 from src.db.base_model import BaseModel

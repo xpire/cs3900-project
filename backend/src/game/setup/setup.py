@@ -1,3 +1,7 @@
+"""
+Sets up the game
+"""
+
 from src.game.achievement.achievement_unlocker import AchievementUnlocker
 from src.game.event.event_hub import EventHub
 from src.game.event.sub_events import StatUpdateEvent

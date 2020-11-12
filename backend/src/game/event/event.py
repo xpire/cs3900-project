@@ -1,3 +1,7 @@
+"""
+Enums for game events
+"""
+
 from enum import auto
 from typing import Any
 

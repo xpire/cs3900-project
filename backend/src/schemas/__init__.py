@@ -1,3 +1,4 @@
+from .combined import BasicDetail, UserDetailAPIout
 from .exchange import Exchange
 from .net_worth_time_series import NetWorthTimeSeriesAPIout, NetWorthTimeSeriesBase
 from .pending_order import LimitOrderDBcreate, MarketOrderDBcreate, PendingOrderAPIout, PendingOrderDBcreate

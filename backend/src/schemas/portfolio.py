@@ -1,3 +1,7 @@
+"""
+Schema for the users portfolio
+"""
+
 from typing import List
 
 from pydantic import BaseModel as BaseSchema

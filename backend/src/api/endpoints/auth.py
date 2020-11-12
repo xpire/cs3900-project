@@ -4,6 +4,7 @@ from typing import List
 from fastapi import Depends, Header, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 from src import crud, models, schemas
+from src.api.common import get_user_detail
 from src.api.deps import (
     check_uid_email,
     check_user_exists,
@@ -13,8 +14,6 @@ from src.api.deps import (
     get_db,
 )
 from src.core.async_exit import AppStatus
-from src.core.config import env_settings
-from src.core.utilities import ret_initial_users
 from src.domain_models.user_dm import UserDM
 from src.game.achievement.achievement import UserAchievement
 from src.notification.notifier import Notifier, notif_hub
@@ -23,8 +22,21 @@ from src.schemas.response import Result, ResultAPIRouter
 router = ResultAPIRouter()
 
 
+@router.get("/detail")
+async def get_detail(user=Depends(get_current_user_dm)) -> schemas.UserDetailAPIout:
+    return get_user_detail(user)
+
+
 @router.get("")
 async def get_user(user=Depends(get_current_user_dm)) -> schemas.UserAPIout:
+    """API endpoint to get users level/exp information
+
+    Args:
+        user (domain_models.UserDM, optional): User domain model. Defaults to Depends(get_current_user_dm).
+
+    Returns:
+        schemas.UserAPIout: Contains exp_until_next_level and is_max_level
+    """
     return user.schema
 
 
@@ -35,7 +47,17 @@ async def create_user(
     id_token: str = Header(None),
     db: Session = Depends(get_db),
 ) -> schemas.user:
+    """API endpoint to create a new user
 
+    Args:
+        email (str): email address
+        username (str): chosen username
+        id_token (str, optional): Firebase token. Defaults to Header(None).
+        db (Session, optional): database session. Defaults to Depends(get_db).
+
+    Returns:
+        schemas.user: schema containing user information
+    """
     uid = decode_token(id_token)
 
     # Check if email matches
@@ -50,26 +72,49 @@ async def create_user(
 
 @router.get("/reset")
 async def reset(user: UserDM = Depends(get_current_user_dm)) -> Result:
+    """API endpoint to reset a users portfolio
+
+    Args:
+        user (UserDM, optional): user domain model. Defaults to Depends(get_current_user_dm).
+
+    Returns:
+        Result: success/failure of reset
+    """
     return user.reset()
 
 
 @router.get("/balance")
 async def get_user_balance(user_m: models.User = Depends(get_current_user_m)) -> float:
-    """
-    Return the user's balance
+    """API endpoint to return a users current balance
+
+    Args:
+        user_m (models.User, optional): user model. Defaults to Depends(get_current_user_m).
+
+    Returns:
+        float: current avaiable balance of the user
     """
     return user_m.balance
 
 
 @router.get("/achievements")
 async def achievements(user: UserDM = Depends(get_current_user_dm)) -> List[UserAchievement]:
-    """
-    List of achievements and whether or not they are unlocked by the user
+    """API endpoint to get all achievements of a user
+
+    Args:
+        user (UserDM, optional): user domain model. Defaults to Depends(get_current_user_dm).
+
+    Returns:
+        List[UserAchievement]: List of all achievements available to unlock, including those already unlocked
     """
     return user.achievements
 
 
 async def receive_json(ws: WebSocket):
+    """Safely receives json through websocket
+
+    Args:
+        ws (WebSocket): client websocket
+    """
     try:
         return await ws.receive_json()
     except JSONDecodeError:
@@ -78,6 +123,13 @@ async def receive_json(ws: WebSocket):
 
 @router.websocket("/notifs")
 async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
+    """Establishes a websocket conenction with the client for future notifications to be pushed
+
+    Args:
+        ws (WebSocket): client websocket
+        db (Session, optional): database session. Defaults to Depends(get_db).
+    """
+
     await ws.accept()
 
     notifier = None
@@ -113,20 +165,3 @@ async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
     finally:
         if notifier is not None:
             notif_hub.unsusbscribe(notifier)
-
-
-"""
-TEST API
-"""
-
-
-@router.delete("")
-async def delete_user(
-    email: str,
-    db: Session = Depends(get_db),
-) -> bool:
-    """
-    Just a helper api for testing
-    """
-
-    return crud.user.delete_user_by_email(db, email=email)

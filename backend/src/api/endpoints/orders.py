@@ -13,6 +13,15 @@ router = ResultAPIRouter()
 
 @router.get("")
 async def get_orders(user: dm.UserDM = Depends(get_current_user_dm)) -> List[schemas.PendingOrderAPIout]:
+    """API endpoint to get list of currently pending orders - both limit orders and aftermarket orders
+
+    Args:
+        user (dm.UserDM, optional): user domain model. Defaults to Depends(get_current_user_dm).
+
+    Returns:
+        List[schemas.PendingOrderAPIout]: List of pending orders in schema format
+    """
+
     def to_schema(order):
         return schemas.PendingOrderAPIout(**order.dict(), exchange=order.stock.exchange, name=order.stock.name)
 
@@ -25,5 +34,15 @@ async def delete_order(
     user: dm.UserDM = Depends(get_current_user_dm),
     db: Session = Depends(get_db),
 ) -> Result:
+    """API endpoint to delete a currently pending order
+
+    Args:
+        id (int): ID of the pending order
+        user (dm.UserDM, optional): user domain model. Defaults to Depends(get_current_user_dm).
+        db (Session, optional): database session. Defaults to Depends(get_db).
+
+    Returns:
+        Result: Success/Fail
+    """
     crud.pending_order.delete_order(db=db, id=id, user=user).ok()
     return Success("Order successfully cancelled")

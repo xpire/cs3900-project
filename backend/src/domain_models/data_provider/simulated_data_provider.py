@@ -1,3 +1,7 @@
+"""
+Methods to access necessary data for simulated stocks
+"""
+
 import datetime as dt
 
 from .repeated_update_provider import RepeatedUpdateProvider

@@ -10,7 +10,7 @@ import {
   LinearProgress,
 } from "@material-ui/core";
 
-import { UPDATE_USER } from "../../reducers/index";
+import { reloadUser, UPDATE_USER } from "../../reducers/index";
 
 import { format } from "../../utils/formatter";
 import { useDispatch, useSelector } from "react-redux";
@@ -73,12 +73,8 @@ function SidePanel({ classes }) {
   ];
 
   const onCheckoutClicked = () => {
-    console.log("TYPE: " + UPDATE_USER);
-    console.log({
-      type: UPDATE_USER,
-      user: { ...data, level: data.level + 1 },
-    });
     dispatch({ type: UPDATE_USER, user: { ...data, level: data.level + 1 } });
+    dispatch(reloadUser());
   };
 
   return (

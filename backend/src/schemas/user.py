@@ -1,3 +1,7 @@
+"""
+Schema for user information and statistics
+"""
+
 from datetime import datetime
 from typing import List, Optional
 
@@ -26,6 +30,7 @@ class UserCreate(UserBase):
 
 class UserAPIout(UserBase):
     exp_until_next_level: Optional[float]
+    exp_threshold: Optional[float]
     is_max_level: bool
 
 

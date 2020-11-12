@@ -1,3 +1,7 @@
+"""
+Schema for Achievements
+"""
+
 from typing import Callable
 
 from pydantic import BaseModel as BaseSchema

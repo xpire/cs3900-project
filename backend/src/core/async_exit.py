@@ -1,5 +1,5 @@
 """
-from https://docs.python.org/3/library/asyncio-task.html#creating-tasks 
+From https://docs.python.org/3/library/asyncio-task.html#creating-tasks 
 and https://stackoverflow.com/questions/54787401/how-to-properly-use-asyncio-first-completed
 for help exit out of async tasks when uvicorn reloads
 """

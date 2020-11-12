@@ -14,6 +14,16 @@ router = ResultAPIRouter()
 async def get_leaderboard(
     user_m: User = Depends(get_current_user_m), db: Session = Depends(get_db)
 ) -> schemas.LeaderboardAPIout:
+    """API endpoint to get current leaderboard
+
+    Args:
+        user_m (models.User, optional): user model. Defaults to Depends(get_current_user_m).
+        db (Session, optional): databse session. Defaults to Depends(get_db).
+
+    Returns:
+        schemas.LeaderboardAPIout: Leaderboard information as per LeaderboardAPIout schema
+    """
+
     def to_schema(u):
         net_worth = AccountStat(UserDM(u, db)).net_worth()
         return schemas.LeaderboardUserWithUid(
@@ -27,6 +37,15 @@ async def get_leaderboard(
 
 
 def get_rank(rankings, uid):
+    """Gets a users current leaderboard ranking
+
+    Args:
+        rankings (List[schemas.LeaderboardUserWithUid]): user information for leaderboard
+        uid (str): user id
+
+    Returns:
+        int: users ranking
+    """
     for rank, user in enumerate(rankings, 1):
         if user.uid == uid:
             return rank

@@ -1,3 +1,6 @@
+"""
+Backend configuration settings for this project
+"""
 from os import path
 from pathlib import Path
 from typing import Any, List

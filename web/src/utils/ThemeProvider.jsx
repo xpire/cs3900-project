@@ -46,9 +46,9 @@ const MyThemeProvider = ({ children }) => {
   const darkTheme = createMuiTheme({
     ...commonTheme,
     palette: {
-      secondary: {
-        main: "#424242",
-      },
+      // secondary: {
+      //   main: "#424242",
+      // },
       primary: {
         main: "#2196f3",
       },

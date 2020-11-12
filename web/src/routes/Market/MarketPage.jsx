@@ -12,11 +12,17 @@ import Page from "../../components/page/Page";
 import CardGrid from "../../components/common/CardGrid";
 // import axios from "../../utils/api";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
+import { useSelector } from "react-redux";
 
 const Market = () => {
   const [search, setSearch] = useState("");
+  const { data, is_loading: loading } = useSelector((state) => state.stocks);
 
-  const [stockData, loading] = useRealTimeStockData();
+  const stockData = loading
+    ? [...Array(12)].map((_) => {
+        return { skeleton: true };
+      })
+    : data;
 
   const handleChange = (e) => {
     setSearch(e);

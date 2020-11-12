@@ -12,7 +12,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Hidden from "@material-ui/core/Hidden";
 import SidePanel from "../sidepanel/SidePanel";
 import { useDispatch } from "react-redux";
-import { reloadUser } from "../../reducers";
+import { reloadUser, reloadStocks } from "../../reducers";
 
 // Abstract the internal bits out
 const drawerWidth = 260;
@@ -52,6 +52,7 @@ export default function PageContainer() {
     dispatch(reloadUser());
     const interval = setInterval(() => {
       dispatch(reloadUser());
+      dispatch(reloadStocks());
     }, DATA_UPDATE_INTERVAL);
     return () => clearInterval(interval);
   }, []);

@@ -63,7 +63,7 @@ const initialState = {
       user_ranking: 1,
     },
   },
-  stocks: [],
+  stocks: { data: [], is_loading: true },
 };
 
 /*
@@ -88,7 +88,7 @@ const user = (state = initialState.user, action) => {
 const stocks = (state = initialState.stocks, action) => {
   switch (action.type) {
     case UPDATE_STOCKS:
-      return action.stocks;
+      return { data: action.stocks, is_loading: false };
     default:
       return state;
   }
@@ -115,6 +115,7 @@ function makeActionCreator(type, ...argNames) {
 }
 
 const updateUser = makeActionCreator(UPDATE_USER, "user");
+const updateStocks = makeActionCreator(UPDATE_STOCKS, "stocks");
 const updateWatchlist = makeActionCreator(UPDATE_WATCHLIST, "watchlist");
 const removeFromWatchlistSync = makeActionCreator(
   REMOVE_FROM_WATCHLIST,
@@ -135,6 +136,10 @@ function reloadFromAPI(endpoint, updateFn) {
 }
 
 export const reloadUser = reloadFromAPI("/user/detail", updateUser);
+export const reloadStocks = reloadFromAPI(
+  "/stocks/real_time/all",
+  updateStocks
+);
 // export const reloadWatchlist = reloadFromAPI("/watchlist", updateWatchlist);
 
 export function addToWatchlist(symbol) {

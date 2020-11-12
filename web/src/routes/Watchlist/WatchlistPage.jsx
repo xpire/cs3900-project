@@ -1,14 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import { Card } from "@material-ui/core";
 
 import Page from "../../components/page/Page";
 import SortableTable, {
   tableTypes,
 } from "../../components/common/SortableTable";
-import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import { format } from "../../utils/formatter";
-import useHandleSnack from "../../hooks/useHandleSnack";
-import axios from "../../utils/api";
 import { useDispatch, useSelector } from "react-redux";
 import { removeFromWatchlist } from "../../reducers";
 
@@ -84,7 +81,7 @@ const Watchlist = () => {
         <SortableTable
           data={mappedData}
           header={headCells}
-          title="Watch List"
+          title="Watchlist"
           handleDelete={({ symbol }) => dispatch(removeFromWatchlist(symbol))}
         />
       </Card>

@@ -25,14 +25,14 @@ def get_basic_detail(user) -> schemas.BasicDetail:
 
 
 def get_watchlist(user_m) -> List[schemas.StockRealTimeAPIout]:
-    def to_schema(stock):
-        return schemas.StockRealTimeAPIout(
+    return [stock_to_realtime_schema(x.stock) for x in user_m.watchlist]
+
+def stock_to_realtime_schema(stock) -> schemas.StockRealTimeAPIout:
+    return schemas.StockRealTimeAPIout(
             **stock.dict(),
             **dm.get_data_provider().data[stock.symbol],
             **trading_hours_manager.get_trading_hours_info(stock).dict(),
         )
-
-    return [to_schema(x.stock) for x in user_m.watchlist]
 
 
 def get_orders(user_m) -> List[schemas.PendingOrderAPIout]:

@@ -50,9 +50,10 @@ export default function PageContainer() {
 
   useEffect(() => {
     dispatch(reloadUser());
+    dispatch(reloadStocks());
     const interval = setInterval(() => {
       dispatch(reloadUser());
-      dispatch(reloadStocks());
+      dispatch(reloadStocks()); // TODO optimize so that it only gets triggered on the market page
     }, DATA_UPDATE_INTERVAL);
     return () => clearInterval(interval);
   }, []);

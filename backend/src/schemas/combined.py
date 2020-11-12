@@ -4,7 +4,7 @@ from typing import List, Optional
 from pydantic import BaseModel as BaseSchema
 from src.schemas.pending_order import PendingOrderAPIout
 from src.schemas.portfolio import PortfolioAPIout, PortfolioStatAPIout
-from src.schemas.stock import StockAPIout
+from src.schemas.stock import StockRealTimeAPIout
 from src.schemas.transaction import TransactionAPIout
 from src.schemas.user import LeaderboardAPIout
 
@@ -23,7 +23,7 @@ class BasicDetail(BaseSchema):
 
 class UserDetailAPIout(BaseSchema):
     basic: BasicDetail
-    watchlist: List[StockAPIout]
+    watchlist: List[StockRealTimeAPIout]
     orders: List[PendingOrderAPIout]
     transactions: List[TransactionAPIout]
     portfolio: PortfolioAPIout

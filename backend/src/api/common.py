@@ -3,6 +3,7 @@ from typing import List
 from src import crud
 from src import domain_models as dm
 from src import schemas
+from src.domain_models.trading_hours import trading_hours_manager
 from src.domain_models.user_dm import UserDM
 
 
@@ -18,15 +19,20 @@ def get_user_detail(user) -> schemas.UserDetailAPIout:
         leaderboard=get_leaderboard(user),
     )
 
+
 def get_basic_detail(user) -> schemas.BasicDetail:
     return schemas.BasicDetail(**user.schema.dict())
 
 
-def get_watchlist(user_m) -> List[schemas.StockAPIout]:
-    def to_schema(x):
-        return schemas.StockAPIout(**x.stock.dict())
+def get_watchlist(user_m) -> List[schemas.StockRealTimeAPIout]:
+    def to_schema(stock):
+        return schemas.StockRealTimeAPIout(
+            **stock.dict(),
+            **dm.get_data_provider().data[stock.symbol],
+            **trading_hours_manager.get_trading_hours_info(stock).dict(),
+        )
 
-    return [to_schema(x) for x in user_m.watchlist]
+    return [to_schema(x.stock) for x in user_m.watchlist]
 
 
 def get_orders(user_m) -> List[schemas.PendingOrderAPIout]:
@@ -37,10 +43,7 @@ def get_orders(user_m) -> List[schemas.PendingOrderAPIout]:
 
 
 def get_transactions(user_m) -> List[schemas.TransactionAPIout]:
-    print("TRANSACTION API")
-
     def to_schema(t):
-        print("TRANSACTION", t.dict())
         return schemas.TransactionAPIout(**t.dict(), name=t.stock.name)
 
     return [to_schema(t) for t in user_m.transaction_hist]

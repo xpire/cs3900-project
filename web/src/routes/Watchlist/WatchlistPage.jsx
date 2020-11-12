@@ -9,6 +9,7 @@ import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import { format } from "../../utils/formatter";
 import useHandleSnack from "../../hooks/useHandleSnack";
 import axios from "../../utils/api";
+import { useSelector } from "react-redux";
 
 const headCells = [
   {
@@ -59,7 +60,11 @@ const headCells = [
 
 const Watchlist = () => {
   const [deleted, setDeleted] = useState(0);
-  const [data] = useRealTimeStockData("/watchlist", [deleted], []);
+  // const [data] = useRealTimeStockData("/watchlist", [deleted], []);
+
+  const data = useSelector((state) => state.user.watchlist);
+  console.log(data);
+
   const mappedData = data.map(
     ({ curr_day_close, exchange, name, curr_day_open, symbol }) => {
       return {

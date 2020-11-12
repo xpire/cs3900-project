@@ -15,6 +15,9 @@ class NotifEventType(str, AutoName):
     LEVEL_UP = auto()
     ACHIEVEMENT_UNLOCKED = auto()
     FEATURE_UNLOCKED = auto()
+    ORDER_UPDATE = auto()
+    STOCK_UPDATE = auto()
+    RANKING_UPDATE = auto()
 
 
 class UnlockableFeatureType(str, AutoName):
@@ -36,6 +39,23 @@ class NotifEvent(BaseSchema):
     @abstractmethod
     def to_msg(self) -> NotifMsg:
         pass
+
+
+class UpdateEvent(NotifEvent):
+    def to_msg(self) -> NotifMsg:
+        return NotifMsg(event_type=self.event_type, title="")
+
+
+class OrderUpdateEvent(UpdateEvent):
+    event_type: NotifEventType = Const(NotifEventType.ORDER_UPDATE)
+
+
+class StockUpdateEvent(UpdateEvent):
+    event_type: NotifEventType = Const(NotifEventType.STOCK_UPDATE)
+
+
+class RankingUpdateEvent(UpdateEvent):
+    event_type: NotifEventType = Const(NotifEventType.RANKING_UPDATE)
 
 
 class LevelUpEvent(NotifEvent):

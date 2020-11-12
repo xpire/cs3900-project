@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Switch, useLocation, Route } from "react-router-dom";
 import { Toolbar, CssBaseline } from "@material-ui/core";
 // import Hidden from "@material-ui/core/Hidden";
@@ -11,6 +11,8 @@ import AuthPage from "../../routes/Auth/AuthPage";
 import { makeStyles } from "@material-ui/core/styles";
 import Hidden from "@material-ui/core/Hidden";
 import SidePanel from "../sidepanel/SidePanel";
+import { useDispatch } from "react-redux";
+import { reloadUser } from "../../reducers";
 
 // Abstract the internal bits out
 const drawerWidth = 260;
@@ -36,12 +38,23 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const DATA_UPDATE_INTERVAL = 5000;
+
 export default function PageContainer() {
   const classes = useStyles();
 
   const location = useLocation();
   const [isOpen, setOpen] = useState(false);
   const toggleDrawer = () => setOpen(!isOpen);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(reloadUser());
+    const interval = setInterval(() => {
+      dispatch(reloadUser());
+    }, DATA_UPDATE_INTERVAL);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className={classes.root}>

@@ -25,7 +25,7 @@ function HalfGridItem({ label, value }) {
       >
         {label}
       </Typography>
-      <Typography style={{ fontSize: 14 }}>${value}</Typography>
+      <Typography style={{ fontSize: 14 }}>${format(value)}</Typography>
     </Grid>
   );
 }
@@ -36,22 +36,23 @@ function Spacing() {
 
 function SidePanel({ classes }) {
   /* CAN BE MADE INTO FLOATING, BY USING AN INTERNAL CARD*/
-  const data = useSelector((state) => state.user);
+  const {
+    basic,
+    stats,
+    leaderboard: { user_ranking },
+  } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
-  const threshold = data.exp + data.exp_until_next_level;
   const [expPercentage, setExpPercentage] = useState(0);
   useEffect(() => {
     if (
-      data &&
-      data.exp_until_next_level &&
-      data.exp_until_next_level !== null
+      basic &&
+      basic.exp_until_next_level &&
+      basic.exp_until_next_level !== null
     ) {
-      setExpPercentage(
-        (data.exp / (data.exp_until_next_level + data.exp)) * 100
-      );
+      setExpPercentage((basic.exp / basic.exp_threshold) * 100);
     }
-  }, [data]);
+  }, [basic]);
 
   const items = [
     {
@@ -59,7 +60,7 @@ function SidePanel({ classes }) {
       label: "Balance",
     },
     {
-      id: "long_value",
+      id: "total_long_value",
       label: "Long Value",
     },
     {
@@ -67,15 +68,10 @@ function SidePanel({ classes }) {
       label: "Short Balance",
     },
     {
-      id: "short_value",
+      id: "total_short_value",
       label: "Short Value",
     },
   ];
-
-  const onCheckoutClicked = () => {
-    dispatch({ type: UPDATE_USER, user: { ...data, level: data.level + 1 } });
-    dispatch(reloadUser());
-  };
 
   return (
     <Drawer
@@ -89,25 +85,26 @@ function SidePanel({ classes }) {
       <Toolbar />
       <div className={classes.drawerContainer}>
         <div style={{ padding: "20px" }}>
-          <button onClick={onCheckoutClicked}>Checkout</button>
-
           {/* Username */}
-          <Typography variant="h6">{data.username}</Typography>
+          <Typography variant="h6">{basic.username}</Typography>
           {/* Rank */}
           <Typography variant="caption" color="textSecondary">
             Rank
           </Typography>
-          <Typography>{data.rank}</Typography>
+          <Typography>{user_ranking}</Typography>
           {/* Level */}
           <Spacing />
           <Typography variant="caption" color="textSecondary">
             Level
           </Typography>
-          <Typography display="span">Lv. {data.level} </Typography>
+          <Typography display="span">Lv. {basic.level} </Typography>
           {/* <Typography color="textSecondary" display="span">
             
           </Typography> */}
-          <Tooltip title={data.exp + "/" + threshold} placement="top-end">
+          <Tooltip
+            title={format(basic.exp) + "/" + basic.exp_threshold}
+            placement="top-end"
+          >
             <LinearProgress value={expPercentage} variant="determinate" />
           </Tooltip>
           {/* Networth */}
@@ -115,12 +112,12 @@ function SidePanel({ classes }) {
           <Typography variant="caption" color="textSecondary">
             Net Worth
           </Typography>
-          <Typography>${data.net_worth}</Typography>
+          <Typography>${format(stats.total_value)}</Typography>
           {/* Other values */}
           <Divider />
           <Grid container>
             {items.map(({ id, label }) =>
-              HalfGridItem({ label: label, value: data[id] })
+              HalfGridItem({ label: label, value: stats[id] })
             )}
           </Grid>
         </div>

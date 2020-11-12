@@ -12,6 +12,8 @@ import axios from "./api";
 import { CenteredMotionDiv } from "../components/common/styled";
 import useSockets from "../hooks/useSockets";
 import useHandleSocketSnack from "../hooks/useHandleSocketSnack";
+import { reloadUser } from "../reducers";
+import { useDispatch } from "react-redux";
 const StyledCenteredMotionDiv = styled(CenteredMotionDiv)({
   background: (props) => props.theme.palette.background.default || "#303030",
 });
@@ -26,6 +28,8 @@ export const AuthContext = React.createContext();
 export const AuthProvider = ({ children }) => {
   const [user, loading] = useAuthState(auth);
   const theme = useTheme();
+  const dispatch = useDispatch();
+
   useEffect(() => {
     user &&
       user

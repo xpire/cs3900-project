@@ -70,33 +70,31 @@ const MyHeader = ({ toggleMenu }) => {
 
   return (
     <Box zIndex={1201}>
-      <ElevationScroll>
-        <AppBar position="fixed" color="secondary">
-          <Toolbar>
-            <IconButton edge="start" onClick={toggleMenu}>
-              <img src={Logo} alt="X" height="40px" />
-            </IconButton>
-            <HeaderTitle variant="h4">{headerTitle}</HeaderTitle>
-            {user ? (
-              <HeaderButton
-                variant="contained"
-                color="primary"
-                onClick={handleLogout}
-              >
-                Sign Out
-              </HeaderButton>
-            ) : (
-              <HeaderButton
-                variant="contained"
-                color="primary"
-                onClick={handleLogin}
-              >
-                Sign In
-              </HeaderButton>
-            )}
-          </Toolbar>
-        </AppBar>
-      </ElevationScroll>
+      <AppBar position="fixed" color="secondary">
+        <Toolbar>
+          <IconButton edge="start" onClick={toggleMenu}>
+            <img src={Logo} alt="X" height="40px" />
+          </IconButton>
+          <HeaderTitle variant="h4">{headerTitle}</HeaderTitle>
+          {user ? (
+            <HeaderButton
+              variant="contained"
+              color="primary"
+              onClick={handleLogout}
+            >
+              Sign Out
+            </HeaderButton>
+          ) : (
+            <HeaderButton
+              variant="contained"
+              color="primary"
+              onClick={handleLogin}
+            >
+              Sign In
+            </HeaderButton>
+          )}
+        </Toolbar>
+      </AppBar>
     </Box>
   );
 };

@@ -22,6 +22,14 @@ class NotificationHub:
         for notifier in self.notifiers[uid].values():
             notifier.update(event)
 
+    def publish_all(self, event):
+        """
+        Publish a notification [event] to all notifiers"
+        """
+        for group in self.notifiers.values():
+            for notifier in group:
+                notifier.update(event)
+
     def subscribe(self, notifier) -> bool:
         """
         Let [notifier] listen to future events
@@ -95,3 +103,4 @@ class Notifier:
 
 
 notif_hub = NotificationHub()
+update_hub = NotificationHub()

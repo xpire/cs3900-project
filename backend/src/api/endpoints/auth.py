@@ -16,7 +16,7 @@ from src.api.deps import (
 from src.core.async_exit import AppStatus
 from src.domain_models.user_dm import UserDM
 from src.game.achievement.achievement import UserAchievement
-from src.notification.notifier import Notifier, notif_hub
+from src.notification.notifier import Notifier, notif_hub, update_hub
 from src.schemas.response import Result, ResultAPIRouter
 
 router = ResultAPIRouter()
@@ -121,47 +121,97 @@ async def receive_json(ws: WebSocket):
         return None
 
 
-@router.websocket("/notifs")
-async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
-    """Establishes a websocket conenction with the client for future notifications to be pushed
+def make_notif_ws(notification_hub):
+    """
+    Creates an asychronous function that establishes a websocket conenction with the client for future notifications to be pushed
 
     Args:
+        notification_hub (NotificationHub): event hub instance to listen to for sending notifications
         ws (WebSocket): client websocket
         db (Session, optional): database session. Defaults to Depends(get_db).
     """
 
-    await ws.accept()
+    async def notif_ws(ws: WebSocket, db: Session = Depends(get_db)):
+        await ws.accept()
 
-    notifier = None
-    try:
-        print("VALIDATE USER")
-        id_token = await receive_json(ws)
-
+        notifier = None
         try:
-            uid = decode_token(id_token)
-        except:
-            print("INVALID AUTH MESSAGE RECEIVED:", id_token)
-            uid = None
+            id_token = await receive_json(ws)
 
-        user = crud.user.get_user_by_uid(db=db, uid=uid)
+            try:
+                uid = decode_token(id_token)
+            except:
+                uid = None
 
-        if user:
-            print("AUTHORISED")
-            await ws.send_json(dict(msg="User authorised", is_error=False, type="auth"))
-        else:
-            print("NOT AUTHORISED")
-            await ws.send_json(dict(msg="User not authorised", is_error=True, type="auth"))
-            await ws.close()
-            return
+            user = crud.user.get_user_by_uid(db=db, uid=uid)
 
-        notifier = Notifier(user)
-        notif_hub.subscribe(notifier)
-        while not AppStatus.should_exit:
-            await notifier.flush(ws)
+            if user:
+                await ws.send_json(dict(msg="User authorised", is_error=False, type="auth"))
+            else:
+                await ws.send_json(dict(msg="User not authorised", is_error=True, type="auth"))
+                await ws.close()
+                return
 
-    except WebSocketDisconnect:
-        print("USER DISCONNECTED")
+            notifier = Notifier(user)
+            notification_hub.subscribe(notifier)
+            while not AppStatus.should_exit:
+                await notifier.flush(ws)
 
-    finally:
-        if notifier is not None:
-            notif_hub.unsusbscribe(notifier)
+        except WebSocketDisconnect:
+            pass
+
+        finally:
+            if notifier is not None:
+                notification_hub.unsusbscribe(notifier)
+
+    return notif_ws
+
+
+event_ws = router.websocket("/notifs")(make_notif_ws(notif_hub))
+update_ws = router.websocket("/updates")(make_notif_ws(update_hub))
+
+
+# @router.websocket("/notifs")
+# async def notif_ws(ws: WebSocket, db: Session = Depends(get_db)):
+#     """Establishes a websocket conenction with the client for future notifications to be pushed
+
+#     Args:
+#         ws (WebSocket): client websocket
+#         db (Session, optional): database session. Defaults to Depends(get_db).
+#     """
+
+#     await ws.accept()
+
+#     notifier = None
+#     try:
+#         print("VALIDATE USER")
+#         id_token = await receive_json(ws)
+
+#         try:
+#             uid = decode_token(id_token)
+#         except:
+#             print("INVALID AUTH MESSAGE RECEIVED:", id_token)
+#             uid = None
+
+#         user = crud.user.get_user_by_uid(db=db, uid=uid)
+
+#         if user:
+#             print("AUTHORISED")
+#             await ws.send_json(dict(msg="User authorised", is_error=False, type="auth"))
+#         else:
+#             print("NOT AUTHORISED")
+#             await ws.send_json(dict(msg="User not authorised", is_error=True, type="auth"))
+#             await ws.close()
+#             return
+
+#         notifier = Notifier(user)
+#         notif_hub.subscribe(notifier)
+#         while not AppStatus.should_exit:
+#             await notifier.flush(ws)
+
+#     except WebSocketDisconnect:
+#         print("USER DISCONNECTED")
+
+#     finally:
+#         if notifier is not None:
+#             notif_hub.unsusbscribe(notifier)

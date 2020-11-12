@@ -24,7 +24,7 @@ class LevelManager:
         user.exp += amount
 
         while user.level < self.max_level and self.exp_until_next_level(user) <= 0:
-            user.exp -= self.get_threshold(user.level)
+            user.exp -= self.get_threshold(user)
             user.level += 1
 
             self.notif_hub.publish(LevelUpNotifEvent(user=user, new_level=user.level))

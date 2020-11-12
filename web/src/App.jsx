@@ -31,23 +31,23 @@ function App() {
     notistackRef.current.closeSnackbar(key);
   };
   return (
-    <SnackbarProvider
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "center",
-      }}
-      preventDuplicate
-      ref={notistackRef}
-      action={(key) => <Button onClick={onClickDismiss(key)}>OK</Button>}
-    >
-      <AuthProvider>
-        <ScrollToTop history={history}>
-          <Provider store={store}>
+    <Provider store={store}>
+      <SnackbarProvider
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+        preventDuplicate
+        ref={notistackRef}
+        action={(key) => <Button onClick={onClickDismiss(key)}>OK</Button>}
+      >
+        <AuthProvider>
+          <ScrollToTop history={history}>
             <PageContainer />
-          </Provider>
-        </ScrollToTop>
-      </AuthProvider>
-    </SnackbarProvider>
+          </ScrollToTop>
+        </AuthProvider>
+      </SnackbarProvider>
+    </Provider>
   );
 }
 

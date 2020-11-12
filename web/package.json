@@ -35,7 +35,7 @@
     "react-markdown": "^5.0.2",
     "react-number-format": "^4.4.1",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "3.4.3",
+    "react-scripts": "^3.4.3",
     "react-stockcharts": "^0.7.8",
     "react-swipeable-views": "^0.13.9",
     "react-use": "^15.3.4",

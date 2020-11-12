@@ -227,6 +227,8 @@ const Dashboard = () => {
               data={
                 myValue === 0 ? longData : myValue === 1 ? shortData : watchData
               }
+              renderWatchlist={false}
+              watchlist={[[], (x) => x]}
             />
           </CardsSpaceDiv>
         </Grid>

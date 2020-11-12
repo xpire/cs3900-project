@@ -226,6 +226,7 @@ function EnhancedTable({
                         <TableCell
                           component="th"
                           id={labelId}
+                          key={`${labelId}${value}`}
                           scope="row"
                           align={
                             formatType === "currency" ||

@@ -6,6 +6,7 @@ import {
   Button,
   useScrollTrigger,
   Slide,
+  Box,
 } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import styled from "styled-components";
@@ -55,8 +56,8 @@ const MyHeader = ({ toggleMenu }) => {
   };
 
   return (
-    <Slide appear={false} direction="down" in={!trigger}>
-      <AppBar position="sticky" color="secondary">
+    <Box zIndex={1201}>
+      <AppBar position="fixed" color="secondary">
         <Toolbar>
           <IconButton edge="start" onClick={toggleMenu}>
             <img src={Logo} alt="X" height="40px" />
@@ -81,8 +82,11 @@ const MyHeader = ({ toggleMenu }) => {
           )}
         </Toolbar>
       </AppBar>
-    </Slide>
+    </Box>
   );
 };
 
 export default MyHeader;
+// export default styled(MyHeader)`
+//   height: 10vh;
+// `;

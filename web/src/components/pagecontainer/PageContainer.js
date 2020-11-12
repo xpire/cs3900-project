@@ -1,0 +1,84 @@
+import React, { useState } from "react";
+import { Switch, useLocation, Route } from "react-router-dom";
+import { Toolbar, CssBaseline } from "@material-ui/core";
+// import Hidden from "@material-ui/core/Hidden";
+
+import Header from "../header/Header";
+import SideBar from "../sidebar/SideBar";
+import PrivateRoute from "../../utils/PrivateRoute";
+import { Routes } from "../../utils/routes";
+import AuthPage from "../../routes/Auth/AuthPage";
+import { makeStyles } from "@material-ui/core/styles";
+import Hidden from "@material-ui/core/Hidden";
+import SidePanel from "../sidepanel/SidePanel";
+
+// Abstract the internal bits out
+const drawerWidth = 260;
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+  },
+  drawer: {
+    width: drawerWidth,
+    flexShrink: 0,
+  },
+  drawerPaper: {
+    width: drawerWidth,
+    border: 0,
+    // background: "rgba(0, 0, 0, 0)",
+  },
+  drawerContainer: {
+    overflow: "auto",
+  },
+  content: {
+    flex: 1,
+  },
+}));
+
+export default function PageContainer() {
+  const classes = useStyles();
+
+  const location = useLocation();
+  const [isOpen, setOpen] = useState(false);
+  const toggleDrawer = () => setOpen(!isOpen);
+
+  return (
+    <div className={classes.root}>
+      <CssBaseline />
+      {/* Header */}
+      <Header toggleMenu={toggleDrawer} />
+
+      {/* Navigation SideBar */}
+      <SideBar
+        className={classes.drawer}
+        isOpen={isOpen}
+        handleChange={toggleDrawer}
+        variant="temporary"
+        zIndex={1202}
+      />
+
+      {/* Main panel in the centre */}
+      <main className={classes.content}>
+        <Toolbar />
+        <Switch location={location} key={location.key}>
+          <Route path="/auth" component={AuthPage} />
+          {Routes.map(({ exact, path, isPublic, component }) => (
+            <PrivateRoute
+              exact={exact}
+              path={path}
+              isPublic={isPublic}
+              component={component}
+              key={path}
+            />
+          ))}
+        </Switch>
+      </main>
+
+      {/* Side panel on the right */}
+      <Hidden smDown>
+        <SidePanel classes={classes} />
+      </Hidden>
+    </div>
+  );
+}

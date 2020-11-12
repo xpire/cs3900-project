@@ -186,7 +186,7 @@ class AccountStat:
         return self.balance + self.long.total_closing_value()
 
     def short_balance(self):
-        return self.gross_value() * self.short_allowance_rate - self.short.total_opening_value()
+        return self.net_worth() * self.short_allowance_rate + self.short.total_closing_value()
 
     def compile_portfolio_stats(self):
         return schemas.PortfolioStatAPIout(

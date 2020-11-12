@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytest
 from src import crud
-from src.domain_models.order_dm import LimitOrder, Order
+from src.domain_models.order_dm import ExecutionFailedException, LimitOrder, Order
 from src.game.feature_unlocker.feature_unlocker import feature_unlocker
 from src.schemas.response import ResultException, Success
 from src.tests.utils.common import get_mock_user, get_test_order, mock_return
@@ -44,11 +44,42 @@ def test_order_submit(monkeypatch, mocker):
         mock_create_order.assert_called()  # Assert crud function is called
 
 
-def test_order_try_execute():
+def test_order_try_execute(monkeypatch):
 
     Order.__abstractmethods__ = set()
 
     order = get_test_order(Order, symbol="symbol", qty=10, user=get_mock_user(), db=None, trade_type="trade_type")
+    monkeypatch.setattr(order, "is_trading", mock_return(False))
+    with pytest.raises(ResultException):  # Should fail
+        order.try_execute().ok()
+
+    monkeypatch.setattr(order, "is_trading", mock_return(True))
+    with mock.patch(
+        "src.domain_models.order_dm.Order._try_execute"
+    ) as mock__try_execute:  # Mock out .schema() function
+        order.try_execute()
+        mock__try_execute.assert_called()  # Assert function is called
+
+
+@mock.patch("src.domain_models.trade_dm.Trade.new")
+def test_order_execute(test_new):
+
+    Order.__abstractmethods__ = set()
+
+    order = get_test_order(Order, symbol="symbol", qty=10, user=get_mock_user(), db=None, trade_type="trade_type")
+
+    mock_trade = mock.MagicMock()
+    test_new.return_value = mock_trade
+
+    order.execute(0)
+    mock_trade.execute.assert_called()  # Asser that this function is called
+
+    mock_trade.execute.return_value = mock.Mock(success=False)
+    with pytest.raises(ExecutionFailedException):
+        order.execute(0)
+
+    mock_trade.execute.return_value = mock.Mock(success=True)
+    assert order.execute(0).success
 
 
 def test_limitorder_check_submit(mock_feature_unlocker):

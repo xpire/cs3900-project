@@ -51,6 +51,16 @@ when the server is not running. Ultimately fell through due to limited number of
     Need to solve for server shutdown on the day of an order being placed.
 
 Week 8:
-Working on tutorial pages - markdown for content, then standard api to be exposed
-Did some bug fixes on limit trading
-Working on PyTests and PyDocs
+Created 5 tutorials in markdown for Justin to directly implant into the website
+Debugged limit order trading - there was an issue with recursive trades that would drain all balance then crash
+Did majority of documentation/docstrings for entire backend
+Discussed with group during garage session how to modify front end to be more user friendly
+    - more information to be displayed while performing trades (side panels etc.)
+    - trading moved to stock details page
+    - clearer navigation
+Worked with group to prepare demonstration + retrospective
+
+Week 9
+Finished documentation for backend
+Working on report
+Will be working on testing for account statistics

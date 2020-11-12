@@ -1,3 +1,15 @@
+"""
+This entire file handles the statistics calculations of the users portfolio
+This includes individual calculations for longs and shorts,
+and also for the overall combined portfolio.
+
+We attempt to provide all statistics that would be useful to novice traders
+(e.g. return, average paid, profit/loss), while leaving out some that probably
+would not make sense to them (e.g. volume, market cap, PE ratio, etc.)
+
+See 'understanding_stats.md' for definitions of the statistics we provide.
+"""
+
 from abc import ABC, abstractmethod
 from datetime import datetime
 
@@ -10,6 +22,14 @@ from src.domain_models.data_provider.setup import get_data_provider
 
 
 def position_to_dict(p):
+    """Compiles a positions stats into dictionary form
+
+    Args:
+        p (Position): a currently open position
+
+    Returns:
+        Dict: dictionary of that positions statistics
+    """
     entry = {}
     entry["symbol"] = p.symbol
     entry["name"] = p.stock.name
@@ -63,9 +83,25 @@ class PortfolioStat(ABC):
 
 class HalfPortfolioStat(PortfolioStat):
     def _opening_value_abs(self, p):
+        """Total paid
+
+        Args:
+            p (Position): a portfolio position
+
+        Returns:
+            float: total paid for that position
+        """
         return p.qty * p.avg
 
     def _closing_value_abs(self, p):
+        """Current worth of that position if sold now
+
+        Args:
+            p (Position): a portfolio position
+
+        Returns:
+            float: total current value
+        """
         return p.qty * curr_price(p.symbol)
 
     @abstractmethod
@@ -85,6 +121,14 @@ class HalfPortfolioStat(PortfolioStat):
         pass
 
     def _price_change_since_open(self, p):
+        """Read the title
+
+        Args:
+            p (Position): a portfolio position
+
+        Returns:
+            float: price change since opening on that day
+        """
         return curr_price(p.symbol) - open_price(p.symbol)
 
     @abstractmethod
@@ -158,15 +202,35 @@ class CombinedPortfolioStat(PortfolioStat):
         self.short = short
 
     def total_profit(self):
+        """Total profit if all longs were sold, and all shorts were covered
+
+        Returns:
+            float: total profit
+        """
         return self.long.total_profit() + self.short.total_profit()
 
     def total_closing_value(self):
+        """Total value of closing after closing all long and short positions
+
+        Returns:
+            float: total closing value
+        """
         return self.long.total_closing_value() + self.short.total_closing_value()
 
     def total_buy_value(self):
+        """Total cost of opening all positions
+
+        Returns:
+            float: total buy value
+        """
         return self.long.total_buy_value() + self.short.total_buy_value()
 
     def total_daily_profit(self):
+        """Total profit for the current day
+
+        Returns:
+            float: total daily profit
+        """
         return self.long.total_daily_profit() + self.short.total_daily_profit()
 
 
@@ -180,15 +244,35 @@ class AccountStat:
         self.portfolio = CombinedPortfolioStat(self.long, self.short)
 
     def net_worth(self):
+        """Balance + value of all positions if closed
+
+        Returns:
+            float: net worth
+        """
         return self.balance + self.portfolio.total_closing_value()
 
     def gross_value(self):
+        """Balance + value of all long positions if closed
+
+        Returns:
+            float: gross value
+        """
         return self.balance + self.long.total_closing_value()
 
     def short_balance(self):
+        """Amount user is allowed to short sell
+
+        Returns:
+            float: short balance
+        """
         return self.gross_value() * self.short_allowance_rate - self.short.total_opening_value()
 
     def compile_portfolio_stats(self):
+        """Compiles portfolio statistics for frontend
+
+        Returns:
+            PortfolioStatAPIout: nicely formatted stats for frontend
+        """
         return schemas.PortfolioStatAPIout(
             total_long_value=self.long.total_closing_value(),
             total_short_value=self.short.total_closing_value(),
@@ -211,12 +295,26 @@ class AccountStat:
         )
 
     def get_positions_info(self, is_long=True):
+        """gets list of a certain position type
+
+        Args:
+            is_long (bool, optional): True if long positions are desired. Defaults to True.
+        """
+
         def to_position_schema(p):
             return schemas.PositionAPIout(**position_to_dict(p))
 
         return [to_position_schema(p) for p in self.get_positions(is_long)]
 
     def get_profit_info_for_transaction(self, t: schemas.TransactionBase):
+        """Calculates profit on a single transaction to help users make decisions
+
+        Args:
+            t (schemas.TransactionBase): transaction type
+
+        Returns:
+            Dict: profit as amount and percentage
+        """
         is_long = t.trade_type.is_long
         p = find(self.get_positions(is_long), symbol=t.symbol)
         profit_per_unit = (t.price - p.avg) * (1 if is_long else -1)
@@ -224,6 +322,14 @@ class AccountStat:
         return dict(profit=profit_per_unit * t.qty, profit_percentage=div(profit_per_unit, buy_value))
 
     def get_positions(self, is_long=True):
+        """Gets all positions of a certain type
+
+        Args:
+            is_long (bool, optional): True if long positions are desired. Defaults to True.
+
+        Returns:
+            Model: long or short positions
+        """
         return self.user.model.long_positions if is_long else self.user.model.short_positions
 
     @property
@@ -235,6 +341,11 @@ class AccountStat:
         return self.user.short_allowance_rate
 
     def get_net_worth_history(self):
+        """Returns list of users snapshotted net worth for graphing purposes
+
+        Returns:
+            [type]: [description]
+        """
         data = []
         for entry in self.user.model.net_worth_history:
             data += [
@@ -252,6 +363,9 @@ class AccountStat:
 
 class PortfolioWorthPublisher:
     def update(self):
+        """
+        Updates database with users current net worth
+        """
         db = SessionThreadLocal()
 
         user_models = crud.user.get_all_users(db)
@@ -270,16 +384,51 @@ class PortfolioWorthPublisher:
 
 
 def curr_price(symbol):
+    """Gets current price of a stock
+
+    Args:
+        symbol (str): stock symbol
+
+    Returns:
+        float: current price of symbol
+    """
     return get_data_provider().curr_price(symbol)
 
 
 def open_price(symbol):
+    """Get the opening price of a stock
+
+    Args:
+        symbol (str): stock symbol
+
+    Returns:
+        float: opening price of symbol
+    """
     return get_data_provider().get_curr_day_open(symbol)
 
 
 def div(a, b, default=0):
+    """Safe division
+
+    Args:
+        a (float): number
+        b (float): number
+        default (int, optional): saftey measure. Defaults to 0.
+
+    Returns:
+        float: a/b if safe, else 0
+    """
     return default if b is 0 else a / b
 
 
 def total(positions, stat):
+    """Sums up a certain stat for a certain position
+
+    Args:
+        positions (Position): type of position
+        stat (Stat): desired stat
+
+    Returns:
+        float: sum of that stat for that position
+    """
     return sum((stat(p) for p in positions))

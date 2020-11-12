@@ -1,3 +1,14 @@
+"""
+This file communicates with twelvedata through its API to retrieve the necessary
+stock data for our application.
+Data retrieved includes:
+    - historical daily prices
+    - minute resolution updates to prices
+    - stock information
+Historical data is stored in our database, and minute updates are cached for quick acccess
+without constant API calls
+"""
+
 import datetime as dt
 
 from src.core.config import settings

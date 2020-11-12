@@ -1,3 +1,7 @@
+"""
+Database model for users watchlist
+"""
+
 from sqlalchemy import Column, ForeignKey, String
 from sqlalchemy.orm import relationship
 from src.db.base_model import BaseModel

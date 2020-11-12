@@ -1,3 +1,7 @@
+"""
+Schema for each trade type that can be executed
+"""
+
 from datetime import datetime
 from enum import Enum, auto
 from typing import Any

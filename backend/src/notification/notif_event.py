@@ -1,3 +1,7 @@
+"""
+Schema for notifications of events
+"""
+
 from abc import abstractmethod
 from enum import auto
 from typing import Any

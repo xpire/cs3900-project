@@ -1,3 +1,8 @@
+"""
+Schema for time series data
+A.k.a historical data for each stock
+"""
+
 from datetime import date
 
 from pydantic import BaseModel as BaseSchema

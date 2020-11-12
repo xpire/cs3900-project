@@ -1,3 +1,7 @@
+"""
+Database model for users transactions - executed and cancelled
+"""
+
 from sqlalchemy import Boolean, Column, Enum, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import DateTime

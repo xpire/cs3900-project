@@ -1,9 +1,5 @@
 """
-    File name: base.py
-    Author: Peiyu Tang
-    Date created: 10/14/2020
-    Python Version: 3.7.3
-    Purpose: A base for CRUD operations.
+A base for CRUD operations.
 """
 
 

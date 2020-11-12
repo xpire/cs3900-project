@@ -6,7 +6,7 @@ Ok, so there's just one last thing to teach you, and that's **Short Selling**. T
 
 You're probably wondering how this works, right? Essentially, you're borrowing stocks of a company from someone to sell, or **SHORT**, at some price. You then need to repay, or **COVER**, these stocks later, hopefully at a lower price than what you shorted them for.<br>
 
-When you **SHORT** sell stocks, this is also refered to as "opening a short position". You then close these positions by buying to **COVER**.<br>
+When you **SHORT** sell stocks, this is also refered to as "opening a _short_ position". You then close these positions by buying to **COVER**.<br>
 
 Also, if you noticed above I said "at some price". That's because you can also place **SHORT** and **COVER** orders as limit orders! Just imagine the possibilites...<br>
 

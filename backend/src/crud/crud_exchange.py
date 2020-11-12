@@ -1,3 +1,7 @@
+"""
+Mimicks a database and gives stock exchange objects for opening/closing times
+"""
+
 from datetime import timedelta
 from typing import List, Optional
 

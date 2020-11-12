@@ -1,3 +1,7 @@
+"""
+Provides necessary stock information to functions through out the code base
+"""
+
 from abc import ABC, abstractmethod, abstractproperty
 
 

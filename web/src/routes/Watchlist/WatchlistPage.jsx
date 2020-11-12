@@ -9,7 +9,8 @@ import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import { format } from "../../utils/formatter";
 import useHandleSnack from "../../hooks/useHandleSnack";
 import axios from "../../utils/api";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { removeFromWatchlist } from "../../reducers";
 
 const headCells = [
   {
@@ -59,12 +60,8 @@ const headCells = [
 ];
 
 const Watchlist = () => {
-  const [deleted, setDeleted] = useState(0);
-  // const [data] = useRealTimeStockData("/watchlist", [deleted], []);
-
+  const dispatch = useDispatch();
   const data = useSelector((state) => state.user.watchlist);
-  console.log(data);
-
   const mappedData = data.map(
     ({ curr_day_close, exchange, name, curr_day_open, symbol }) => {
       return {
@@ -88,12 +85,7 @@ const Watchlist = () => {
           data={mappedData}
           header={headCells}
           title="Watch List"
-          handleDelete={({ symbol }) => {
-            axios
-              .delete(`/watchlist?symbol=${symbol}`)
-              .then(() => setDeleted(deleted + 1));
-          }}
-          handleRefresh={() => setDeleted(deleted + 1)}
+          handleDelete={({ symbol }) => dispatch(removeFromWatchlist(symbol))}
         />
       </Card>
     </Page>

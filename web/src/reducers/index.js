@@ -4,6 +4,8 @@ import axios from "../utils/api";
 export const UPDATE_USER = "UPDATE_USER";
 export const UPDATE_WATCHLIST = "UPDATE_WATCHLIST";
 export const UPDATE_STOCKS = "UPDATE_STOCKS";
+// export const ADD_TO_WATCHLIST = "ADD_TO_WATCHLIST";
+export const REMOVE_FROM_WATCHLIST = "REMOVE_FROM_WATCHLIST";
 
 const initialState = {
   user: {
@@ -72,7 +74,12 @@ const user = (state = initialState.user, action) => {
     case UPDATE_USER:
       return action.user;
     case UPDATE_WATCHLIST:
-      return { ...state, user: { ...state.user, watchlist: action.watchlist } };
+      return { ...state, watchlist: action.watchlist };
+    case REMOVE_FROM_WATCHLIST:
+      const watchlist = state.watchlist.filter(
+        (stock) => stock.symbol !== action.symbol
+      );
+      return { ...state, watchlist };
     default:
       return state;
   }
@@ -92,22 +99,31 @@ export default combineReducers({ user, stocks });
 /*
   SELECTORS
 */
-// export const getUser = (state) => state.user;
 
-const updateUser = (user) => ({
-  type: UPDATE_USER,
-  user,
-});
+/*
+  action creators
+*/
+// https://redux.js.org/recipes/reducing-boilerplate#action-creators
+function makeActionCreator(type, ...argNames) {
+  return function(...args) {
+    const action = { type };
+    argNames.forEach((arg, index) => {
+      action[argNames[index]] = args[index];
+    });
+    return action;
+  };
+}
 
-const updateWatchlist = (watchlist) => ({
-  type: UPDATE_WATCHLIST,
-  watchlist,
-});
+const updateUser = makeActionCreator(UPDATE_USER, "user");
+const updateWatchlist = makeActionCreator(UPDATE_WATCHLIST, "watchlist");
+const removeFromWatchlistSync = makeActionCreator(
+  REMOVE_FROM_WATCHLIST,
+  "symbol"
+);
 
 /*
   ACTIONS
 */
-
 function reloadFromAPI(endpoint, updateFn) {
   return () =>
     function(dispatch) {
@@ -119,12 +135,21 @@ function reloadFromAPI(endpoint, updateFn) {
 }
 
 export const reloadUser = reloadFromAPI("/user/detail", updateUser);
-export const reloadWatchlist = reloadFromAPI("/watchlist", updateWatchlist);
+// export const reloadWatchlist = reloadFromAPI("/watchlist", updateWatchlist);
 
-export function addWatchlist(symbol) {
+export function addToWatchlist(symbol) {
   return function(dispatch) {
-    // can sync update functions too
     axios.post(`/watchlist?symbol=${symbol}`).then(
+      (response) => dispatch(updateWatchlist(response.data)),
+      (error) => console.log("ERROR")
+    );
+  };
+}
+
+export function removeFromWatchlist(symbol) {
+  return function(dispatch) {
+    dispatch(removeFromWatchlistSync(symbol)); // make the change visible quickly
+    axios.delete(`/watchlist?symbol=${symbol}`).then(
       (response) => dispatch(updateWatchlist(response.data)),
       (error) => console.log("ERROR")
     );

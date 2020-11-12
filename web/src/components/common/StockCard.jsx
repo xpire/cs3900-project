@@ -19,7 +19,7 @@ import ColoredText, { useColoredText } from "../common/ColoredText";
 import useHandleSnack from "../../hooks/useHandleSnack";
 import TradingHoursIndicator from "../common/TradingHoursIndicator";
 import { useDispatch } from "react-redux";
-import { addWatchlist } from "../../reducers";
+import { addToWatchlist } from "../../reducers";
 
 const StyledCard = styled(Card)({ margin: "10px" });
 
@@ -128,7 +128,7 @@ const StockCard = ({
               <Button
                 size="small"
                 color="primary"
-                onClick={() => dispatch(addWatchlist(symbol))}
+                onClick={() => dispatch(addToWatchlist(symbol))}
               >
                 watch
               </Button>

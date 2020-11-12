@@ -18,6 +18,8 @@ import { Link } from "react-router-dom";
 import ColoredText, { useColoredText } from "../common/ColoredText";
 import useHandleSnack from "../../hooks/useHandleSnack";
 import TradingHoursIndicator from "../common/TradingHoursIndicator";
+import { useDispatch } from "react-redux";
+import { addWatchlist } from "../../reducers";
 
 const StyledCard = styled(Card)({ margin: "10px" });
 
@@ -34,7 +36,7 @@ const StockCard = ({
   skeleton,
   watchButton,
 }) => {
-  const handleSnack = useHandleSnack();
+  const dispatch = useDispatch();
   const [deltaColor] = useColoredText(price);
   // const myDelta = useDelta(price);
   // const [deltaColor, setDeltaColor] = useState(0);
@@ -126,9 +128,7 @@ const StockCard = ({
               <Button
                 size="small"
                 color="primary"
-                onClick={() =>
-                  handleSnack(`/watchlist?symbol=${symbol}`, "post")
-                }
+                onClick={() => dispatch(addWatchlist(symbol))}
               >
                 watch
               </Button>

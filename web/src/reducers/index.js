@@ -2,6 +2,7 @@ import { combineReducers } from "redux";
 import axios from "../utils/api";
 
 export const UPDATE_USER = "UPDATE_USER";
+export const UPDATE_WATCHLIST = "UPDATE_WATCHLIST";
 export const UPDATE_STOCKS = "UPDATE_STOCKS";
 
 const initialState = {
@@ -70,6 +71,8 @@ const user = (state = initialState.user, action) => {
   switch (action.type) {
     case UPDATE_USER:
       return action.user;
+    case UPDATE_WATCHLIST:
+      return { ...state, user: { ...state.user, watchlist: action.watchlist } };
     default:
       return state;
   }
@@ -89,21 +92,40 @@ export default combineReducers({ user, stocks });
 /*
   SELECTORS
 */
-export const getUser = (state) => state.user;
+// export const getUser = (state) => state.user;
 
 const updateUser = (user) => ({
   type: UPDATE_USER,
   user,
 });
 
+const updateWatchlist = (watchlist) => ({
+  type: UPDATE_WATCHLIST,
+  watchlist,
+});
+
 /*
   ACTIONS
 */
-export function reloadUser() {
-  return function(dispatch, getState) {
-    console.log("RELOAD USER");
-    axios.get("/user/detail").then(
-      (response) => dispatch(updateUser(response.data)),
+
+function reloadFromAPI(endpoint, updateFn) {
+  return () =>
+    function(dispatch) {
+      axios.get(endpoint).then(
+        (response) => dispatch(updateFn(response.data)),
+        (error) => console.log("ERROR reloading from " + endpoint)
+      );
+    };
+}
+
+export const reloadUser = reloadFromAPI("/user/detail", updateUser);
+export const reloadWatchlist = reloadFromAPI("/watchlist", updateWatchlist);
+
+export function addWatchlist(symbol) {
+  return function(dispatch) {
+    // can sync update functions too
+    axios.post(`/watchlist?symbol=${symbol}`).then(
+      (response) => dispatch(updateWatchlist(response.data)),
       (error) => console.log("ERROR")
     );
   };

@@ -8,6 +8,7 @@ import SortableTable, {
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import { format } from "../../utils/formatter";
 import useHandleSnack from "../../hooks/useHandleSnack";
+import axios from "../../utils/api";
 
 const headCells = [
   {
@@ -57,7 +58,6 @@ const headCells = [
 ];
 
 const Watchlist = () => {
-  // const [data, setData] = useState([]);
   const [deleted, setDeleted] = useState(0);
   const [data] = useRealTimeStockData("/watchlist", [deleted], []);
   const mappedData = data.map(
@@ -75,7 +75,6 @@ const Watchlist = () => {
       };
     }
   );
-  const handleSnack = useHandleSnack();
 
   return (
     <Page>
@@ -85,9 +84,9 @@ const Watchlist = () => {
           header={headCells}
           title="Watch List"
           handleDelete={({ symbol }) => {
-            handleSnack(`/watchlist?symbol=${symbol}`, "delete").then(() =>
-              setDeleted(deleted + 1)
-            );
+            axios
+              .delete(`/watchlist?symbol=${symbol}`)
+              .then(() => setDeleted(deleted + 1));
           }}
           handleRefresh={() => setDeleted(deleted + 1)}
         />

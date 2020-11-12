@@ -171,47 +171,12 @@ event_ws = router.websocket("/notifs")(make_notif_ws(notif_hub))
 update_ws = router.websocket("/updates")(make_notif_ws(update_hub))
 
 
-# @router.websocket("/notifs")
-# async def notif_ws(ws: WebSocket, db: Session = Depends(get_db)):
-#     """Establishes a websocket conenction with the client for future notifications to be pushed
-
-#     Args:
-#         ws (WebSocket): client websocket
-#         db (Session, optional): database session. Defaults to Depends(get_db).
-#     """
-
-#     await ws.accept()
-
-#     notifier = None
-#     try:
-#         print("VALIDATE USER")
-#         id_token = await receive_json(ws)
-
-#         try:
-#             uid = decode_token(id_token)
-#         except:
-#             print("INVALID AUTH MESSAGE RECEIVED:", id_token)
-#             uid = None
-
-#         user = crud.user.get_user_by_uid(db=db, uid=uid)
-
-#         if user:
-#             print("AUTHORISED")
-#             await ws.send_json(dict(msg="User authorised", is_error=False, type="auth"))
-#         else:
-#             print("NOT AUTHORISED")
-#             await ws.send_json(dict(msg="User not authorised", is_error=True, type="auth"))
-#             await ws.close()
-#             return
-
-#         notifier = Notifier(user)
-#         notif_hub.subscribe(notifier)
-#         while not AppStatus.should_exit:
-#             await notifier.flush(ws)
-
-#     except WebSocketDisconnect:
-#         print("USER DISCONNECTED")
-
-#     finally:
-#         if notifier is not None:
-#             notif_hub.unsusbscribe(notifier)
+@router.delete("")
+async def delete_user(
+    email: str,
+    db: Session = Depends(get_db),
+) -> bool:
+    """
+    Just a helper api for testing
+    """
+    return crud.user.delete_user_by_email(db, email=email)

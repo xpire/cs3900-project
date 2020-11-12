@@ -13,6 +13,14 @@ const useHandleSocketSnack = (setCelebration) => {
           key: `${lastJsonMessage.msg}`,
         });
         break;
+      case "generic":
+        const msg = lastJsonMessage.msg["title"];
+        enqueueSnackbar(`${msg}`, {
+          variant: "success",
+          preventDuplicate: true,
+          key: `${msg}`,
+        });
+        break;
       case "notif":
         enqueueSnackbar(lastJsonMessage.msg, {
           variant: "success",

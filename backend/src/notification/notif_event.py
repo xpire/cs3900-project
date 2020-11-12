@@ -12,6 +12,7 @@ from src.game.achievement.achievement import Achievement
 
 
 class NotifEventType(str, AutoName):
+    GENERIC = auto()
     LEVEL_UP = auto()
     ACHIEVEMENT_UNLOCKED = auto()
     FEATURE_UNLOCKED = auto()
@@ -30,6 +31,7 @@ class NotifMsg(BaseSchema):
     event_type: NotifEventType
     title: str
     content: str = ""
+    msg_type: str = "notif"
 
 
 class NotifEvent(BaseSchema):
@@ -39,6 +41,14 @@ class NotifEvent(BaseSchema):
     @abstractmethod
     def to_msg(self) -> NotifMsg:
         pass
+
+
+class GenericEvent(NotifEvent):
+    event_type: NotifEventType = Const(NotifEventType.GENERIC)
+    msg: str
+
+    def to_msg(self) -> NotifMsg:
+        return NotifMsg(event_type=self.event_type, title=self.msg, msg_type="generic")
 
 
 class UpdateEvent(NotifEvent):

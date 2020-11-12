@@ -3,7 +3,7 @@ from asyncio import Event
 from fastapi import WebSocket
 from src.core.async_exit import wait_until_exit
 
-from .notif_event import NotifEvent
+from .notif_event import GenericEvent, NotifEvent
 
 
 class NotificationHub:
@@ -92,7 +92,7 @@ class Notifier:
 
         for event in self.events:
             msg = event.to_msg().dict()
-            await ws.send_json(dict(msg=msg, is_error=False, type="notif"))
+            await ws.send_json(dict(msg=msg, is_error=False, type=msg["msg_type"]))
 
         self.events = []
         self.has_event.clear()
@@ -104,3 +104,4 @@ class Notifier:
 
 notif_hub = NotificationHub()
 update_hub = NotificationHub()
+send_msg = lambda user, msg: notif_hub.publish(GenericEvent(user=user, msg=msg))

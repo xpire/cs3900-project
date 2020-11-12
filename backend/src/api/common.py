@@ -8,8 +8,7 @@ from src.domain_models.user_dm import UserDM
 
 def get_user_detail(user) -> schemas.UserDetailAPIout:
     user_m = user.model
-
-    ret = schemas.UserDetailAPIout(
+    return schemas.UserDetailAPIout(
         basic=get_basic_detail(user),
         watchlist=get_watchlist(user_m),
         orders=get_orders(user_m),
@@ -19,16 +18,15 @@ def get_user_detail(user) -> schemas.UserDetailAPIout:
         leaderboard=get_leaderboard(user),
     )
 
-    print(ret)
-    return ret
-
-
 def get_basic_detail(user) -> schemas.BasicDetail:
     return schemas.BasicDetail(**user.schema.dict())
 
 
 def get_watchlist(user_m) -> List[schemas.StockAPIout]:
-    return [x.stock for x in user_m.watchlist]  # TODO see if this works
+    def to_schema(x):
+        return schemas.StockAPIout(**x.stock.dict())
+
+    return [to_schema(x) for x in user_m.watchlist]
 
 
 def get_orders(user_m) -> List[schemas.PendingOrderAPIout]:

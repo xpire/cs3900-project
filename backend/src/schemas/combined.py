@@ -15,10 +15,11 @@ class BasicDetail(BaseSchema):
     level: int
     exp: float
     exp_until_next_level: Optional[float]
-    exp_threshold: float
+    exp_threshold: Optional[float]
     is_max_level: bool
     last_reset: Optional[datetime]
     resets: int
+
 
 class UserDetailAPIout(BaseSchema):
     basic: BasicDetail

@@ -1,8 +1,10 @@
+import datetime as dt
 from unittest import mock
 
 import pytest
+from freezegun import freeze_time
 from src import crud
-from src.domain_models.order_dm import ExecutionFailedException, LimitOrder, Order
+from src.domain_models.order_dm import ExecutionFailedException, LimitOrder, MarketOrder, Order
 from src.game.feature_unlocker.feature_unlocker import feature_unlocker
 from src.schemas.response import ResultException, Success
 from src.tests.utils.common import get_mock_user, get_test_order, mock_return
@@ -100,3 +102,108 @@ def test_limitorder_check_submit(mock_feature_unlocker):
     order.limit_price = -1
     with pytest.raises(ResultException):  # Should fail
         order.check_submit().ok()
+
+
+@mock.patch("src.domain_models.order_dm.Order.get_curr_price")
+def test_limitorder__try_execute(mock_get_curr_price):
+
+    limit_price = 0
+    order = get_test_order(
+        LimitOrder,
+        limit_price=limit_price,
+        symbol="symbol",
+        qty=10,
+        user=get_mock_user(),
+        db=None,
+        trade_type="trade_type",
+    )
+    mock_get_curr_price.return_value = 10
+
+    with mock.patch.object(order, "can_execute") as mock_can_execute:
+        mock_can_execute.return_value = False
+        with pytest.raises(ResultException):  # Should fail
+            order._try_execute().ok()
+
+        mock_can_execute.return_value = True
+        with mock.patch.object(order, "execute") as mock_execute:
+            assert order._try_execute().success
+            mock_execute.assert_called_with(limit_price)
+
+
+def test_limitorder_can_execute():
+
+    limit_price = 10
+    trade_type = mock.MagicMock()
+    order = get_test_order(
+        LimitOrder,
+        limit_price=limit_price,
+        symbol="symbol",
+        qty=10,
+        user=get_mock_user(),
+        db=None,
+        trade_type=trade_type,
+    )
+
+    trade_type.is_buying = True
+    assert order.can_execute(9)
+    assert not order.can_execute(11)
+
+    trade_type.is_buying = False
+    assert not order.can_execute(9)
+    assert order.can_execute(11)
+
+
+def test_marketorder__try_execute():
+    order = get_test_order(
+        MarketOrder,
+        symbol="symbol",
+        qty=10,
+        user=get_mock_user(),
+        db=None,
+        trade_type="trade_type",
+    )
+
+    order.is_pending = True
+    with mock.patch.object(order, "try_execute_pending") as mock_try_execute_pending:
+        assert order._try_execute().success
+        mock_try_execute_pending.assert_called()
+
+    order.is_pending = False
+    with mock.patch.object(order, "execute") as mock_execute:
+        with mock.patch.object(order, "get_curr_price") as mock_get_curr_price:
+            mock_get_curr_price.return_value = 10
+
+            assert order._try_execute().success
+            mock_execute.assert_called_with(10)
+
+
+@freeze_time("2012-01-14 12:00:00")
+@mock.patch("src.domain_models.order_dm.find")
+@mock.patch("src.crud.exchange.get_exchange_by_name")
+@mock.patch("src.domain_models.trading_hours.next_open")
+def test_marketorder_try_executing_pending(mock_next_open, mock_get_exchange_by_name, mock_find):
+
+    order = get_test_order(
+        MarketOrder,
+        symbol="symbol",
+        qty=10,
+        user=get_mock_user(),
+        db=None,
+        trade_type="trade_type",
+    )
+    with mock.patch.object(order, "get_stock") as mock_get_stock:
+        stock = mock.MagicMock()
+        mock_get_stock.return_value = stock
+
+        mock_next_open.return_value = dt.datetime.now() + dt.timedelta(seconds=1)
+        assert not order.try_execute_pending().success
+
+        mock_next_open.return_value = dt.datetime.now() - dt.timedelta(seconds=1)
+        mock_find.return_value = None
+        assert not order.try_execute_pending().success
+
+        mock_find.return_value = mock.MagicMock()
+        mock_find.return_value.open = "open"
+        with mock.patch.object(order, "execute") as mock_execute:
+            assert order.try_execute_pending().success
+            mock_execute.assert_called_with("open")

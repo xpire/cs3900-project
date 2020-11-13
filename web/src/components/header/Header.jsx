@@ -50,7 +50,6 @@ const MyHeader = ({
   panels,
   sidePanelState: [sidePanel, setSidePanel],
 }) => {
-  const { user } = useContext(AuthContext);
   let location = useLocation();
   const [headerTitle, setHeaderTitle] = useState("Investment Simulator");
 
@@ -64,18 +63,19 @@ const MyHeader = ({
   };
 
   useEffect(() => setHeaderTitle(getTitle(location.pathname)), [location]);
-  let history = useHistory();
+  // const { user } = useContext(AuthContext);
+  // let history = useHistory();
 
-  const handleLogout = () => {
-    app.auth().signOut();
-    delete axios.defaults.headers.common["id-token"];
-    console.log("header now:", axios.defaults.headers.common["id-token"]);
-    history.push("/");
-  };
+  // const handleLogout = () => {
+  //   app.auth().signOut();
+  //   delete axios.defaults.headers.common["id-token"];
+  //   console.log("header now:", axios.defaults.headers.common["id-token"]);
+  //   history.push("/");
+  // };
 
-  const handleLogin = () => {
-    history.push("/signin");
-  };
+  // const handleLogin = () => {
+  //   history.push("/signin");
+  // };
 
   return (
     <Box zIndex={1201}>
@@ -87,7 +87,6 @@ const MyHeader = ({
           <HeaderTitle variant="h4">{headerTitle}</HeaderTitle>
 
           {/* ICONS */}
-          <Typography> Selected {sidePanel} </Typography>
           <StyledToggleButtonGroup
             value={sidePanel}
             exclusive

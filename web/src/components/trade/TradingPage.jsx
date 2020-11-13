@@ -263,11 +263,11 @@ const Trading = ({ symbol }) => {
           spacing={2}
         >
           <Grid item xs={3}>
-            Trading hours:
-            </Grid>
-          {/* <Grid item xs={9}>
+            Trading Hour: 
+          </Grid>
+          <Grid item xs={9}>
               <TradingHoursIndicator online={online} />
-            </Grid> */}
+            </Grid>
           <Grid item xs={3}>
             Trade Type:
             </Grid>

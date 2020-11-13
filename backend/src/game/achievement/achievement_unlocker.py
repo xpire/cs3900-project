@@ -31,7 +31,7 @@ class AchievementUnlocker(EventObserver):
 
         self.unlock(event.user, to_unlock)
 
-    def unlock(self, user: UserDM, to_unlock: List[Achievement]):
+    def unlock(self, user: "src.domain_models.user_dm.UserDM", to_unlock: List[Achievement]):
         """Unlocks achievements that have met their criteria
 
         Args:

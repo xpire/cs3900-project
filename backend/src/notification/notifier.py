@@ -1,6 +1,7 @@
 from asyncio import Event
 
 from fastapi import WebSocket
+from src import crud
 from src.core.async_exit import wait_until_exit
 
 from .notif_event import GenericEvent, NotifEvent
@@ -16,19 +17,17 @@ class NotificationHub:
         """
         uid = event.user.uid
 
+        # record notification
+        msg = event.to_msg()
+        if msg.msg_type == "notif":
+            crud.user.add_notification(msg=msg, user=event.user.model, db=event.user.db)
+
+        # ping notifiers
         if uid not in self.notifiers:
             return
 
         for notifier in self.notifiers[uid].values():
             notifier.update(event)
-
-    def publish_all(self, event):
-        """
-        Publish a notification [event] to all notifiers"
-        """
-        for group in self.notifiers.values():
-            for notifier in group:
-                notifier.update(event)
 
     def subscribe(self, notifier) -> bool:
         """
@@ -103,5 +102,4 @@ class Notifier:
 
 
 notif_hub = NotificationHub()
-update_hub = NotificationHub()
 send_msg = lambda user, msg: notif_hub.publish(GenericEvent(user=user, msg=msg))

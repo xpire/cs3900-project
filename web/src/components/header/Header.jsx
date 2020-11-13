@@ -4,11 +4,9 @@ import {
   Toolbar,
   Typography,
   Button,
-  useScrollTrigger,
-  Slide,
   Box,
+  IconButton,
 } from "@material-ui/core";
-import IconButton from "@material-ui/core/IconButton";
 import styled from "styled-components";
 import { useHistory, useLocation } from "react-router-dom";
 
@@ -17,6 +15,8 @@ import app from "../../utils/firebase";
 import { AuthContext } from "../../utils/authentication";
 import { locationToRoutes } from "../../utils/routes";
 import Logo from "../../logo.svg";
+import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
+import { withStyles } from "@material-ui/core/styles";
 
 const HeaderButton = styled(Button)`
   // color: white;
@@ -26,21 +26,30 @@ const HeaderTitle = styled(Typography)`
   flex-grow: 1;
 `;
 
-const ElevationScroll = ({ children }) => {
-  const trigger = useScrollTrigger({
-    disableHysteresis: true,
-    threshold: 0,
-  });
-
-  return React.cloneElement(children, {
-    elevation: trigger ? 4 : 0,
-  });
-};
+const StyledToggleButtonGroup = withStyles((theme) => ({
+  root: {
+    marginRight: "-18px",
+  },
+  grouped: {
+    margin: theme.spacing(0.75),
+    border: "none",
+    "&:not(:first-child)": {
+      borderRadius: 100,
+    },
+    "&:first-child": {
+      borderRadius: 100,
+    },
+  },
+}))(ToggleButtonGroup);
 
 /**
  * Header component for the website, with a button which opens the SideBar component
  */
-const MyHeader = ({ toggleMenu }) => {
+const MyHeader = ({
+  toggleMenu,
+  panels,
+  sidePanelState: [sidePanel, setSidePanel],
+}) => {
   const { user } = useContext(AuthContext);
   let location = useLocation();
   const [headerTitle, setHeaderTitle] = useState("Investment Simulator");
@@ -76,7 +85,21 @@ const MyHeader = ({ toggleMenu }) => {
             <img src={Logo} alt="X" height="40px" />
           </IconButton>
           <HeaderTitle variant="h4">{headerTitle}</HeaderTitle>
-          {user ? (
+
+          {/* ICONS */}
+          <Typography> Selected {sidePanel} </Typography>
+          <StyledToggleButtonGroup
+            value={sidePanel}
+            exclusive
+            onChange={(event, selected) => setSidePanel(selected)}
+          >
+            {panels.map(({ name, icon }) => (
+              <ToggleButton value={name}>{icon}</ToggleButton>
+            ))}
+          </StyledToggleButtonGroup>
+
+          {/* LOGOUT */}
+          {/* {user ? (
             <HeaderButton
               variant="contained"
               color="primary"
@@ -92,7 +115,7 @@ const MyHeader = ({ toggleMenu }) => {
             >
               Sign In
             </HeaderButton>
-          )}
+          )} */}
         </Toolbar>
       </AppBar>
     </Box>
@@ -100,6 +123,3 @@ const MyHeader = ({ toggleMenu }) => {
 };
 
 export default MyHeader;
-// export default styled(MyHeader)`
-//   height: 10vh;
-// `;

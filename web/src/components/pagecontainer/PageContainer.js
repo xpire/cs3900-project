@@ -13,8 +13,8 @@ import Hidden from "@material-ui/core/Hidden";
 import SidePanel from "../sidepanel/SidePanel";
 import { useDispatch } from "react-redux";
 import { reloadUser, reloadStocks } from "../../reducers";
+import { PANELS, DEFAULT_PANEL_NAME } from "../sidepanel/Panels";
 
-// Abstract the internal bits out
 const drawerWidth = 260;
 
 const useStyles = makeStyles((theme) => ({
@@ -42,12 +42,14 @@ const DATA_UPDATE_INTERVAL = 5000;
 
 export default function PageContainer() {
   const classes = useStyles();
-
   const location = useLocation();
+
+  // for navigation drawer
   const [isOpen, setOpen] = useState(false);
   const toggleDrawer = () => setOpen(!isOpen);
-  const dispatch = useDispatch();
 
+  // for redux data management
+  const dispatch = useDispatch();
   useEffect(() => {
     dispatch(reloadUser());
     dispatch(reloadStocks());
@@ -58,11 +60,24 @@ export default function PageContainer() {
     return () => clearInterval(interval);
   }, []);
 
+  // for sidepanel control
+  const [sidePanel, setSidePanel] = useState(DEFAULT_PANEL_NAME);
+  const selectSidePanel = (newPanel) => {
+    if (newPanel !== null) {
+      setSidePanel(newPanel);
+    }
+  };
+  const panel = PANELS.find((p) => p.name === sidePanel).panel;
+
   return (
     <div className={classes.root}>
       <CssBaseline />
       {/* Header */}
-      <Header toggleMenu={toggleDrawer} />
+      <Header
+        toggleMenu={toggleDrawer}
+        panels={PANELS}
+        sidePanelState={[sidePanel, selectSidePanel]}
+      />
 
       {/* Navigation SideBar */}
       <SideBar
@@ -92,7 +107,7 @@ export default function PageContainer() {
 
       {/* Side panel on the right */}
       <Hidden smDown>
-        <SidePanel classes={classes} />
+        <SidePanel classes={classes} panel={panel} />
       </Hidden>
     </div>
   );

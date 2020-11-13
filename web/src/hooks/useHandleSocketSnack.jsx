@@ -1,8 +1,11 @@
 import React from "react";
 import { useSnackbar } from "notistack";
 import DetailedSnackbar from "../components/common/DetailedSnackbar";
+import { useDispatch } from "react-redux";
+import { addNotif } from "../reducers";
 
 const useHandleSocketSnack = (setCelebration) => {
+  const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
   return (lastJsonMessage) => {
     switch (lastJsonMessage?.type) {

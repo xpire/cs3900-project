@@ -4,8 +4,8 @@ import axios from "../utils/api";
 export const UPDATE_USER = "UPDATE_USER";
 export const UPDATE_WATCHLIST = "UPDATE_WATCHLIST";
 export const UPDATE_STOCKS = "UPDATE_STOCKS";
-// export const ADD_TO_WATCHLIST = "ADD_TO_WATCHLIST";
 export const REMOVE_FROM_WATCHLIST = "REMOVE_FROM_WATCHLIST";
+export const ADD_NOTIF = "ADD_NOTIF";
 
 const initialState = {
   user: {
@@ -23,7 +23,7 @@ const initialState = {
     watchlist: [],
     orders: [],
     transactions: [],
-    porfolio: {
+    portfolio: {
       long: [],
       short: [],
     },
@@ -62,8 +62,10 @@ const initialState = {
       rankings: [],
       user_ranking: 1,
     },
+    notifications: [],
   },
   stocks: { data: [], is_loading: true },
+  // notifs: [],
 };
 
 /*
@@ -94,6 +96,16 @@ const stocks = (state = initialState.stocks, action) => {
   }
 };
 
+// const MAX_NOTIFS = 15;
+// const notifs = (state = initialState.notifs, action) => {
+//   switch (action.type) {
+//     case ADD_NOTIF:
+//       return [action.notif, ...state.slice(0, MAX_NOTIFS - 1)]; // limit the number of notifs stored
+//     default:
+//       return state;
+//   }
+// };
+
 export default combineReducers({ user, stocks });
 
 /*
@@ -121,6 +133,7 @@ const removeFromWatchlistSync = makeActionCreator(
   REMOVE_FROM_WATCHLIST,
   "symbol"
 );
+// export const addNotif = makeActionCreator(ADD_NOTIF, "notif");
 
 /*
   ACTIONS
@@ -140,7 +153,6 @@ export const reloadStocks = reloadFromAPI(
   "/stocks/real_time/all",
   updateStocks
 );
-// export const reloadWatchlist = reloadFromAPI("/watchlist", updateWatchlist);
 
 export function addToWatchlist(symbol) {
   return function(dispatch) {
@@ -153,7 +165,7 @@ export function addToWatchlist(symbol) {
 
 export function removeFromWatchlist(symbol) {
   return function(dispatch) {
-    dispatch(removeFromWatchlistSync(symbol)); // make the change visible quickly
+    dispatch(removeFromWatchlistSync(symbol)); // makes the change visible quickly
     axios.delete(`/watchlist?symbol=${symbol}`).then(
       (response) => dispatch(updateWatchlist(response.data)),
       (error) => console.log("ERROR")

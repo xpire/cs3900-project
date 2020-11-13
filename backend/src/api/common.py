@@ -17,6 +17,7 @@ def get_user_detail(user) -> schemas.UserDetailAPIout:
         portfolio=get_portfolio(user),
         stats=get_portfolio_stats(user),
         leaderboard=get_leaderboard(user),
+        notifications=get_notifications(user_m),
     )
 
 
@@ -27,12 +28,13 @@ def get_basic_detail(user) -> schemas.BasicDetail:
 def get_watchlist(user_m) -> List[schemas.StockRealTimeAPIout]:
     return [stock_to_realtime_schema(x.stock) for x in user_m.watchlist]
 
+
 def stock_to_realtime_schema(stock) -> schemas.StockRealTimeAPIout:
     return schemas.StockRealTimeAPIout(
-            **stock.dict(),
-            **dm.get_data_provider().data[stock.symbol],
-            **trading_hours_manager.get_trading_hours_info(stock).dict(),
-        )
+        **stock.dict(),
+        **dm.get_data_provider().data[stock.symbol],
+        **trading_hours_manager.get_trading_hours_info(stock).dict(),
+    )
 
 
 def get_orders(user_m) -> List[schemas.PendingOrderAPIout]:
@@ -88,3 +90,10 @@ def get_rank(rankings, uid):
     for rank, user in enumerate(rankings, 1):
         if user.uid == uid:
             return rank
+
+
+def get_notifications(user_m) -> schemas.NotificationAPIout:
+    def to_schema(notif):
+        return schemas.NotificationAPIout(**notif.dict())
+
+    return [to_schema(x) for x in user_m.notifications]

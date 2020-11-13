@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel as BaseSchema
+from src.schemas.notification import NotifEventType
 from src.schemas.pending_order import PendingOrderAPIout
 from src.schemas.portfolio import PortfolioAPIout, PortfolioStatAPIout
 from src.schemas.stock import StockRealTimeAPIout
@@ -21,6 +22,13 @@ class BasicDetail(BaseSchema):
     resets: int
 
 
+class NotificationAPIout(BaseSchema):
+    id: int
+    title: str
+    content: str = ""
+    event_type: NotifEventType
+
+
 class UserDetailAPIout(BaseSchema):
     basic: BasicDetail
     watchlist: List[StockRealTimeAPIout]
@@ -29,3 +37,4 @@ class UserDetailAPIout(BaseSchema):
     portfolio: PortfolioAPIout
     stats: PortfolioStatAPIout
     leaderboard: LeaderboardAPIout
+    notifications: List[NotificationAPIout]

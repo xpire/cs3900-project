@@ -6,8 +6,10 @@ from typing import Any
 from sqlalchemy.orm import Session
 from src.core.config import env_settings
 from src.crud.crud_stock import stock
+from src.db.session import SessionLocal, production_engine
 from src.models import (
     LongPosition,
+    Notification,
     ShortPosition,
     Stock,
     TimeSeries,
@@ -15,7 +17,6 @@ from src.models import (
     User,
     WatchList,
 )
-from src.db.session import SessionLocal, production_engine
 
 metadatas = [
     User.metadata,
@@ -25,6 +26,7 @@ metadatas = [
     LongPosition.metadata,
     UnlockedAchievement.metadata,
     ShortPosition.metadata,
+    Notification.metadata,
 ]
 
 

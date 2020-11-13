@@ -3,7 +3,8 @@ Unlocks features in the game as the user levels up
 """
 
 from src.game.event.event import GameEvent, GameEventType
-from src.notification import FeatureUnlockedEvent, UnlockableFeatureType, notif_hub
+from src.notification import FeatureUnlockedEvent, notif_hub
+from src.schemas.notification import UnlockableFeatureType
 
 
 class FeatureUnlocker:

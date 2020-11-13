@@ -8,7 +8,7 @@ from src.core.utilities import find
 from src.db.session import SessionThreadLocal
 from src.domain_models import trading_hours
 from src.game.feature_unlocker.feature_unlocker import feature_unlocker
-from src.notification.notif_event import UnlockableFeatureType
+from src.schemas.notification import UnlockableFeatureType
 from src.schemas.response import Fail, Result, Success, return_result
 from src.schemas.transaction import OrderType
 

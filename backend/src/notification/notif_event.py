@@ -7,31 +7,9 @@ from enum import auto
 from typing import Any
 
 from pydantic import BaseModel as BaseSchema
-from src.core.utilities import AutoName, Const
+from src.core.utilities import Const
 from src.game.achievement.achievement import Achievement
-
-
-class NotifEventType(str, AutoName):
-    GENERIC = auto()
-    LEVEL_UP = auto()
-    ACHIEVEMENT_UNLOCKED = auto()
-    FEATURE_UNLOCKED = auto()
-    ORDER_UPDATE = auto()
-    STOCK_UPDATE = auto()
-    RANKING_UPDATE = auto()
-
-
-class UnlockableFeatureType(str, AutoName):
-    LIMIT_ORDER = auto()
-    SHORT_25 = auto()
-    SHORT_50 = auto()
-
-
-class NotifMsg(BaseSchema):
-    event_type: NotifEventType
-    title: str
-    content: str = ""
-    msg_type: str = "notif"
+from src.schemas.notification import NotifEventType, NotifMsg, UnlockableFeatureType
 
 
 class NotifEvent(BaseSchema):
@@ -49,23 +27,6 @@ class GenericEvent(NotifEvent):
 
     def to_msg(self) -> NotifMsg:
         return NotifMsg(event_type=self.event_type, title=self.msg, msg_type="generic")
-
-
-class UpdateEvent(NotifEvent):
-    def to_msg(self) -> NotifMsg:
-        return NotifMsg(event_type=self.event_type, title="")
-
-
-class OrderUpdateEvent(UpdateEvent):
-    event_type: NotifEventType = Const(NotifEventType.ORDER_UPDATE)
-
-
-class StockUpdateEvent(UpdateEvent):
-    event_type: NotifEventType = Const(NotifEventType.STOCK_UPDATE)
-
-
-class RankingUpdateEvent(UpdateEvent):
-    event_type: NotifEventType = Const(NotifEventType.RANKING_UPDATE)
 
 
 class LevelUpEvent(NotifEvent):

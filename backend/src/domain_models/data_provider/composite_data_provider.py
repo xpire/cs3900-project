@@ -1,3 +1,7 @@
+"""
+Common hub for all data providers to communicate through.
+"""
+
 from .data_provider import DataProvider
 
 

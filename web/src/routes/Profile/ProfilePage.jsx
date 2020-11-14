@@ -15,7 +15,7 @@ import InteractiveRefresh from "../../components/common/InteractiveRefresh";
 import Cumulative from "../../components/graph/Cumulative";
 import { AuthContext } from "../../utils/authentication";
 import Page from "../../components/page/Page";
-import { StandardCard, DefaultCard } from "../../components/common/styled";
+import { StandardCard, BasicCard } from "../../components/common/styled";
 import useApi from "../../hooks/useApi";
 import { format } from "../../utils/formatter";
 import SortableTable, {
@@ -177,14 +177,14 @@ const Profile = () => {
           </StandardCard>
         </Grid>
         <Grid item xs={12}>
-          <DefaultCard>
+          <BasicCard>
             <SortableStockTable
               title="Transaction History"
               columns={columns}
               data={mappedTransactionData}
               isLoading={transactionDataLoading}
             />
-          </DefaultCard>
+          </BasicCard>
         </Grid>
       </Grid>
     </Page>

@@ -27,16 +27,16 @@ export const CenteredMotionDiv = styled(motion.div)`
   flex-direction: column;
 `;
 
-export const DefaultCard = materialStyled(Card)({
+export const BasicCard = materialStyled(Card)({
   margin: "10px",
 });
 
-export const StandardCard = materialStyled(DefaultCard)({
+export const StandardCard = materialStyled(BasicCard)({
   // padding: "10px",
   height: "95%",
 });
 
-export const InnerCard = materialStyled(DefaultCard)({
+export const InnerCard = materialStyled(BasicCard)({
   padding: "10px",
   height: "80%",
 });

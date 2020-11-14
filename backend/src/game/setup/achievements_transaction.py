@@ -1,3 +1,7 @@
+"""
+Trading achievements
+"""
+
 from itertools import product
 
 from src.game.achievement.achievement import Achievement
@@ -13,6 +17,13 @@ FIRST TRADES
 
 
 def ret_is_first_trade(*, trade_type, order_type):
+    """Checks if it's the users first trade
+
+    Args:
+        trade_type (TradeType): type of trade
+        order_type (OrderType): type of order
+    """
+
     def is_first_trade(e: TransactionEvent):
         t = e.transaction
         return t.trade_type == trade_type and t.order_type == order_type
@@ -21,6 +32,11 @@ def ret_is_first_trade(*, trade_type, order_type):
 
 
 def create_first_trade_achievements():
+    """Achievements for performing certian trades for the first time
+
+    Returns:
+        List[Achievement]: list of achievements
+    """
     START_ID = 3000
 
     data = {}
@@ -55,6 +71,12 @@ PROFITABLE TRADES
 
 
 def ret_is_profittable_trade(*, percentage):
+    """Returns whether or not a trade was profitable
+
+    Args:
+        percentage (float): amount to be profitable by
+    """
+
     def is_profittable_trade(e: TransactionEvent):
         if not isinstance(e.transaction, ClosingTransaction):
             return False
@@ -64,6 +86,12 @@ def ret_is_profittable_trade(*, percentage):
 
 
 def ret_check_profit_percentage(*, check):
+    """Checks how profitable a trade was
+
+    Args:
+        check (func): function to calculate whether or not a trade was profitable
+    """
+
     def check_profit_percentage(e: TransactionEvent):
         if not isinstance(e.transaction, ClosingTransaction):
             return False

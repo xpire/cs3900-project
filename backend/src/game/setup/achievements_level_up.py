@@ -1,3 +1,7 @@
+"""
+Level up achievements
+"""
+
 from src.game.achievement.achievement import Achievement
 from src.game.event.event import GameEventType
 from src.game.event.sub_events import LevelUpEvent
@@ -5,6 +9,12 @@ from src.game.setup.config import MAX_LEVEL
 
 
 def ret_has_reached_level(level):
+    """Checks if the user has reached a certain level
+
+    Args:
+        level (int): level to be reached
+    """
+
     def has_reached_level(e: LevelUpEvent):
         return e.new_level == level
 

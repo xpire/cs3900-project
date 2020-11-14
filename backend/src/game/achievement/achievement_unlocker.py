@@ -19,7 +19,11 @@ class AchievementUnlocker(EventObserver):
             self.groups[x.event_type][id] = x
 
     def update(self, event: GameEvent):
+        """Publishes an achievement to be unlocked
 
+        Args:
+            event (GameEvent): type of achievement event
+        """
         to_unlock = []
         for x in self.groups[event.event_type].values():
             if x.id not in event.user.unlocked_achievement_ids and x.can_unlock(event):
@@ -27,7 +31,13 @@ class AchievementUnlocker(EventObserver):
 
         self.unlock(event.user, to_unlock)
 
-    def unlock(self, user: UserDM, to_unlock: List[Achievement]):
+    def unlock(self, user: "src.domain_models.user_dm.UserDM", to_unlock: List[Achievement]):
+        """Unlocks achievements that have met their criteria
+
+        Args:
+            user (UserDM): user domain model
+            to_unlock (List[Achievement]): list of achievements whose criteria has been met
+        """
         exp = 0
         for x in to_unlock:
             achievement_event = AchievementUnlockedEvent(user=user, achievement=x)

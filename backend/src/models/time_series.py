@@ -1,3 +1,7 @@
+"""
+Database model for time series (historical) stock data
+"""
+
 from sqlalchemy import Column, Date, Float, ForeignKey, Integer, String
 from src.db.base_model import BaseModel
 

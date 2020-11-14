@@ -5,7 +5,11 @@ import { Grid } from "@material-ui/core";
 import StockCard from "./StockCard";
 import { format } from "../../utils/formatter";
 
-const CardGrid = ({ data }) => {
+const CardGrid = ({ data, renderWatchlist, watchlist }) => {
+  // const is_watched = (symbol) => {
+  //   watchlist.some(item => symbol === item)
+  // }
+
   return (
     <Grid
       container
@@ -32,6 +36,7 @@ const CardGrid = ({ data }) => {
           if (curr_day_close !== undefined && prev_day_close !== undefined) {
             delta = (100 * (curr_day_close - prev_day_close)) / prev_day_close;
           }
+
           return (
             <Grid item md={4} sm={6} xs={12} key={index}>
               <StockCard
@@ -43,6 +48,8 @@ const CardGrid = ({ data }) => {
                 key={symbol}
                 online={is_trading}
                 skeleton={skeleton}
+                watchlistRender={renderWatchlist}
+                watchlistdata={watchlist}
               />
             </Grid>
           );

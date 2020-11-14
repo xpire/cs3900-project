@@ -68,7 +68,7 @@ const MyHeader = ({ toggleMenu }) => {
 
   return (
     <ElevationScroll>
-      <AppBar position="sticky" color="secondary">
+      <AppBar position="sticky" style={{backgroundColor: "#424242"}}>
         <Toolbar>
           <IconButton edge="start" onClick={toggleMenu}>
             <img src={Logo} alt="X" height="40px" />

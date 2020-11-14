@@ -1,3 +1,9 @@
+"""
+Setup file for our stock data
+Includes both real market stocks through twelvedata and our own simulated stocks
+Maintains TD API limits as well
+"""
+
 import itertools as it
 from datetime import timedelta
 

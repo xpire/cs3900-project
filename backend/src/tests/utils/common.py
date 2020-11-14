@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from src.core.config import settings
 from src.core.utilities import log_msg
 from src.db.base_model import BaseModel
+from src.domain_models.order_dm import LimitOrder, Order
 from src.domain_models.user_dm import UserDM
 from src.models import all_models
 
@@ -26,9 +27,7 @@ def generate_random_user(*, is_init: bool) -> Dict:
         "level": 0 if is_init else random.randint(0, 10),
         "exp": 0 if is_init else random_float(interval=(0, 100)),
         "resets": 0 if is_init else random.randint(0, 10),
-        "last_reset": dt.datetime.now()
-        if is_init
-        else randomtimestamp(start_year=dt.datetime.now().year, text=False),
+        "last_reset": dt.datetime.now() if is_init else randomtimestamp(start_year=dt.datetime.now().year, text=False),
     }
 
 
@@ -79,8 +78,33 @@ def set_db_state(
     else:
         log_msg(f"Cannot add model {model.__class__} to database.", "ERROR")
 
-def user_diff_checker(db: Session,test_users: List[Dict], checker: Callable, ):
+
+def user_diff_checker(
+    db: Session,
+    test_users: List[Dict],
+    checker: Callable,
+):
     md_objs = set_db_state(db=db, model=md.User, state=test_users)
     user_dms = [UserDM(user_m=md, db=db) for md in md_objs]
     for dm, user in zip(user_dms, test_users):
         checker(dm=dm, user=user)
+
+
+def get_mock_user():
+    class MockUser:
+        def __init__(self):
+            self.level = 0
+
+    return MockUser()
+
+
+def get_test_order(Class, *args, **kwargs):
+
+    return Class(*args, **kwargs)
+
+
+def mock_return(value):
+    def mock_return_value():
+        return value
+
+    return mock_return_value

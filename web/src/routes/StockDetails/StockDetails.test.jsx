@@ -2,6 +2,21 @@ import React from "react";
 import { render } from "@testing-library/react";
 import { SnackbarProvider } from "notistack";
 import StockDetailsPage from "./StockDetailsPage";
+import ApexCharts from "apexcharts";
+import ReactApexChart from "react-apexcharts";
+
+jest.mock("react-apexcharts", () =>
+  jest.fn(() => {
+    return null;
+  })
+);
+jest.mock("apexcharts", () => ({
+  exec: jest.fn(() => {
+    return new Promise((resolve, reject) => {
+      resolve("uri");
+    });
+  }),
+}));
 
 import routeData from "react-router";
 

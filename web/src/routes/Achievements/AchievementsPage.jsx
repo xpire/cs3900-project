@@ -60,7 +60,7 @@ const Achievements = () => {
                 <CardContent>
                   <Typography
                     variant="h4"
-                    color={is_unlocked ? "primary" : "primaryText"}
+                    color={is_unlocked ? "primary" : "textPrimary"}
                   >
                     {name}
                   </Typography>

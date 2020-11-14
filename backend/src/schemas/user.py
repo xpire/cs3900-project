@@ -1,3 +1,7 @@
+"""
+Schema for user information and statistics
+"""
+
 from datetime import datetime
 from typing import List, Optional
 

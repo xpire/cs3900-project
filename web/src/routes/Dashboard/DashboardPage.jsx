@@ -17,19 +17,10 @@ import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import useApi from "../../hooks/useApi";
 import { format } from "../../utils/formatter";
 
-// import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
-
 const CardsSpaceDiv = styled.div`
   // min-height: 75vh;
   min-height: 100vh;
 `;
-
-// const parsedApexData = TimeSeriesData.AAPL.values
-//   .map(({ datetime, open, close, high, low }) => {
-//     // return { x: new Date(datetime), y: [open, high, low, close] };
-//     return [new Date(datetime), open];
-//   })
-//   .slice(0, 120);
 
 const StatCard = ({ name, value, stat, today }) => {
   const [delta] = useColoredText(stat);
@@ -118,18 +109,40 @@ const Dashboard = () => {
   });
 
   const [stats, setStats] = useState([
-    { name: "Portfolio Value", valueKey: "total_portfolio_value" },
-    { name: "Net Value", valueKey: "total_value" },
-    { name: "Profit", valueKey: "total_portfolio_profit" },
-    { name: "Available Balance", valueKey: "balance" },
+    {
+      name: "Portfolio Value",
+      valueKey: "total_portfolio_value",
+      statKey: "",
+      todayKey: "",
+    },
+    { name: "Net Value", valueKey: "total_value", statKey: "", todayKey: "" },
+    {
+      name: "Profit",
+      valueKey: "total_portfolio_profit",
+      statKey: "",
+      todayKey: "",
+    },
+    {
+      name: "Available Balance",
+      valueKey: "balance",
+      statKey: "",
+      todayKey: "",
+    },
   ]);
   useEffect(() => {
     axios
       .get("/portfolio/stats")
       .then((response) => {
         setStats((s) =>
-          s.map(({ valueKey, name }) => {
-            return { name: name, value: format(response.data[valueKey]) };
+          s.map(({ name, valueKey, statKey, todayKey }) => {
+            return {
+              name: name,
+              value: format(response.data[valueKey]),
+              stat: response.data[statKey]
+                ? format(response.data[statKey])
+                : response.data[statKey],
+              today: response.data[todayKey],
+            };
           })
         );
       })
@@ -231,6 +244,8 @@ const Dashboard = () => {
               data={
                 myValue === 0 ? longData : myValue === 1 ? shortData : watchData
               }
+              renderWatchlist={false}
+              watchlist={[[], (x) => x]}
             />
           </CardsSpaceDiv>
         </Grid>

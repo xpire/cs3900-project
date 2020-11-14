@@ -1,14 +1,12 @@
 import csv
 import logging
 from os import path
-from typing import Any, Optional
+from typing import Any
 
 from sqlalchemy.orm import Session
-from src.core.config import env_settings, settings
+from src.core.config import env_settings
 from src.crud.crud_stock import stock
-from src.db import base_model_import_all as base_model  # noqa: F401
-from src.db.base_model_import_all import (
-    BaseModel,
+from src.models import (
     LongPosition,
     ShortPosition,
     Stock,
@@ -31,9 +29,12 @@ metadatas = [
 
 
 def init_db(db: Session, is_test: bool, t_engine: Any) -> None:
-    """
-    Fill the stocks table with the selected stocks, also creates
-    the database if it doesn't exist.
+    """Fill the stocks table with the selected stocks, also creates the database if it doesn't exist.
+
+    Args:
+        db (Session): database session
+        is_test (bool): for pytest purposes
+        t_engine (Any): testing engine
     """
     engine = t_engine if is_test else production_engine
 

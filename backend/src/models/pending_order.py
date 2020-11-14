@@ -1,3 +1,7 @@
+"""
+Database model for pending orders - limit and after market
+"""
+
 from sqlalchemy import Column, DateTime, Enum, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from src.db.base_model import BaseModel

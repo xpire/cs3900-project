@@ -1,3 +1,7 @@
+"""
+Schema for stock exchange information
+"""
+
 import datetime as dt
 
 from pydantic import BaseModel as BaseSchema

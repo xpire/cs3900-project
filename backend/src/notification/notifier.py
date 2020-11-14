@@ -7,6 +7,11 @@ from .notif_event import NotifEvent
 
 
 class NotificationHub:
+    """
+    Cental location for notification events to be published. Allows for relay of
+    notification events to the appropriate [Notifier] instances.
+    """
+
     def __init__(self):
         self.notifiers = dict()
 
@@ -60,7 +65,13 @@ class NotificationHub:
 
 
 class Notifier:
-    def __init__(self, user):  # UserDM
+    """
+    Takes care of sending notifications to a particular client.
+    If the same user is accessing the system through multiple clients/devices, then
+    a notifier should be present for each of those clients.
+    """
+
+    def __init__(self, user):
         self.user = user
         self.events = []
         self.has_event = Event()

@@ -12,8 +12,10 @@ import {
   TableRow,
   Button,
   CircularProgress,
+  Tooltip,
 } from "@material-ui/core";
 import { Link, useParams, useHistory } from "react-router-dom";
+import List from '@material-ui/core/List';
 
 import Page from "../../components/page/Page";
 import { CenteredCard, StandardCard } from "../../components/common/styled";
@@ -23,10 +25,15 @@ import ColoredText, {
 import Candlestick from "../../components/graph/Candlestick";
 import { Skeleton } from "@material-ui/lab";
 import axios from "../../utils/api";
-// import ApexCandlestick from "../../components/graph/ApexCandlestick";
 import { format } from "../../utils/formatter";
 import useHandleSnack from "../../hooks/useHandleSnack";
-import TradingHoursIndicator from "../../components/common/TradingHoursIndicator";
+import Trade  from  "../../components/trade/TradingPage" 
+import { BasicCard } from "../../components/common/styled";
+import PortfolioPolar from "../../components/graph/PortfolioPolar";
+import StockDisplayTable from "../../components/common/StockDisplayTable";
+import SortableTable, {
+  tableTypes,
+} from "../../components/common/SortableTable";
 
 function createData(name, value) {
   return { name, value };
@@ -45,6 +52,60 @@ const rows = [
   createData("PE", 35649.9),
 ];
 
+const headCells = [
+  // {
+  //   id: "timestamp",
+  //   formatType: tableTypes.TEXT,
+  //   disablePadding: false,
+  //   label: "TimeStamp",
+  //   color: true,
+  // },
+  {
+    id: "symbol",
+    formatType: tableTypes.TEXT,
+    disablePadding: true,
+    label: "Symbol",
+  },
+  // {
+  //   id: "name",
+  //   formatType: tableTypes.TEXT,
+  //   disablePadding: false,
+  //   label: "Name",
+  // },
+  {
+    id: "order_type",
+    formatType: tableTypes.TEXT,
+    disablePadding: false,
+    label: "Order Type",
+  },
+  {
+    id: "trade_type",
+    formatType: tableTypes.TEXT,
+    disablePadding: false,
+    label: "Trade Type",
+  },
+  {
+    id: "price",
+    formatType: tableTypes.CURRENCY,
+    disablePadding: false,
+    label: "Price",
+  },
+  {
+    id: "qty",
+    formatType: tableTypes.NUMBER, 
+    disablePadding: false,
+    label: "Quantity",
+  },
+  {
+    id: "is_cancelled",
+    formatType: tableTypes.TEXT,
+    disablePadding: true,
+    label: "Status",
+    // color: true,
+  },
+];
+
+
 // prevent default behaviour for scroll event
 const preventDefault = (e) => {
   e = e || window.event;
@@ -54,22 +115,7 @@ const preventDefault = (e) => {
   e.returnValue = false;
 };
 
-const TableInfo = ({ rows }) => (
-  <TableContainer>
-    <Table>
-      <TableBody>
-        {rows.map((row) => (
-          <TableRow key={row.name}>
-            <TableCell component="th" scope="row">
-              {row.name}
-            </TableCell>
-            <TableCell align="right">{row.value}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  </TableContainer>
-);
+
 
 const StockDetails = () => {
   // grab the list of available stocks
@@ -83,23 +129,96 @@ const StockDetails = () => {
   const [error, setError] = useState(false);
   const { symbol } = useParams();
   let history = useHistory();
+  const [norm, setTableNorm] = useState([]);
+  const [transHist, setTransHist] = useState([]) 
+  const [portfolio, setPortfolio] = useState({
+    "long": [], 
+    "short": []
+  }); 
 
-  const getRealTimeStockData = () => {
-    axios
+
+  const L = 15;
+  const getRealTimeStockData = async () => {
+    await axios
       .get(`/stocks/real_time?symbols=${symbol}`)
       .then((response) => {
         const data = response.data;
+        const norm = (data[0].name.length < L);
+        const ttname = data[0].name
+        
+        if (norm) {
+          data[0].fullname = "placeholder";
+        }
+        else {
+          data[0].fullname = data[0].name; // Now name is abbrev
+          data[0].name = data[0].name.substring(0, L) + "...";
+        }
+        
+        // console.log(data[0].fullname)
         setStockData(data[0]);
+        setTableNorm([norm, ttname]); 
         setLoading(false);
       })
       .catch((err) => setError(true));
   };
 
+  const getCurrentPortfolio = async () => {
+    await axios
+      .get("/portfolio")
+      .then(response => {
+        const data = response.data;
+        console.log(data)
+        setPortfolio({
+          "long": data.long.map(
+            item => [`${item.symbol}: ${item.owned}`, Number(item.total_paid.toFixed(2))] 
+          ), 
+          "short": data.short.map(
+            item => [`${item.symbol}: ${item.owned}`, Number(item.total_paid.toFixed(2))]
+          )
+        })
+      })
+  }
+
+  const getHistTrans = async () => {
+    await axios 
+      .get("/transactions")
+      .then(response => {
+        const data = response.data
+        setTransHist(data.map(({
+          is_cancelled,
+          name,
+          order_type,
+          price,
+          qty,
+          symbol,
+          timestamp,
+          trade_type,
+          value,
+        }) => {
+          return {
+            is_cancelled: is_cancelled ? "cancelled" : "active",
+            // name: name,
+            order_type: order_type,
+            price: price.toFixed(2),
+            qty: qty,
+            symbol: symbol,
+            // timestamp: timestamp,
+            trade_type: trade_type,
+            value: value,
+          }
+        }))
+      }
+    )
+  } 
+
   useEffect(() => {
     getRealTimeStockData();
+    getCurrentPortfolio();
+    getHistTrans();
     const interval = setInterval(getRealTimeStockData, 5000);
     return () => clearInterval(interval);
   }, []);
+
 
   useEffect(() => {
     if ("curr_day_close" in stockData) {
@@ -144,9 +263,9 @@ const StockDetails = () => {
   return (
     <Page>
       {!error ? (
-        <Grid container direction="row" alignItems="stretch">
+        <Grid container direction="row" alignItems="stretch" >
           <Grid item md={3} sm={12} xs={12}>
-            <StandardCard>
+            <StandardCard style={{position: "relative"}}>
               <CardContent>
                 <Grid
                   direction="row"
@@ -160,7 +279,7 @@ const StockDetails = () => {
                     {loading ? <Skeleton /> : stockData.name}
                   </Typography> */}
                     {/* Add back when name is here*/}
-                    {!loading && (
+                    {/* {!loading && (
                       <Grid container spacing={1}>
                         <Grid item>
                           <Chip label={stockData.name} size="small" />
@@ -172,7 +291,21 @@ const StockDetails = () => {
                           <TradingHoursIndicator online={online} />
                         </Grid>
                       </Grid>
-                    )}
+                    )} */}
+                    <Grid style={{padding: "0"}}>
+                    <List dense={true}>
+                        <StockDisplayTable 
+                          name={stockData.name}
+                          exchange={stockData.exchange}
+                          industry={stockData.industry}
+                          currency={stockData.currency}
+                          type={stockData.type}
+                          fullname={norm[1]}
+                          renderStatus={norm[0]}
+                        />
+                    </List>
+                    </Grid>
+
                   </Grid>
                   <Grid item md={12} sm={6}>
                     <Grid item container direction="row-reverse">
@@ -188,7 +321,7 @@ const StockDetails = () => {
                       </Grid>
                     </Grid>
                     <Grid item container direction="row-reverse">
-                      <Grid item>
+                      <Grid item xs>
                         <ColoredText
                           color={dayGain > 0 ? "green" : "red"}
                           variant="h3"
@@ -202,25 +335,7 @@ const StockDetails = () => {
                   </Grid>
                 </Grid>
               </CardContent>
-              <CardActions>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  onClick={() => {
-                    handleSnack(`/watchlist?symbol=${symbol}`, "post");
-                  }}
-                >
-                  Watch
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  onClick={() => history.push(`/trade?symbol=${symbol}`)}
-                >
-                  Trade
-                </Button>
-              </CardActions>
+         
             </StandardCard>
           </Grid>
           <Grid item md={9} sm={12} xs={12}>
@@ -256,23 +371,38 @@ const StockDetails = () => {
               </CardContent>
             </StandardCard>
           </Grid>
-          <Grid item xs={12}>
-            <StandardCard>
-              <CardContent>
-                <Typography variant="h5">Further Information</Typography>
-                {/* TODO: populate this data with actual API */}
-                <Grid container direction="row">
-                  <Grid item sm={6} xs={12}>
-                    <TableInfo
-                      rows={rows.slice(0, Math.floor(rows.length / 2))}
-                    />
-                  </Grid>
-                  <Grid item sm={6} xs={12}>
-                    <TableInfo rows={rows.slice(Math.floor(rows.length / 2))} />
-                  </Grid>
+          <Grid item xs={6}>
+          <BasicCard sty>
+            <CardContent>
+              <Grid item container direction="row">
+                <Grid item xs={12} sm={6} >
+                  <Typography variant="h5">Long</Typography>
+                  <PortfolioPolar data={portfolio["long"]} />  
                 </Grid>
-              </CardContent>
-            </StandardCard>
+                   
+                <Grid item xs={12} sm={6} >
+                  <Typography variant="h5">Short</Typography>
+                  <PortfolioPolar data={portfolio["short"]} />  
+                </Grid>
+                <Grid item xs={12}>
+                <Typography variant="h5">Transaction History</Typography>
+                <SortableTable
+                  data={transHist}
+                  header={headCells}
+                  title="History"
+                  buttons={false}
+                  handleDelete={null}
+                  handleRefresh={null}
+                  toolbar={false}
+                />
+                </Grid>
+              </Grid>
+            </CardContent> 
+          </BasicCard>
+          </Grid>
+          
+          <Grid item xs={6}>
+          <Trade symbol={symbol} /> 
           </Grid>
         </Grid>
       ) : (
@@ -299,6 +429,8 @@ const StockDetails = () => {
           </CardActions>
         </CenteredCard>
       )}
+      
+    
     </Page>
   );
 };

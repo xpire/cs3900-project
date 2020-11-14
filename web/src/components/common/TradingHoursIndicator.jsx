@@ -19,6 +19,7 @@ const TradingHoursIndicator = ({ online }) => {
     >
       <Chip
         size="small"
+        variant="outlined"
         color={online ? "primary" : "default"}
         icon={online ? <OnlineIcon /> : <OfflineIcon />}
         label={online ? "Open" : "Closed"}

@@ -91,3 +91,6 @@ Week 8:
 - I was able to finish refactoring: all domain models (split user into user and statistic calculation code), all endpoints, all schemas, and all game features
 - technical obstacle: there were issues with some of domain model code raising HTTP400 exceptions intentionally and making the whole server crash, so I introduced what I call "Result" system which makes propagation of success/failure through the codebase and logging them easy.
 - I realised I also need to add in more achievements so I decided to work on that too, and managed to come up with a variety
+- I made a start on redesigning frontend UI, I drew up some sketches and shared them with my team. However, many of the designs were shot down because they were too ambitious, which I agree with, especially because we spent the whole day trying to figure out how to draw a side panel on the website.
+- To account for difficulties with frontend development, we decided to develop incrementally so we can merge visible progress into master steadily.
+- plan for next week: I will finish off redesigning the frontend UI (i.e. adding a helpful sidepanel on all pages)

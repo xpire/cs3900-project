@@ -2,6 +2,8 @@ import React from "react";
 import { useSnackbar } from "notistack";
 import DetailedSnackbar from "../components/common/DetailedSnackbar";
 
+let msg_id = 0;
+
 const useHandleSocketSnack = (setCelebration) => {
   const { enqueueSnackbar } = useSnackbar();
   return (lastJsonMessage) => {
@@ -14,11 +16,12 @@ const useHandleSocketSnack = (setCelebration) => {
         });
         break;
       case "generic":
+        msg_id++;
         const msg = lastJsonMessage.msg["title"];
         enqueueSnackbar(`${msg}`, {
           variant: "success",
-          preventDuplicate: true,
-          key: `${msg}`,
+          preventDuplicate: false,
+          key: msg_id,
         });
         break;
       case "notif":

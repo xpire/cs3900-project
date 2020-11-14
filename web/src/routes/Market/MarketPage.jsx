@@ -54,10 +54,7 @@ const Market = () => {
             endAdornment={
               <InputAdornment position="end">
                 {search !== "" && (
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={() => handleChange("")}
-                  >
+                  <IconButton onClick={() => handleChange("")}>
                     <ClearIcon />
                   </IconButton>
                 )}

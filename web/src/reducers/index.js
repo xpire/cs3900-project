@@ -2,10 +2,13 @@ import { combineReducers } from "redux";
 import axios from "../utils/api";
 
 export const UPDATE_USER = "UPDATE_USER";
-export const UPDATE_WATCHLIST = "UPDATE_WATCHLIST";
 export const UPDATE_STOCKS = "UPDATE_STOCKS";
+export const UPDATE_WATCHLIST = "UPDATE_WATCHLIST";
+export const ADD_TO_WATCHLIST = "ADD_TO_WATCHLIST";
 export const REMOVE_FROM_WATCHLIST = "REMOVE_FROM_WATCHLIST";
-export const ADD_NOTIF = "ADD_NOTIF";
+export const START_LOADING_WATCHLIST_SYMBOL = "START_LOADING_WATCHLIST_SYMBOL";
+export const FINISH_LOADING_WATCHLIST_SYMBOL =
+  "FINISH_LOADING_WATCHLIST_SYMBOL";
 
 const initialState = {
   user: {
@@ -65,6 +68,9 @@ const initialState = {
     notifications: [],
   },
   stocks: { data: [], dict: {}, is_loading: true },
+  is_loading: {
+    user: { watchlist: new Set() },
+  },
 };
 
 /*
@@ -76,11 +82,15 @@ const user = (state = initialState.user, action) => {
       return action.user;
     case UPDATE_WATCHLIST:
       return { ...state, watchlist: action.watchlist };
+    case ADD_TO_WATCHLIST:
+      const watchlist_added = [...state.watchlist, action.stock];
+      watchlist_added.sort((a, b) => (a.symbol > b.symbol ? 1 : -1));
+      return { ...state, watchlist: watchlist_added };
     case REMOVE_FROM_WATCHLIST:
-      const watchlist = state.watchlist.filter(
+      const watchlist_removed = state.watchlist.filter(
         (stock) => stock.symbol !== action.symbol
       );
-      return { ...state, watchlist };
+      return { ...state, watchlist: watchlist_removed };
     default:
       return state;
   }
@@ -100,14 +110,43 @@ const stocks = (state = initialState.stocks, action) => {
   }
 };
 
-export default combineReducers({ user, stocks });
+const is_loading = (state = initialState.is_loading, action) => {
+  switch (action.type) {
+    case START_LOADING_WATCHLIST_SYMBOL:
+      const watchlist_added = new Set(state.user.watchlist);
+      watchlist_added.add(action.symbol);
+      console.log("IS LOADING");
+      console.log(action.symbol);
+      console.log(watchlist_added);
+      return { ...state, user: { ...state.user, watchlist: watchlist_added } };
+    case FINISH_LOADING_WATCHLIST_SYMBOL:
+      const watchlist_removed = new Set(state.user.watchlist);
+      watchlist_removed.delete(action.symbol);
+      console.log("IS DONE");
+      console.log(watchlist_removed);
+      return {
+        ...state,
+        user: { ...state.user, watchlist: watchlist_removed },
+      };
+    default:
+      return state;
+  }
+};
+
+export default combineReducers({ user, stocks, is_loading });
 
 /*
   SELECTORS
 */
+const getWatchlist = (state) => state.user.watchlist;
+export const isSymbolInWatchlist = (symbol) => (state) =>
+  getWatchlist(state).findIndex((x) => x.symbol === symbol) !== -1;
+
+export const isSymbolInWatchlistLoading = (symbol) => (state) =>
+  state.is_loading.user.watchlist.has(symbol);
 
 /*
-  action creators
+  ACTION CREATORS
 */
 // https://redux.js.org/recipes/reducing-boilerplate#action-creators
 function makeActionCreator(type, ...argNames) {
@@ -123,8 +162,17 @@ function makeActionCreator(type, ...argNames) {
 const updateUser = makeActionCreator(UPDATE_USER, "user");
 const updateStocks = makeActionCreator(UPDATE_STOCKS, "stocks");
 const updateWatchlist = makeActionCreator(UPDATE_WATCHLIST, "watchlist");
+const addToWatchlistSync = makeActionCreator(ADD_TO_WATCHLIST, "stock");
 const removeFromWatchlistSync = makeActionCreator(
   REMOVE_FROM_WATCHLIST,
+  "symbol"
+);
+const startLoadingWatchlistSymbol = makeActionCreator(
+  START_LOADING_WATCHLIST_SYMBOL,
+  "symbol"
+);
+const finishLoadingWatchlistSymbol = makeActionCreator(
+  FINISH_LOADING_WATCHLIST_SYMBOL,
   "symbol"
 );
 
@@ -147,21 +195,27 @@ export const reloadStocks = reloadFromAPI(
   updateStocks
 );
 
-export function addToWatchlist(symbol) {
-  return function(dispatch) {
-    axios.post(`/watchlist?symbol=${symbol}`).then(
-      (response) => dispatch(updateWatchlist(response.data)),
-      (error) => console.log("ERROR")
-    );
+export function addToWatchlistWithSnack(symbol, handleSnack) {
+  return function(dispatch, getState) {
+    const stock = getState().stocks.dict[symbol];
+    dispatch(startLoadingWatchlistSymbol(symbol));
+    dispatch(addToWatchlistSync(stock));
+    handleSnack(`/watchlist?symbol=${symbol}`, "post")
+      .then((response) => {
+        dispatch(updateWatchlist(response.data));
+      })
+      .catch((error) => console.log(error))
+      .finally(() => dispatch(finishLoadingWatchlistSymbol(symbol)));
   };
 }
 
-export function removeFromWatchlist(symbol) {
+export function removeFromWatchlistWithSnack(symbol, handleSnack) {
   return function(dispatch) {
+    dispatch(startLoadingWatchlistSymbol(symbol));
     dispatch(removeFromWatchlistSync(symbol)); // makes the change visible quickly
-    axios.delete(`/watchlist?symbol=${symbol}`).then(
-      (response) => dispatch(updateWatchlist(response.data)),
-      (error) => console.log("ERROR")
-    );
+    handleSnack(`/watchlist?symbol=${symbol}`, "delete")
+      .then((response) => dispatch(updateWatchlist(response.data)))
+      .catch((error) => console.log(error))
+      .finally(() => dispatch(finishLoadingWatchlistSymbol(symbol)));
   };
 }

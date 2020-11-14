@@ -7,7 +7,8 @@ import SortableTable, {
 } from "../../components/common/SortableTable";
 import { format } from "../../utils/formatter";
 import { useDispatch, useSelector } from "react-redux";
-import { removeFromWatchlist } from "../../reducers";
+import { removeFromWatchlistWithSnack } from "../../reducers";
+import useHandleSnack from "../../hooks/useHandleSnack";
 
 const headCells = [
   {
@@ -58,6 +59,7 @@ const headCells = [
 
 const Watchlist = () => {
   const dispatch = useDispatch();
+  const handleSnack = useHandleSnack(true);
   const data = useSelector((state) => state.user.watchlist); // TODO add a selector that retrieves watchlist/orders with given stocks data
   const mappedData = data.map(
     ({ curr_day_close, exchange, name, curr_day_open, symbol }) => {
@@ -82,7 +84,9 @@ const Watchlist = () => {
           data={mappedData}
           header={headCells}
           title="Watchlist"
-          handleDelete={({ symbol }) => dispatch(removeFromWatchlist(symbol))}
+          handleDelete={({ symbol }) =>
+            dispatch(removeFromWatchlistWithSnack(symbol, handleSnack))
+          }
         />
       </Card>
     </Page>

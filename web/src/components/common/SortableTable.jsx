@@ -159,6 +159,7 @@ function EnhancedTable({
   handleDelete, // = null,
   buttons, // = true,
   handleRefresh, // = null,
+  toolbar, //==true
 }) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
@@ -171,7 +172,7 @@ function EnhancedTable({
 
   return (
     <div style={{ paddingBottom: "20px" }}>
-      <EnhancedTableToolbar title={title} handleRefresh={handleRefresh} />
+      { toolbar && (<EnhancedTableToolbar title={title} handleRefresh={handleRefresh}/>) }
       <TableContainer>
         <Table
           aria-labelledby="tableTitle"
@@ -226,6 +227,7 @@ function EnhancedTable({
                         <TableCell
                           component="th"
                           id={labelId}
+                          key={`${labelId}${value}`}
                           scope="row"
                           align={
                             formatType === "currency" ||
@@ -317,6 +319,7 @@ EnhancedTable.defaultProps = {
   handleDelete: null,
   buttons: true,
   handleRefresh: null,
+  toolbar: true
 };
 
 export default EnhancedTable;

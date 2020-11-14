@@ -75,7 +75,7 @@ const MyHeader = ({
 
   return (
     <Box zIndex={1201}>
-      <AppBar position="fixed" color="secondary">
+      <AppBar position="fixed" style={{ backgroundColor: "#424242" }}>
         <Toolbar>
           <IconButton edge="start" onClick={toggleMenu}>
             <img src={Logo} alt="X" height="40px" />

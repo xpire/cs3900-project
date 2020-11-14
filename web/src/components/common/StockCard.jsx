@@ -13,13 +13,14 @@ import {
 } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import { Link } from "react-router-dom";
-// import styled from "styled-components";
 
 import ColoredText, { useColoredText } from "../common/ColoredText";
 import useHandleSnack from "../../hooks/useHandleSnack";
 import TradingHoursIndicator from "../common/TradingHoursIndicator";
 import { useDispatch } from "react-redux";
 import { addToWatchlist } from "../../reducers";
+import VisibilityIcon from "@material-ui/icons/Visibility";
+import WatchListIndicator from "../common/WatchListIndicator";
 
 const StyledCard = styled(Card)({ margin: "10px" });
 
@@ -36,8 +37,10 @@ const StockCard = ({
   skeleton,
   watchButton,
 }) => {
-  const dispatch = useDispatch();
   const [deltaColor] = useColoredText(price);
+
+  /* implement selector symbol => watchlist */
+
   // const myDelta = useDelta(price);
   // const [deltaColor, setDeltaColor] = useState(0);
 
@@ -83,9 +86,6 @@ const StockCard = ({
                   <Grid item>
                     <Chip size="small" label={category} />
                   </Grid>
-                  <Grid item>
-                    <TradingHoursIndicator online={online} />
-                  </Grid>
                 </Grid>
                 <Grid container alignItems="flex-end" justify="space-between">
                   <Grid item>
@@ -124,23 +124,12 @@ const StockCard = ({
           <Skeleton variant="rect" height={30} width="100%" />
         ) : (
           <>
-            {watchButton && (
-              <Button
-                size="small"
-                color="primary"
-                onClick={() => dispatch(addToWatchlist(symbol))}
-              >
-                watch
-              </Button>
-            )}
-            <Button
-              size="small"
-              color="primary"
-              to={`/trade?symbol=${symbol}`}
-              component={Link}
-            >
-              trade
-            </Button>
+            <Grid container justify="space-between" alignItems="center">
+              {watchButton && <WatchListIndicator symbol={symbol} />}
+              <Grid item>
+                <TradingHoursIndicator online={online} />
+              </Grid>
+            </Grid>
           </>
         )}
       </CardActions>

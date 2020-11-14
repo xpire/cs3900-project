@@ -19,30 +19,49 @@ test_users = common_utils.generate_k_ranodm_users(
     shuffle=True,
 )
 
+
 @clean_up
 def test_propertie_test(db: Session):
-    def basic_property_checker(dm: Any, user: Dict) -> None:    
+    def basic_property_checker(dm: Any, user: Dict) -> None:
         assert user["exp"] == dm.exp
         assert user["level"] == dm.level
         assert user["balance"] == dm.balance
         assert user["uid"] == dm.uid
 
-    common_utils.user_diff_checker(db=db, test_users=test_users, checker=basic_property_checker, )
-    
+    common_utils.user_diff_checker(
+        db=db,
+        test_users=test_users,
+        checker=basic_property_checker,
+    )
 
 
 @clean_up
 def test_can_reset_portfolio(db: Session):
-    def can_reset_portfolio_checker(dm: Any, user: Dict): 
+    def can_reset_portfolio_checker(dm: Any, user: Dict):
         s = random.randint(1, settings.RESET_WAIT_PERIOD_SECONDS)
-        for ind, test_time in [(c, user['last_reset'] + dt.timedelta(seconds=settings.RESET_WAIT_PERIOD_SECONDS) + c * dt.timedelta(seconds=s)) for c in range(-1, 2)]:
+        for ind, test_time in [
+            (
+                c,
+                user["last_reset"]
+                + dt.timedelta(seconds=settings.RESET_WAIT_PERIOD_SECONDS)
+                + c * dt.timedelta(seconds=s),
+            )
+            for c in range(-1, 2)
+        ]:
             with freeze_time(test_time):
-                if (ind < 0): assert not dm.can_reset_portfolio() 
-                else: assert dm.can_reset_portfolio()
+                if ind < 0:
+                    assert not dm.can_reset_portfolio()
+                else:
+                    assert dm.can_reset_portfolio()
 
-    common_utils.user_diff_checker(db=db, test_users=test_users, checker=can_reset_portfolio_checker, )
+    common_utils.user_diff_checker(
+        db=db,
+        test_users=test_users,
+        checker=can_reset_portfolio_checker,
+    )
 
-@clean_up 
+
+@clean_up
 @freeze_time(dt.datetime.now() + dt.timedelta(seconds=settings.RESET_WAIT_PERIOD_SECONDS))
 def test_reset_portfolio(db: Session):
     def reset_portfolio_checker(dm: Any, user: Dict):
@@ -53,6 +72,10 @@ def test_reset_portfolio(db: Session):
         assert dm.model.short_positions == []
         assert dm.model.transactions == []
         assert dm.model.net_worth_history == []
-        assert dm.model.resets == (user['resets'] + 1)
+        assert dm.model.resets == (user["resets"] + 1)
 
-    common_utils.user_diff_checker(db=db, test_users=test_users, checker=reset_portfolio_checker, )
+    common_utils.user_diff_checker(
+        db=db,
+        test_users=test_users,
+        checker=reset_portfolio_checker,
+    )

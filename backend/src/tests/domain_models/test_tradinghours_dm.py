@@ -82,7 +82,7 @@ def test_tradinghoursmanager_is_trading_day():
             stock, dt.datetime.strptime("2020-11-13 12:00:00", DATETIME_FORMAT).date()
         )  # Friday
         assert not trading_hours.is_trading_day(
-            stock, dt.datetime.strptime("2020-11-14 12:00:00", format).date()
+            stock, dt.datetime.strptime("2020-11-14 12:00:00", DATETIME_FORMAT).date()
         )  # Saturday
 
         exchange.simulated = True

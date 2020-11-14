@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import PropTypes from "prop-types";
 import { useSnackbar, SnackbarContent } from "notistack";
 import {
   Typography,
@@ -28,6 +27,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export const getIcon = (eventType) =>
+  eventType === "LEVEL_UP" ? (
+    <LevelUpIcon />
+  ) : eventType === "ACHIEVMENT_UNLOCKED" ? (
+    <UnlockAchievementIcon />
+  ) : (
+    <UnlockFeatureIcon />
+  );
+
 /**
  * A SnackBar component custom designed with a subtitle section and an icon
  */
@@ -46,29 +54,26 @@ const DetailedSnackbar = React.forwardRef((props, ref) => {
     // };
   }, []);
 
+  const icon = getIcon(eventType);
+  const title = props.message.title;
+  const subtitle =
+    eventType === "ACHIEVEMENT_UNLOCKED"
+      ? `${props.message.content} xp`
+      : `${props.message.content}`;
+
   return (
     <SnackbarContent ref={ref} className={classes.root}>
       <Card className={classes.card}>
         <CardContent>
           <Grid container>
             <Grid item xs={2}>
-              {eventType === "LEVEL_UP" ? (
-                <LevelUpIcon />
-              ) : eventType === "ACHIEVMENT_UNLOCKED" ? (
-                <UnlockAchievementIcon />
-              ) : (
-                <UnlockFeatureIcon />
-              )}
+              {icon}
             </Grid>
             <Grid item xs={10}>
-              <Typography variant="subtitle2">
-                {eventType === "ACHIEVEMENT_UNLOCKED"
-                  ? `${props.message.title} xp`
-                  : `${props.message.title}`}
-              </Typography>
+              <Typography variant="subtitle2">{title}</Typography>
             </Grid>
             <Grid item xs={12}>
-              <Typography>{props.message.content}</Typography>
+              <Typography>{subtitle}</Typography>
             </Grid>
           </Grid>
         </CardContent>

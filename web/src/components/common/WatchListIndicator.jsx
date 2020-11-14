@@ -1,53 +1,52 @@
-import React, { useEffect, useState, useRef } from "react";
-import PropTypes from "prop-types";
+import React, { useEffect } from "react";
+import { Button } from "@material-ui/core";
+import VisibilityIcon from "@material-ui/icons/Visibility";
+import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import {
-  Button,
-} from "@material-ui/core";
-import VisibilityIcon from '@material-ui/icons/Visibility';
+  isSymbolInWatchlist,
+  addToWatchlistWithSnack,
+  removeFromWatchlistWithSnack,
+  isSymbolInWatchlistLoading,
+} from "../../reducers";
+import { useSelector, useDispatch } from "react-redux";
 import useHandleSnack from "../../hooks/useHandleSnack";
-import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 
 /**
  * Component to inidcate for watchlist
  */
-const WatchListIndicator = ({ watchlistdata, symbol }) => {
-  const handleSnack = useHandleSnack();
-  const [watched, watchListClick] = watchlistdata; 
+// TODO HANDLE SNACK FOR ERROR MESSAGES!
+const WatchListIndicator = ({ symbol }) => {
+  const dispatch = useDispatch();
+  const handleSnack = useHandleSnack(true);
+  const watched = useSelector(isSymbolInWatchlist(symbol));
+  const is_loading = useSelector(isSymbolInWatchlistLoading(symbol));
 
-  return (
-    !watched ? (
-      <Button
+  return !watched ? (
+    <Button
       size="small"
       color="primary"
-      startIcon={< VisibilityIcon />}
-      onClick={() => {
-        handleSnack(`/watchlist?symbol=${symbol}`, "post").then(() => watchListClick())
-      }}
-      >
-          watch
-        </Button >
-    ) : (
-      <Button
+      startIcon={<VisibilityIcon />}
+      onClick={() =>
+        !is_loading && dispatch(addToWatchlistWithSnack(symbol, handleSnack))
+      }
+    >
+      watch
+    </Button>
+  ) : (
+    <Button
       size="small"
-      // color="#ef5350"
-      style = {{
-        color: "#ef5350"
+      style={{
+        color: "#ef5350",
       }}
       startIcon={<VisibilityOffIcon />}
-      onClick={() => {
-        handleSnack(`/watchlist?symbol=${symbol}`, "delete").then(() => watchListClick())
-        }}>
-        un-watch
-      </Button >
-      )
+      onClick={() =>
+        !is_loading &&
+        dispatch(removeFromWatchlistWithSnack(symbol, handleSnack))
+      }
+    >
+      un-watch
+    </Button>
   );
-};
-
-
-WatchListIndicator.propTypes = {
-  /* Stores if the symbol is in the watchlist */
-  exist: PropTypes.bool,
-  /** Whether this card should display the Skeleton component to signify loading */
 };
 
 export default WatchListIndicator;

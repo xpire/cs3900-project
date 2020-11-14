@@ -13,7 +13,7 @@ from src.game.event.sub_events import StatUpdateEvent
 from src.game.feature_unlocker.feature_unlocker import feature_unlocker
 from src.game.setup.setup import achievements_list, event_hub, level_manager
 from src.models import UnlockedAchievement
-from src.notification.notif_event import UnlockableFeatureType
+from src.schemas.notification import UnlockableFeatureType
 from src.schemas.response import Fail, Result, Success, return_result
 
 
@@ -193,6 +193,7 @@ class UserDM:
         return schemas.UserAPIout(
             **schemas.UserDBout.from_orm(self.model).dict(),
             exp_until_next_level=self.exp_until_next_level,
+            exp_threshold=level_manager.get_threshold(self),
             is_max_level=self.is_max_level,
         )
 

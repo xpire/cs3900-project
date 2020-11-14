@@ -30,6 +30,7 @@ class UserCreate(UserBase):
 
 class UserAPIout(UserBase):
     exp_until_next_level: Optional[float]
+    exp_threshold: Optional[float]
     is_max_level: bool
 
 

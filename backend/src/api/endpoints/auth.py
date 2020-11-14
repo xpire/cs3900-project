@@ -4,6 +4,7 @@ from typing import List
 from fastapi import Depends, Header, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 from src import crud, models, schemas
+from src.api.common import get_user_detail
 from src.api.deps import (
     check_uid_email,
     check_user_exists,
@@ -19,6 +20,11 @@ from src.notification.notifier import Notifier, notif_hub
 from src.schemas.response import Result, ResultAPIRouter
 
 router = ResultAPIRouter()
+
+
+@router.get("/detail")
+async def get_detail(user=Depends(get_current_user_dm)) -> schemas.UserDetailAPIout:
+    return get_user_detail(user)
 
 
 @router.get("")
@@ -112,38 +118,36 @@ async def receive_json(ws: WebSocket):
     try:
         return await ws.receive_json()
     except JSONDecodeError:
-        return None
+        from asyncio import sleep
+
+        return sleep(0)
 
 
 @router.websocket("/notifs")
-async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
-    """Establishes a websocket conenction with the client for future notifications to be pushed
+async def notif_ws(ws: WebSocket, db: Session = Depends(get_db)):
+    """
+    Establishes a websocket conenction with the client for future notifications to be pushed
 
     Args:
         ws (WebSocket): client websocket
         db (Session, optional): database session. Defaults to Depends(get_db).
     """
-
     await ws.accept()
 
     notifier = None
     try:
-        print("VALIDATE USER")
         id_token = await receive_json(ws)
 
         try:
             uid = decode_token(id_token)
         except:
-            print("INVALID AUTH MESSAGE RECEIVED:", id_token)
             uid = None
 
         user = crud.user.get_user_by_uid(db=db, uid=uid)
 
         if user:
-            print("AUTHORISED")
             await ws.send_json(dict(msg="User authorised", is_error=False, type="auth"))
         else:
-            print("NOT AUTHORISED")
             await ws.send_json(dict(msg="User not authorised", is_error=True, type="auth"))
             await ws.close()
             return
@@ -154,7 +158,7 @@ async def websocket_endpoint(ws: WebSocket, db: Session = Depends(get_db)):
             await notifier.flush(ws)
 
     except WebSocketDisconnect:
-        print("USER DISCONNECTED")
+        pass
 
     finally:
         if notifier is not None:

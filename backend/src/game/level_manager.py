@@ -1,6 +1,6 @@
 from __future__ import annotations  # resolve circular typing depencies (regarding UserDM)
 
-from typing import List
+from typing import List, Optional
 
 from src.game.event.event_hub import EventHub
 from src.game.event.sub_events import LevelUpEvent as LevelUpGameEvent
@@ -24,13 +24,13 @@ class LevelManager:
         user.exp += amount
 
         while user.level < self.max_level and self.exp_until_next_level(user) <= 0:
-            user.exp -= self.get_threshold(user.level)
+            user.exp -= self.get_threshold(user)
             user.level += 1
 
             self.notif_hub.publish(LevelUpNotifEvent(user=user, new_level=user.level))
             self.event_hub.publish(LevelUpGameEvent(user=user, new_level=user.level))
 
-    def is_max_level(self, user: UserDM) -> bool:
+    def is_max_level(self, user) -> bool:
         """Returns whether the user is max level
 
         Args:
@@ -53,18 +53,21 @@ class LevelManager:
         if self.is_max_level(user):
             return None
         else:
-            return self.get_threshold(user.level) - user.exp
+            return self.get_threshold(user) - user.exp
 
-    def get_threshold(self, level: int) -> float:
+    def get_threshold(self, user) -> Optional[float]:
         """returns amount of exp needed to level up (from 0 exp)
 
         Args:
-            level (int): current level
+            user (UserDM): user domain model
 
         Returns:
-            float: amount of exp
+            Optional[float]: amount of exp
         """
-        return self.thresholds[level - 1]
+        if self.is_max_level(user):
+            return None
+        else:
+            return self.thresholds[user.level - 1]
 
     @property
     def max_level(self) -> int:

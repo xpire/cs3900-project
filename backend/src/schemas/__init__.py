@@ -8,6 +8,7 @@ Schemas
 - OrderType defines different order options (e.g. market, limit)
 """
 
+from .combined import BasicDetail, NotificationAPIout, UserDetailAPIout
 from .exchange import Exchange
 from .net_worth_time_series import NetWorthTimeSeriesAPIout, NetWorthTimeSeriesBase
 from .pending_order import LimitOrderDBcreate, MarketOrderDBcreate, PendingOrderAPIout, PendingOrderDBcreate

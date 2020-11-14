@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm
 from src import schemas
+from src.api import common
 from src.api.deps import check_symbol, get_db
 from src.domain_models.trading_hours import trading_hours_manager
 from src.schemas.response import RaiseFail, ResultAPIRouter
@@ -46,14 +47,21 @@ async def get_stocks(
     if len(stocks) != len(symbols):
         RaiseFail(f"Following symbols are requested but do not exist: {set(symbols) - set(stocks)}")
 
-    def to_schema(stock):
-        return schemas.StockRealTimeAPIout(
-            **stock.dict(),
-            **dm.get_data_provider().data[stock.symbol],
-            **trading_hours_manager.get_trading_hours_info(stock).dict(),
-        )
+    return [common.stock_to_realtime_schema(stock) for stock in stocks]
 
-    return [to_schema(stock) for stock in stocks]
+
+@router.get("/real_time/all")
+async def get_stocks(db: Session = Depends(get_db)) -> List[schemas.StockRealTimeAPIout]:
+    """API endpoint to get the realtime data for all stocks
+
+    Args:
+        db (Session, optional): database session. Defaults to Depends(get_db).
+
+    Returns:
+        List[schemas.StockRealTimeAPIout]: realtime data updates for all stocks
+    """
+    stocks = crud.stock.get_multi_by_symbols(db=db, symbols=dm.get_data_provider().symbols)
+    return [common.stock_to_realtime_schema(stock) for stock in stocks]
 
 
 @router.get("/time_series")

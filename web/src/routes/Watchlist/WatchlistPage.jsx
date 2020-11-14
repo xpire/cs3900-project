@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import { Card } from "@material-ui/core";
 
 import Page from "../../components/page/Page";
 import SortableTable, {
   tableTypes,
 } from "../../components/common/SortableTable";
-import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import { format } from "../../utils/formatter";
+import { useDispatch, useSelector } from "react-redux";
+import { removeFromWatchlistWithSnack } from "../../reducers";
 import useHandleSnack from "../../hooks/useHandleSnack";
 
 const headCells = [
@@ -57,9 +58,9 @@ const headCells = [
 ];
 
 const Watchlist = () => {
-  // const [data, setData] = useState([]);
-  const [deleted, setDeleted] = useState(0);
-  const [data] = useRealTimeStockData("/watchlist", [deleted], []);
+  const dispatch = useDispatch();
+  const handleSnack = useHandleSnack(true);
+  const data = useSelector((state) => state.user.watchlist); // TODO add a selector that retrieves watchlist/orders with given stocks data
   const mappedData = data.map(
     ({ curr_day_close, exchange, name, curr_day_open, symbol }) => {
       return {
@@ -75,7 +76,6 @@ const Watchlist = () => {
       };
     }
   );
-  const handleSnack = useHandleSnack();
 
   return (
     <Page>
@@ -83,13 +83,10 @@ const Watchlist = () => {
         <SortableTable
           data={mappedData}
           header={headCells}
-          title="Watch List"
-          handleDelete={({ symbol }) => {
-            handleSnack(`/watchlist?symbol=${symbol}`, "delete").then(() =>
-              setDeleted(deleted + 1)
-            );
-          }}
-          handleRefresh={() => setDeleted(deleted + 1)}
+          title="Watchlist"
+          handleDelete={({ symbol }) =>
+            dispatch(removeFromWatchlistWithSnack(symbol, handleSnack))
+          }
         />
       </Card>
     </Page>

@@ -45,3 +45,6 @@ class User(BaseModel):
 
     # net worth history
     net_worth_history = has("NetWorthTimeSeries")
+
+    # notifications
+    notifications = has("Notification")

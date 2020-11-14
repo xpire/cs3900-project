@@ -1,5 +1,5 @@
 """
-Schema for notifications of events
+Schemas for different types of notification events
 """
 
 from abc import abstractmethod

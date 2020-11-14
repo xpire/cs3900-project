@@ -109,9 +109,8 @@ def fail_save(func):
 
     return inner
 
-    # Modified based on https://stackoverflow.com/questions/35241643/convert-datetime-time-into-datetime-timedelta-in-python-3-4
 
-
+# Modified based on https://stackoverflow.com/questions/35241643/convert-datetime-time-into-datetime-timedelta-in-python-3-4
 def as_delta(time: dt.time):
     """Converts a time object to a time delta object
 

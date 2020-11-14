@@ -1,5 +1,8 @@
-# Import all the models, so that Base has them before being
-# imported by Alembic
+"""
+Database Management
+- Handles the management of the database such as setting up, activation and establishing connection
+- Defines the base form that all database models should follow
+"""
 from src.db.base_model import BaseModel  # noqa
 from src.models.notification import Notification
 from src.models.stock import Stock  # noqa

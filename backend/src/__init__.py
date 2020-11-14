@@ -17,5 +17,4 @@ Brief overview of the top-level directories (logically organised):
 - [notification]: implements the user notification system that occurs through websockets
 
 - [test]: aggregation of all tests
-- [tutorials]: user tutorials
 """

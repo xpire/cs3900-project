@@ -58,7 +58,7 @@ const headCells = [
 
 const Watchlist = () => {
   const dispatch = useDispatch();
-  const data = useSelector((state) => state.user.watchlist);
+  const data = useSelector((state) => state.user.watchlist); // TODO add a selector that retrieves watchlist/orders with given stocks data
   const mappedData = data.map(
     ({ curr_day_close, exchange, name, curr_day_open, symbol }) => {
       return {

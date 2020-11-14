@@ -18,15 +18,24 @@ def get_user_detail(user) -> schemas.UserDetailAPIout:
         stats=get_portfolio_stats(user),
         leaderboard=get_leaderboard(user),
         notifications=get_notifications(user_m),
+        # stocks=get_stocks_for_user(user_m)
     )
+
+# TODO consider this for performance optimisation
+# def get_stocks_for_user(user_m) -> List[schemas.StockRealTimeAPIout]:
+#     stocks = set(x.stock for x in user_m.watchlist) + set(x.stock for x in user_m.orders)
+#     return [stock_to_realtime_schema(x) for x in stocks]
 
 
 def get_basic_detail(user) -> schemas.BasicDetail:
     return schemas.BasicDetail(**user.schema.dict())
 
 
-def get_watchlist(user_m) -> List[schemas.StockRealTimeAPIout]:
-    return [stock_to_realtime_schema(x.stock) for x in user_m.watchlist]
+def get_watchlist(user_m) -> List[schemas.StockAPIout]:
+    def to_schema(stock):
+        return schemas.StockAPIout(**stock.dict())
+
+    return [to_schema(x.stock) for x in user_m.watchlist]
 
 
 def stock_to_realtime_schema(stock) -> schemas.StockRealTimeAPIout:

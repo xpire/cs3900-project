@@ -15,11 +15,7 @@ function OrdersTable({ orders, stocks }) {
             order_type === "LIMIT"
               ? `${trade_type} ${qty} of ${symbol} @ $${format(limit_price)}`
               : `${trade_type} ${qty} of ${symbol} @ market open`;
-          const price =
-            "$" +
-            format(
-              stocks.find((stock) => stock.symbol === symbol).curr_day_close
-            );
+          const price = "$" + format(stocks[symbol].curr_day_close);
           return <Typography>{msg + " current price: " + price}</Typography>;
         })}
     </div>
@@ -46,7 +42,7 @@ function TransactionsTable({ data }) {
 function OrdersPanel() {
   const orders = useSelector((state) => state.user.orders);
   const transactions = useSelector((state) => state.user.transactions);
-  const stocks = useSelector((state) => state.stocks.data);
+  const stocks = useSelector((state) => state.stocks.dict);
 
   const tab1 = {
     label: "Orders",

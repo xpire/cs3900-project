@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AppBar,
   Toolbar,
@@ -8,11 +8,7 @@ import {
   IconButton,
 } from "@material-ui/core";
 import styled from "styled-components";
-import { useHistory, useLocation } from "react-router-dom";
-
-import axios from "../../utils/api";
-import app from "../../utils/firebase";
-import { AuthContext } from "../../utils/authentication";
+import { useLocation } from "react-router-dom";
 import { locationToRoutes } from "../../utils/routes";
 import Logo from "../../logo.svg";
 import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";

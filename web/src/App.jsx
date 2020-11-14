@@ -1,14 +1,6 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import {
-  Button,
-  Card,
-  Toolbar,
-  Typography,
-  AppBar,
-  CssBaseline,
-} from "@material-ui/core";
-// import Hidden from "@material-ui/core/Hidden";
+import { Button } from "@material-ui/core";
 
 import { AuthProvider } from "./utils/authentication";
 import { SnackbarProvider } from "notistack";

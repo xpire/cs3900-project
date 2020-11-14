@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const DATA_UPDATE_INTERVAL = 5000;
+const DATA_UPDATE_INTERVAL = 10000;
 
 export default function PageContainer() {
   const classes = useStyles();

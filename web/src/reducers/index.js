@@ -64,8 +64,7 @@ const initialState = {
     },
     notifications: [],
   },
-  stocks: { data: [], is_loading: true },
-  // notifs: [],
+  stocks: { data: [], dict: {}, is_loading: true },
 };
 
 /*
@@ -90,21 +89,16 @@ const user = (state = initialState.user, action) => {
 const stocks = (state = initialState.stocks, action) => {
   switch (action.type) {
     case UPDATE_STOCKS:
-      return { data: action.stocks, is_loading: false };
+      const data = action.stocks;
+      const dict = data.reduce((acc, stock) => {
+        acc[stock.symbol] = stock;
+        return acc;
+      }, {});
+      return { data, dict, is_loading: false };
     default:
       return state;
   }
 };
-
-// const MAX_NOTIFS = 15;
-// const notifs = (state = initialState.notifs, action) => {
-//   switch (action.type) {
-//     case ADD_NOTIF:
-//       return [action.notif, ...state.slice(0, MAX_NOTIFS - 1)]; // limit the number of notifs stored
-//     default:
-//       return state;
-//   }
-// };
 
 export default combineReducers({ user, stocks });
 
@@ -133,7 +127,6 @@ const removeFromWatchlistSync = makeActionCreator(
   REMOVE_FROM_WATCHLIST,
   "symbol"
 );
-// export const addNotif = makeActionCreator(ADD_NOTIF, "notif");
 
 /*
   ACTIONS

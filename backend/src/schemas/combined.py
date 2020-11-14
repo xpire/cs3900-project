@@ -5,7 +5,7 @@ from pydantic import BaseModel as BaseSchema
 from src.schemas.notification import NotifEventType
 from src.schemas.pending_order import PendingOrderAPIout
 from src.schemas.portfolio import PortfolioAPIout, PortfolioStatAPIout
-from src.schemas.stock import StockRealTimeAPIout
+from src.schemas.stock import StockAPIout
 from src.schemas.transaction import TransactionAPIout
 from src.schemas.user import LeaderboardAPIout
 
@@ -31,7 +31,7 @@ class NotificationAPIout(BaseSchema):
 
 class UserDetailAPIout(BaseSchema):
     basic: BasicDetail
-    watchlist: List[StockRealTimeAPIout]
+    watchlist: List[StockAPIout]
     orders: List[PendingOrderAPIout]
     transactions: List[TransactionAPIout]
     portfolio: PortfolioAPIout

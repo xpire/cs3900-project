@@ -1,4 +1,5 @@
 """
-Game System
-- Collection of modules that implements the "game-like" features of the application
+Event Management
+- Defines various game event types that are important for the rest of the game system
+- Handles the flow of game events (e.g. subscribe/publish) through the application
 """

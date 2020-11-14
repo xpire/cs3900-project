@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Button } from "@material-ui/core";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
@@ -11,14 +11,11 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import useHandleSnack from "../../hooks/useHandleSnack";
 
-/**
- * Component to inidcate for watchlist
- */
-// TODO HANDLE SNACK FOR ERROR MESSAGES!
 const WatchListIndicator = ({ symbol }) => {
   const dispatch = useDispatch();
   const handleSnack = useHandleSnack(true);
-  const watched = useSelector(isSymbolInWatchlist(symbol));
+
+  const watched = useSelector(isSymbolInWatchlist(symbol), (a, b) => a == b);
   const is_loading = useSelector(isSymbolInWatchlistLoading(symbol));
 
   return !watched ? (
@@ -49,4 +46,4 @@ const WatchListIndicator = ({ symbol }) => {
   );
 };
 
-export default WatchListIndicator;
+export default React.memo(WatchListIndicator);

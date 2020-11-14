@@ -4,7 +4,7 @@
  * @param {integer} decimalPlace number of decimal places
  */
 export const format = (d, decimalPlace = 2) => {
-  return Number(d).toFixed(decimalPlace);
+  return new Number(d).toFixed(decimalPlace);
 };
 
 // export const money = (d, decimalPlace = 2) => {

@@ -163,7 +163,11 @@ const Dashboard = () => {
                   />
                 </Grid>
               </Grid>
-              {!graphLoading && <Cumulative data={graph} />}
+              {!graphLoading ? (
+                <Cumulative data={graph} />
+              ) : (
+                <Skeleton variant="rect" height={350} />
+              )}
             </CardContent>
           </StandardCard>
         </Grid>
@@ -187,13 +191,13 @@ const Dashboard = () => {
                         case 1:
                           setForceUpdate({
                             ...forceUpdate,
-                            long: forceUpdate.short + 1,
+                            short: forceUpdate.short + 1,
                           });
                           break;
                         case 2:
                           setForceUpdate({
                             ...forceUpdate,
-                            long: forceUpdate.watch + 1,
+                            watch: forceUpdate.watch + 1,
                           });
                           break;
                         default:

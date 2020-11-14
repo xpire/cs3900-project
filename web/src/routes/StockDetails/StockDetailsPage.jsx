@@ -141,6 +141,14 @@ const StockDetails = () => {
 
   const [delta] = useColoredText(latestPrice);
 
+  const [left, setLeft] = useState(true);
+  const [margin, setMargin] = useState({
+    left: 70,
+    right: 70,
+    top: 20,
+    bottom: 30,
+  });
+
   return (
     <Page>
       {!error ? (
@@ -250,7 +258,11 @@ const StockDetails = () => {
                   {timeSeries === null ? (
                     <CircularProgress color="primary" size={50} />
                   ) : (
-                    <Candlestick data={timeSeries} type="hybrid" />
+                    <Candlestick
+                      data={timeSeries}
+                      type="hybrid"
+                      leftEdge={left}
+                    />
                   )}
                 </div>
               </CardContent>
@@ -259,6 +271,7 @@ const StockDetails = () => {
           <Grid item xs={12}>
             <StandardCard>
               <CardContent>
+                <button onClick={() => setLeft(!left)}>left edge</button>
                 <Typography variant="h5">Further Information</Typography>
                 {/* TODO: populate this data with actual API */}
                 <Grid container direction="row">

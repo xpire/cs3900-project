@@ -39,7 +39,7 @@ function descendingComparator(a, b, orderBy) {
 /**
  * Returns ascending/descending comparator based on inputs
  */
-function getComparator(order, orderBy) {
+export function getComparator(order, orderBy) {
   return order === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
@@ -48,7 +48,7 @@ function getComparator(order, orderBy) {
 /**
  * Implements stableSort on array with comparator
  */
-function stableSort(array, comparator) {
+export function stableSort(array, comparator) {
   const stabilizedThis = array.map((el, index) => [el, index]);
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);

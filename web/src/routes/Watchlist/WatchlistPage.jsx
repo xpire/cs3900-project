@@ -5,61 +5,73 @@ import Page from "../../components/page/Page";
 import SortableTable, {
   tableTypes,
 } from "../../components/common/SortableTable";
+import SortableStockTable, {
+  RenderItem,
+} from "../../components/common/SortableStockTable";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import { format } from "../../utils/formatter";
 import useHandleSnack from "../../hooks/useHandleSnack";
 
-const headCells = [
+const columns = [
   {
-    id: "symbol",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Symbol",
+    field: "symbol",
+    title: (
+      <RenderItem
+        title="Symbol"
+        subtitle="Exchange/Name"
+        alignItems="flex-start"
+      />
+    ),
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.symbol}
+        titleType={tableTypes.TEXT}
+        subtitle={rowData.exchange}
+        subtitleType={tableTypes.TEXT}
+        subsubtitle={rowData.name}
+        subsubtitleType={tableTypes.TEXT}
+        alignItems="flex-start"
+      />
+    ),
   },
   {
-    id: "name",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Name",
+    field: "price",
+    title: <RenderItem title="Price" subtitle="Prev. Open" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.price}
+        titleType={tableTypes.CURRENCY}
+        subtitle={rowData.open}
+        subtitleType={tableTypes.CURRENCY}
+      />
+    ),
+    align: "right",
   },
   {
-    id: "exchange",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Exchange",
-  },
-  {
-    id: "price",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Price",
-  },
-  {
-    id: "open",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Open",
-  },
-  {
-    id: "daily",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Day Change",
-    color: true,
-  },
-  {
-    id: "dailyPercentage",
-    formatType: tableTypes.PERCENTAGE,
-    disablePadding: false,
-    label: "% Day Change",
-    color: true,
+    field: "value",
+    title: <RenderItem title="Daily" subtitle="%Daily" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.daily}
+        titleType={tableTypes.CURRENCY}
+        titleColor={true}
+        subtitle={rowData.dailyPercentage}
+        subtitleColor={true}
+        subtitleType={tableTypes.PERCENTAGE}
+      />
+    ),
+    align: "right",
   },
 ];
 
 const Watchlist = () => {
   // const [data, setData] = useState([]);
   const [deleted, setDeleted] = useState(0);
-  const [data] = useRealTimeStockData("/watchlist", [deleted], []);
+  const [data, loading, updateSymbols] = useRealTimeStockData(
+    "/watchlist",
+    [deleted],
+    []
+  );
   const mappedData = data.map(
     ({ curr_day_close, exchange, name, curr_day_open, symbol }) => {
       return {
@@ -77,19 +89,26 @@ const Watchlist = () => {
   );
   const handleSnack = useHandleSnack();
 
+  const handleDelete = () => {
+    console.log("watchist", deleted + 1);
+    setDeleted(deleted + 1);
+    console.log("watchist after", deleted + 1);
+  };
+
   return (
     <Page>
       <Card>
-        <SortableTable
+        <SortableStockTable
           data={mappedData}
-          header={headCells}
+          columns={columns}
           title="Watch List"
+          isLoading={loading}
           handleDelete={({ symbol }) => {
             handleSnack(`/watchlist?symbol=${symbol}`, "delete").then(() =>
-              setDeleted(deleted + 1)
+              updateSymbols()
             );
           }}
-          handleRefresh={() => setDeleted(deleted + 1)}
+          handleRefresh={handleDelete}
         />
       </Card>
     </Page>

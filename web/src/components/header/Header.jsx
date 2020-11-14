@@ -5,7 +5,6 @@ import {
   Typography,
   Button,
   useScrollTrigger,
-  Slide,
 } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import styled from "styled-components";

@@ -5,11 +5,11 @@ Formed group and decided roles. Discussed and decided on candidate projects, eve
 
 Week 2
 
-We had a meeting to decide possible extensions to add on to the base specifications for novelty marks. At this point, it is undecided what extensions we are settling on, we need to do this preferably early next week. 
+We had a meeting to decide possible extensions to add on to the base specifications for novelty marks. At this point, it is undecided what extensions we are settling on, we need to do this preferably early next week.
 
 I started working on the user stories for the Project Proposal. The user stories have acceptance criteria, user points and priorities. I also worked on the Background section of the proposal.
 
-We also had a meeting to 
+We also had a meeting to
 
 Group To Do:
 - Settle on extensions
@@ -20,7 +20,7 @@ Group To Do:
 
 Week 3
 
-This week we worked on and finished the Project Proposal, my role in particular was to research about existing trading simulators, and also work on forming user stories for our project. We decided on a final set of extensions that we converted to their own user stories, we decided that we can cut any number of them if time constraints become an issue. Through many meetings and refinements, we finished the user stories and their corresponding epics, allocating story points and priority ranks to each of them. 
+This week we worked on and finished the Project Proposal, my role in particular was to research about existing trading simulators, and also work on forming user stories for our project. We decided on a final set of extensions that we converted to their own user stories, we decided that we can cut any number of them if time constraints become an issue. Through many meetings and refinements, we finished the user stories and their corresponding epics, allocating story points and priority ranks to each of them.
 
 We transferred all user stories to JIRA so that they can be allocated to sprints later. I condensed my research into paragraphs in the project proposal, outlining the strengths and weaknesses of various trading simulator platforms. I also worked on other sections in the proposal.
 
@@ -55,12 +55,31 @@ Week 6
 We started the second sprint. My role was in the backend, developing API's for portfolio, watchlist and storing daily closing prices in the database. I collaborated with frontend developers to ensure everything works as intended. I also had to interact a bit with database code to extend some tables and implement my own functions updating the database.
 
 Group To Do:
-- Develop pytests/unittests for the backend 
+- Develop pytests/unittests for the backend
+
 
 Week 7
 
 I implemented the backend for resetting users and keeping track for the number of resets. We also enforce that users don't reset too often by making them wait a certain time. I also worked on exposing API's for the leaderboard that displays the most valuable site-wide accounts. We've managed to introduce test-stubs for the pytests we plan to write, there was also much code refactoring that improved the quality and organisation of the source code. We are almost done with the features we planned to implement, our main priority is to code tests.
 
+Group To Do:
+- Implement pytests for the backend
+- Work on project report
+
+
+Week 8
+
+I worked on developing the backend so that the net worth history feature is exposed through the API. This involved adding more tables in sql, adding schemas for Pydantic, adding more functions in crud, and finally developing the business logic in the API endpoint.
+
+The features of the project are coming together, the final step would be to work on coding tests. The project report also needs to be done.
+
 Group To DO:
 - Implement pytests for the backend
 - Work on project report
+
+
+Week 9
+
+This week was fully focused on writing pytests. We decided to only test the most important modules in the backend, which were the domain models. I tested each function in these modules independent of others by mocking out the dependencies. This made the test cases themselves efficient.
+
+I also worked on finalizing the project report.

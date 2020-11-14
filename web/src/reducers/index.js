@@ -1,5 +1,6 @@
 import { combineReducers } from "redux";
 import axios from "../utils/api";
+import { createSelector } from "reselect";
 
 export const UPDATE_USER = "UPDATE_USER";
 export const UPDATE_STOCKS = "UPDATE_STOCKS";
@@ -66,6 +67,7 @@ const initialState = {
       user_ranking: 1,
     },
     notifications: [],
+    is_loading: true,
   },
   stocks: { data: [], dict: {}, is_loading: true },
   is_loading: {
@@ -79,7 +81,7 @@ const initialState = {
 const user = (state = initialState.user, action) => {
   switch (action.type) {
     case UPDATE_USER:
-      return action.user;
+      return { ...action.user, is_loading: false };
     case UPDATE_WATCHLIST:
       return { ...state, watchlist: action.watchlist };
     case ADD_TO_WATCHLIST:
@@ -138,12 +140,30 @@ export default combineReducers({ user, stocks, is_loading });
 /*
   SELECTORS
 */
+const getPortfolio = (state) => state.user.portfolio;
 const getWatchlist = (state) => state.user.watchlist;
+const getStocks = (state) => state.stocks;
+
 export const isSymbolInWatchlist = (symbol) => (state) =>
   getWatchlist(state).findIndex((x) => x.symbol === symbol) !== -1;
 
 export const isSymbolInWatchlistLoading = (symbol) => (state) =>
   state.is_loading.user.watchlist.has(symbol);
+
+export const getPortfolioRealTimeData = createSelector(
+  [getPortfolio, getStocks],
+  ({ long, short }, stocks) => {
+    return {
+      long: long.map((x) => stocks.dict[x.symbol]),
+      short: short.map((x) => stocks.dict[x.symbol]),
+    };
+  }
+);
+
+export const getWatchlistRealTimeData = createSelector(
+  [getWatchlist, getStocks],
+  (watchlist, stocks) => watchlist.map((x) => stocks.dict[x.symbol])
+);
 
 /*
   ACTION CREATORS

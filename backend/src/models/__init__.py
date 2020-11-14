@@ -1,3 +1,8 @@
+"""
+Database Models
+- Defines SQLAlchemy ORMs that map to database tables
+"""
+
 from .achievement import UnlockedAchievement
 from .pending_order import AfterOrder, LimitOrder, PendingOrder
 from .position import LongPosition, Position, ShortPosition

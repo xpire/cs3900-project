@@ -1,4 +1,10 @@
+"""
+Database Models
+- Defines SQLAlchemy ORMs that map to database tables
+"""
+
 from .achievement import UnlockedAchievement
+from .notification import Notification
 from .pending_order import AfterOrder, LimitOrder, PendingOrder
 from .position import LongPosition, Position, ShortPosition
 from .stock import Stock
@@ -16,4 +22,5 @@ all_models = [
     Transaction,
     User,
     WatchList,
+    Notification,
 ]

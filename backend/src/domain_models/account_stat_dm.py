@@ -265,7 +265,7 @@ class AccountStat:
         Returns:
             float: short balance
         """
-        return self.gross_value() * self.short_allowance_rate - self.short.total_opening_value()
+        return self.net_worth() * self.short_allowance_rate + self.short.total_closing_value()
 
     def compile_portfolio_stats(self):
         """Compiles portfolio statistics for frontend

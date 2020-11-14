@@ -1,12 +1,18 @@
 from asyncio import Event
 
 from fastapi import WebSocket
+from src import crud
 from src.core.async_exit import wait_until_exit
 
-from .notif_event import NotifEvent
+from .notif_event import GenericEvent, NotifEvent
 
 
 class NotificationHub:
+    """
+    Cental location for notification events to be published. Allows for relay of
+    notification events to the appropriate [Notifier] instances.
+    """
+
     def __init__(self):
         self.notifiers = dict()
 
@@ -16,6 +22,12 @@ class NotificationHub:
         """
         uid = event.user.uid
 
+        # record notification
+        msg = event.to_msg()
+        if msg.msg_type == "notif":
+            crud.user.add_notification(msg=msg, user=event.user.model, db=event.user.db)
+
+        # ping notifiers
         if uid not in self.notifiers:
             return
 
@@ -60,7 +72,13 @@ class NotificationHub:
 
 
 class Notifier:
-    def __init__(self, user):  # UserDM
+    """
+    Takes care of sending notifications to a particular client.
+    If the same user is accessing the system through multiple clients/devices, then
+    a notifier should be present for each of those clients.
+    """
+
+    def __init__(self, user):
         self.user = user
         self.events = []
         self.has_event = Event()
@@ -84,7 +102,7 @@ class Notifier:
 
         for event in self.events:
             msg = event.to_msg().dict()
-            await ws.send_json(dict(msg=msg, is_error=False, type="notif"))
+            await ws.send_json(dict(msg=msg, is_error=False, type=msg["msg_type"]))
 
         self.events = []
         self.has_event.clear()
@@ -95,3 +113,4 @@ class Notifier:
 
 
 notif_hub = NotificationHub()
+send_msg = lambda user, msg: notif_hub.publish(GenericEvent(user=user, msg=msg))

@@ -13,6 +13,7 @@ class PendingOrder(BaseModel):
     user_id = Column(String, ForeignKey("user.uid"))
     symbol = Column(String, ForeignKey("stock.symbol"))
     qty = Column(Integer, nullable=False)
+    limit_price = Column(Float, nullable=True)
     timestamp = Column(DateTime, nullable=False)
     trade_type = Column(Enum(TradeType), nullable=False)
     order_type = Column(Enum(OrderType), nullable=False)
@@ -34,7 +35,6 @@ class PendingOrder(BaseModel):
 
 class LimitOrder(PendingOrder):
     id = Column(Integer, ForeignKey("pendingorder.id"), primary_key=True)
-    limit_price = Column(Float, nullable=False)
 
     __mapper_args__ = {
         "polymorphic_identity": OrderType.LIMIT.name,

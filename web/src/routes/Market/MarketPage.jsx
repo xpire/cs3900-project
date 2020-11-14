@@ -10,45 +10,29 @@ import ClearIcon from "@material-ui/icons/Clear";
 
 import Page from "../../components/page/Page";
 import CardGrid from "../../components/common/CardGrid";
-import axios from "../../utils/api";
-import useRealTimeStockData from "../../hooks/useRealTimeStockData";
-
-
-const CheckWatchlist = async () => {
-  return await axios
-    .get("/watchlist")
-    .then(response => response.data)
-}
+import { useSelector } from "react-redux";
 
 const Market = () => {
   const [search, setSearch] = useState("");
-  const [watchlist, setWatchlist] = useState([]);
-  const [stockData, loading] = useRealTimeStockData();
+  const { data, is_loading: loading } = useSelector((state) => state.stocks);
+
+  const stockData = loading
+    ? [...Array(12)].map((_) => {
+        return { skeleton: true };
+      })
+    : data;
 
   const handleChange = (e) => {
     setSearch(e);
   };
-
-  useEffect(() => {
-    CheckWatchlist().then(data => {
-      setWatchlist(data.map(item => item.symbol))
-    })
-  }, [])
-  
-  const clickedWatchlist = () => {
-    CheckWatchlist().then(data => {
-      setWatchlist(data.map(item => item.symbol))
-    })
-  }
-
 
   const [filteredData, setFilteredData] = useState(stockData);
   useEffect(() => {
     setFilteredData(
       search !== ""
         ? stockData.filter(({ symbol }) =>
-          symbol.toLowerCase().includes(search.toLowerCase())
-        )
+            symbol.toLowerCase().includes(search.toLowerCase())
+          )
         : stockData
     );
   }, [search, stockData]);
@@ -70,10 +54,7 @@ const Market = () => {
             endAdornment={
               <InputAdornment position="end">
                 {search !== "" && (
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={() => handleChange("")}
-                  >
+                  <IconButton onClick={() => handleChange("")}>
                     <ClearIcon />
                   </IconButton>
                 )}
@@ -87,12 +68,13 @@ const Market = () => {
           <Typography>
             {loading
               ? `Loading...`
-              : `Your search returned ${filteredData.length} result${filteredData.length !== 1 ? "s" : ""
-              }.`}
+              : `Your search returned ${filteredData.length} result${
+                  filteredData.length !== 1 ? "s" : ""
+                }.`}
           </Typography>
         </Grid>
       </Grid>
-      <CardGrid data={filteredData} renderWatchlist={true} watchlist={[watchlist, clickedWatchlist]} />
+      <CardGrid data={filteredData} />
     </Page>
   );
 };

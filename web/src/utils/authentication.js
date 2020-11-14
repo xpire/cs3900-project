@@ -26,6 +26,7 @@ export const AuthContext = React.createContext();
 export const AuthProvider = ({ children }) => {
   const [user, loading] = useAuthState(auth);
   const theme = useTheme();
+
   useEffect(() => {
     user &&
       user

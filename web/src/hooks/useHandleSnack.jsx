@@ -1,19 +1,19 @@
 import { useSnackbar } from "notistack";
 import axios from "../utils/api";
 
-const useHandleSnack = () => {
+const useHandleSnack = (ignore_success = false) => {
   const { enqueueSnackbar } = useSnackbar();
   return async (path, method = "post") => {
-    await axios
+    return await axios
       .request({ url: path, method: method })
       .then((response) => {
-        switch (response.status) {
-          case 200:
+        if (response.status === 200) {
+          if (!ignore_success) {
             enqueueSnackbar(`${response.data.msg}`, {
               variant: "success",
             });
-            break;
-          default:
+          }
+          return response;
         }
       })
       .catch((err) => {

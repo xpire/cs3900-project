@@ -17,11 +17,12 @@ import { Link } from "react-router-dom";
 import ColoredText, { useColoredText } from "../common/ColoredText";
 import useHandleSnack from "../../hooks/useHandleSnack";
 import TradingHoursIndicator from "../common/TradingHoursIndicator";
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import WatchListIndicator from "../common/WatchListIndicator"
+import { useDispatch } from "react-redux";
+import { addToWatchlist } from "../../reducers";
+import VisibilityIcon from "@material-ui/icons/Visibility";
+import WatchListIndicator from "../common/WatchListIndicator";
 
 const StyledCard = styled(Card)({ margin: "10px" });
-
 
 /**
  * A StockCard component to be used in CardGrid.
@@ -35,19 +36,10 @@ const StockCard = ({
   online,
   skeleton,
   watchButton,
-  watchlistRender,
-  watchlistdata
 }) => {
-  // console.log(symbol)
-  const handleSnack = useHandleSnack();
   const [deltaColor] = useColoredText(price);
-  const [watchlist, watchListClick] = watchlistdata; 
-  const [watched, setWatched] = useState(watchlist.includes(symbol))
 
-  useEffect(() => {
-    setWatched(watchlist.includes(symbol))
-  }, [watchlist])
-
+  /* implement selector symbol => watchlist */
 
   // const myDelta = useDelta(price);
   // const [deltaColor, setDeltaColor] = useState(0);
@@ -73,7 +65,6 @@ const StockCard = ({
   //   }
   // }, [delta]);
 
-
   return (
     <StyledCard>
       <CardActionArea component={Link} to={`/stock/${symbol}`}>
@@ -89,42 +80,42 @@ const StockCard = ({
                 <Skeleton variant="rect" width="100%" height={108} />
               </Grid>
             ) : (
-                <>
-                  <Grid item xs={12} spacing={1} container>
-                    <Grid item>{name && <Chip size="small" label={name} />}</Grid>
-                    <Grid item>
-                      <Chip size="small" label={category} />
-                    </Grid>
+              <>
+                <Grid item xs={12} spacing={1} container>
+                  <Grid item>{name && <Chip size="small" label={name} />}</Grid>
+                  <Grid item>
+                    <Chip size="small" label={category} />
                   </Grid>
-                  <Grid container alignItems="flex-end" justify="space-between">
-                    <Grid item>
-                      <Typography variant="h4">{symbol}</Typography>
-                    </Grid>
-                    <Grid item>
-                      <ColoredText
-                        color={delta > 0 ? "green" : "red"}
-                        variant="h4"
-                        align="right"
-                        delta={deltaColor}
-                      >
-                        {`${delta > 0 ? "+" : ""}${delta}%`}
-                      </ColoredText>
-                    </Grid>
+                </Grid>
+                <Grid container alignItems="flex-end" justify="space-between">
+                  <Grid item>
+                    <Typography variant="h4">{symbol}</Typography>
                   </Grid>
-                  <Grid item xs={12} container direction="row-reverse">
-                    <Grid item>
-                      <ColoredText
-                        color={delta > 0 ? "green" : "red"}
-                        variant="h3"
-                        align="right"
-                        delta={deltaColor}
-                      >
-                        {`$${price}`}
-                      </ColoredText>
-                    </Grid>
+                  <Grid item>
+                    <ColoredText
+                      color={delta > 0 ? "green" : "red"}
+                      variant="h4"
+                      align="right"
+                      delta={deltaColor}
+                    >
+                      {`${delta > 0 ? "+" : ""}${delta}%`}
+                    </ColoredText>
                   </Grid>
-                </>
-              )}
+                </Grid>
+                <Grid item xs={12} container direction="row-reverse">
+                  <Grid item>
+                    <ColoredText
+                      color={delta > 0 ? "green" : "red"}
+                      variant="h3"
+                      align="right"
+                      delta={deltaColor}
+                    >
+                      {`$${price}`}
+                    </ColoredText>
+                  </Grid>
+                </Grid>
+              </>
+            )}
           </Grid>
         </CardContent>
       </CardActionArea>
@@ -132,19 +123,17 @@ const StockCard = ({
         {skeleton ? (
           <Skeleton variant="rect" height={30} width="100%" />
         ) : (
-            <>
-              <Grid container justify="space-between" alignItems="center">
-                {watchButton && (watchlistRender) && (
-                  <WatchListIndicator watchlistdata={[watched, watchListClick]} symbol={symbol} />
-                )}
-                <Grid item>
-                  <TradingHoursIndicator online={online} />
-                </Grid>
+          <>
+            <Grid container justify="space-between" alignItems="center">
+              {watchButton && <WatchListIndicator symbol={symbol} />}
+              <Grid item>
+                <TradingHoursIndicator online={online} />
               </Grid>
-            </>
-          )}
+            </Grid>
+          </>
+        )}
       </CardActions>
-    </StyledCard >
+    </StyledCard>
   );
 };
 

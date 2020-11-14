@@ -11,6 +11,7 @@ from src.core.config import env_settings, settings
 from src.core.utilities import fail_save, find, log_msg, ret_initial_users
 from src.crud.base import CRUDBase
 from src.models.net_worth_timeseries import NetWorthTimeSeries
+from src.models.notification import Notification
 from src.models.position import LongPosition, ShortPosition
 from src.models.transaction import Transaction
 from src.models.user import User
@@ -318,6 +319,23 @@ class CRUDUser(CRUDBase[User]):
             )
         )
 
+        self.commit_and_refresh(db, user)
+
+    # @fail_save
+    @return_result()
+    def add_notification(self, *, msg, user: User, db: Session) -> Result:
+        """Adds a notification to the history of the user's past notifications
+
+        Args:
+            msg (NotifMsg): notification message to save
+            user (User): user model
+            db (Session): database session
+        Returns:
+            Result: Success/Fail
+        """
+        user.notifications.append(
+            Notification(user_id=user.uid, event_type=msg.event_type, title=msg.title, content=msg.content)
+        )
         self.commit_and_refresh(db, user)
 
 

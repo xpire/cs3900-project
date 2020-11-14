@@ -1,5 +1,5 @@
 """
-Schema for notifications of events
+Schemas for different types of notification events
 """
 
 from abc import abstractmethod
@@ -7,26 +7,9 @@ from enum import auto
 from typing import Any
 
 from pydantic import BaseModel as BaseSchema
-from src.core.utilities import AutoName, Const
+from src.core.utilities import Const
 from src.game.achievement.achievement import Achievement
-
-
-class NotifEventType(str, AutoName):
-    LEVEL_UP = auto()
-    ACHIEVEMENT_UNLOCKED = auto()
-    FEATURE_UNLOCKED = auto()
-
-
-class UnlockableFeatureType(str, AutoName):
-    LIMIT_ORDER = auto()
-    SHORT_25 = auto()
-    SHORT_50 = auto()
-
-
-class NotifMsg(BaseSchema):
-    event_type: NotifEventType
-    title: str
-    content: str = ""
+from src.schemas.notification import NotifEventType, NotifMsg, UnlockableFeatureType
 
 
 class NotifEvent(BaseSchema):
@@ -36,6 +19,14 @@ class NotifEvent(BaseSchema):
     @abstractmethod
     def to_msg(self) -> NotifMsg:
         pass
+
+
+class GenericEvent(NotifEvent):
+    event_type: NotifEventType = Const(NotifEventType.GENERIC)
+    msg: str
+
+    def to_msg(self) -> NotifMsg:
+        return NotifMsg(event_type=self.event_type, title=self.msg, msg_type="generic")
 
 
 class LevelUpEvent(NotifEvent):

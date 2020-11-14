@@ -5,7 +5,7 @@ import { Grid } from "@material-ui/core";
 import StockCard from "./StockCard";
 import { format } from "../../utils/formatter";
 
-const CardGrid = ({ data, renderWatchlist, watchlist }) => {
+const CardGrid = ({ data }) => {
   // const is_watched = (symbol) => {
   //   watchlist.some(item => symbol === item)
   // }
@@ -48,8 +48,6 @@ const CardGrid = ({ data, renderWatchlist, watchlist }) => {
                 key={symbol}
                 online={is_trading}
                 skeleton={skeleton}
-                watchlistRender={renderWatchlist}
-                watchlistdata={watchlist}
               />
             </Grid>
           );

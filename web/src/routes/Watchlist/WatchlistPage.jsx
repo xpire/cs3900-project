@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Card } from "@material-ui/core";
 
 import Page from "../../components/page/Page";
@@ -10,6 +10,8 @@ import SortableStockTable, {
 } from "../../components/common/SortableStockTable";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import { format } from "../../utils/formatter";
+import { useDispatch, useSelector } from "react-redux";
+import { removeFromWatchlistWithSnack } from "../../reducers";
 import useHandleSnack from "../../hooks/useHandleSnack";
 
 const columns = [
@@ -65,13 +67,16 @@ const columns = [
 ];
 
 const Watchlist = () => {
-  // const [data, setData] = useState([]);
-  const [deleted, setDeleted] = useState(0);
-  const [data, loading, updateSymbols] = useRealTimeStockData(
-    "/watchlist",
-    [deleted],
-    []
-  );
+  // // const [data, setData] = useState([]);
+  // const [deleted, setDeleted] = useState(0);
+  // const [data, loading, updateSymbols] = useRealTimeStockData(
+  //   "/watchlist",
+  //   [deleted],
+  //   []
+  // );
+  const dispatch = useDispatch();
+  const handleSnack = useHandleSnack(true);
+  const data = useSelector((state) => state.user.watchlist); // TODO add a selector that retrieves watchlist/orders with given stocks data
   const mappedData = data.map(
     ({ curr_day_close, exchange, name, curr_day_open, symbol }) => {
       return {
@@ -87,13 +92,12 @@ const Watchlist = () => {
       };
     }
   );
-  const handleSnack = useHandleSnack();
 
-  const handleDelete = () => {
-    console.log("watchist", deleted + 1);
-    setDeleted(deleted + 1);
-    console.log("watchist after", deleted + 1);
-  };
+  // const handleDelete = () => {
+  //   console.log("watchist", deleted + 1);
+  //   setDeleted(deleted + 1);
+  //   console.log("watchist after", deleted + 1);
+  // };
 
   return (
     <Page>
@@ -102,13 +106,19 @@ const Watchlist = () => {
           data={mappedData}
           columns={columns}
           title="Watch List"
-          isLoading={loading}
+          // isLoading={loading}
           handleDelete={({ symbol }) => {
-            handleSnack(`/watchlist?symbol=${symbol}`, "delete").then(() =>
-              updateSymbols()
-            );
+            dispatch(removeFromWatchlistWithSnack(symbol, handleSnack));
+            // updateSymbols();
+            // handleSnack(`/watchlist?symbol=${symbol}`, "delete").then(() =>
+            // );
           }}
-          handleRefresh={handleDelete}
+          // handleRefresh={handleDelete}
+          // header={headCells}
+          // title="Watchlist"
+          // handleDelete={({ symbol }) =>
+          //   dispatch(removeFromWatchlistWithSnack(symbol, handleSnack))
+          // }
         />
       </Card>
     </Page>

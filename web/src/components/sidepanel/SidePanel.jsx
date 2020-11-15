@@ -1,9 +1,26 @@
 import React from "react";
 import Drawer from "@material-ui/core/Drawer";
-import { Toolbar } from "@material-ui/core";
+import { Toolbar, makeStyles } from "@material-ui/core";
+import { DRAWER_WIDTH } from "../../constants/Layout";
 
-function SidePanel({ classes, panel }) {
-  /* CAN BE MADE INTO FLOATING, BY USING AN INTERNAL CARD*/
+const useStyles = makeStyles((theme) => ({
+  drawer: {
+    width: DRAWER_WIDTH,
+    flexShrink: 0,
+  },
+  drawerPaper: {
+    width: DRAWER_WIDTH,
+    border: 0,
+  },
+  drawerContainer: {
+    overflow: "hidden",
+    padding: "15px",
+  },
+}));
+
+function SidePanel({ panel }) {
+  const classes = useStyles();
+
   return (
     <Drawer
       className={classes.drawer}
@@ -14,9 +31,7 @@ function SidePanel({ classes, panel }) {
       anchor="right"
     >
       <Toolbar />
-      <div className={classes.drawerContainer}>
-        <div style={{ padding: "20px" }}>{panel}</div>
-      </div>
+      <div className={classes.drawerContainer}>{panel}</div>
     </Drawer>
   );
 }

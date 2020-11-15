@@ -110,18 +110,13 @@ const Dashboard = () => {
   const [tabValue, setValue] = useState(0);
   const isLoading = useSelector((state) => state.user.isLoading);
   const { long, short } = useSelector(getPortfolioRealTimeData);
-  const [longData, setLongData] = useState([]);
-  const [shortData, setShortData] = useState([]);
-
-  useEffect(() => {
-    setLongData(long);
-    setShortData(short);
-  }, [isLoading]);
-
   const watchlist = useSelector(getWatchlistRealTimeData);
+
+  const longData = isLoading ? makeSkeleton(12) : short;
+  const shortData = isLoading ? makeSkeleton(12) : long;
   const watchData = isLoading ? makeSkeleton(12) : watchlist;
 
-  // Net worth graph
+  // Networth graph
   const [graphUpdate, setGraphUpdate] = useState(0);
   const [graph, graphLoading] = useApi("/portfolio/history", [], [], (data) =>
     data.map((e) => [new Date(e.timestamp), e.net_worth])

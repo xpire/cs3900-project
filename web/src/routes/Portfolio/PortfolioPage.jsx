@@ -8,7 +8,7 @@ import SortableStockTable, {
 import Page from "../../components/page/Page";
 import axios from "../../utils/api";
 
-const columns = [
+const columns = (negative = false) => [
   {
     field: "symbol",
     title: (
@@ -19,7 +19,7 @@ const columns = [
         title={rowData.symbol}
         titleType={tableTypes.TEXT}
         subtitle={rowData.owned}
-        subtitleType={tableTypes.NUMBER}
+        subtitleType={tableTypes.SHARES}
         alignItems="flex-start"
       />
     ),
@@ -35,8 +35,10 @@ const columns = [
         subtitleColor={true}
         subtitleType={tableTypes.CURRENCY}
         subsubtitle={rowData.day_return}
+        subtitleNegative={negative}
         subsubtitleType={tableTypes.PERCENTAGE}
         subsubtitleColor={true}
+        subsubtitleNegative={negative}
       />
     ),
     align: "right",
@@ -51,9 +53,11 @@ const columns = [
         subtitle={rowData.profit}
         subtitleColor={true}
         subtitleType={tableTypes.CURRENCY}
+        subtitleNegative={negative}
         subsubtitle={rowData.total_return}
         subsubtitleType={tableTypes.PERCENTAGE}
         subsubtitleColor={true}
+        subsubtitleNegative={negative}
       />
     ),
     align: "right",
@@ -114,7 +118,14 @@ const Portfolio = () => {
           <Tab label="Longs" />
           <Tab label="Shorts" />
         </Tabs>
-        {tab === 0 ? (
+        <SortableStockTable
+          title="Portfolio"
+          columns={columns(tab === 1)}
+          data={tab === 0 ? long : short}
+          isLoading={isLoading}
+          handleRefresh={handleRefresh}
+        />
+        {/* {tab === 0 ? (
           <SortableStockTable
             title="Portfolio"
             columns={columns}
@@ -130,7 +141,7 @@ const Portfolio = () => {
             isLoading={isLoading}
             handleRefresh={handleRefresh}
           />
-        )}
+        )} */}
       </Card>
     </Page>
   );

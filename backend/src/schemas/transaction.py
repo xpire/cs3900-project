@@ -74,6 +74,7 @@ class TransactionDBcreate(TransactionBase):
 
 
 class TransactionAPIout(TransactionBase):
+    id: int
     name: str
     value: float = None
     is_cancelled: bool

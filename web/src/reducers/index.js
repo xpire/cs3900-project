@@ -2,9 +2,11 @@ import { combineReducers } from "redux";
 import axios from "../utils/api";
 import { createSelector } from "reselect";
 
+export const UPDATE = "UPDATE";
 export const UPDATE_USER = "UPDATE_USER";
 export const UPDATE_STOCKS = "UPDATE_STOCKS";
 export const UPDATE_WATCHLIST = "UPDATE_WATCHLIST";
+export const UPDATE_ORDERS = "UPDATE_ORDERS";
 export const ADD_TO_WATCHLIST = "ADD_TO_WATCHLIST";
 export const REMOVE_FROM_WATCHLIST = "REMOVE_FROM_WATCHLIST";
 export const START_LOADING_WATCHLIST_SYMBOL = "START_LOADING_WATCHLIST_SYMBOL";
@@ -82,6 +84,8 @@ const user = (state = initialState.user, action) => {
   switch (action.type) {
     case UPDATE_USER:
       return { ...action.user, is_loading: false };
+    case UPDATE_ORDERS:
+      return { ...state, orders: action.orders };
     case UPDATE_WATCHLIST:
       return { ...state, watchlist: action.watchlist };
     case ADD_TO_WATCHLIST:
@@ -117,15 +121,10 @@ const is_loading = (state = initialState.is_loading, action) => {
     case START_LOADING_WATCHLIST_SYMBOL:
       const watchlist_added = new Set(state.user.watchlist);
       watchlist_added.add(action.symbol);
-      console.log("IS LOADING");
-      console.log(action.symbol);
-      console.log(watchlist_added);
       return { ...state, user: { ...state.user, watchlist: watchlist_added } };
     case FINISH_LOADING_WATCHLIST_SYMBOL:
       const watchlist_removed = new Set(state.user.watchlist);
       watchlist_removed.delete(action.symbol);
-      console.log("IS DONE");
-      console.log(watchlist_removed);
       return {
         ...state,
         user: { ...state.user, watchlist: watchlist_removed },
@@ -149,6 +148,25 @@ export const isSymbolInWatchlist = (symbol) => (state) =>
 
 export const isSymbolInWatchlistLoading = (symbol) => (state) =>
   state.is_loading.user.watchlist.has(symbol);
+
+const getNotifsReversed = (state) => state.user.notifications;
+
+export const getNotifs = createSelector([getNotifsReversed], (revNotifs) =>
+  [...revNotifs].reverse()
+);
+
+const getTransactionsReversed = (state) => state.user.transactions;
+
+export const getTransactions = createSelector(
+  [getTransactionsReversed],
+  (revTransactions) => [...revTransactions].reverse()
+);
+
+const getOrdersReversed = (state) => state.user.orders;
+
+export const getOrders = createSelector([getOrdersReversed], (revOrders) =>
+  [...revOrders].reverse()
+);
 
 export const getPortfolioRealTimeData = createSelector(
   [getPortfolio, getStocks],
@@ -179,9 +197,11 @@ function makeActionCreator(type, ...argNames) {
   };
 }
 
+export const initState = makeActionCreator(UPDATE);
 const updateUser = makeActionCreator(UPDATE_USER, "user");
 const updateStocks = makeActionCreator(UPDATE_STOCKS, "stocks");
 const updateWatchlist = makeActionCreator(UPDATE_WATCHLIST, "watchlist");
+const updateOrders = makeActionCreator(UPDATE_ORDERS, "orders");
 const addToWatchlistSync = makeActionCreator(ADD_TO_WATCHLIST, "stock");
 const removeFromWatchlistSync = makeActionCreator(
   REMOVE_FROM_WATCHLIST,
@@ -237,5 +257,13 @@ export function removeFromWatchlistWithSnack(symbol, handleSnack) {
       .then((response) => dispatch(updateWatchlist(response.data)))
       .catch((error) => console.log(error))
       .finally(() => dispatch(finishLoadingWatchlistSymbol(symbol)));
+  };
+}
+
+export function removeFromOrdersWithSnack(id, handleSnack) {
+  return function(dispatch) {
+    handleSnack(`/orders?id=${id}`, "delete")
+      .then((response) => dispatch(updateOrders(response.data)))
+      .catch((error) => console.log(error));
   };
 }

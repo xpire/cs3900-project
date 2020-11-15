@@ -5,20 +5,28 @@ import {
   CardContent,
   CardActions,
   Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
+  Menu,
+  MenuItem,
+  IconButton,
   Button,
   CircularProgress,
   Tooltip,
+  CardHeader,
+  ListItemText,
+  ListItemSecondaryAction,
+  Switch,
+  Tabs,
+  Tab,
 } from "@material-ui/core";
-import { Link, useParams, useHistory } from "react-router-dom";
+import { MoreVert } from "@material-ui/icons";
+import { Link, useParams } from "react-router-dom";
 import List from "@material-ui/core/List";
+import { useSelector, useDispatch } from "react-redux";
+import styled from "styled-components";
 
 import Page from "../../components/page/Page";
 import { CenteredCard, StandardCard } from "../../components/common/styled";
+import LockedTooltip from "../../components/common/LockedTooltip";
 import ColoredText, {
   useColoredText,
 } from "../../components/common/ColoredText";
@@ -31,16 +39,11 @@ import Trade from "../../components/trade/TradingPage";
 import { BasicCard } from "../../components/common/styled";
 import PortfolioPolar from "../../components/graph/PortfolioPolar";
 import StockDisplayTable from "../../components/common/StockDisplayTable";
-import SortableTable, {
-  tableTypes,
-} from "../../components/common/SortableTable";
+import { tableTypes } from "../../components/common/SortableTable";
 import SortableStockTable, {
   RenderItem,
 } from "../../components/common/SortableStockTable";
-
-function createData(name, value) {
-  return { name, value };
-}
+import { removeFromOrdersWithSnack } from "../../reducers/index";
 
 const columns = [
   {
@@ -71,6 +74,42 @@ const columns = [
     ),
     align: "right",
   },
+  // {
+  //   field: "price",
+  //   title: <RenderItem title="Price" subtitle="Value" />,
+  //   render: (rowData) => (
+  //     <RenderItem
+  //       title={rowData.price}
+  //       titleType={tableTypes.CURRENCY}
+  //       subtitle={rowData.value}
+  //       subtitleType={tableTypes.CURRENCY}
+  //     />
+  //   ),
+  //   align: "right",
+  // },
+];
+
+const orderColumns = [
+  ...columns,
+  {
+    field: "order_type",
+    title: <RenderItem title="Order Type" subtitle="(Limit Price)" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.order_type}
+        titleType={tableTypes.TEXT}
+        subtitle={rowData.order_type === "LIMIT" ? rowData.limit_price : ""}
+        subtitleType={
+          rowData.order_type === "LIMIT" ? tableTypes.CURRENCY : tableTypes.TEXT
+        }
+      />
+    ),
+    align: "right",
+  },
+];
+
+const transactionColumns = [
+  ...columns,
   {
     field: "price",
     title: <RenderItem title="Price" subtitle="Value" />,
@@ -86,71 +125,110 @@ const columns = [
   },
 ];
 
-const rows = [
-  createData("Previous Close", 1594.0),
-  createData("Open", 2374.3),
-  createData("Day's Range", 2626.0),
-  createData("52 Week's Range", 3054.3),
-  createData("Start Date", 3563.9),
-  createData("Market Cap", 3563.9),
-  createData("Volume", 3563.9),
-  createData("Volume (24hr)", 3563.9),
-  createData("EPS", 3563.9),
-  createData("PE", 35649.9),
+const options = [
+  { key: "leftEdge", name: "Left Edge", level: 0 },
+  { key: "rightEdge", name: "Right Edge", level: 0 },
+  { key: "showVolume", name: "Volumes", level: 2 },
+  { key: "showEma20", name: "EMA", level: 7 },
+  { key: "showBollingerSeries", name: "BB", level: 9 },
 ];
 
-const headCells = [
-  // {
-  //   id: "timestamp",
-  //   formatType: tableTypes.TEXT,
-  //   disablePadding: false,
-  //   label: "TimeStamp",
-  //   color: true,
-  // },
-  {
-    id: "symbol",
-    formatType: tableTypes.TEXT,
-    disablePadding: true,
-    label: "Symbol",
-  },
-  // {
-  //   id: "name",
-  //   formatType: tableTypes.TEXT,
-  //   disablePadding: false,
-  //   label: "Name",
-  // },
-  {
-    id: "order_type",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Order Type",
-  },
-  {
-    id: "trade_type",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Trade Type",
-  },
-  {
-    id: "price",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Price",
-  },
-  {
-    id: "qty",
-    formatType: tableTypes.NUMBER,
-    disablePadding: false,
-    label: "Quantity",
-  },
-  {
-    id: "is_cancelled",
-    formatType: tableTypes.TEXT,
-    disablePadding: true,
-    label: "Status",
-    // color: true,
-  },
-];
+const StyledMenuItem = styled(MenuItem)`
+  width: 200px;
+`;
+
+const CandleStickWithState = ({ timeSeries }) => {
+  const [state, setState] = useState({
+    leftEdge: true,
+    rightEdge: true,
+    showVolume: false,
+    showEma20: false,
+    showBollingerSeries: false,
+  });
+
+  const handleToggle = (key) => () => {
+    setState({ ...state, [key]: !state[key] });
+  };
+
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const userLevel = useSelector((state) => state.user.basic.level);
+  return (
+    <StandardCard>
+      <Grid container direction="row-reverse">
+        <Grid item>
+          <IconButton
+            aria-controls="simple-menu"
+            aria-haspopup="true"
+            onClick={handleClick}
+          >
+            <MoreVert />
+          </IconButton>
+        </Grid>
+      </Grid>
+      <Menu
+        id="simple-menu"
+        anchorEl={anchorEl}
+        keepMounted
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+      >
+        {options.map(({ name, key, level }) => {
+          const disabled = !!userLevel && userLevel <= level;
+          return (
+            <LockedTooltip userLevel={userLevel} lockedLevel={level}>
+              <StyledMenuItem onClick={!disabled && handleToggle(key)}>
+                <ListItemText color="textSecondary">{name}</ListItemText>
+                <ListItemSecondaryAction>
+                  <Switch
+                    edge="end"
+                    checked={state[key]}
+                    onChange={!disabled && handleToggle(key)}
+                    disabled={disabled}
+                  />
+                </ListItemSecondaryAction>
+              </StyledMenuItem>
+            </LockedTooltip>
+          );
+        })}
+      </Menu>
+      <CardContent>
+        <div // fix scrolling body in chrome
+          onMouseEnter={() => {
+            document.addEventListener("wheel", preventDefault, {
+              passive: false,
+            });
+          }}
+          onMouseLeave={() => {
+            document.removeEventListener("wheel", preventDefault, false);
+          }}
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
+          {/* <ApexCandlestick data={parsedApexData} /> */}
+          {timeSeries === null ? (
+            <CircularProgress color="primary" size={50} />
+          ) : (
+            <Candlestick data={timeSeries} type="hybrid" {...state} />
+            // <Candlestick data={timeSeries} type="hybrid" />
+          )}
+        </div>
+      </CardContent>
+    </StandardCard>
+  );
+};
 
 // prevent default behaviour for scroll event
 const preventDefault = (e) => {
@@ -172,9 +250,8 @@ const StockDetails = () => {
   const [timeSeries, setTimeSeries] = useState(null);
   const [error, setError] = useState(false);
   const { symbol } = useParams();
-  let history = useHistory();
   const [norm, setTableNorm] = useState([]);
-  const [transHist, setTransHist] = useState([]);
+  // const [transHist, setTransHist] = useState([]);
   const [portfolio, setPortfolio] = useState({
     long: [],
     short: [],
@@ -220,45 +297,51 @@ const StockDetails = () => {
       });
     });
   };
+  const [tab, setTab] = useState(0);
+  const dispatch = useDispatch();
 
-  const getHistTrans = async () => {
-    await axios.get("/transactions").then((response) => {
-      const data = response.data;
-      setTransHist(
-        data
-          .filter((elem) => elem.symbol === symbol)
-          .map(
-            ({
-              is_cancelled,
-              name,
-              order_type,
-              price,
-              qty,
-              symbol,
-              timestamp,
-              trade_type,
-              value,
-            }) => {
-              return {
-                is_cancelled: is_cancelled ? "cancelled" : "active",
-                order_type: order_type,
-                price: price.toFixed(2),
-                qty: qty,
-                symbol: symbol,
-                timestamp: timestamp,
-                trade_type: trade_type,
-                value: value,
-              };
-            }
-          )
-      );
-    });
-  };
+  const transHist = useSelector((state) => state.user.transactions);
+  const ordersHist = useSelector((state) => state.user.orders);
+
+  // const getHistTrans = async () => {
+  //   await axios.get("/transactions").then((response) => {
+  //     const data = response.data;
+  //     setTransHist(
+  //       data
+  //         .filter((elem) => elem.symbol === symbol)
+  //         .map(
+  //           ({
+  //             is_cancelled,
+  //             name,
+  //             order_type,
+  //             price,
+  //             qty,
+  //             symbol,
+  //             timestamp,
+  //             trade_type,
+  //             value,
+  //           }) => {
+  //             return {
+  //               is_cancelled: is_cancelled ? "cancelled" : "active",
+  //               order_type: order_type,
+  //               price: price.toFixed(2),
+  //               qty: qty,
+  //               symbol: symbol,
+  //               timestamp: timestamp,
+  //               trade_type: trade_type,
+  //               value: value,
+  //             };
+  //           }
+  //         )
+  //         ?.reverse()
+  //     );
+  //   });
+  // };
 
   useEffect(() => {
     getRealTimeStockData();
     getCurrentPortfolio();
-    getHistTrans();
+    // getHistTrans();
     const interval = setInterval(getRealTimeStockData, 5000);
     return () => clearInterval(interval);
   }, []);
@@ -371,41 +454,7 @@ const StockDetails = () => {
             </StandardCard>
           </Grid>
           <Grid item md={9} sm={12} xs={12}>
-            <StandardCard>
-              <CardContent>
-                <div // fix scrolling body in chrome
-                  onMouseEnter={() => {
-                    document.addEventListener("wheel", preventDefault, {
-                      passive: false,
-                    });
-                  }}
-                  onMouseLeave={() => {
-                    document.removeEventListener(
-                      "wheel",
-                      preventDefault,
-                      false
-                    );
-                  }}
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100%",
-                  }}
-                >
-                  {/* <ApexCandlestick data={parsedApexData} /> */}
-                  {timeSeries === null ? (
-                    <CircularProgress color="primary" size={50} />
-                  ) : (
-                    <Candlestick
-                      data={timeSeries}
-                      type="hybrid"
-                      leftEdge={left}
-                    />
-                  )}
-                </div>
-              </CardContent>
-            </StandardCard>
+            <CandleStickWithState timeSeries={timeSeries} />
           </Grid>
           <Grid item md={6} sm={12} xs={12}>
             <BasicCard sty>
@@ -422,24 +471,39 @@ const StockDetails = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <Typography variant="h5">Transaction History</Typography>
-                    {/* <SortableTable
-                      data={transHist}
-                      header={headCells}
-                      title="History"
-                      buttons={false}
-                      handleDelete={null}
-                      handleRefresh={null}
-                      toolbar={false}
-                    /> */}
                   </Grid>
                 </Grid>
               </CardContent>
-              <SortableStockTable
-                title="History"
-                columns={columns}
-                data={transHist}
-                // isLoading={transactionDataLoading}
-              />
+              <Grid item xs={12}>
+                <Tabs
+                  value={tab}
+                  onChange={(_event, newValue) => {
+                    setTab(newValue);
+                  }}
+                  indicatorColor="primary"
+                  textColor="primary"
+                  variant="fullWidth"
+                >
+                  <Tab label="Transaction History" />
+                  <Tab label="Orders" />
+                </Tabs>
+              </Grid>
+              {tab === 0 ? (
+                <SortableStockTable
+                  title="History"
+                  columns={orderColumns}
+                  data={transHist}
+                  handleDelete={({ id }) =>
+                    dispatch(removeFromOrdersWithSnack(id, handleSnack))
+                  }
+                />
+              ) : (
+                <SortableStockTable
+                  title="Orders"
+                  columns={transactionColumns}
+                  data={ordersHist}
+                />
+              )}
             </BasicCard>
           </Grid>
 

@@ -33,11 +33,11 @@ function App() {
         ref={notistackRef}
         action={(key) => <Button onClick={onClickDismiss(key)}>OK</Button>}
       >
-        <AuthProvider>
-          <ScrollToTop history={history}>
+        <ScrollToTop history={history}>
+          <AuthProvider>
             <PageContainer />
-          </ScrollToTop>
-        </AuthProvider>
+          </AuthProvider>
+        </ScrollToTop>
       </SnackbarProvider>
     </Provider>
   );

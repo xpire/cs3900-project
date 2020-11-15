@@ -67,38 +67,23 @@ const columns = [
 ];
 
 const Watchlist = () => {
-  // // const [data, setData] = useState([]);
-  // const [deleted, setDeleted] = useState(0);
-  // const [data, loading, updateSymbols] = useRealTimeStockData(
-  //   "/watchlist",
-  //   [deleted],
-  //   []
-  // );
   const dispatch = useDispatch();
   const handleSnack = useHandleSnack(true);
   const data = useSelector((state) => state.user.watchlist); // TODO add a selector that retrieves watchlist/orders with given stocks data
-  const mappedData = data.map(
-    ({ curr_day_close, exchange, name, curr_day_open, symbol }) => {
-      return {
-        symbol: symbol,
-        name: name,
-        exchange: exchange,
-        price: curr_day_close,
-        open: curr_day_open,
-        daily: format(curr_day_close - curr_day_open),
-        dailyPercentage: format(
-          (100 * (curr_day_close - curr_day_open)) / curr_day_open
-        ),
-      };
-    }
-  );
-
-  // const handleDelete = () => {
-  //   console.log("watchist", deleted + 1);
-  //   setDeleted(deleted + 1);
-  //   console.log("watchist after", deleted + 1);
-  // };
-
+  const stocks = useSelector((state) => state.stocks.dict);
+  const mappedData = data.map(({ exchange, name, symbol }) => {
+    const price = stocks[symbol]?.curr_day_close || 0;
+    const open = stocks[symbol]?.curr_day_open || 0;
+    return {
+      symbol: symbol,
+      name: name,
+      exchange: exchange,
+      price: price,
+      open: open,
+      daily: format(price - open),
+      dailyPercentage: format((100 * (price - open)) / open),
+    };
+  });
   return (
     <Page>
       <Card>
@@ -106,19 +91,9 @@ const Watchlist = () => {
           data={mappedData}
           columns={columns}
           title="Watch List"
-          // isLoading={loading}
-          handleDelete={({ symbol }) => {
-            dispatch(removeFromWatchlistWithSnack(symbol, handleSnack));
-            // updateSymbols();
-            // handleSnack(`/watchlist?symbol=${symbol}`, "delete").then(() =>
-            // );
-          }}
-          // handleRefresh={handleDelete}
-          // header={headCells}
-          // title="Watchlist"
-          // handleDelete={({ symbol }) =>
-          //   dispatch(removeFromWatchlistWithSnack(symbol, handleSnack))
-          // }
+          handleDelete={({ symbol }) =>
+            dispatch(removeFromWatchlistWithSnack(symbol, handleSnack))
+          }
         />
       </Card>
     </Page>

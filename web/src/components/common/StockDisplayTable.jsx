@@ -78,11 +78,7 @@ const StockDisplayTable = ({
               )}
             </ListItem>
           </List>
-          <Divider
-            // variant="inset"
-            component="li"
-            // style={{ padding: "0" }}
-          />
+          <Divider />
         </>
       ))}
     </>

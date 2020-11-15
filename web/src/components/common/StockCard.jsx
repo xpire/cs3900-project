@@ -39,8 +39,6 @@ const StockCard = ({
 }) => {
   const [deltaColor] = useColoredText(price);
 
-  /* implement selector symbol => watchlist */
-
   // const myDelta = useDelta(price);
   // const [deltaColor, setDeltaColor] = useState(0);
 

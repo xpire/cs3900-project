@@ -5,11 +5,7 @@ import { Grid } from "@material-ui/core";
 import StockCard from "./StockCard";
 import { format } from "../../utils/formatter";
 
-const CardGrid = ({ data }) => {
-  // const is_watched = (symbol) => {
-  //   watchlist.some(item => symbol === item)
-  // }
-
+const CardGrid = ({ data, watchButton }) => {
   return (
     <Grid
       container
@@ -43,11 +39,12 @@ const CardGrid = ({ data }) => {
                 symbol={symbol}
                 name={name}
                 category={exchange}
-                price={format(curr_day_close)} //{curr_day_close?.toFixed(2)}
-                delta={format(delta)} //{delta?.toFixed(2)}
+                price={format(curr_day_close)}
+                delta={format(delta)}
                 key={symbol}
                 online={is_trading}
                 skeleton={skeleton}
+                watchButton={watchButton}
               />
             </Grid>
           );

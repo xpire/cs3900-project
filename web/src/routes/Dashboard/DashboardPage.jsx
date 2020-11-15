@@ -16,6 +16,11 @@ import axios from "../../utils/api";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import useApi from "../../hooks/useApi";
 import { format } from "../../utils/formatter";
+import { useSelector } from "react-redux";
+import {
+  getPortfolioRealTimeData,
+  getWatchlistRealTimeData,
+} from "../../reducers";
 
 const CardsSpaceDiv = styled.div`
   // min-height: 75vh;
@@ -73,81 +78,49 @@ const StatCard = ({ name, value, stat, today }) => {
   );
 };
 
+const makeSkeleton = (n) =>
+  [...Array(n)].map((_) => {
+    return { skeleton: true };
+  });
+
+const statCells = [
+  { label: "Net Worth", id: "total_value" },
+  { label: "Balance", id: "balance" },
+  { label: "Portfolio Value", id: "total_portfolio_value" },
+  { label: "Profit", id: "total_portfolio_profit" },
+];
+
 const Dashboard = () => {
-  const { user } = useContext(AuthContext);
-  const [myValue, setValue] = useState(0);
-  const [forceUpdate, setForceUpdate] = useState({
-    long: 0,
-    short: 0,
-    watch: 0,
-  });
-  const [longData] = useRealTimeStockData(
-    "/portfolio",
-    [forceUpdate.long],
-    [...Array(12)].map((_) => {
-      return { skeleton: true };
-    }),
-    (d) => d.long
-  );
-  const [shortData] = useRealTimeStockData(
-    "/portfolio",
-    [forceUpdate.short],
-    [...Array(12)].map((_) => {
-      return { skeleton: true };
-    }),
-    (d) => d.short
+  // Main statistics
+  const stats = useSelector((state) => state.user.stats);
+  const [statCards, setStatCards] = useState(null);
+  useEffect(
+    () =>
+      setStatCards(
+        statCells.map((cell, index) => (
+          <Grid key={index} item md={3} sm={6} xs={12}>
+            <StatCard name={cell.label} value={format(stats[cell.id])} />
+          </Grid>
+        ))
+      ),
+    [stats]
   );
 
-  const [watchData] = useRealTimeStockData("/watchlist", [forceUpdate.watch]);
+  // Card data
+  const [tabValue, setValue] = useState(0);
+  const is_loading = useSelector((state) => state.user.is_loading);
+  const { long, short } = useSelector(getPortfolioRealTimeData);
+  const watchlist = useSelector(getWatchlistRealTimeData);
 
+  const longData = is_loading ? makeSkeleton(12) : long;
+  const shortData = is_loading ? makeSkeleton(12) : short;
+  const watchData = is_loading ? makeSkeleton(12) : watchlist;
+
+  // Net worth graph
   const [graphUpdate, setGraphUpdate] = useState(0);
-  const [graph, graphLoading] = useApi("/portfolio/history", [], [], (data) => {
-    // console.log(data);
-    const newData = data.map((e) => [new Date(e.timestamp), e.net_worth]);
-    console.log({ data, newData });
-    return newData;
-  });
-
-  const [stats, setStats] = useState([
-    {
-      name: "Portfolio Value",
-      valueKey: "total_portfolio_value",
-      statKey: "",
-      todayKey: "",
-    },
-    { name: "Net Value", valueKey: "total_value", statKey: "", todayKey: "" },
-    {
-      name: "Profit",
-      valueKey: "total_portfolio_profit",
-      statKey: "",
-      todayKey: "",
-    },
-    {
-      name: "Available Balance",
-      valueKey: "balance",
-      statKey: "",
-      todayKey: "",
-    },
-  ]);
-  useEffect(() => {
-    axios
-      .get("/portfolio/stats")
-      .then((response) => {
-        setStats((s) =>
-          s.map(({ name, valueKey, statKey, todayKey }) => {
-            return {
-              name: name,
-              value: format(response.data[valueKey]),
-              stat: response.data[statKey]
-                ? format(response.data[statKey])
-                : response.data[statKey],
-              today: response.data[todayKey],
-            };
-          })
-        );
-      })
-      .catch((err) => console.log(err));
-  }, [user]);
+  const [graph, graphLoading] = useApi("/portfolio/history", [], [], (data) =>
+    data.map((e) => [new Date(e.timestamp), e.net_worth])
+  );
 
   return (
     <Page>
@@ -157,11 +130,7 @@ const Dashboard = () => {
         justify="flex-start"
         alignItems="flex-start"
       >
-        {stats.map((data, index) => (
-          <Grid key={index} item md={3} sm={6} xs={12}>
-            <StatCard {...data} />
-          </Grid>
-        ))}
+        {statCards}
         <Grid item xs={12}>
           <StandardCard>
             <CardContent>
@@ -189,44 +158,14 @@ const Dashboard = () => {
             <CardContent>
               <Grid container alignItems="center" justify="space-between">
                 <Grid item>
-                  <Typography variant="button">Positions</Typography>
-                </Grid>
-                <Grid item>
-                  <InteractiveRefresh
-                    onClick={() => {
-                      switch (myValue) {
-                        case 0:
-                          setForceUpdate({
-                            ...forceUpdate,
-                            long: forceUpdate.long + 1,
-                          });
-                          break;
-                        case 1:
-                          setForceUpdate({
-                            ...forceUpdate,
-                            short: forceUpdate.short + 1,
-                          });
-                          break;
-                        case 2:
-                          setForceUpdate({
-                            ...forceUpdate,
-                            watch: forceUpdate.watch + 1,
-                          });
-                          break;
-                        default:
-                      }
-                      // myValue === 0
-                      // ? forceUpdate.long + 1
-                      // : myValue === 1
-                      // ? forceUpdate.short + 1
-                      // : forceUpdate.watch
-                    }}
-                  />
+                  <Typography variant="button">
+                    Portfolio and Watchlist
+                  </Typography>
                 </Grid>
               </Grid>
             </CardContent>
             <Tabs
-              value={myValue}
+              value={tabValue}
               onChange={(_event, newValue) => {
                 setValue(newValue);
               }}
@@ -242,10 +181,13 @@ const Dashboard = () => {
           <CardsSpaceDiv>
             <CardGrid
               data={
-                myValue === 0 ? longData : myValue === 1 ? shortData : watchData
+                tabValue === 0
+                  ? longData
+                  : tabValue === 1
+                  ? shortData
+                  : watchData
               }
-              renderWatchlist={false}
-              watchlist={[[], (x) => x]}
+              watchButton={false}
             />
           </CardsSpaceDiv>
         </Grid>

@@ -67,6 +67,9 @@ class CandleStickStockScaleChart extends React.Component {
       leftEdge = false,
       rightYAxis = false,
       rightEdge = true,
+      showEma20 = true,
+      showEma50 = true,
+      showBollingerSeries = true,
     } = this.props;
 
     const gridHeight = height - margin.top - margin.bottom;
@@ -150,6 +153,69 @@ class CandleStickStockScaleChart extends React.Component {
         xExtents={xExtents}
         seriesName="Graph"
       >
+        {/* https://rrag.github.io/react-stockcharts/documentation.html#/edge_coordinate */}
+        {/* <Chart
+          id={2}
+          yExtents={[(d) => d.volume, smaVolume70.accessor()]}
+          height={150}
+          origin={(w, h) => [0, h - 150]}
+        >
+          <YAxis
+            axisAt="left"
+            orient="left"
+            ticks={5}
+            tickFormat={format(".2s")}
+          />
+
+          <BarSeries
+            yAccessor={(d) => d.volume}
+            fill={(d) => (d.close > d.open ? "#6BA583" : "#FF0000")}
+          />
+          <AreaSeries
+            yAccessor={smaVolume70.accessor()}
+            stroke={smaVolume70.stroke()}
+            fill={smaVolume70.fill()}
+          />
+
+          <CurrentCoordinate
+            yAccessor={smaVolume70.accessor()}
+            fill={smaVolume70.stroke()}
+          />
+          <CurrentCoordinate yAccessor={(d) => d.volume} fill="#9B0A47" />
+
+          <EdgeIndicator
+            itemType="first"
+            orient="left"
+            edgeAt="left"
+            yAccessor={(d) => d.volume}
+            displayFormat={format(".4s")}
+            fill="#0F0F0F"
+          />
+          <EdgeIndicator
+            itemType="last"
+            orient="right"
+            edgeAt="right"
+            yAccessor={(d) => d.volume}
+            displayFormat={format(".4s")}
+            fill="#0F0F0F"
+          />
+          <EdgeIndicator
+            itemType="first"
+            orient="left"
+            edgeAt="left"
+            yAccessor={smaVolume70.accessor()}
+            displayFormat={format(".4s")}
+            fill={smaVolume70.fill()}
+          />
+          <EdgeIndicator
+            itemType="last"
+            orient="right"
+            edgeAt="right"
+            yAccessor={smaVolume70.accessor()}
+            displayFormat={format(".4s")}
+            fill={smaVolume70.fill()}
+          />
+        </Chart> */}
         <Chart id={1} yExtents={(d) => [d.high, d.low]}>
           <XAxis
             axisAt="bottom"
@@ -187,54 +253,64 @@ class CandleStickStockScaleChart extends React.Component {
             labelFill="#2196f3"
             origin={[-50, -10]}
           />
-
-          <LineSeries yAccessor={ema20.accessor()} stroke={ema20.stroke()} />
-          <LineSeries yAccessor={ema50.accessor()} stroke={ema50.stroke()} />
-
-          <BollingerSeries yAccessor={(d) => d.bb} {...bbAppearance} />
-          <BollingerBandTooltip
-            origin={[-50, 60]}
-            yAccessor={(d) => d.bb}
-            options={bb.options()}
-            fontFamily="Roboto"
-            fontSize={16}
-            textFill="#FFFFFF"
-            labelFill="#2196f3"
-          />
-
-          <CurrentCoordinate
-            yAccessor={ema20.accessor()}
-            fill={ema20.stroke()}
-          />
-          <CurrentCoordinate
-            yAccessor={ema50.accessor()}
-            fill={ema50.stroke()}
-          />
-
-          <GroupTooltip
-            layout="vertical"
-            origin={[-50, 15]}
-            verticalSize={20}
-            fontFamily="Roboto"
-            fontSize={16}
-            textFill="#FFFFFF"
-            labelFill="#2196f3"
-            onClick={(e) => console.log(e)}
-            options={[
-              {
-                yAccessor: ema20.accessor(),
-                yLabel: `${ema20.type()}(${ema20.options().windowSize})`,
-                valueFill: ema20.stroke(),
-                withShape: true,
-              },
-              {
-                yAccessor: ema50.accessor(),
-                yLabel: `${ema50.type()}(${ema50.options().windowSize})`,
-                valueFill: ema50.stroke(),
-                withShape: true,
-              },
-            ]}
-          />
+          {showBollingerSeries && (
+            <BollingerSeries yAccessor={(d) => d.bb} {...bbAppearance} />
+          )}
+          {showBollingerSeries && (
+            <BollingerBandTooltip
+              origin={[-50, 60]}
+              yAccessor={(d) => d.bb}
+              options={bb.options()}
+              fontFamily="Roboto"
+              fontSize={16}
+              textFill="#FFFFFF"
+              labelFill="#2196f3"
+            />
+          )}
+          {showEma20 && (
+            <LineSeries yAccessor={ema20.accessor()} stroke={ema20.stroke()} />
+          )}
+          {showEma20 && (
+            <CurrentCoordinate
+              yAccessor={ema20.accessor()}
+              fill={ema20.stroke()}
+            />
+          )}
+          {showEma50 && (
+            <LineSeries yAccessor={ema50.accessor()} stroke={ema50.stroke()} />
+          )}
+          {showEma50 && (
+            <CurrentCoordinate
+              yAccessor={ema50.accessor()}
+              fill={ema50.stroke()}
+            />
+          )}
+          {(showEma50 || showEma20) && (
+            <GroupTooltip
+              layout="vertical"
+              origin={[-50, 15]}
+              verticalSize={20}
+              fontFamily="Roboto"
+              fontSize={16}
+              textFill="#FFFFFF"
+              labelFill="#2196f3"
+              onClick={(e) => console.log(e)}
+              options={[
+                {
+                  yAccessor: ema20.accessor(),
+                  yLabel: `${ema20.type()}(${ema20.options().windowSize})`,
+                  valueFill: ema20.stroke(),
+                  withShape: true,
+                },
+                {
+                  yAccessor: ema50.accessor(),
+                  yLabel: `${ema50.type()}(${ema50.options().windowSize})`,
+                  valueFill: ema50.stroke(),
+                  withShape: true,
+                },
+              ]}
+            />
+          )}
 
           {rightYAxis && (
             <YAxis

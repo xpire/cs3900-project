@@ -66,7 +66,9 @@ const ColoredText = ({ children, color, delta, ...restProps }) => {
         color:
           color === "green"
             ? green[theme.palette.type]
-            : red[theme.palette.type],
+            : color === "red"
+            ? red[theme.palette.type]
+            : "#fff",
         background:
           delta > 0
             ? green["background"]

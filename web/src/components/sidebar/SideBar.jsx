@@ -12,11 +12,13 @@ import {
   CardContent,
 } from "@material-ui/core";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import styled from "styled-components";
 
+import axios from "../../utils/api";
 import { Routes } from "../../utils/routes";
 import { AuthContext } from "../../utils/authentication";
+import app from "../../utils/firebase";
 import Logo from "../../logo.svg";
 
 const StyledSideBar = styled.div`
@@ -28,6 +30,14 @@ const StyledSideBar = styled.div`
  */
 const SideBar = ({ isOpen, handleChange, variant }) => {
   const { user } = useContext(AuthContext);
+  let history = useHistory();
+
+  const handleLogout = () => {
+    app.auth().signOut();
+    delete axios.defaults.headers.common["id-token"];
+    console.log("header now:", axios.defaults.headers.common["id-token"]);
+    history.push("/");
+  };
   return (
     <Drawer open={isOpen} onClose={handleChange} variant={variant}>
       <StyledSideBar>
@@ -60,6 +70,10 @@ const SideBar = ({ isOpen, handleChange, variant }) => {
             <ListItemText>{text}</ListItemText>
           </ListItem>
         ))}
+        <ListItem button key="logout" onClick={handleLogout}>
+          <ListItemIcon></ListItemIcon>
+          <ListItemText>Sign Out</ListItemText>
+        </ListItem>
       </List>
     </Drawer>
   );

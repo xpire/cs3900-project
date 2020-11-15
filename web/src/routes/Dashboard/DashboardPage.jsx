@@ -108,13 +108,18 @@ const Dashboard = () => {
 
   // Card data
   const [tabValue, setValue] = useState(0);
-  const is_loading = useSelector((state) => state.user.is_loading);
+  const isLoading = useSelector((state) => state.user.isLoading);
   const { long, short } = useSelector(getPortfolioRealTimeData);
-  const watchlist = useSelector(getWatchlistRealTimeData);
+  const [longData, setLongData] = useState([]);
+  const [shortData, setShortData] = useState([]);
 
-  const longData = is_loading ? makeSkeleton(12) : long;
-  const shortData = is_loading ? makeSkeleton(12) : short;
-  const watchData = is_loading ? makeSkeleton(12) : watchlist;
+  useEffect(() => {
+    setLongData(long);
+    setShortData(short);
+  }, [isLoading]);
+
+  const watchlist = useSelector(getWatchlistRealTimeData);
+  const watchData = isLoading ? makeSkeleton(12) : watchlist;
 
   // Net worth graph
   const [graphUpdate, setGraphUpdate] = useState(0);

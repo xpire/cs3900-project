@@ -1,43 +1,54 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@material-ui/core";
 
-import SortableTable, {
-  tableTypes,
-} from "../../components/common/SortableTable";
+import { tableTypes } from "../../components/common/SortableTable";
+import SortableStockTable, {
+  RenderItem,
+} from "../../components/common/SortableStockTable";
 import Page from "../../components/page/Page";
 import axios from "../../utils/api";
 
-const headCells = [
+const columns = [
   {
-    id: "rank",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Rank",
+    field: "rank",
+    title: <RenderItem title="Rank" alignItems="flex-start" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.rank}
+        titleType={tableTypes.NUMBER}
+        alignItems="flex-start"
+      />
+    ),
   },
   {
-    id: "username",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Name",
+    field: "username",
+    title: <RenderItem title="Username" subtitle="Level" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.username}
+        titleType={tableTypes.TEXT}
+        subtitle={`Lv. ${rowData.level}`}
+        subtitleType={tableTypes.TEXT}
+      />
+    ),
+    align: "right",
   },
   {
-    id: "net_worth",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Net Worth",
-  },
-  {
-    id: "level",
-    formatType: tableTypes.NUMBER,
-    disablePadding: false,
-    label: "Level",
+    field: "net_worth",
+    title: <RenderItem title="Net Worth" />,
+    render: (rowData) => (
+      <RenderItem title={rowData.net_worth} titleType={tableTypes.CURRENCY} />
+    ),
+    align: "right",
   },
 ];
 
 const Leaderboard = () => {
   const [data, setData] = useState([]);
-  const [refresh, setRefresh] = useState(0);
-  useEffect(() => {
+  const [loading, setLoading] = useState(true);
+
+  const refreshTable = () => {
+    setLoading(true);
     axios
       .get("/leaderboard")
       .then((response) => {
@@ -46,19 +57,29 @@ const Leaderboard = () => {
             return { ...elem, rank: index + 1 };
           })
         );
+        setLoading(false);
       })
       .catch((err) => console.log(err));
-  }, [refresh]);
+  };
+
+  useEffect(() => {
+    refreshTable();
+  }, []);
+
+  const handleRefresh = () => {
+    refreshTable();
+  };
 
   return (
     <Page>
       <Card>
-        <SortableTable
-          data={data}
-          header={headCells}
+        <SortableStockTable
           title="Leaderboard"
+          columns={columns}
+          data={data}
+          isLoading={loading}
           buttons={false}
-          handleRefresh={() => setRefresh(refresh + 1)}
+          handleRefresh={handleRefresh}
         />
       </Card>
     </Page>

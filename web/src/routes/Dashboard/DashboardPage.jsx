@@ -22,19 +22,10 @@ import {
   getWatchlistRealTimeData,
 } from "../../reducers";
 
-// import * as TimeSeriesData from "../../utils/stocksTimeSeries.json"; //TODO: make this an API call
-
 const CardsSpaceDiv = styled.div`
   // min-height: 75vh;
   min-height: 100vh;
 `;
-
-// const parsedApexData = TimeSeriesData.AAPL.values
-//   .map(({ datetime, open, close, high, low }) => {
-//     // return { x: new Date(datetime), y: [open, high, low, close] };
-//     return [new Date(datetime), open];
-//   })
-//   .slice(0, 120);
 
 const StatCard = ({ name, value, stat, today }) => {
   const [delta] = useColoredText(stat);
@@ -154,7 +145,11 @@ const Dashboard = () => {
                   />
                 </Grid>
               </Grid>
-              {!graphLoading && <Cumulative data={graph} />}
+              {!graphLoading ? (
+                <Cumulative data={graph} />
+              ) : (
+                <Skeleton variant="rect" height={350} />
+              )}
             </CardContent>
           </StandardCard>
         </Grid>

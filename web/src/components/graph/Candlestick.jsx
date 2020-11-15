@@ -7,25 +7,53 @@ import { format } from "d3-format";
 import { timeFormat } from "d3-time-format";
 
 import { ChartCanvas, Chart } from "react-stockcharts";
-import { CandlestickSeries } from "react-stockcharts/lib/series";
+import {
+  BarSeries,
+  BollingerSeries,
+  CandlestickSeries,
+  LineSeries,
+  StochasticSeries,
+} from "react-stockcharts/lib/series";
 import { XAxis, YAxis } from "react-stockcharts/lib/axes";
 
 import {
   CrossHairCursor,
   EdgeIndicator,
+  CurrentCoordinate,
   MouseCoordinateX,
   MouseCoordinateY,
 } from "react-stockcharts/lib/coordinates";
 import {
   OHLCTooltip,
-  // MovingAverageTooltip,
-  // BollingerBandTooltip,
-  // StochasticTooltip,
-  // GroupTooltip,
+  MovingAverageTooltip,
+  BollingerBandTooltip,
+  StochasticTooltip,
+  GroupTooltip,
 } from "react-stockcharts/lib/tooltip";
+import {
+  ema,
+  stochasticOscillator,
+  bollingerBand,
+} from "react-stockcharts/lib/indicator";
 
 import { discontinuousTimeScaleProvider } from "react-stockcharts/lib/scale";
 import { fitWidth } from "react-stockcharts/lib/helper";
+
+const bbAppearance = {
+  stroke: {
+    top: "#964B00",
+    middle: "#FF6600",
+    bottom: "#964B00",
+  },
+  fill: "#4682B4",
+};
+const stoAppearance = {
+  stroke: Object.assign({}, StochasticSeries.defaultProps.stroke, {
+    top: "#37a600",
+    middle: "#b8ab00",
+    bottom: "#37a600",
+  }),
+};
 
 class CandleStickStockScaleChart extends React.Component {
   render() {
@@ -33,17 +61,78 @@ class CandleStickStockScaleChart extends React.Component {
       type,
       data: initialData,
       width,
+      height = 500,
+      margin = { left: 50, right: 50, top: 70, bottom: 30 },
       ratio,
       leftEdge = false,
       rightYAxis = false,
       rightEdge = true,
+      showEma20 = true,
+      showEma50 = true,
+      showBollingerSeries = true,
     } = this.props;
+
+    const gridHeight = height - margin.top - margin.bottom;
+    const gridWidth = width - margin.left - margin.right;
+
+    const showGrid = true;
+    const yGrid = showGrid
+      ? { innerTickSize: -1 * gridWidth, tickStrokeOpacity: 0.2 }
+      : {};
+    const xGrid = showGrid
+      ? { innerTickSize: -1 * gridHeight, tickStrokeOpacity: 0.2 }
+      : {};
+
+    const ema20 = ema()
+      .id(0)
+      .options({ windowSize: 20 })
+      .merge((d, c) => {
+        d.ema20 = c;
+      })
+      .accessor((d) => d.ema20);
+
+    const ema50 = ema()
+      .id(2)
+      .options({ windowSize: 50 })
+      .merge((d, c) => {
+        d.ema50 = c;
+      })
+      .accessor((d) => d.ema50);
+
+    const slowSTO = stochasticOscillator()
+      .options({ windowSize: 14, kWindowSize: 3 })
+      .merge((d, c) => {
+        d.slowSTO = c;
+      })
+      .accessor((d) => d.slowSTO);
+    const fastSTO = stochasticOscillator()
+      .options({ windowSize: 14, kWindowSize: 1 })
+      .merge((d, c) => {
+        d.fastSTO = c;
+      })
+      .accessor((d) => d.fastSTO);
+    const fullSTO = stochasticOscillator()
+      .options({ windowSize: 14, kWindowSize: 3, dWindowSize: 4 })
+      .merge((d, c) => {
+        d.fullSTO = c;
+      })
+      .accessor((d) => d.fullSTO);
+
+    const bb = bollingerBand()
+      .merge((d, c) => {
+        d.bb = c;
+      })
+      .accessor((d) => d.bb);
+
+    const calculatedData = bb(
+      ema20(ema50(slowSTO(fastSTO(fullSTO(initialData)))))
+    );
 
     const xScaleProvider = discontinuousTimeScaleProvider.inputDateAccessor(
       (d) => d.date
     );
     const { data, xScale, xAccessor, displayXAccessor } = xScaleProvider(
-      initialData
+      calculatedData
     );
     const xExtents = [
       xAccessor(data[data.length - 1]),
@@ -52,10 +141,10 @@ class CandleStickStockScaleChart extends React.Component {
 
     return (
       <ChartCanvas
-        height={400}
+        height={height}
         ratio={ratio}
         width={width}
-        margin={{ left: 50, right: 50, top: 20, bottom: 30 }}
+        margin={margin}
         type={type}
         data={data}
         xScale={xScale}
@@ -64,6 +153,69 @@ class CandleStickStockScaleChart extends React.Component {
         xExtents={xExtents}
         seriesName="Graph"
       >
+        {/* https://rrag.github.io/react-stockcharts/documentation.html#/edge_coordinate */}
+        {/* <Chart
+          id={2}
+          yExtents={[(d) => d.volume, smaVolume70.accessor()]}
+          height={150}
+          origin={(w, h) => [0, h - 150]}
+        >
+          <YAxis
+            axisAt="left"
+            orient="left"
+            ticks={5}
+            tickFormat={format(".2s")}
+          />
+
+          <BarSeries
+            yAccessor={(d) => d.volume}
+            fill={(d) => (d.close > d.open ? "#6BA583" : "#FF0000")}
+          />
+          <AreaSeries
+            yAccessor={smaVolume70.accessor()}
+            stroke={smaVolume70.stroke()}
+            fill={smaVolume70.fill()}
+          />
+
+          <CurrentCoordinate
+            yAccessor={smaVolume70.accessor()}
+            fill={smaVolume70.stroke()}
+          />
+          <CurrentCoordinate yAccessor={(d) => d.volume} fill="#9B0A47" />
+
+          <EdgeIndicator
+            itemType="first"
+            orient="left"
+            edgeAt="left"
+            yAccessor={(d) => d.volume}
+            displayFormat={format(".4s")}
+            fill="#0F0F0F"
+          />
+          <EdgeIndicator
+            itemType="last"
+            orient="right"
+            edgeAt="right"
+            yAccessor={(d) => d.volume}
+            displayFormat={format(".4s")}
+            fill="#0F0F0F"
+          />
+          <EdgeIndicator
+            itemType="first"
+            orient="left"
+            edgeAt="left"
+            yAccessor={smaVolume70.accessor()}
+            displayFormat={format(".4s")}
+            fill={smaVolume70.fill()}
+          />
+          <EdgeIndicator
+            itemType="last"
+            orient="right"
+            edgeAt="right"
+            yAccessor={smaVolume70.accessor()}
+            displayFormat={format(".4s")}
+            fill={smaVolume70.fill()}
+          />
+        </Chart> */}
         <Chart id={1} yExtents={(d) => [d.high, d.low]}>
           <XAxis
             axisAt="bottom"
@@ -94,6 +246,71 @@ class CandleStickStockScaleChart extends React.Component {
             wickStroke={(d) => (d.close > d.open ? green.dark : red.dark)} //"#6BA583" : "#DB0000")}
             fill={(d) => (d.close > d.open ? green.dark : red.dark)} //"#6BA583" : "#DB0000")}
           />
+          <OHLCTooltip
+            fontFamily="Roboto"
+            fontSize={16}
+            textFill="#FFFFFF"
+            labelFill="#2196f3"
+            origin={[-50, -10]}
+          />
+          {showBollingerSeries && (
+            <BollingerSeries yAccessor={(d) => d.bb} {...bbAppearance} />
+          )}
+          {showBollingerSeries && (
+            <BollingerBandTooltip
+              origin={[-50, 60]}
+              yAccessor={(d) => d.bb}
+              options={bb.options()}
+              fontFamily="Roboto"
+              fontSize={16}
+              textFill="#FFFFFF"
+              labelFill="#2196f3"
+            />
+          )}
+          {showEma20 && (
+            <LineSeries yAccessor={ema20.accessor()} stroke={ema20.stroke()} />
+          )}
+          {showEma20 && (
+            <CurrentCoordinate
+              yAccessor={ema20.accessor()}
+              fill={ema20.stroke()}
+            />
+          )}
+          {showEma50 && (
+            <LineSeries yAccessor={ema50.accessor()} stroke={ema50.stroke()} />
+          )}
+          {showEma50 && (
+            <CurrentCoordinate
+              yAccessor={ema50.accessor()}
+              fill={ema50.stroke()}
+            />
+          )}
+          {(showEma50 || showEma20) && (
+            <GroupTooltip
+              layout="vertical"
+              origin={[-50, 15]}
+              verticalSize={20}
+              fontFamily="Roboto"
+              fontSize={16}
+              textFill="#FFFFFF"
+              labelFill="#2196f3"
+              onClick={(e) => console.log(e)}
+              options={[
+                {
+                  yAccessor: ema20.accessor(),
+                  yLabel: `${ema20.type()}(${ema20.options().windowSize})`,
+                  valueFill: ema20.stroke(),
+                  withShape: true,
+                },
+                {
+                  yAccessor: ema50.accessor(),
+                  yLabel: `${ema50.type()}(${ema50.options().windowSize})`,
+                  valueFill: ema50.stroke(),
+                  withShape: true,
+                },
+              ]}
+            />
+          )}
 
           {rightYAxis && (
             <YAxis
@@ -121,16 +338,9 @@ class CandleStickStockScaleChart extends React.Component {
               lineStroke="#FFFFFF"
               edgeAt="left"
               yAccessor={(d) => d.close}
-              fill={(d) => (d.close > d.open ? green.dark : red.dark)} //"#6BA583" : "#DB0000")}
+              fill={(d) => (d.close > d.open ? green.light : red.dark)} //"#6BA583" : "#DB0000")}
             />
           )}
-          <OHLCTooltip
-            fontFamily="Roboto"
-            fontSize={16}
-            textFill="#FFFFFF"
-            labelFill="#2196f3"
-            origin={[-50, -10]}
-          />
         </Chart>
         <CrossHairCursor stroke="#FFFFFF" />
       </ChartCanvas>

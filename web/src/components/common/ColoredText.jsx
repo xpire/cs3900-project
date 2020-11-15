@@ -36,11 +36,11 @@ export const useColoredText = (value) => {
       console.log(myDelta);
       const prev =
         typeof myDelta.prev === "string"
-          ? parseFloat(myDelta.prev.replace(/[%$]*/g, ""))
+          ? parseFloat(myDelta.prev.replace(/[%$+]*/g, ""))
           : myDelta.prev;
       const curr =
         typeof myDelta.curr === "string"
-          ? parseFloat(myDelta.curr.replace(/[%$]*/g, ""))
+          ? parseFloat(myDelta.curr.replace(/[%$+]*/g, ""))
           : myDelta.curr;
       console.log({ prev, curr });
       if (prev < curr) {

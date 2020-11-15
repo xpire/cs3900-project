@@ -15,61 +15,70 @@ import InteractiveRefresh from "../../components/common/InteractiveRefresh";
 import Cumulative from "../../components/graph/Cumulative";
 import { AuthContext } from "../../utils/authentication";
 import Page from "../../components/page/Page";
-import { StandardCard } from "../../components/common/styled";
+import { StandardCard, BasicCard } from "../../components/common/styled";
 import useApi from "../../hooks/useApi";
 import { format } from "../../utils/formatter";
 import SortableTable, {
   tableTypes,
 } from "../../components/common/SortableTable";
+import SortableStockTable, {
+  RenderItem,
+} from "../../components/common/SortableStockTable";
 
-const headCells = [
+const columns = [
   {
-    id: "index",
-    formatType: tableTypes.ID,
-    disablePadding: false,
-    label: "Id",
+    field: "timestamp",
+    title: (
+      <RenderItem title="Timestamp" subtitle="Index" alignItems="flex-start" />
+    ),
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.timestamp}
+        titleType={tableTypes.DATE}
+        subtitle={rowData.index}
+        subtitleType={tableTypes.NUMBER}
+        alignItems="flex-start"
+      />
+    ),
   },
   {
-    id: "timestamp",
-    formatType: tableTypes.DATE,
-    disablePadding: false,
-    label: "Timestamp",
+    field: "symbol",
+    title: <RenderItem title="Symbol" subtitle="Name" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.symbol}
+        titleType={tableTypes.TEXT}
+        subtitle={rowData.name}
+        subtitleType={tableTypes.TEXT}
+      />
+    ),
+    align: "right",
   },
   {
-    id: "trade_type",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Trade Type",
+    field: "trade_type",
+    title: <RenderItem title="Trade Type" subtitle="Quantity" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.trade_type}
+        titleType={tableTypes.TEXT}
+        subtitle={rowData.qty}
+        subtitleType={tableTypes.NUMBER}
+      />
+    ),
+    align: "right",
   },
   {
-    id: "symbol",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Symbol",
-  },
-  {
-    id: "name",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Name",
-  },
-  {
-    id: "qty",
-    formatType: tableTypes.NUMBER,
-    disablePadding: false,
-    label: "Quantity",
-  },
-  {
-    id: "price",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Price",
-  },
-  {
-    id: "value",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Value",
+    field: "price",
+    title: <RenderItem title="Price" subtitle="Value" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.price}
+        titleType={tableTypes.CURRENCY}
+        subtitle={rowData.value}
+        subtitleType={tableTypes.CURRENCY}
+      />
+    ),
+    align: "right",
   },
 ];
 
@@ -96,7 +105,7 @@ const Profile = () => {
     }
   }, [data]);
 
-  const [transactionData] = useApi("/transactions");
+  const [transactionData, transactionDataLoading] = useApi("/transactions");
 
   const mappedTransactionData = transactionData.map((e, index) => {
     return { ...e, index: index + 1 };
@@ -168,13 +177,14 @@ const Profile = () => {
           </StandardCard>
         </Grid>
         <Grid item xs={12}>
-          <StandardCard>
-            <SortableTable
-              data={mappedTransactionData}
-              header={headCells}
+          <BasicCard>
+            <SortableStockTable
               title="Transaction History"
+              columns={columns}
+              data={mappedTransactionData}
+              isLoading={transactionDataLoading}
             />
-          </StandardCard>
+          </BasicCard>
         </Grid>
       </Grid>
     </Page>

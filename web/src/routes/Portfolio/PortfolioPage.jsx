@@ -1,99 +1,104 @@
 import React, { useState, useEffect } from "react";
 import { Card, Tabs, Tab } from "@material-ui/core";
 
-import SortableTable, {
-  tableTypes,
-} from "../../components/common/SortableTable";
+import { tableTypes } from "../../components/common/SortableTable";
+import SortableStockTable, {
+  RenderItem,
+} from "../../components/common/SortableStockTable";
 import Page from "../../components/page/Page";
 import axios from "../../utils/api";
 
-const headCells = [
+const columns = [
   {
-    id: "symbol",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Symbol",
+    field: "symbol",
+    title: (
+      <RenderItem title="Symbol" subtitle="Shares" alignItems="flex-start" />
+    ),
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.symbol}
+        titleType={tableTypes.TEXT}
+        subtitle={rowData.owned}
+        subtitleType={tableTypes.NUMBER}
+        alignItems="flex-start"
+      />
+    ),
   },
   {
-    id: "name",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Name",
+    field: "price",
+    title: <RenderItem title="Price" subtitle="Chg/Chg%" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.price}
+        titleType={tableTypes.CURRENCY}
+        subtitle={rowData.day_profit}
+        subtitleColor={true}
+        subtitleType={tableTypes.CURRENCY}
+        subsubtitle={rowData.day_return}
+        subsubtitleType={tableTypes.PERCENTAGE}
+        subsubtitleColor={true}
+      />
+    ),
+    align: "right",
   },
   {
-    id: "price",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Price",
+    field: "value",
+    title: <RenderItem title="Value" subtitle="Gain/Loss" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.value}
+        titleType={tableTypes.CURRENCY}
+        subtitle={rowData.profit}
+        subtitleColor={true}
+        subtitleType={tableTypes.CURRENCY}
+        subsubtitle={rowData.total_return}
+        subsubtitleType={tableTypes.PERCENTAGE}
+        subsubtitleColor={true}
+      />
+    ),
+    align: "right",
   },
   {
-    id: "previous_price",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Previous Price",
-  },
-  {
-    id: "owned",
-    formatType: tableTypes.NUMBER,
-    disablePadding: false,
-    label: "Owned",
-  },
-  {
-    id: "average_paid",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Avg Paid",
-  },
-  {
-    id: "total_paid",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Total Paid",
-  },
-  {
-    id: "value",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Value",
-  },
-
-  {
-    id: "profit",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Gain",
-    color: true,
-  },
-  {
-    id: "day_profit",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Day Profit",
-    color: true,
-  },
-  {
-    id: "total_return",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Return",
-    color: true,
+    field: "average_paid",
+    title: <RenderItem title="Avg Paid" subtitle="Total Paid" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.average_paid}
+        titleType={tableTypes.CURRENCY}
+        subtitle={rowData.total_paid}
+        subtitleType={tableTypes.CURRENCY}
+      />
+    ),
+    align: "right",
   },
 ];
 
 const Portfolio = () => {
   const [long, setLong] = useState([]);
   const [short, setShort] = useState([]);
-  const [refresh, setRefresh] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const [tab, setTab] = useState(0);
-  useEffect(() => {
+
+  const refreshTable = () => {
+    setIsLoading(true);
     axios
       .get("/portfolio")
       .then((response) => {
         setLong(response.data.long);
         setShort(response.data.short);
+        setIsLoading(false);
       })
       .catch((err) => console.log(err));
-  }, [refresh]);
+  };
+
+  useEffect(() => {
+    refreshTable();
+  }, []);
+
+  const handleRefresh = () => {
+    refreshTable();
+  };
+
   return (
     <Page>
       <Card>
@@ -110,18 +115,20 @@ const Portfolio = () => {
           <Tab label="Shorts" />
         </Tabs>
         {tab === 0 ? (
-          <SortableTable
-            data={long}
-            header={headCells}
+          <SortableStockTable
             title="Portfolio"
-            handleRefresh={() => setRefresh(refresh + 1)}
+            columns={columns}
+            data={long}
+            isLoading={isLoading}
+            handleRefresh={handleRefresh}
           />
         ) : (
-          <SortableTable
-            data={short}
-            header={headCells}
+          <SortableStockTable
             title="Portfolio"
-            handleRefresh={() => setRefresh(refresh + 1)}
+            columns={columns}
+            data={short}
+            isLoading={isLoading}
+            handleRefresh={handleRefresh}
           />
         )}
       </Card>

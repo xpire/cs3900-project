@@ -14,7 +14,7 @@ const useRealTimeStockData = (
 
   const [symbols, setSymbols] = useState();
 
-  useEffect(() => {
+  const updateSymbols = () =>
     axios
       .get(path)
       .then((response) => {
@@ -23,6 +23,9 @@ const useRealTimeStockData = (
         setLoadingSymbols(false);
       })
       .catch((err) => {});
+
+  useEffect(() => {
+    updateSymbols();
   }, update);
 
   const [stockData, setStockData] = useState(initialData);
@@ -55,7 +58,7 @@ const useRealTimeStockData = (
     return () => clearInterval(interval);
   }, [symbols, loadingSymbols]);
 
-  return [stockData, loading];
+  return [stockData, loading, updateSymbols];
 };
 
 export default useRealTimeStockData;

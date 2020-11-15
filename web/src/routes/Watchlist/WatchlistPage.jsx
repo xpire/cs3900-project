@@ -5,55 +5,64 @@ import Page from "../../components/page/Page";
 import SortableTable, {
   tableTypes,
 } from "../../components/common/SortableTable";
+import SortableStockTable, {
+  RenderItem,
+} from "../../components/common/SortableStockTable";
+import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import { format } from "../../utils/formatter";
 import { useDispatch, useSelector } from "react-redux";
 import { removeFromWatchlistWithSnack } from "../../reducers";
 import useHandleSnack from "../../hooks/useHandleSnack";
 
-const headCells = [
+const columns = [
   {
-    id: "symbol",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Symbol",
+    field: "symbol",
+    title: (
+      <RenderItem
+        title="Symbol"
+        subtitle="Exchange/Name"
+        alignItems="flex-start"
+      />
+    ),
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.symbol}
+        titleType={tableTypes.TEXT}
+        subtitle={rowData.exchange}
+        subtitleType={tableTypes.TEXT}
+        subsubtitle={rowData.name}
+        subsubtitleType={tableTypes.TEXT}
+        alignItems="flex-start"
+      />
+    ),
   },
   {
-    id: "name",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Name",
+    field: "price",
+    title: <RenderItem title="Price" subtitle="Prev. Open" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.price}
+        titleType={tableTypes.CURRENCY}
+        subtitle={rowData.open}
+        subtitleType={tableTypes.CURRENCY}
+      />
+    ),
+    align: "right",
   },
   {
-    id: "exchange",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Exchange",
-  },
-  {
-    id: "price",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Price",
-  },
-  {
-    id: "open",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Open",
-  },
-  {
-    id: "daily",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Day Change",
-    color: true,
-  },
-  {
-    id: "dailyPercentage",
-    formatType: tableTypes.PERCENTAGE,
-    disablePadding: false,
-    label: "% Day Change",
-    color: true,
+    field: "value",
+    title: <RenderItem title="Daily" subtitle="%Daily" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.daily}
+        titleType={tableTypes.CURRENCY}
+        titleColor={true}
+        subtitle={rowData.dailyPercentage}
+        subtitleColor={true}
+        subtitleType={tableTypes.PERCENTAGE}
+      />
+    ),
+    align: "right",
   },
 ];
 
@@ -61,29 +70,27 @@ const Watchlist = () => {
   const dispatch = useDispatch();
   const handleSnack = useHandleSnack(true);
   const data = useSelector((state) => state.user.watchlist); // TODO add a selector that retrieves watchlist/orders with given stocks data
-  const mappedData = data.map(
-    ({ curr_day_close, exchange, name, curr_day_open, symbol }) => {
-      return {
-        symbol: symbol,
-        name: name,
-        exchange: exchange,
-        price: curr_day_close,
-        open: curr_day_open,
-        daily: format(curr_day_close - curr_day_open),
-        dailyPercentage: format(
-          (100 * (curr_day_close - curr_day_open)) / curr_day_open
-        ),
-      };
-    }
-  );
-
+  const stocks = useSelector((state) => state.stocks.dict);
+  const mappedData = data.map(({ exchange, name, symbol }) => {
+    const price = stocks[symbol]?.curr_day_close || 0;
+    const open = stocks[symbol]?.curr_day_open || 0;
+    return {
+      symbol: symbol,
+      name: name,
+      exchange: exchange,
+      price: price,
+      open: open,
+      daily: format(price - open),
+      dailyPercentage: format((100 * (price - open)) / open),
+    };
+  });
   return (
     <Page>
       <Card>
-        <SortableTable
+        <SortableStockTable
           data={mappedData}
-          header={headCells}
-          title="Watchlist"
+          columns={columns}
+          title="Watch List"
           handleDelete={({ symbol }) =>
             dispatch(removeFromWatchlistWithSnack(symbol, handleSnack))
           }

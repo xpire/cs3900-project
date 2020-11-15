@@ -15,17 +15,19 @@ function LeaderboardPanel() {
   );
   return (
     <div>
-      <Typography>Leaderboard</Typography>
+      <Typography variant="h6">Leaderboard</Typography>
       <Typography variant="subtitle1">
         Your ranking is #{user_ranking}
       </Typography>
       <List>
         <Divider />
         {rankings.map(({ username, net_worth }, index) => {
-          const msg = `#${index + 1}. ${username} @ $${format(net_worth)}`;
           return (
             <ListItem divider dense>
-              <ListItemText primary={msg} />
+              <ListItemText
+                primary={`${index + 1}. ${username}`}
+                secondary={`$${format(net_worth)}`}
+              />
             </ListItem>
           );
         })}

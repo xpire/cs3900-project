@@ -54,7 +54,6 @@ function NumberFormatCustom(props) {
 }
 
 const Trading = ({ symbol }) => {
-  const search = useLocation().search;
   let history = useHistory();
   const [submitLoading, setSubmitLoading] = useState(false);
 
@@ -179,10 +178,10 @@ const Trading = ({ symbol }) => {
           );
           longData?.owned
             ? setMaxValue(
-              state.purchaseBy === "quantity"
-                ? longData.owned
-                : longData.owned * actualPriceConst
-            )
+                state.purchaseBy === "quantity"
+                  ? longData.owned
+                  : longData.owned * actualPriceConst
+              )
             : setMaxValue(0);
 
           break;
@@ -191,7 +190,7 @@ const Trading = ({ symbol }) => {
             Math.floor(
               state.purchaseBy === "quantity"
                 ? portfolioStats.short_balance /
-                (actualPriceConst * commissionConst) // take into account commission
+                    (actualPriceConst * commissionConst) // take into account commission
                 : portfolioStats.short_balance
             )
           );
@@ -202,10 +201,10 @@ const Trading = ({ symbol }) => {
           );
           shortData?.owned
             ? setMaxValue(
-              state.purchaseBy === "quantity"
-                ? shortData.owned
-                : shortData.owned * actualPriceConst
-            )
+                state.purchaseBy === "quantity"
+                  ? shortData.owned
+                  : shortData.owned * actualPriceConst
+              )
             : setMaxValue(0);
 
           break;
@@ -241,9 +240,9 @@ const Trading = ({ symbol }) => {
   const handleSubmit = () => {
     setSubmitLoading(true);
     handleSnack(
-      `/trade/${state.orderType}/${state.tradeType}?symbol=${symbol
-      }&quantity=${state.quantity}${state.orderType === "limit" ? `&limit=${actualPrice}` : ""
-      }`,
+      `/trade/${state.orderType}/${state.tradeType}?symbol=${symbol}&quantity=${
+        state.quantity
+      }${state.orderType === "limit" ? `&limit=${actualPrice}` : ""}`,
       "post"
     ).then(() => {
       setSubmitLoading(false);
@@ -252,206 +251,208 @@ const Trading = ({ symbol }) => {
     });
   };
 
-  return (<>
-    <BasicCard>
-      <CardContent>
-        <Grid
-          container
-          direction="row"
-          justify="center"
-          alignItems="center"
-          spacing={2}
-        >
-          <Grid item xs={3}>
-            Trading Hour: 
-          </Grid>
-          <Grid item xs={9}>
+  return (
+    <>
+      <BasicCard>
+        <CardContent>
+          <Grid
+            container
+            direction="row"
+            justify="center"
+            alignItems="center"
+            spacing={2}
+          >
+            <Grid item xs={3}>
+              Trading Hour:
+            </Grid>
+            <Grid item xs={9}>
               <TradingHoursIndicator online={online} />
             </Grid>
-          <Grid item xs={3}>
-            Trade Type:
+            <Grid item xs={3}>
+              Trade Type:
             </Grid>
-          <Grid item xs={9}>
-            <ToggleButtonGroup
-              value={state.tradeType}
-              exclusive
-              onChange={(_event, newValue) =>
-                newValue !== null && setTradeType(newValue)
-              }
-            >
-              <ToggleButton value="buy">Buy</ToggleButton>
-              <ToggleButton value="sell">Sell</ToggleButton>
-              <ToggleButton
-                value="short"
-                disabled={lockedLoading ? true : locked.level < 5}
+            <Grid item xs={9}>
+              <ToggleButtonGroup
+                value={state.tradeType}
+                exclusive
+                onChange={(_event, newValue) =>
+                  newValue !== null && setTradeType(newValue)
+                }
               >
-                Short
+                <ToggleButton value="buy">Buy</ToggleButton>
+                <ToggleButton value="sell">Sell</ToggleButton>
+                <ToggleButton
+                  value="short"
+                  disabled={lockedLoading ? true : locked.level < 5}
+                >
+                  Short
                 </ToggleButton>
-              <ToggleButton
-                value="cover"
-                disabled={lockedLoading ? true : locked.level < 5}
-              >
-                Cover
+                <ToggleButton
+                  value="cover"
+                  disabled={lockedLoading ? true : locked.level < 5}
+                >
+                  Cover
                 </ToggleButton>
-            </ToggleButtonGroup>
-          </Grid>
-          <Grid item xs={3}>
-            Purchase by:
+              </ToggleButtonGroup>
             </Grid>
-          <Grid item xs={9}>
-            <ToggleButtonGroup
-              value={state.purchaseBy}
-              exclusive
-              onChange={(_event, newValue) =>
-                newValue !== null && setPurchaseBy(newValue)
-              }
-            >
-              <ToggleButton value="quantity">Quantity</ToggleButton>
-              <ToggleButton value="value">Value</ToggleButton>
-            </ToggleButtonGroup>
-          </Grid>
+            <Grid item xs={3}>
+              Purchase by:
+            </Grid>
+            <Grid item xs={9}>
+              <ToggleButtonGroup
+                value={state.purchaseBy}
+                exclusive
+                onChange={(_event, newValue) =>
+                  newValue !== null && setPurchaseBy(newValue)
+                }
+              >
+                <ToggleButton value="quantity">Quantity</ToggleButton>
+                <ToggleButton value="value">Value</ToggleButton>
+              </ToggleButtonGroup>
+            </Grid>
 
-          <Grid item container direction="row" xs={12}>
-            <Grid item xs={7} sm={10}>
-              <Slider
-                value={state.quantity}
-                onChange={(_event, newValue) => setQuantity(newValue)}
-                getAriaValueText={(t) => `t`}
-                aria-labelledby="discrete-slider"
-                step={1}
-                // marks
-                valueLabelDisplay="on"
-                min={0}
-                max={maxValue}
-                style={{ marginTop: "20px" }}
-              />
-            </Grid>
-            <Grid item xs={5} sm={2}>
-              <Input
-                value={state.quantity}
-                // margin="dense"
-                onChange={handleInputChange}
-                onBlur={handleBlur}
-                disableUnderline={true}
-                startAdornment={
-                  <InputAdornment position="start">
-                    {state.purchaseBy === "quantity" ? (
-                      <QuantityIcon />
-                    ) : (
+            <Grid item container direction="row" xs={12}>
+              <Grid item xs={7} sm={10}>
+                <Slider
+                  value={state.quantity}
+                  onChange={(_event, newValue) => setQuantity(newValue)}
+                  getAriaValueText={(t) => `t`}
+                  aria-labelledby="discrete-slider"
+                  step={1}
+                  // marks
+                  valueLabelDisplay="on"
+                  min={0}
+                  max={maxValue}
+                  style={{ marginTop: "20px" }}
+                />
+              </Grid>
+              <Grid item xs={5} sm={2}>
+                <Input
+                  value={state.quantity}
+                  // margin="dense"
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  disableUnderline={true}
+                  startAdornment={
+                    <InputAdornment position="start">
+                      {state.purchaseBy === "quantity" ? (
+                        <QuantityIcon />
+                      ) : (
                         <ValueIcon />
                       )}
-                  </InputAdornment>
-                }
-                inputProps={{
-                  step: 1,
-                  min: 0,
-                  max: maxValue,
-                  type: "number",
-                }}
-              />
-            </Grid>
-          </Grid>
-          <Grid item xs={3}>
-            Order Type:
-            </Grid>
-          <Grid item xs={9}>
-            <ToggleButtonGroup
-              value={state.orderType}
-              exclusive
-              onChange={(_event, newValue) =>
-                newValue !== null && setOrderType(newValue)
-              }
-            >
-              <ToggleButton value="market">Market</ToggleButton>
-              <ToggleButton
-                value="limit"
-                disabled={lockedLoading ? true : locked.level < 3}
-              >
-                Limit
-                </ToggleButton>
-            </ToggleButtonGroup>
-          </Grid>
-          {state.orderType === "limit" && (
-            <>
-              <Grid item xs={3}>
-                Limit Price
-                </Grid>
-              <Grid item xs={9}>
-                <TextField
-                  value={state.limitOrderPrice}
-                  onChange={setLimitOrderPrice}
-                  InputProps={{
-                    inputComponent: NumberFormatCustom,
+                    </InputAdornment>
+                  }
+                  inputProps={{
+                    step: 1,
+                    min: 0,
+                    max: maxValue,
+                    type: "number",
                   }}
                 />
               </Grid>
-            </>
-          )}
-          {(state.tradeType === "buy" || state.tradeType === "sell") && (
-            <>
-              <Grid item xs={12}>
-                Portfolio Allocation:
+            </Grid>
+            <Grid item xs={3}>
+              Order Type:
+            </Grid>
+            <Grid item xs={9}>
+              <ToggleButtonGroup
+                value={state.orderType}
+                exclusive
+                onChange={(_event, newValue) =>
+                  newValue !== null && setOrderType(newValue)
+                }
+              >
+                <ToggleButton value="market">Market</ToggleButton>
+                <ToggleButton
+                  value="limit"
+                  disabled={lockedLoading ? true : locked.level < 3}
+                >
+                  Limit
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Grid>
+            {state.orderType === "limit" && (
+              <>
+                <Grid item xs={3}>
+                  Limit Price
                 </Grid>
-              <Grid item xs={12}>
-                <LinearProgress
-                  variant="determinate"
-                  style={{ height: "20px" }}
-                  value={portfolioAllocation}
-                />
-              </Grid>
-            </>
-          )}
-        </Grid>
-      </CardContent>
-    </BasicCard>
-    <BasicCard>
-      <CardContent>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Order Summary:</TableCell>
-              <TableCell />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow>
-              <TableCell>Price per share</TableCell>
-              <TableCell align="right">{`$${format(actualPrice)}`}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Shares</TableCell>
-              <TableCell align="right">{`${finalQuantity}`}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Commission</TableCell>
-              <TableCell align="right">{`$${format(
-                rawCommission * actualPrice * finalQuantity
-              )}`}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <Typography variant="h5">Total</Typography>
-              </TableCell>
-              <TableCell align="right">
-                <Typography variant="h5"> {`$${format(price)}`}</Typography>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </CardContent>
-      {submitLoading && <LinearProgress />}
-      <CardActions>
-        <Button
-          onClick={() => setState(defaultState)}
-          disabled={submitLoading}
-        >
-          clear
+                <Grid item xs={9}>
+                  <TextField
+                    value={state.limitOrderPrice}
+                    onChange={setLimitOrderPrice}
+                    InputProps={{
+                      inputComponent: NumberFormatCustom,
+                    }}
+                  />
+                </Grid>
+              </>
+            )}
+            {(state.tradeType === "buy" || state.tradeType === "sell") && (
+              <>
+                <Grid item xs={12}>
+                  Portfolio Allocation:
+                </Grid>
+                <Grid item xs={12}>
+                  <LinearProgress
+                    variant="determinate"
+                    style={{ height: "20px" }}
+                    value={portfolioAllocation}
+                  />
+                </Grid>
+              </>
+            )}
+          </Grid>
+        </CardContent>
+      </BasicCard>
+      <BasicCard>
+        <CardContent>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Order Summary:</TableCell>
+                <TableCell />
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow>
+                <TableCell>Price per share</TableCell>
+                <TableCell align="right">{`$${format(actualPrice)}`}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Shares</TableCell>
+                <TableCell align="right">{`${finalQuantity}`}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Commission</TableCell>
+                <TableCell align="right">{`$${format(
+                  rawCommission * actualPrice * finalQuantity
+                )}`}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
+                  <Typography variant="h5">Total</Typography>
+                </TableCell>
+                <TableCell align="right">
+                  <Typography variant="h5"> {`$${format(price)}`}</Typography>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+        {submitLoading && <LinearProgress />}
+        <CardActions>
+          <Button
+            onClick={() => setState(defaultState)}
+            disabled={submitLoading}
+          >
+            clear
           </Button>
-        <Button onClick={handleSubmit} disabled={submitLoading}>
-          Submit
+          <Button onClick={handleSubmit} disabled={submitLoading}>
+            Submit
           </Button>
-      </CardActions>
-    </BasicCard></>
+        </CardActions>
+      </BasicCard>
+    </>
   );
 };
 

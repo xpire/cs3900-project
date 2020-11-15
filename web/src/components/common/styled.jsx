@@ -29,7 +29,7 @@ export const CenteredMotionDiv = styled(motion.div)`
 
 export const BasicCard = materialStyled(Card)({
   margin: "10px",
-})
+});
 
 export const StandardCard = materialStyled(BasicCard)({
   // padding: "10px",

@@ -1,6 +1,11 @@
 import React from "react";
 import Drawer from "@material-ui/core/Drawer";
 import { Toolbar } from "@material-ui/core";
+import styled from "styled-components";
+
+const PaddedDiv = styled.div`
+  padding: 20px;
+`;
 
 function SidePanel({ classes, panel }) {
   /* CAN BE MADE INTO FLOATING, BY USING AN INTERNAL CARD*/
@@ -15,7 +20,7 @@ function SidePanel({ classes, panel }) {
     >
       <Toolbar />
       <div className={classes.drawerContainer}>
-        <div style={{ padding: "20px" }}>{panel}</div>
+        <PaddedDiv>{panel}</PaddedDiv>
       </div>
     </Drawer>
   );

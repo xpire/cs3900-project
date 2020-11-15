@@ -57,6 +57,7 @@ const ConditionalColorText = ({
   formatType,
   color = false,
   secondary = false,
+  negative = false,
   ...otherProps
 }) => {
   let value = "";
@@ -81,10 +82,11 @@ const ConditionalColorText = ({
     case "number":
       value = Math.floor(initialValue); // integer
       break;
+    case "percentage":
+      value = format(100 * initialValue); // 2 decimal place
     case "float":
     case "currency":
-    case "percentage":
-      value = format(initialValue); // 2 decimal place
+      value = format(initialValue);
       break;
     default:
       value = initialValue;
@@ -120,10 +122,12 @@ export const RenderItem = ({
   subtitle,
   subtitleType = tableTypes.TEXT,
   subtitleColor = false,
+  subtitleNegative = false,
 
   subsubtitle = "",
   subsubtitleType = tableTypes.TEXT,
   subsubtitleColor = false,
+  subsubtitleNegative = false,
 
   alignItems = "flex-end",
 }) => {
@@ -146,6 +150,7 @@ export const RenderItem = ({
             color={subtitleColor}
             align={alignItems === "flex-end" ? "right" : "left"}
             secondary={true}
+            negative={subtitleNegative}
             variant={`button`}
           />
         </Grid>
@@ -157,6 +162,7 @@ export const RenderItem = ({
               color={subsubtitleColor}
               align={alignItems === "flex-end" ? "right" : "left"}
               secondary={true}
+              negative={subsubtitleNegative}
               variant={`button`}
             />
           </Grid>
@@ -195,7 +201,7 @@ const SortableStockTable = ({
     !!handleDelete &&
       actionsConst.push({
         icon: DeleteIcon,
-        tooltip: "Delete User",
+        tooltip: "Delete",
         disabled: !handleDelete,
         hidden: !handleDelete,
         onClick: (_event, rowData) => handleDelete(rowData),

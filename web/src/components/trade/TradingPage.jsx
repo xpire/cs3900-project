@@ -15,6 +15,7 @@ import {
   TableHead,
   TableBody,
   TextField,
+  Tooltip,
 } from "@material-ui/core";
 import QuantityIcon from "@material-ui/icons/LocalAtm";
 import ValueIcon from "@material-ui/icons/MonetizationOn";
@@ -28,6 +29,7 @@ import NumberFormat from "react-number-format";
 import Page from "../../components/page/Page";
 import useApi from "../../hooks/useApi";
 import AutoCompleteTextField from "../../components/common/AutoCompleteTextField";
+import LockedTooltip from "../../components/common/LockedTooltip";
 import { format } from "../../utils/formatter";
 import { BasicCard, StandardCard } from "../../components/common/styled";
 import useHandleSnack from "../../hooks/useHandleSnack";
@@ -240,9 +242,11 @@ const Trading = ({ symbol }) => {
   const handleSubmit = () => {
     setSubmitLoading(true);
     handleSnack(
-      `/trade/${state.orderType}/${state.tradeType}?symbol=${symbol}&quantity=${
-        state.quantity
-      }${state.orderType === "limit" ? `&limit=${actualPrice}` : ""}`,
+      `/trade/${state.orderType}/${
+        state.tradeType
+      }?symbol=${symbol}&quantity=${finalQuantity}${
+        state.orderType === "limit" ? `&limit=${actualPrice}` : ""
+      }`,
       "post"
     ).then(() => {
       setSubmitLoading(false);
@@ -281,18 +285,20 @@ const Trading = ({ symbol }) => {
               >
                 <ToggleButton value="buy">Buy</ToggleButton>
                 <ToggleButton value="sell">Sell</ToggleButton>
-                <ToggleButton
-                  value="short"
-                  disabled={lockedLoading ? true : locked.level < 5}
-                >
-                  Short
-                </ToggleButton>
-                <ToggleButton
-                  value="cover"
-                  disabled={lockedLoading ? true : locked.level < 5}
-                >
-                  Cover
-                </ToggleButton>
+                {!lockedLoading && locked.level >= 5 ? (
+                  <ToggleButton value="short">Short</ToggleButton>
+                ) : (
+                  <LockedTooltip userLevel={locked.level} lockedLevel={5}>
+                    <ToggleButton value="short">Short</ToggleButton>
+                  </LockedTooltip>
+                )}
+                {!lockedLoading && locked.level >= 5 ? (
+                  <ToggleButton value="cover">Cover</ToggleButton>
+                ) : (
+                  <LockedTooltip userLevel={locked.level} lockedLevel={5}>
+                    <ToggleButton value="cover">Cover</ToggleButton>
+                  </LockedTooltip>
+                )}
               </ToggleButtonGroup>
             </Grid>
             <Grid item xs={3}>
@@ -312,7 +318,7 @@ const Trading = ({ symbol }) => {
             </Grid>
 
             <Grid item container direction="row" xs={12}>
-              <Grid item xs={7} sm={10}>
+              <Grid item xs={7} sm={8}>
                 <Slider
                   value={state.quantity}
                   onChange={(_event, newValue) => setQuantity(newValue)}
@@ -326,7 +332,7 @@ const Trading = ({ symbol }) => {
                   style={{ marginTop: "20px" }}
                 />
               </Grid>
-              <Grid item xs={5} sm={2}>
+              <Grid item xs={5} sm={4}>
                 <Input
                   value={state.quantity}
                   // margin="dense"
@@ -363,12 +369,13 @@ const Trading = ({ symbol }) => {
                 }
               >
                 <ToggleButton value="market">Market</ToggleButton>
-                <ToggleButton
-                  value="limit"
-                  disabled={lockedLoading ? true : locked.level < 3}
-                >
-                  Limit
-                </ToggleButton>
+                {!lockedLoading && locked.level >= 3 ? (
+                  <ToggleButton value="limit">Limit</ToggleButton>
+                ) : (
+                  <LockedTooltip userLevel={locked.level} lockedLevel={3}>
+                    <ToggleButton value="limit">Limit</ToggleButton>
+                  </LockedTooltip>
+                )}
               </ToggleButtonGroup>
             </Grid>
             {state.orderType === "limit" && (
@@ -429,12 +436,16 @@ const Trading = ({ symbol }) => {
                 )}`}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
-                  <Typography variant="h5">Total</Typography>
-                </TableCell>
-                <TableCell align="right">
-                  <Typography variant="h5"> {`$${format(price)}`}</Typography>
-                </TableCell>
+                <Tooltip title="This is a rough estimate. Actual value traded may be different.">
+                  <TableCell>
+                    <Typography variant="h5">Total*</Typography>
+                  </TableCell>
+                </Tooltip>
+                <Tooltip title="This is a rough estimate. Actual value traded may be different.">
+                  <TableCell align="right">
+                    <Typography variant="h5"> {`$${format(price)}`}</Typography>
+                  </TableCell>
+                </Tooltip>
               </TableRow>
             </TableBody>
           </Table>

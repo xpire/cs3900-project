@@ -5,20 +5,26 @@ import {
   CardContent,
   CardActions,
   Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
+  Menu,
+  MenuItem,
+  IconButton,
   Button,
   CircularProgress,
   Tooltip,
+  CardHeader,
+  ListItemText,
+  ListItemSecondaryAction,
+  Switch,
 } from "@material-ui/core";
+import { MoreVert } from "@material-ui/icons";
 import { Link, useParams, useHistory } from "react-router-dom";
 import List from "@material-ui/core/List";
+import { useSelector } from "react-redux";
+import styled from "styled-components";
 
 import Page from "../../components/page/Page";
 import { CenteredCard, StandardCard } from "../../components/common/styled";
+import LockedTooltip from "../../components/common/LockedTooltip";
 import ColoredText, {
   useColoredText,
 } from "../../components/common/ColoredText";
@@ -37,10 +43,6 @@ import SortableTable, {
 import SortableStockTable, {
   RenderItem,
 } from "../../components/common/SortableStockTable";
-
-function createData(name, value) {
-  return { name, value };
-}
 
 const columns = [
   {
@@ -86,71 +88,110 @@ const columns = [
   },
 ];
 
-const rows = [
-  createData("Previous Close", 1594.0),
-  createData("Open", 2374.3),
-  createData("Day's Range", 2626.0),
-  createData("52 Week's Range", 3054.3),
-  createData("Start Date", 3563.9),
-  createData("Market Cap", 3563.9),
-  createData("Volume", 3563.9),
-  createData("Volume (24hr)", 3563.9),
-  createData("EPS", 3563.9),
-  createData("PE", 35649.9),
+const options = [
+  { key: "leftEdge", name: "Left Edge", level: 0 },
+  { key: "rightEdge", name: "Right Edge", level: 0 },
+  { key: "showVolume", name: "Volumes", level: 2 },
+  { key: "showEma20", name: "EMA", level: 7 },
+  { key: "showBollingerSeries", name: "BB", level: 9 },
 ];
 
-const headCells = [
-  // {
-  //   id: "timestamp",
-  //   formatType: tableTypes.TEXT,
-  //   disablePadding: false,
-  //   label: "TimeStamp",
-  //   color: true,
-  // },
-  {
-    id: "symbol",
-    formatType: tableTypes.TEXT,
-    disablePadding: true,
-    label: "Symbol",
-  },
-  // {
-  //   id: "name",
-  //   formatType: tableTypes.TEXT,
-  //   disablePadding: false,
-  //   label: "Name",
-  // },
-  {
-    id: "order_type",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Order Type",
-  },
-  {
-    id: "trade_type",
-    formatType: tableTypes.TEXT,
-    disablePadding: false,
-    label: "Trade Type",
-  },
-  {
-    id: "price",
-    formatType: tableTypes.CURRENCY,
-    disablePadding: false,
-    label: "Price",
-  },
-  {
-    id: "qty",
-    formatType: tableTypes.NUMBER,
-    disablePadding: false,
-    label: "Quantity",
-  },
-  {
-    id: "is_cancelled",
-    formatType: tableTypes.TEXT,
-    disablePadding: true,
-    label: "Status",
-    // color: true,
-  },
-];
+const StyledMenuItem = styled(MenuItem)`
+  width: 200px;
+`;
+
+const CandleStickWithState = ({ timeSeries }) => {
+  const [state, setState] = useState({
+    leftEdge: true,
+    rightEdge: true,
+    showVolume: false,
+    showEma20: false,
+    showBollingerSeries: false,
+  });
+
+  const handleToggle = (key) => () => {
+    setState({ ...state, [key]: !state[key] });
+  };
+
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const userLevel = useSelector((state) => state.user.basic.level);
+  return (
+    <StandardCard>
+      <Grid container direction="row-reverse">
+        <Grid item>
+          <IconButton
+            aria-controls="simple-menu"
+            aria-haspopup="true"
+            onClick={handleClick}
+          >
+            <MoreVert />
+          </IconButton>
+        </Grid>
+      </Grid>
+      <Menu
+        id="simple-menu"
+        anchorEl={anchorEl}
+        keepMounted
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+      >
+        {options.map(({ name, key, level }) => {
+          const disabled = !!userLevel && userLevel <= level;
+          return (
+            <LockedTooltip userLevel={userLevel} lockedLevel={level}>
+              <StyledMenuItem onClick={!disabled && handleToggle(key)}>
+                <ListItemText color="textSecondary">{name}</ListItemText>
+                <ListItemSecondaryAction>
+                  <Switch
+                    edge="end"
+                    checked={state[key]}
+                    onChange={!disabled && handleToggle(key)}
+                    disabled={disabled}
+                  />
+                </ListItemSecondaryAction>
+              </StyledMenuItem>
+            </LockedTooltip>
+          );
+        })}
+      </Menu>
+      <CardContent>
+        <div // fix scrolling body in chrome
+          onMouseEnter={() => {
+            document.addEventListener("wheel", preventDefault, {
+              passive: false,
+            });
+          }}
+          onMouseLeave={() => {
+            document.removeEventListener("wheel", preventDefault, false);
+          }}
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
+          {/* <ApexCandlestick data={parsedApexData} /> */}
+          {timeSeries === null ? (
+            <CircularProgress color="primary" size={50} />
+          ) : (
+            <Candlestick data={timeSeries} type="hybrid" {...state} />
+            // <Candlestick data={timeSeries} type="hybrid" />
+          )}
+        </div>
+      </CardContent>
+    </StandardCard>
+  );
+};
 
 // prevent default behaviour for scroll event
 const preventDefault = (e) => {
@@ -251,6 +292,7 @@ const StockDetails = () => {
               };
             }
           )
+          ?.reverse()
       );
     });
   };
@@ -371,41 +413,7 @@ const StockDetails = () => {
             </StandardCard>
           </Grid>
           <Grid item md={9} sm={12} xs={12}>
-            <StandardCard>
-              <CardContent>
-                <div // fix scrolling body in chrome
-                  onMouseEnter={() => {
-                    document.addEventListener("wheel", preventDefault, {
-                      passive: false,
-                    });
-                  }}
-                  onMouseLeave={() => {
-                    document.removeEventListener(
-                      "wheel",
-                      preventDefault,
-                      false
-                    );
-                  }}
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100%",
-                  }}
-                >
-                  {/* <ApexCandlestick data={parsedApexData} /> */}
-                  {timeSeries === null ? (
-                    <CircularProgress color="primary" size={50} />
-                  ) : (
-                    <Candlestick
-                      data={timeSeries}
-                      type="hybrid"
-                      leftEdge={left}
-                    />
-                  )}
-                </div>
-              </CardContent>
-            </StandardCard>
+            <CandleStickWithState timeSeries={timeSeries} />
           </Grid>
           <Grid item md={6} sm={12} xs={12}>
             <BasicCard sty>

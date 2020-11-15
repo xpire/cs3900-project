@@ -87,12 +87,12 @@ const StockCard = ({
                 </Grid>
                 <Grid container alignItems="flex-end" justify="space-between">
                   <Grid item>
-                    <Typography variant="h4">{symbol}</Typography>
+                    <Typography variant="h5">{symbol}</Typography>
                   </Grid>
                   <Grid item>
                     <ColoredText
                       color={delta > 0 ? "green" : "red"}
-                      variant="h4"
+                      variant="h5"
                       align="right"
                       delta={deltaColor}
                     >

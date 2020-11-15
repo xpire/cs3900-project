@@ -177,10 +177,10 @@ class UserDM:
         Returns:
             float: percentage amount allowed for short selling
         """
-        if self.level >= feature_unlocker.level_required(UnlockableFeatureType.SHORT_25):
-            return 0.25
-        elif self.level >= feature_unlocker.level_required(UnlockableFeatureType.SHORT_50):
+        if self.level >= feature_unlocker.level_required(UnlockableFeatureType.SHORT_50):
             return 0.5
+        elif self.level >= feature_unlocker.level_required(UnlockableFeatureType.SHORT_25):
+            return 0.25
         return 0
 
     @property

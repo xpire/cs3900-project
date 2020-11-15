@@ -146,10 +146,23 @@ export const isSymbolInWatchlist = (symbol) => (state) =>
 export const isSymbolInWatchlistLoading = (symbol) => (state) =>
   state.is_loading.user.watchlist.has(symbol);
 
-export const getNotifsReversed = (state) => state.user.notifications;
+const getNotifsReversed = (state) => state.user.notifications;
 
-export const getNotifs = createSelector([getNotifsReversed], (reversedNotifs) =>
-  [...reversedNotifs].reverse()
+export const getNotifs = createSelector([getNotifsReversed], (revNotifs) =>
+  [...revNotifs].reverse()
+);
+
+const getTransactionsReversed = (state) => state.user.transactions;
+
+export const getTransactions = createSelector(
+  [getTransactionsReversed],
+  (revTransactions) => [...revTransactions].reverse()
+);
+
+const getOrdersReversed = (state) => state.user.orders;
+
+export const getOrders = createSelector([getOrdersReversed], (revOrders) =>
+  [...revOrders].reverse()
 );
 
 export const getPortfolioRealTimeData = createSelector(

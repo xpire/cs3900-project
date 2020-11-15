@@ -15,6 +15,9 @@ export function PanelTab({ tab1, tab2 }) {
   const classes = useStyles();
   const [tab, setTab] = useState(0);
 
+  const subtitle = tab === 0 ? tab1.subtitle : tab2.subtitle;
+  const content = tab === 0 ? tab1.content : tab2.content;
+
   const title = (
     <>
       <Tabs
@@ -30,9 +33,9 @@ export function PanelTab({ tab1, tab2 }) {
         <Tab label={tab2.label} className={classes.root} />
       </Tabs>
       <Spacing />
+      {/* <div>HELLO</div> */}
+      {subtitle}
     </>
   );
-
-  const content = tab === 0 ? tab1.content : tab2.content;
   return <ScrollPanel title={title} content={content} />;
 }

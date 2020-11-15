@@ -25,7 +25,6 @@ export const PANELS = [
     icon: <LeaderboardIcon />,
     panel: <LeaderboardPanel />,
   },
-  { name: "support", icon: <SupportIcon />, panel: <SupportPanel /> },
 ];
 
 export const DEFAULT_PANEL_NAME = "user";

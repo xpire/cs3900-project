@@ -21,7 +21,13 @@ const LoginPage = () => {
     setLoading(true);
     const { email, password } = event.target.elements;
     try {
-      await app.auth().signInWithEmailAndPassword(email.value, password.value);
+      await app.auth().signInWithEmailAndPassword(email.value, password.value)
+      .then(authUser => {
+        if(!authUser.user.emailVerified) {
+          app.auth().signOut()
+          throw new Error("Please verify your email !!!")
+        }
+      });
       history.push("/home");
     } catch (error) {
       createAlert(error);

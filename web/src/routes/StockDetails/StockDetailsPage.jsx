@@ -239,124 +239,26 @@ const preventDefault = (e) => {
   e.returnValue = false;
 };
 
+const EMPTY_STOCK = {
+  symbol: "",
+  name: "",
+  exchange: "",
+  industry: "",
+  currency: "",
+  type: "",
+  curr_day_close: 0.0,
+  curr_day_open: 0.0,
+  prev_day_close: 0.0,
+  commission: 0.0005,
+  is_trading: false,
+};
+
 const StockDetails = () => {
-  // grab the list of available stocks
-  // const stockCode = props.match.params.symbol.toUpperCase();
-  const [stockData, setStockData] = useState({ skeleton: true });
-  const [latestPrice, setLatestPrice] = useState(0);
-  const [dayGain, setDayGain] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [online, setOnline] = useState(false);
+  const { symbol } = useParams();
+
+  // TIME SERIES DATA
   const [timeSeries, setTimeSeries] = useState(null);
   const [error, setError] = useState(false);
-  const { symbol } = useParams();
-  const [norm, setTableNorm] = useState([]);
-  // const [transHist, setTransHist] = useState([]);
-  const [portfolio, setPortfolio] = useState({
-    long: [],
-    short: [],
-  });
-
-  const L = 15;
-  const getRealTimeStockData = async () => {
-    await axios
-      .get(`/stocks/real_time?symbols=${symbol}`)
-      .then((response) => {
-        const data = response.data;
-        const norm = data[0].name.length < L;
-        const ttname = data[0].name;
-
-        if (norm) {
-          data[0].fullname = "placeholder";
-        } else {
-          data[0].fullname = data[0].name; // Now name is abbrev
-          data[0].name = data[0].name.substring(0, L) + "...";
-        }
-
-        // console.log(data[0].fullname)
-        setStockData(data[0]);
-        setTableNorm([norm, ttname]);
-        setLoading(false);
-      })
-      .catch((err) => setError(true));
-  };
-
-  const getCurrentPortfolio = async () => {
-    await axios.get("/portfolio").then((response) => {
-      const data = response.data;
-      console.log(data);
-      setPortfolio({
-        long: data.long.map((item) => [
-          `${item.symbol}: ${item.owned}`,
-          Number(item.total_paid.toFixed(2)),
-        ]),
-        short: data.short.map((item) => [
-          `${item.symbol}: ${item.owned}`,
-          Number(item.total_paid.toFixed(2)),
-        ]),
-      });
-    });
-  };
-  const [tab, setTab] = useState(0);
-  const dispatch = useDispatch();
-
-  const transHist = useSelector((state) => state.user.transactions);
-  const ordersHist = useSelector((state) => state.user.orders);
-
-  // const getHistTrans = async () => {
-  //   await axios.get("/transactions").then((response) => {
-  //     const data = response.data;
-  //     setTransHist(
-  //       data
-  //         .filter((elem) => elem.symbol === symbol)
-  //         .map(
-  //           ({
-  //             is_cancelled,
-  //             name,
-  //             order_type,
-  //             price,
-  //             qty,
-  //             symbol,
-  //             timestamp,
-  //             trade_type,
-  //             value,
-  //           }) => {
-  //             return {
-  //               is_cancelled: is_cancelled ? "cancelled" : "active",
-  //               order_type: order_type,
-  //               price: price.toFixed(2),
-  //               qty: qty,
-  //               symbol: symbol,
-  //               timestamp: timestamp,
-  //               trade_type: trade_type,
-  //               value: value,
-  //             };
-  //           }
-  //         )
-  //         ?.reverse()
-  //     );
-  //   });
-  // };
-
-  useEffect(() => {
-    getRealTimeStockData();
-    getCurrentPortfolio();
-    // getHistTrans();
-    const interval = setInterval(getRealTimeStockData, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if ("curr_day_close" in stockData) {
-      setLatestPrice(stockData.curr_day_close);
-      let gain =
-        (100 * (stockData.curr_day_close - stockData.prev_day_close)) /
-        stockData.prev_day_close;
-      setDayGain(gain);
-      setOnline(stockData.is_trading);
-    }
-  }, [stockData]);
-
   const pollStockData = () => {
     axios
       .get(`/stocks/time_series?symbol=${symbol}&days=3650`)
@@ -379,13 +281,48 @@ const StockDetails = () => {
       })
       .catch((err) => setError(true));
   };
-
   useEffect(pollStockData, []);
 
+  // STOCK DATA
+  const isLoading = useSelector((state) => state.stocks.is_loading);
+  let stock = useSelector((state) => state.stocks.dict[symbol]);
+  if (!stock) {
+    stock = EMPTY_STOCK;
+  }
+  const stockData = isLoading ? { skeleton: true } : stock;
+  const latestPrice = isLoading ? 0 : stockData.curr_day_close;
+  const dayGain = isLoading
+    ? 0
+    : (100 * (stockData.curr_day_close - stockData.prev_day_close)) /
+      stockData.prev_day_close;
+
+  // NAME TRUNCATION
+  const MAX_NAME_LENGTH = 20;
+  const truncateName = stock.name.length > MAX_NAME_LENGTH;
+  const truncatedName =
+    stock.name.substring(0, MAX_NAME_LENGTH) + (truncateName ? "..." : "");
+
+  // PORTFOLIO DATA
+  const { long, short } = useSelector((state) => state.user.portfolio);
+
+  const positionsToData = (positions) => {
+    return positions.map((item) => [
+      `${item.symbol}: ${item.owned}`,
+      Number(item.total_paid.toFixed(2)),
+    ]);
+  };
+  const longData = positionsToData(long);
+  const shortData = positionsToData(short);
+
+  // TAB
+  const [tab, setTab] = useState(0);
+
+  const dispatch = useDispatch();
   const handleSnack = useHandleSnack();
 
+  const transHist = useSelector((state) => state.user.transactions);
+  const ordersHist = useSelector((state) => state.user.orders);
   const [delta] = useColoredText(latestPrice);
-
   const [left, setLeft] = useState(true);
   const [margin, setMargin] = useState({
     left: 70,
@@ -412,13 +349,13 @@ const StockDetails = () => {
                     <Grid>
                       <List dense={true}>
                         <StockDisplayTable
-                          name={stockData.name}
+                          name={truncatedName}
                           exchange={stockData.exchange}
                           industry={stockData.industry}
                           currency={stockData.currency}
                           type={stockData.type}
-                          fullname={norm[1]}
-                          renderStatus={norm[0]}
+                          fullname={stockData.name}
+                          renderStatus={!truncateName}
                         />
                       </List>
                     </Grid>
@@ -432,7 +369,7 @@ const StockDetails = () => {
                           align="right"
                           delta={delta}
                         >
-                          {loading ? <Skeleton /> : `${format(dayGain)}%`}
+                          {isLoading ? <Skeleton /> : `${format(dayGain)}%`}
                         </ColoredText>
                       </Grid>
                     </Grid>
@@ -444,7 +381,7 @@ const StockDetails = () => {
                           align="right"
                           delta={delta}
                         >
-                          {loading ? <Skeleton /> : `$${format(latestPrice)}`}
+                          {isLoading ? <Skeleton /> : `$${format(latestPrice)}`}
                         </ColoredText>
                       </Grid>
                     </Grid>
@@ -462,12 +399,12 @@ const StockDetails = () => {
                 <Grid item container direction="row">
                   <Grid item xs={12} sm={6}>
                     <Typography variant="h5">Long</Typography>
-                    <PortfolioPolar data={portfolio["long"]} />
+                    <PortfolioPolar data={longData} />
                   </Grid>
 
                   <Grid item xs={12} sm={6}>
                     <Typography variant="h5">Short</Typography>
-                    <PortfolioPolar data={portfolio["short"]} />
+                    <PortfolioPolar data={shortData} />
                   </Grid>
                   <Grid item xs={12}>
                     <Typography variant="h5">Transaction History</Typography>
@@ -540,3 +477,38 @@ const StockDetails = () => {
 };
 
 export default StockDetails;
+
+// const getHistTrans = async () => {
+//   await axios.get("/transactions").then((response) => {
+//     const data = response.data;
+//     setTransHist(
+//       data
+//         .filter((elem) => elem.symbol === symbol)
+//         .map(
+//           ({
+//             is_cancelled,
+//             name,
+//             order_type,
+//             price,
+//             qty,
+//             symbol,
+//             timestamp,
+//             trade_type,
+//             value,
+//           }) => {
+//             return {
+//               is_cancelled: is_cancelled ? "cancelled" : "active",
+//               order_type: order_type,
+//               price: price.toFixed(2),
+//               qty: qty,
+//               symbol: symbol,
+//               timestamp: timestamp,
+//               trade_type: trade_type,
+//               value: value,
+//             };
+//           }
+//         )
+//         ?.reverse()
+//     );
+//   });
+// };

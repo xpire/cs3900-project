@@ -13,3 +13,7 @@ export const formatToCurrency = (d) => {
   }
   return `$${d.toFixed(2)}`;
 };
+
+export const formatWithPlus = (d) => {
+  return (d < 0 ? "" : "+") + d.toFixed(2);
+};

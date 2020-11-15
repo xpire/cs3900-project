@@ -12,7 +12,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Hidden from "@material-ui/core/Hidden";
 import SidePanel from "../sidepanel/SidePanel";
 import { useDispatch } from "react-redux";
-import { reloadUser, reloadStocks } from "../../reducers";
+import { reloadUser, reloadStocks, initState } from "../../reducers";
 import { PANELS, DEFAULT_PANEL_NAME } from "../sidepanel/Panels";
 import { DATA_UPDATE_INTERVAL } from "../../constants/Layout";
 
@@ -36,6 +36,7 @@ export default function PageContainer() {
   // for redux data management
   const dispatch = useDispatch();
   useEffect(() => {
+    dispatch(initState());
     dispatch(reloadUser());
     dispatch(reloadStocks());
     const interval = setInterval(() => {
@@ -52,7 +53,7 @@ export default function PageContainer() {
       setSidePanel(newPanel);
     }
   };
-  const panel = PANELS.find((p) => p.name === sidePanel).panel;
+  const panel = PANELS.find((p) => p.name === sidePanel)?.panel;
 
   return (
     <div className={classes.root}>

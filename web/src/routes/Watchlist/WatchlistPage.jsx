@@ -90,7 +90,7 @@ const Watchlist = () => {
         <SortableStockTable
           data={mappedData}
           columns={columns}
-          title="Watch List"
+          title="Watchlist"
           handleDelete={({ symbol }) =>
             dispatch(removeFromWatchlistWithSnack(symbol, handleSnack))
           }

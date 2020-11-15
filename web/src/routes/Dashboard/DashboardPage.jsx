@@ -108,15 +108,15 @@ const Dashboard = () => {
 
   // Card data
   const [tabValue, setValue] = useState(0);
-  const is_loading = useSelector((state) => state.user.is_loading);
+  const isLoading = useSelector((state) => state.user.isLoading);
   const { long, short } = useSelector(getPortfolioRealTimeData);
   const watchlist = useSelector(getWatchlistRealTimeData);
 
-  const longData = is_loading ? makeSkeleton(12) : long;
-  const shortData = is_loading ? makeSkeleton(12) : short;
-  const watchData = is_loading ? makeSkeleton(12) : watchlist;
+  const longData = isLoading ? makeSkeleton(12) : short;
+  const shortData = isLoading ? makeSkeleton(12) : long;
+  const watchData = isLoading ? makeSkeleton(12) : watchlist;
 
-  // Net worth graph
+  // Networth graph
   const [graphUpdate, setGraphUpdate] = useState(0);
   const [graph, graphLoading] = useApi("/portfolio/history", [], [], (data) =>
     data.map((e) => [new Date(e.timestamp), e.net_worth])

@@ -42,13 +42,13 @@ const columns = [
   },
   {
     field: "trade_type",
-    title: <RenderItem title="Trade Type" subtitle="Quantity/Value" />,
+    title: <RenderItem title="Trade Type" subtitle="Quantity" />,
     render: (rowData) => (
       <RenderItem
         title={rowData.trade_type}
         titleType={tableTypes.TEXT}
         subtitle={rowData.qty}
-        subtitleType={tableTypes.NUMBER}
+        subtitleType={tableTypes.SHARES}
       />
     ),
     align: "right",
@@ -81,10 +81,14 @@ const transactionsColumns = [
     title: <RenderItem title="Price" subtitle="Value" />,
     render: (rowData) => (
       <RenderItem
-        title={rowData.price}
-        titleType={tableTypes.CURRENCY}
-        subtitle={rowData.value}
-        subtitleType={tableTypes.CURRENCY}
+        title={rowData.is_cancelled === true ? "Cancelled" : rowData.price}
+        titleType={
+          rowData.is_cancelled === true ? tableTypes.TEXT : tableTypes.CURRENCY
+        }
+        subtitle={rowData.is_cancelled === true ? undefined : rowData.value}
+        subtitleType={
+          rowData.is_cancelled === true ? undefined : tableTypes.CURRENCY
+        }
       />
     ),
     align: "right",
@@ -94,7 +98,7 @@ const transactionsColumns = [
 const Orders = () => {
   // const [data, isLoading, _error, updateData] = useApi("/orders", [deleted]);
   const [tab, setTab] = useState(0);
-  const data = useSelector((state) => state.user.orders);
+  const ordersData = useSelector((state) => state.user.orders);
   const handleSnack = useHandleSnack();
   const dispatch = useDispatch();
 
@@ -122,7 +126,7 @@ const Orders = () => {
           <SortableStockTable
             title="Orders"
             columns={orderColumns}
-            data={data}
+            data={ordersData}
             handleDelete={({ id }) =>
               dispatch(removeFromOrdersWithSnack(id, handleSnack))
             }

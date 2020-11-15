@@ -147,6 +147,7 @@ export const tableTypes = {
   FLOAT: "float",
   ID: "id",
   PERCENTAGE: "percentage",
+  SHARES: "shares",
 };
 
 /**
@@ -172,7 +173,9 @@ function EnhancedTable({
 
   return (
     <div style={{ paddingBottom: "20px" }}>
-      { toolbar && (<EnhancedTableToolbar title={title} handleRefresh={handleRefresh}/>) }
+      {toolbar && (
+        <EnhancedTableToolbar title={title} handleRefresh={handleRefresh} />
+      )}
       <TableContainer>
         <Table
           aria-labelledby="tableTitle"
@@ -319,7 +322,7 @@ EnhancedTable.defaultProps = {
   handleDelete: null,
   buttons: true,
   handleRefresh: null,
-  toolbar: true
+  toolbar: true,
 };
 
 export default EnhancedTable;

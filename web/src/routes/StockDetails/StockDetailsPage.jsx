@@ -15,11 +15,13 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   Switch,
+  Tabs,
+  Tab,
 } from "@material-ui/core";
 import { MoreVert } from "@material-ui/icons";
-import { Link, useParams, useHistory } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import List from "@material-ui/core/List";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 
 import Page from "../../components/page/Page";
@@ -37,12 +39,11 @@ import Trade from "../../components/trade/TradingPage";
 import { BasicCard } from "../../components/common/styled";
 import PortfolioPolar from "../../components/graph/PortfolioPolar";
 import StockDisplayTable from "../../components/common/StockDisplayTable";
-import SortableTable, {
-  tableTypes,
-} from "../../components/common/SortableTable";
+import { tableTypes } from "../../components/common/SortableTable";
 import SortableStockTable, {
   RenderItem,
 } from "../../components/common/SortableStockTable";
+import { removeFromOrdersWithSnack } from "../../reducers/index";
 
 const columns = [
   {
@@ -73,6 +74,42 @@ const columns = [
     ),
     align: "right",
   },
+  // {
+  //   field: "price",
+  //   title: <RenderItem title="Price" subtitle="Value" />,
+  //   render: (rowData) => (
+  //     <RenderItem
+  //       title={rowData.price}
+  //       titleType={tableTypes.CURRENCY}
+  //       subtitle={rowData.value}
+  //       subtitleType={tableTypes.CURRENCY}
+  //     />
+  //   ),
+  //   align: "right",
+  // },
+];
+
+const orderColumns = [
+  ...columns,
+  {
+    field: "order_type",
+    title: <RenderItem title="Order Type" subtitle="(Limit Price)" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.order_type}
+        titleType={tableTypes.TEXT}
+        subtitle={rowData.order_type === "LIMIT" ? rowData.limit_price : ""}
+        subtitleType={
+          rowData.order_type === "LIMIT" ? tableTypes.CURRENCY : tableTypes.TEXT
+        }
+      />
+    ),
+    align: "right",
+  },
+];
+
+const transactionColumns = [
+  ...columns,
   {
     field: "price",
     title: <RenderItem title="Price" subtitle="Value" />,
@@ -213,9 +250,8 @@ const StockDetails = () => {
   const [timeSeries, setTimeSeries] = useState(null);
   const [error, setError] = useState(false);
   const { symbol } = useParams();
-  let history = useHistory();
   const [norm, setTableNorm] = useState([]);
-  const [transHist, setTransHist] = useState([]);
+  // const [transHist, setTransHist] = useState([]);
   const [portfolio, setPortfolio] = useState({
     long: [],
     short: [],
@@ -261,46 +297,51 @@ const StockDetails = () => {
       });
     });
   };
+  const [tab, setTab] = useState(0);
+  const dispatch = useDispatch();
 
-  const getHistTrans = async () => {
-    await axios.get("/transactions").then((response) => {
-      const data = response.data;
-      setTransHist(
-        data
-          .filter((elem) => elem.symbol === symbol)
-          .map(
-            ({
-              is_cancelled,
-              name,
-              order_type,
-              price,
-              qty,
-              symbol,
-              timestamp,
-              trade_type,
-              value,
-            }) => {
-              return {
-                is_cancelled: is_cancelled ? "cancelled" : "active",
-                order_type: order_type,
-                price: price.toFixed(2),
-                qty: qty,
-                symbol: symbol,
-                timestamp: timestamp,
-                trade_type: trade_type,
-                value: value,
-              };
-            }
-          )
-          ?.reverse()
-      );
-    });
-  };
+  const transHist = useSelector((state) => state.user.transactions);
+  const ordersHist = useSelector((state) => state.user.orders);
+
+  // const getHistTrans = async () => {
+  //   await axios.get("/transactions").then((response) => {
+  //     const data = response.data;
+  //     setTransHist(
+  //       data
+  //         .filter((elem) => elem.symbol === symbol)
+  //         .map(
+  //           ({
+  //             is_cancelled,
+  //             name,
+  //             order_type,
+  //             price,
+  //             qty,
+  //             symbol,
+  //             timestamp,
+  //             trade_type,
+  //             value,
+  //           }) => {
+  //             return {
+  //               is_cancelled: is_cancelled ? "cancelled" : "active",
+  //               order_type: order_type,
+  //               price: price.toFixed(2),
+  //               qty: qty,
+  //               symbol: symbol,
+  //               timestamp: timestamp,
+  //               trade_type: trade_type,
+  //               value: value,
+  //             };
+  //           }
+  //         )
+  //         ?.reverse()
+  //     );
+  //   });
+  // };
 
   useEffect(() => {
     getRealTimeStockData();
     getCurrentPortfolio();
-    getHistTrans();
+    // getHistTrans();
     const interval = setInterval(getRealTimeStockData, 5000);
     return () => clearInterval(interval);
   }, []);
@@ -430,24 +471,39 @@ const StockDetails = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <Typography variant="h5">Transaction History</Typography>
-                    {/* <SortableTable
-                      data={transHist}
-                      header={headCells}
-                      title="History"
-                      buttons={false}
-                      handleDelete={null}
-                      handleRefresh={null}
-                      toolbar={false}
-                    /> */}
                   </Grid>
                 </Grid>
               </CardContent>
-              <SortableStockTable
-                title="History"
-                columns={columns}
-                data={transHist}
-                // isLoading={transactionDataLoading}
-              />
+              <Grid item xs={12}>
+                <Tabs
+                  value={tab}
+                  onChange={(_event, newValue) => {
+                    setTab(newValue);
+                  }}
+                  indicatorColor="primary"
+                  textColor="primary"
+                  variant="fullWidth"
+                >
+                  <Tab label="Transaction History" />
+                  <Tab label="Orders" />
+                </Tabs>
+              </Grid>
+              {tab === 0 ? (
+                <SortableStockTable
+                  title="History"
+                  columns={orderColumns}
+                  data={transHist}
+                  handleDelete={({ id }) =>
+                    dispatch(removeFromOrdersWithSnack(id, handleSnack))
+                  }
+                />
+              ) : (
+                <SortableStockTable
+                  title="Orders"
+                  columns={transactionColumns}
+                  data={ordersHist}
+                />
+              )}
             </BasicCard>
           </Grid>
 

@@ -394,7 +394,7 @@ const Trading = ({ symbol }) => {
                 </Grid>
               </>
             )}
-            {(state.tradeType === "buy" || state.tradeType === "sell") && (
+            {state.tradeType === "buy" && (
               <>
                 <Grid item xs={12}>
                   Portfolio Allocation:

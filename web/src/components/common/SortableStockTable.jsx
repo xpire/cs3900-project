@@ -82,6 +82,9 @@ const ConditionalColorText = ({
     case "number":
       value = Math.floor(initialValue); // integer
       break;
+    case "shares":
+      value = `${Math.floor(initialValue)} Shares`;
+      break;
     case "percentage":
       value = format(100 * initialValue); // 2 decimal place
     case "float":
@@ -94,7 +97,14 @@ const ConditionalColorText = ({
   return (
     <>
       {color ? (
-        <ColoredText {...otherProps} color={value > 0 ? "green" : "red"}>
+        <ColoredText
+          {...otherProps}
+          color={
+            (value > 0 && !negative) || (value <= 0 && !!negative)
+              ? "green"
+              : "red"
+          }
+        >
           {value > 0 && "+"}
           {/* {formatType === "currency" && "$"} */}
           {value}
@@ -185,11 +195,7 @@ const SortableStockTable = ({
   const [actions, setActions] = useState([]);
   useEffect(() => {
     let actionsConst = [];
-    console.log("in stock table effect", {
-      handleDelete,
-      buttons,
-      handleRefresh,
-    });
+
     !!buttons &&
       actionsConst.push({
         icon: OpenInNewIcon,
@@ -216,13 +222,6 @@ const SortableStockTable = ({
         isFreeAction: true,
         onClick: handleRefresh,
       });
-    console.log(
-      "in stock table effect",
-      !!buttons,
-      !!handleDelete,
-      !!handleRefresh
-    );
-    console.log("in stock table effect", { actionsConst });
     setActions(actionsConst);
   }, []);
   return (
@@ -236,6 +235,7 @@ const SortableStockTable = ({
         paging: true,
         search: true,
         actionsColumnIndex: -1,
+        draggable: false,
       }}
       localization={{ header: { actions: "" } }}
       actions={actions}

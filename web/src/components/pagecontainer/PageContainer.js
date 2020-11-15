@@ -15,7 +15,7 @@ import { useDispatch } from "react-redux";
 import { reloadUser, reloadStocks } from "../../reducers";
 import { PANELS, DEFAULT_PANEL_NAME } from "../sidepanel/Panels";
 
-const drawerWidth = 260;
+export const drawerWidth = 260;
 
 const useStyles = makeStyles((theme) => ({
   root: {

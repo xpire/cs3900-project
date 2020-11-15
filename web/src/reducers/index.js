@@ -2,6 +2,7 @@ import { combineReducers } from "redux";
 import axios from "../utils/api";
 import { createSelector } from "reselect";
 
+export const UPDATE = "UPDATE";
 export const UPDATE_USER = "UPDATE_USER";
 export const UPDATE_STOCKS = "UPDATE_STOCKS";
 export const UPDATE_WATCHLIST = "UPDATE_WATCHLIST";
@@ -120,15 +121,10 @@ const is_loading = (state = initialState.is_loading, action) => {
     case START_LOADING_WATCHLIST_SYMBOL:
       const watchlist_added = new Set(state.user.watchlist);
       watchlist_added.add(action.symbol);
-      console.log("IS LOADING");
-      console.log(action.symbol);
-      console.log(watchlist_added);
       return { ...state, user: { ...state.user, watchlist: watchlist_added } };
     case FINISH_LOADING_WATCHLIST_SYMBOL:
       const watchlist_removed = new Set(state.user.watchlist);
       watchlist_removed.delete(action.symbol);
-      console.log("IS DONE");
-      console.log(watchlist_removed);
       return {
         ...state,
         user: { ...state.user, watchlist: watchlist_removed },
@@ -152,6 +148,25 @@ export const isSymbolInWatchlist = (symbol) => (state) =>
 
 export const isSymbolInWatchlistLoading = (symbol) => (state) =>
   state.is_loading.user.watchlist.has(symbol);
+
+const getNotifsReversed = (state) => state.user.notifications;
+
+export const getNotifs = createSelector([getNotifsReversed], (revNotifs) =>
+  [...revNotifs].reverse()
+);
+
+const getTransactionsReversed = (state) => state.user.transactions;
+
+export const getTransactions = createSelector(
+  [getTransactionsReversed],
+  (revTransactions) => [...revTransactions].reverse()
+);
+
+const getOrdersReversed = (state) => state.user.orders;
+
+export const getOrders = createSelector([getOrdersReversed], (revOrders) =>
+  [...revOrders].reverse()
+);
 
 export const getPortfolioRealTimeData = createSelector(
   [getPortfolio, getStocks],
@@ -182,6 +197,7 @@ function makeActionCreator(type, ...argNames) {
   };
 }
 
+export const initState = makeActionCreator(UPDATE);
 const updateUser = makeActionCreator(UPDATE_USER, "user");
 const updateStocks = makeActionCreator(UPDATE_STOCKS, "stocks");
 const updateWatchlist = makeActionCreator(UPDATE_WATCHLIST, "watchlist");

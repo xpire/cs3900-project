@@ -58,11 +58,12 @@ export const useColoredText = (value) => {
 /**
  * A Component which shows colored text built on the material-ui Typography component.
  */
-const ColoredText = ({ children, color, delta, ...restProps }) => {
+const ColoredText = ({ children, color, delta, style, ...restProps }) => {
   const theme = useTheme();
   return (
     <StyledColoredText
       style={{
+        ...style,
         color:
           color === "green"
             ? green[theme.palette.type]

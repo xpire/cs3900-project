@@ -5,8 +5,10 @@ from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm
 from src import schemas
+from src.api import common
 from src.api.deps import get_current_user_dm, get_db
-from src.schemas.response import Result, ResultAPIRouter, Success
+from src.notification.notifier import send_msg
+from src.schemas.response import Result, ResultAPIRouter
 
 router = ResultAPIRouter()
 
@@ -21,11 +23,7 @@ async def get_orders(user: dm.UserDM = Depends(get_current_user_dm)) -> List[sch
     Returns:
         List[schemas.PendingOrderAPIout]: List of pending orders in schema format
     """
-
-    def to_schema(order):
-        return schemas.PendingOrderAPIout(**order.dict(), exchange=order.stock.exchange, name=order.stock.name)
-
-    return [to_schema(x) for x in user.model.pending_orders]
+    return common.get_orders(user.model)
 
 
 @router.delete("")
@@ -45,4 +43,5 @@ async def delete_order(
         Result: Success/Fail
     """
     crud.pending_order.delete_order(db=db, id=id, user=user).ok()
-    return Success("Order successfully cancelled")
+    send_msg(user, "Order successfully cancelled")
+    return common.get_orders(user.model)

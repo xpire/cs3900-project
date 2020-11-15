@@ -33,7 +33,6 @@ export function PanelTab({ tab1, tab2 }) {
         <Tab label={tab2.label} className={classes.root} />
       </Tabs>
       <Spacing />
-      {/* <div>HELLO</div> */}
       {subtitle}
     </>
   );

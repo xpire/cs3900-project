@@ -3,6 +3,7 @@ from typing import List
 from fastapi import Depends
 from src import domain_models as dm
 from src import schemas
+from src.api import common
 from src.api.deps import get_current_user_dm
 from src.schemas.response import ResultAPIRouter
 
@@ -21,10 +22,7 @@ async def get_portfolio(
     Returns:
         schemas.PortfolioAPIout: List of portfolio positions
     """
-    stat = dm.AccountStat(user)
-    return schemas.PortfolioAPIout(
-        long=stat.get_positions_info(is_long=True), short=stat.get_positions_info(is_long=False)
-    )
+    return common.get_portfolio(user)
 
 
 @router.get("/stats")
@@ -39,7 +37,7 @@ async def get_portfolio_stats(
     Returns:
         schemas.PortfolioStatAPIout: complete portfolio statistics
     """
-    return dm.AccountStat(user).compile_portfolio_stats()
+    return common.get_portfolio_stats(user)
 
 
 @router.get("/history")

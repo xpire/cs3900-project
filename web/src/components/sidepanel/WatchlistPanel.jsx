@@ -1,4 +1,4 @@
-import { List, ListItem, Divider, Typography, Grid } from "@material-ui/core";
+import { List, ListItem, Typography } from "@material-ui/core";
 import React from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";

@@ -164,9 +164,11 @@ export const getTransactions = createSelector(
 
 const getOrdersReversed = (state) => state.user.orders;
 
-export const getOrders = createSelector([getOrdersReversed], (revOrders) =>
-  [...revOrders].reverse()
-);
+export const getOrders = createSelector([getOrdersReversed], (revOrders) => {
+  console.log("ORDERS");
+  console.log(revOrders);
+  return [...revOrders].reverse();
+});
 
 export const getPortfolioRealTimeData = createSelector(
   [getPortfolio, getStocks],

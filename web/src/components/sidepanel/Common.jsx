@@ -3,9 +3,10 @@ import { Grid, Box, Typography } from "@material-ui/core";
 
 import { format } from "../../utils/formatter";
 
-export function HalfGridItem({ label, value }) {
+export function HalfGridItem({ label, value, numeric = true }) {
+  const formattedValue = numeric ? `$${format(value)}` : value;
   return (
-    <Grid item xs={6}>
+    <Grid item xs={6} key={label}>
       <Typography
         variant="caption"
         color="textSecondary"
@@ -13,7 +14,7 @@ export function HalfGridItem({ label, value }) {
       >
         {label}
       </Typography>
-      <Typography style={{ fontSize: 14 }}>${format(value)}</Typography>
+      <Typography style={{ fontSize: 14 }}>{formattedValue}</Typography>
     </Grid>
   );
 }

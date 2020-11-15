@@ -89,7 +89,9 @@ const MyHeader = ({
             onChange={(event, selected) => setSidePanel(selected)}
           >
             {panels.map(({ name, icon }) => (
-              <ToggleButton value={name}>{icon}</ToggleButton>
+              <ToggleButton value={name} key={name}>
+                {icon}
+              </ToggleButton>
             ))}
           </StyledToggleButtonGroup>
 

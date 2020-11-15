@@ -14,31 +14,16 @@ import SidePanel from "../sidepanel/SidePanel";
 import { useDispatch } from "react-redux";
 import { reloadUser, reloadStocks } from "../../reducers";
 import { PANELS, DEFAULT_PANEL_NAME } from "../sidepanel/Panels";
-
-const drawerWidth = 260;
+import { DATA_UPDATE_INTERVAL } from "../../constants/Layout";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
   },
-  drawer: {
-    width: drawerWidth,
-    flexShrink: 0,
-  },
-  drawerPaper: {
-    width: drawerWidth,
-    border: 0,
-    // background: "rgba(0, 0, 0, 0)",
-  },
-  drawerContainer: {
-    overflow: "auto",
-  },
   content: {
     flex: 1,
   },
 }));
-
-const DATA_UPDATE_INTERVAL = 10000;
 
 export default function PageContainer() {
   const classes = useStyles();
@@ -55,7 +40,7 @@ export default function PageContainer() {
     dispatch(reloadStocks());
     const interval = setInterval(() => {
       dispatch(reloadUser());
-      dispatch(reloadStocks()); // TODO optimize so that it only gets triggered on the market page
+      dispatch(reloadStocks());
     }, DATA_UPDATE_INTERVAL);
     return () => clearInterval(interval);
   }, []);

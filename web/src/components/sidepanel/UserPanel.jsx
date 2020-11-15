@@ -10,6 +10,7 @@ import {
 import { format } from "../../utils/formatter";
 import { useSelector } from "react-redux";
 import { HalfGridItem, Spacing } from "./Common";
+import ScrollPanel from "./ScrollablePanel";
 
 function UserPanel() {
   /* CAN BE MADE INTO FLOATING, BY USING AN INTERNAL CARD*/
@@ -43,10 +44,9 @@ function UserPanel() {
     },
   ];
 
-  return (
+  const title = <Typography variant="h6">{basic.username}</Typography>;
+  const content = (
     <div>
-      {/* Username */}
-      <Typography variant="h6">{basic.username}</Typography>
       {/* Rank */}
       <Typography variant="caption" color="textSecondary">
         Rank
@@ -57,7 +57,7 @@ function UserPanel() {
       <Typography variant="caption" color="textSecondary">
         Level
       </Typography>
-      <Typography display="span">Lv. {basic.level} </Typography>
+      <Typography>Lv. {basic.level} </Typography>
       <Tooltip
         title={format(basic.exp) + "/" + basic.exp_threshold}
         placement="top-end"
@@ -79,6 +79,8 @@ function UserPanel() {
       </Grid>
     </div>
   );
+
+  return <ScrollPanel title={title} content={content} addPadding={false} />;
 }
 
 export default UserPanel;

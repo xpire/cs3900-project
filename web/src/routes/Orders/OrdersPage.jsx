@@ -9,7 +9,11 @@ import SortableStockTable, {
 import useApi from "../../hooks/useApi";
 import useHandleSnack from "../../hooks/useHandleSnack";
 import { useDispatch, useSelector } from "react-redux";
-import { removeFromOrdersWithSnack } from "../../reducers";
+import {
+  getOrders,
+  getTransactions,
+  removeFromOrdersWithSnack,
+} from "../../reducers";
 
 const columns = [
   {
@@ -98,15 +102,12 @@ const transactionsColumns = [
 const Orders = () => {
   // const [data, isLoading, _error, updateData] = useApi("/orders", [deleted]);
   const [tab, setTab] = useState(0);
-  const ordersData = useSelector((state) => state.user.orders);
-  const handleSnack = useHandleSnack();
+  const ordersData = useSelector(getOrders);
   const dispatch = useDispatch();
 
-  const transactionData = useSelector((state) => state.user.transactions); //useApi("/transactions");
+  const handleSnack = useHandleSnack();
+  const transactionData = useSelector(getTransactions); //useApi("/transactions");
 
-  const mappedTransactionData = transactionData.map((e, index) => {
-    return { ...e, index: index + 1 };
-  });
   return (
     <Page>
       <Card>
@@ -124,7 +125,6 @@ const Orders = () => {
         </Tabs>
         {tab === 0 ? (
           <SortableStockTable
-            title="Orders"
             columns={orderColumns}
             data={ordersData}
             handleDelete={({ id }) =>
@@ -133,9 +133,8 @@ const Orders = () => {
           />
         ) : (
           <SortableStockTable
-            title="Transaction History"
             columns={transactionsColumns}
-            data={mappedTransactionData}
+            data={transactionData}
           />
         )}
       </Card>

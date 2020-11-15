@@ -103,27 +103,6 @@ function PortfolioPanel() {
   };
 
   const header = <PanelListHeader {...labels} />;
-
-  // const [tab1, setTab1] = useState({
-  //   label: "Longs",
-  //   subtitle: header,
-  //   content: <></>,
-  // });
-  // const [tab2, setTab2] = useState({
-  //   label: "Shorts",
-  //   subtitle: header,
-  //   content: <></>,
-  // });
-  // useEffect(() => {
-  //   setTab1({
-  //     ...tab1,
-  //     content: <PortfolioTable data={long} tabValue={0} />,
-  //   });
-  //   setTab2({
-  //     ...tab2,
-  //     content: <PortfolioTable data={short} tabValue={1} />,
-  //   });
-  // }, [long, short]);
   const tab1 = {
     label: "Longs",
     subtitle: header,

@@ -2,6 +2,7 @@ from typing import List
 
 from fastapi import Depends
 from src import schemas
+from src.api import common
 from src.api.deps import get_current_user_m
 from src.models.user import User
 from src.schemas.response import ResultAPIRouter
@@ -20,8 +21,4 @@ async def get_transactions(user_m: User = Depends(get_current_user_m)) -> List[T
     Returns:
         List[TransactionAPIout]: List of executed and cancelled transactions the user has made
     """
-
-    def to_schema(t):
-        return schemas.TransactionAPIout(**t.dict(), name=t.stock.name)
-
-    return [to_schema(t) for t in user_m.transaction_hist]
+    return common.get_transactions(user_m)

@@ -11,7 +11,6 @@ import ForgotPasswordIcon from "@material-ui/icons/VpnKey";
 // private
 import DashboardPage from "../routes/Dashboard/DashboardPage";
 import DashboardIcon from "@material-ui/icons/Dashboard";
-import TradingIcon from "@material-ui/icons/MonetizationOn";
 import PortfolioPage from "../routes/Portfolio/PortfolioPage";
 import PortfolioIcon from "@material-ui/icons/TrackChanges";
 import WatchlistPage from "../routes/Watchlist/WatchlistPage";
@@ -26,8 +25,6 @@ import StockDetailsPage from "../routes/StockDetails/StockDetailsPage";
 import StockDetailsIcon from "@material-ui/icons/Assessment";
 import ProfilePage from "../routes/Profile/ProfilePage";
 import ProfileIcon from "@material-ui/icons/AccountCircle";
-import AchievementsPage from "../routes/Achievements/AchievementsPage";
-import AchievementsIcon from "@material-ui/icons/AssignmentTurnedIn";
 import LeaderboardPage from "../routes/Leaderboard/LeaderboardPage";
 import LeaderboardIcon from "@material-ui/icons/BarChart";
 import SupportPage from "../routes/Support/SupportPage";
@@ -106,15 +103,6 @@ export const Routes = [
     path: "/profile",
     component: ProfilePage,
     icon: <ProfileIcon />,
-    isPublic: false,
-    exact: false,
-    isShown: true,
-  },
-  {
-    text: "Awards",
-    path: "/achievements",
-    component: AchievementsPage,
-    icon: <AchievementsIcon />,
     isPublic: false,
     exact: false,
     isShown: true,

@@ -31,11 +31,7 @@ export const AuthProvider = ({ children }) => {
     user &&
       user
         .getIdToken()
-        .then((token) => {
-          axios.defaults.headers.common["id-token"] = token;
-          console.log("setting token: ", token);
-          console.log("yayeet");
-        })
+        .then((token) => (axios.defaults.headers.common["id-token"] = token))
         .catch((e) => {
           // console.log(`delete axios.defaults.headers.common["id-token"];`);
         });

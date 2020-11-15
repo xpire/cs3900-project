@@ -5,6 +5,7 @@ import { createSelector } from "reselect";
 export const UPDATE_USER = "UPDATE_USER";
 export const UPDATE_STOCKS = "UPDATE_STOCKS";
 export const UPDATE_WATCHLIST = "UPDATE_WATCHLIST";
+export const UPDATE_ORDERS = "UPDATE_ORDERS";
 export const ADD_TO_WATCHLIST = "ADD_TO_WATCHLIST";
 export const REMOVE_FROM_WATCHLIST = "REMOVE_FROM_WATCHLIST";
 export const START_LOADING_WATCHLIST_SYMBOL = "START_LOADING_WATCHLIST_SYMBOL";
@@ -82,6 +83,8 @@ const user = (state = initialState.user, action) => {
   switch (action.type) {
     case UPDATE_USER:
       return { ...action.user, is_loading: false };
+    case UPDATE_ORDERS:
+      return { ...state, orders: action.orders };
     case UPDATE_WATCHLIST:
       return { ...state, watchlist: action.watchlist };
     case ADD_TO_WATCHLIST:
@@ -182,6 +185,7 @@ function makeActionCreator(type, ...argNames) {
 const updateUser = makeActionCreator(UPDATE_USER, "user");
 const updateStocks = makeActionCreator(UPDATE_STOCKS, "stocks");
 const updateWatchlist = makeActionCreator(UPDATE_WATCHLIST, "watchlist");
+const updateOrders = makeActionCreator(UPDATE_ORDERS, "orders");
 const addToWatchlistSync = makeActionCreator(ADD_TO_WATCHLIST, "stock");
 const removeFromWatchlistSync = makeActionCreator(
   REMOVE_FROM_WATCHLIST,
@@ -237,5 +241,13 @@ export function removeFromWatchlistWithSnack(symbol, handleSnack) {
       .then((response) => dispatch(updateWatchlist(response.data)))
       .catch((error) => console.log(error))
       .finally(() => dispatch(finishLoadingWatchlistSymbol(symbol)));
+  };
+}
+
+export function removeFromOrdersWithSnack(id, handleSnack) {
+  return function(dispatch) {
+    handleSnack(`/orders?id=${id}`, "delete")
+      .then((response) => dispatch(updateOrders(response.data)))
+      .catch((error) => console.log(error));
   };
 }

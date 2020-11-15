@@ -123,7 +123,7 @@ const Support = () => {
                   }}
                 >
                   <CardContent>
-                    <Typography variant="h4">{tut.title}</Typography>
+                    <Typography variant="h5">{tut.title}</Typography>
                     <Chip
                       label={`Lv. ${tut.unlock}`}
                       color={

@@ -54,8 +54,11 @@ class FeatureUnlocker:
 
 
 features = {
+    UnlockableFeatureType.VOLUME: dict(level=2, msg="You can now display the Volume Bar Chart!"),
     UnlockableFeatureType.LIMIT_ORDER: dict(level=3, msg="You can now make limit orders!"),
     UnlockableFeatureType.SHORT_25: dict(level=5, msg="You can now make short orders!"),
+    UnlockableFeatureType.EMA: dict(level=7, msg="You can now display the Exponential Moving Average!"),
+    UnlockableFeatureType.BB: dict(level=9, msg="You can now display the Boilinger Band!"),
     UnlockableFeatureType.SHORT_50: dict(level=10, msg="You can now short up to 50% of your net worth!"),
 }
 

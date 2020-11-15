@@ -6,6 +6,7 @@ from src import crud
 from src import domain_models as dm
 from src import schemas
 from src.api.deps import get_current_user_dm, get_db
+from src.notification.notifier import send_msg
 from src.schemas.response import Result, ResultAPIRouter, Success
 
 router = ResultAPIRouter()
@@ -45,4 +46,5 @@ async def delete_order(
         Result: Success/Fail
     """
     crud.pending_order.delete_order(db=db, id=id, user=user).ok()
-    return Success("Order successfully cancelled")
+    send_msg(user, "Order successfully cancelled")
+    return [to_schema(x) for x in user.model.pending_orders]

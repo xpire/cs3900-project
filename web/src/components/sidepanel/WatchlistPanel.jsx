@@ -18,6 +18,8 @@ import { HalfGridItem } from "./Common";
 import ScrollPanel from "./ScrollablePanel";
 import ColoredText, { useColoredText } from "../common/ColoredText";
 
+const VALUE_SIZE = 14;
+const SUBVALUE_SIZE = 11;
 function NumericColoredText({
   value,
   text,
@@ -43,7 +45,7 @@ function WatchlistItem({ symbol, price, change, changePercentage }) {
   const [color] = useColoredText(price);
 
   const priceTxt = `${formatToCurrency(price)}`;
-  const changeTxt = `${formatWithPlus(changePercentage)}% ${formatToCurrency(
+  const changeTxt = `${formatWithPlus(changePercentage)}% / ${formatToCurrency(
     change
   )} `;
 
@@ -58,20 +60,20 @@ function WatchlistItem({ symbol, price, change, changePercentage }) {
     >
       <Grid container>
         <Grid item xs={5}>
-          <Typography style={{ fontSize: 14 }}>{symbol}</Typography>
+          <Typography style={{ fontSize: VALUE_SIZE }}>{symbol}</Typography>
         </Grid>
         <Grid item xs={7}>
           <NumericColoredText
             value={price}
             text={priceTxt}
-            fontSize={14}
+            fontSize={VALUE_SIZE}
             color={color}
             showTxtColor={false}
           />
           <NumericColoredText
             value={change}
             text={changeTxt}
-            fontSize={11}
+            fontSize={SUBVALUE_SIZE}
             color={color}
           />
         </Grid>
@@ -86,10 +88,33 @@ function WatchlistPanel() {
     state.stocks.dict,
   ]);
 
-  const title = <Typography variant="h6">Watchlist</Typography>;
-  const content = (
-    <List>
+  const title = (
+    <>
+      <Typography variant="h6">Watchlist</Typography>
+      <div style={{ padding: "0px 16px 4px 16px" }}>
+        <Grid container>
+          <Grid item xs={5}>
+            <Typography style={{ fontSize: VALUE_SIZE }}>Symbol</Typography>
+          </Grid>
+          <Grid item xs={7}>
+            <div style={{ textAlign: "right" }}>
+              <Typography style={{ fontSize: VALUE_SIZE }}>Price</Typography>
+              <Typography
+                color="textSecondary"
+                style={{ fontSize: SUBVALUE_SIZE }}
+              >
+                CHG%/CHG
+              </Typography>
+            </div>
+          </Grid>
+        </Grid>
+      </div>
       <Divider />
+      <Divider />
+    </>
+  );
+  const content = (
+    <List style={{ paddingTop: "0px" }}>
       {watchlist.map(({ symbol }) => {
         const price = stocks[symbol].curr_day_close;
         const open = stocks[symbol].curr_day_open;

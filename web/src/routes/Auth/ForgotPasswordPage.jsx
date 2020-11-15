@@ -71,7 +71,7 @@ const ForgotPasswordPage = () => {
                 </Grid>
               </Grid>
             </form>
-            <SubtitleLink to="/signin" component={Link} color="inherit">
+            <SubtitleLink to="/signin" component={Link} color="primary">
               {"Remember your password? Sign in"}
             </SubtitleLink>
           </>

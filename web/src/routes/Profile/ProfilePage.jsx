@@ -7,6 +7,7 @@ import {
   CardContent,
   CardActions,
   Button,
+  Chip,
 } from "@material-ui/core";
 // import { Skeleton } from "@material-ui/lab";
 import { Link } from "react-router-dom";
@@ -24,63 +25,7 @@ import SortableTable, {
 import SortableStockTable, {
   RenderItem,
 } from "../../components/common/SortableStockTable";
-
-const columns = [
-  {
-    field: "timestamp",
-    title: (
-      <RenderItem title="Timestamp" subtitle="Index" alignItems="flex-start" />
-    ),
-    render: (rowData) => (
-      <RenderItem
-        title={rowData.timestamp}
-        titleType={tableTypes.DATE}
-        subtitle={rowData.index}
-        subtitleType={tableTypes.NUMBER}
-        alignItems="flex-start"
-      />
-    ),
-  },
-  {
-    field: "symbol",
-    title: <RenderItem title="Symbol" subtitle="Name" />,
-    render: (rowData) => (
-      <RenderItem
-        title={rowData.symbol}
-        titleType={tableTypes.TEXT}
-        subtitle={rowData.name}
-        subtitleType={tableTypes.TEXT}
-      />
-    ),
-    align: "right",
-  },
-  {
-    field: "trade_type",
-    title: <RenderItem title="Trade Type" subtitle="Quantity" />,
-    render: (rowData) => (
-      <RenderItem
-        title={rowData.trade_type}
-        titleType={tableTypes.TEXT}
-        subtitle={rowData.qty}
-        subtitleType={tableTypes.NUMBER}
-      />
-    ),
-    align: "right",
-  },
-  {
-    field: "price",
-    title: <RenderItem title="Price" subtitle="Value" />,
-    render: (rowData) => (
-      <RenderItem
-        title={rowData.price}
-        titleType={tableTypes.CURRENCY}
-        subtitle={rowData.value}
-        subtitleType={tableTypes.CURRENCY}
-      />
-    ),
-    align: "right",
-  },
-];
+import { useSelector } from "react-redux";
 
 const Profile = () => {
   const { user } = useContext(AuthContext);
@@ -105,19 +50,12 @@ const Profile = () => {
     }
   }, [data]);
 
-  const [transactionData, transactionDataLoading] = useApi("/transactions");
-
-  const mappedTransactionData = transactionData.map((e, index) => {
-    return { ...e, index: index + 1 };
-  });
-
   const [graphUpdate, setGraphUpdate] = useState(0);
-  const [graph, graphLoading] = useApi("/portfolio/history", [], [], (data) => {
-    // console.log(data);
-    const newData = data.map((e) => [new Date(e.timestamp), e.net_worth]);
-    console.log({ data, newData });
-    return newData;
-  });
+  const [graph, graphLoading] = useApi("/portfolio/history", [], [], (data) =>
+    data.map((e) => [new Date(e.timestamp), e.net_worth])
+  );
+
+  const [achievementsData] = useApi("/user/achievements");
 
   return (
     <Page>
@@ -139,14 +77,6 @@ const Profile = () => {
               </CardContent>
             </CardActionArea>
             <CardActions>
-              <Button
-                color="primary"
-                variant="outlined"
-                component={Link}
-                to="/achievements"
-              >
-                Achievements
-              </Button>
               <Button
                 color="primary"
                 variant="outlined"
@@ -178,13 +108,41 @@ const Profile = () => {
         </Grid>
         <Grid item xs={12}>
           <BasicCard>
-            <SortableStockTable
-              title="Transaction History"
-              columns={columns}
-              data={mappedTransactionData}
-              isLoading={transactionDataLoading}
-            />
+            <CardContent>
+              <Typography variant="h3">
+                Unlocked Achievements: (
+                {
+                  achievementsData.filter(({ is_unlocked }) => is_unlocked)
+                    .length
+                }
+                /{achievementsData.length})
+              </Typography>
+            </CardContent>
           </BasicCard>
+        </Grid>
+        <Grid container direction="row">
+          {achievementsData.map(
+            ({ id, name, description, is_unlocked, exp }) => {
+              return (
+                <Grid item xs={12} sm={6} md={4} key={id}>
+                  <StandardCard>
+                    <CardActionArea disabled={!is_unlocked}>
+                      <CardContent>
+                        <Typography
+                          variant="h4"
+                          color={is_unlocked ? "primary" : "textPrimary"}
+                        >
+                          {name}
+                        </Typography>
+                        <Chip label={`${exp} xp`} size="small" />
+                        <Typography>{description}</Typography>
+                      </CardContent>
+                    </CardActionArea>
+                  </StandardCard>
+                </Grid>
+              );
+            }
+          )}
         </Grid>
       </Grid>
     </Page>

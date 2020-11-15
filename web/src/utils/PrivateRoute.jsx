@@ -6,11 +6,12 @@ import { AuthContext } from "./authentication";
  */
 const PrivateRoute = ({ component: RouteComponent, isPublic, ...rest }) => {
   const { user } = useContext(AuthContext);
+  console.log(user?.emailVerified);
   return (
     <Route
       {...rest}
       render={(routeProps) =>
-        !!user || isPublic ? (
+        !!user || !user?.emailVerified || isPublic ? (
           <RouteComponent {...routeProps} />
         ) : (
           <Redirect to={"/signin"} />

@@ -7,7 +7,7 @@ import { DRAWER_WIDTH } from "../../constants/Layout";
 const CenteredDiv = styled.div`
   max-width: 1200px;
   margin: auto;
-  padding: 10px;
+  padding: 20px 10px;
   overflow: auto;
 `;
 /**

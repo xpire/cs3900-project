@@ -47,13 +47,6 @@ const bbAppearance = {
   },
   fill: "#4682B4",
 };
-const stoAppearance = {
-  stroke: Object.assign({}, StochasticSeries.defaultProps.stroke, {
-    top: "#37a600",
-    middle: "#b8ab00",
-    bottom: "#37a600",
-  }),
-};
 
 class CandleStickStockScaleChart extends React.Component {
   render() {
@@ -62,14 +55,14 @@ class CandleStickStockScaleChart extends React.Component {
       data: initialData,
       width,
       height = 500,
-      margin = { left: 50, right: 50, top: 70, bottom: 30 },
+      margin = { left: 50, right: 50, top: 20, bottom: 30 },
       ratio,
-      leftEdge = false,
-      rightYAxis = false,
+      leftEdge = true,
+      rightYAxis = true,
       rightEdge = true,
-      showEma20 = true,
-      showEma50 = true,
-      showBollingerSeries = true,
+      showVolume = false,
+      showEma20 = false,
+      showBollingerSeries = false,
     } = this.props;
 
     const gridHeight = height - margin.top - margin.bottom;
@@ -90,14 +83,6 @@ class CandleStickStockScaleChart extends React.Component {
         d.ema20 = c;
       })
       .accessor((d) => d.ema20);
-
-    const ema50 = ema()
-      .id(2)
-      .options({ windowSize: 50 })
-      .merge((d, c) => {
-        d.ema50 = c;
-      })
-      .accessor((d) => d.ema50);
 
     const slowSTO = stochasticOscillator()
       .options({ windowSize: 14, kWindowSize: 3 })
@@ -124,9 +109,7 @@ class CandleStickStockScaleChart extends React.Component {
       })
       .accessor((d) => d.bb);
 
-    const calculatedData = bb(
-      ema20(ema50(slowSTO(fastSTO(fullSTO(initialData)))))
-    );
+    const calculatedData = bb(ema20(slowSTO(fastSTO(fullSTO(initialData)))));
 
     const xScaleProvider = discontinuousTimeScaleProvider.inputDateAccessor(
       (d) => d.date
@@ -153,69 +136,29 @@ class CandleStickStockScaleChart extends React.Component {
         xExtents={xExtents}
         seriesName="Graph"
       >
-        {/* https://rrag.github.io/react-stockcharts/documentation.html#/edge_coordinate */}
-        {/* <Chart
-          id={2}
-          yExtents={[(d) => d.volume, smaVolume70.accessor()]}
-          height={150}
-          origin={(w, h) => [0, h - 150]}
-        >
-          <YAxis
-            axisAt="left"
-            orient="left"
-            ticks={5}
-            tickFormat={format(".2s")}
-          />
+        {showVolume && (
+          <Chart
+            id={2}
+            yExtents={[(d) => d.volume]}
+            height={100}
+            origin={(w, h) => [0, h - 100]}
+          >
+            <YAxis
+              axisAt="right"
+              orient="right"
+              ticks={5}
+              tickFormat={format(".2s")}
+              tickStroke="#FFFFFF"
+              stroke="#FFFFFF"
+            />
+            <BarSeries
+              yAccessor={(d) => d.volume}
+              fill={"#2196f3"} //"#6BA583" : "#DB0000")}
+            />
 
-          <BarSeries
-            yAccessor={(d) => d.volume}
-            fill={(d) => (d.close > d.open ? "#6BA583" : "#FF0000")}
-          />
-          <AreaSeries
-            yAccessor={smaVolume70.accessor()}
-            stroke={smaVolume70.stroke()}
-            fill={smaVolume70.fill()}
-          />
-
-          <CurrentCoordinate
-            yAccessor={smaVolume70.accessor()}
-            fill={smaVolume70.stroke()}
-          />
-          <CurrentCoordinate yAccessor={(d) => d.volume} fill="#9B0A47" />
-
-          <EdgeIndicator
-            itemType="first"
-            orient="left"
-            edgeAt="left"
-            yAccessor={(d) => d.volume}
-            displayFormat={format(".4s")}
-            fill="#0F0F0F"
-          />
-          <EdgeIndicator
-            itemType="last"
-            orient="right"
-            edgeAt="right"
-            yAccessor={(d) => d.volume}
-            displayFormat={format(".4s")}
-            fill="#0F0F0F"
-          />
-          <EdgeIndicator
-            itemType="first"
-            orient="left"
-            edgeAt="left"
-            yAccessor={smaVolume70.accessor()}
-            displayFormat={format(".4s")}
-            fill={smaVolume70.fill()}
-          />
-          <EdgeIndicator
-            itemType="last"
-            orient="right"
-            edgeAt="right"
-            yAccessor={smaVolume70.accessor()}
-            displayFormat={format(".4s")}
-            fill={smaVolume70.fill()}
-          />
-        </Chart> */}
+            <CurrentCoordinate yAccessor={(d) => d.volume} fill="#fff" />
+          </Chart>
+        )}
         <Chart id={1} yExtents={(d) => [d.high, d.low]}>
           <XAxis
             axisAt="bottom"
@@ -258,7 +201,7 @@ class CandleStickStockScaleChart extends React.Component {
           )}
           {showBollingerSeries && (
             <BollingerBandTooltip
-              origin={[-50, 60]}
+              origin={[-50, 32]}
               yAccessor={(d) => d.bb}
               options={bb.options()}
               fontFamily="Roboto"
@@ -276,16 +219,7 @@ class CandleStickStockScaleChart extends React.Component {
               fill={ema20.stroke()}
             />
           )}
-          {showEma50 && (
-            <LineSeries yAccessor={ema50.accessor()} stroke={ema50.stroke()} />
-          )}
-          {showEma50 && (
-            <CurrentCoordinate
-              yAccessor={ema50.accessor()}
-              fill={ema50.stroke()}
-            />
-          )}
-          {(showEma50 || showEma20) && (
+          {showEma20 && (
             <GroupTooltip
               layout="vertical"
               origin={[-50, 15]}
@@ -302,17 +236,11 @@ class CandleStickStockScaleChart extends React.Component {
                   valueFill: ema20.stroke(),
                   withShape: true,
                 },
-                {
-                  yAccessor: ema50.accessor(),
-                  yLabel: `${ema50.type()}(${ema50.options().windowSize})`,
-                  valueFill: ema50.stroke(),
-                  withShape: true,
-                },
               ]}
             />
           )}
 
-          {rightYAxis && (
+          {/* {rightYAxis && (
             <YAxis
               axisAt="right" //"left"
               orient="right" //"left"
@@ -320,7 +248,7 @@ class CandleStickStockScaleChart extends React.Component {
               tickStroke="#FFFFFF"
               stroke="#FFFFFF"
             />
-          )}
+          )} */}
           {rightEdge && (
             <EdgeIndicator
               itemType="last"

@@ -10,6 +10,7 @@ import {
   CardActionArea,
   Card,
   CardContent,
+  Button,
 } from "@material-ui/core";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import { Link, useHistory } from "react-router-dom";
@@ -20,6 +21,10 @@ import { Routes } from "../../utils/routes";
 import { AuthContext } from "../../utils/authentication";
 import app from "../../utils/firebase";
 import Logo from "../../logo.svg";
+
+const PaddedButton = styled(Button)`
+  margin: 10px 0px;
+`;
 
 const StyledSideBar = styled.div`
   padding: 20px;
@@ -37,6 +42,10 @@ const SideBar = ({ isOpen, handleChange, variant }) => {
     delete axios.defaults.headers.common["id-token"];
     console.log("header now:", axios.defaults.headers.common["id-token"]);
     history.push("/");
+  };
+
+  const handleLogin = () => {
+    history.push("/signin");
   };
   return (
     <Drawer open={isOpen} onClose={handleChange} variant={variant}>
@@ -70,10 +79,16 @@ const SideBar = ({ isOpen, handleChange, variant }) => {
             <ListItemText>{text}</ListItemText>
           </ListItem>
         ))}
-        <ListItem button key="logout" onClick={handleLogout}>
-          <ListItemIcon></ListItemIcon>
-          <ListItemText>Sign Out</ListItemText>
-        </ListItem>
+        {user && (
+          <PaddedButton
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={handleLogout}
+          >
+            Sign Out
+          </PaddedButton>
+        )}
       </List>
     </Drawer>
   );

@@ -57,6 +57,7 @@ const ConditionalColorText = ({
   formatType,
   color = false,
   secondary = false,
+  negative = false,
   ...otherProps
 }) => {
   let value = "";
@@ -81,10 +82,14 @@ const ConditionalColorText = ({
     case "number":
       value = Math.floor(initialValue); // integer
       break;
+    case "shares":
+      value = `${Math.floor(initialValue)} Shares`;
+      break;
+    case "percentage":
+      value = format(100 * initialValue); // 2 decimal place
     case "float":
     case "currency":
-    case "percentage":
-      value = format(initialValue); // 2 decimal place
+      value = format(initialValue);
       break;
     default:
       value = initialValue;
@@ -92,7 +97,14 @@ const ConditionalColorText = ({
   return (
     <>
       {color ? (
-        <ColoredText {...otherProps} color={value > 0 ? "green" : "red"}>
+        <ColoredText
+          {...otherProps}
+          color={
+            (value > 0 && !negative) || (value <= 0 && !!negative)
+              ? "green"
+              : "red"
+          }
+        >
           {value > 0 && "+"}
           {/* {formatType === "currency" && "$"} */}
           {value}
@@ -120,10 +132,12 @@ export const RenderItem = ({
   subtitle,
   subtitleType = tableTypes.TEXT,
   subtitleColor = false,
+  subtitleNegative = false,
 
   subsubtitle = "",
   subsubtitleType = tableTypes.TEXT,
   subsubtitleColor = false,
+  subsubtitleNegative = false,
 
   alignItems = "flex-end",
 }) => {
@@ -146,6 +160,7 @@ export const RenderItem = ({
             color={subtitleColor}
             align={alignItems === "flex-end" ? "right" : "left"}
             secondary={true}
+            negative={subtitleNegative}
             variant={`button`}
           />
         </Grid>
@@ -157,6 +172,7 @@ export const RenderItem = ({
               color={subsubtitleColor}
               align={alignItems === "flex-end" ? "right" : "left"}
               secondary={true}
+              negative={subsubtitleNegative}
               variant={`button`}
             />
           </Grid>
@@ -179,11 +195,7 @@ const SortableStockTable = ({
   const [actions, setActions] = useState([]);
   useEffect(() => {
     let actionsConst = [];
-    console.log("in stock table effect", {
-      handleDelete,
-      buttons,
-      handleRefresh,
-    });
+
     !!buttons &&
       actionsConst.push({
         icon: OpenInNewIcon,
@@ -195,7 +207,7 @@ const SortableStockTable = ({
     !!handleDelete &&
       actionsConst.push({
         icon: DeleteIcon,
-        tooltip: "Delete User",
+        tooltip: "Delete",
         disabled: !handleDelete,
         hidden: !handleDelete,
         onClick: (_event, rowData) => handleDelete(rowData),
@@ -210,13 +222,6 @@ const SortableStockTable = ({
         isFreeAction: true,
         onClick: handleRefresh,
       });
-    console.log(
-      "in stock table effect",
-      !!buttons,
-      !!handleDelete,
-      !!handleRefresh
-    );
-    console.log("in stock table effect", { actionsConst });
     setActions(actionsConst);
   }, []);
   return (
@@ -230,6 +235,7 @@ const SortableStockTable = ({
         paging: true,
         search: true,
         actionsColumnIndex: -1,
+        draggable: false,
       }}
       localization={{ header: { actions: "" } }}
       actions={actions}

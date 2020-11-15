@@ -78,7 +78,7 @@ class PortfolioStat(ABC):
         return total(self.positions, stat)
 
     def percentage_return(self, profit):
-        return div(profit, self.total_buy_value())
+        return div(profit, abs(self.total_buy_value()))
 
 
 class HalfPortfolioStat(PortfolioStat):

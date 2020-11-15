@@ -22,3 +22,6 @@ class UnlockableFeatureType(str, AutoName):
     LIMIT_ORDER = auto()
     SHORT_25 = auto()
     SHORT_50 = auto()
+    VOLUME = auto()
+    EMA = auto()
+    BB = auto()

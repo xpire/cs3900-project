@@ -30,18 +30,26 @@ function UserPanel() {
     {
       id: "balance",
       label: "Balance",
+      tooltip: "Your cash",
+      pre: (x) => x,
     },
     {
       id: "total_long_value",
       label: "Long Value",
+      tooltip: "Total value of your longs",
+      pre: (x) => x,
     },
     {
       id: "short_balance",
       label: "Short Balance",
+      tooltip: "How much more you can spend to short",
+      pre: (x) => (x <= 0 ? 0 : x),
     },
     {
       id: "total_short_value",
       label: "Short Value",
+      tooltip: "Amount to pay to cover all of your shorts",
+      pre: (x) => Math.abs(x),
     },
   ];
 
@@ -70,13 +78,17 @@ function UserPanel() {
       <Typography variant="caption" color="textSecondary">
         Net Worth
       </Typography>
-      <Typography>${format(stats.total_value)}</Typography>
+      <Tooltip title="Your whole account's value" placement="left-start">
+        <Typography>${format(stats.total_value)}</Typography>
+      </Tooltip>
       {/* Other values */}
       <Divider />
       <Grid container>
-        {items.map(({ id, label }) =>
-          HalfGridItem({ label: label, value: Math.abs(stats[id]) })
-        )}
+        {items.map(({ id, label, tooltip, pre }) => (
+          <Tooltip title={tooltip} placement="left-start">
+            {HalfGridItem({ label: label, value: pre(stats[id]) })}
+          </Tooltip>
+        ))}
       </Grid>
     </div>
   );

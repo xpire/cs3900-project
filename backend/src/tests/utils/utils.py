@@ -35,6 +35,5 @@ def clean_up(func):
                 db.commit()
             except:
                 db.rollback()
-                # db.session.query(m).delete()
 
     return wrapper

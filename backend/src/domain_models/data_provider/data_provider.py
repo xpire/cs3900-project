@@ -68,7 +68,7 @@ class DataProvider(ABC):
         pass
 
     # #
-    # Direct gettors for cached data
+    # Direct getters for cached data
     # #
     def get_curr_day_close(self, symbol):
         return self.data[symbol]["curr_day_close"]

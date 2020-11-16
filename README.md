@@ -36,19 +36,24 @@ $ nodejs = 10.21.0
 <br/>
 
 ## Quick Start
-### Frontend
-To quickly activate the React-JS frontend, please do
+To run the application quickly, follow the below steps.
+
+### Step 1: Frontend
+Quickly activate the React-JS frontend, please do
 ```
 $ cd web
-$ npm install
-$ npm start
+$ npm run build
+$ npm build serve
 ```
-### Backend
+
+### Step 2: Virtual Environment
 To quickly run the FASTAPI python backend, please first create a python virtual environment via 
 ```
 $ cd backend
 $ python3 -m venv env_name; source env_name/bin/activate;
 ```
+
+### Step3: Run Backend
 Then please do
 ```
 $ python3 -m pip install -U pip; python3 -m pip install -U -r requirements.txt; 

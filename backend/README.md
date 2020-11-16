@@ -16,8 +16,8 @@ $ python = 3.7.3
 
 To install all the python dependencies please do 
 ```
-$ pip install —upgrade pip
-$ pip install -r requirements.txt
+$ pip install -U pip
+$ pip install -U -r requirements.txt
 ```
 
 `NOTE`: Please run the backend on a unix based system, I am not sure what happens on windows or mac.

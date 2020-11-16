@@ -371,7 +371,7 @@ const StockDetails = () => {
                     </Grid>
                   </Grid>
                   <Grid item md={12} sm={6}>
-                    <Grid item container direction="row-reverse">
+                    <Grid item container direction="row" justify="flex-end">
                       <Grid item>
                         <ColoredText
                           color={dayGain > 0 ? "green" : "red"}
@@ -383,8 +383,8 @@ const StockDetails = () => {
                         </ColoredText>
                       </Grid>
                     </Grid>
-                    <Grid item container direction="row-reverse">
-                      <Grid item xs>
+                    <Grid item container direction="row" justify="flex-end">
+                      <Grid item>
                         <ColoredText
                           color={dayGain > 0 ? "green" : "red"}
                           variant="h3"

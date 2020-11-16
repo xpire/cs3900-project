@@ -165,8 +165,6 @@ export const getTransactions = createSelector(
 const getOrdersReversed = (state) => state.user.orders;
 
 export const getOrders = createSelector([getOrdersReversed], (revOrders) => {
-  console.log("ORDERS");
-  console.log(revOrders);
   return [...revOrders].reverse();
 });
 
@@ -236,6 +234,11 @@ export const reloadStocks = reloadFromAPI(
   "/stocks/real_time/all",
   updateStocks
 );
+
+export const reloadAll = (dispatch) => {
+  dispatch(reloadUser);
+  dispatch(reloadStocks);
+};
 
 export function addToWatchlistWithSnack(symbol, handleSnack) {
   return function(dispatch, getState) {

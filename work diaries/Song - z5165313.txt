@@ -68,5 +68,7 @@ Added 2 new tutorials for Leveling up/Experience and Understanding Stock Graphs
 Performed alpha testing on our application
     Found multiple bugs and UX issues across the code base and worked with group members to fix these
     Includes redesigning the portfolio statistics and dashboard cards being displayed
-Working on User Manuals for the final report
 Divided roles for the final demonstration, and allocated these to each member
+    Also listed key points for the demonstration and rough time allocations
+Completed all User Manuals for the final submission using Figma
+Proofread final report

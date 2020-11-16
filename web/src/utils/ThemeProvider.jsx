@@ -43,10 +43,11 @@ const MyThemeProvider = ({ children }) => {
     ),
     breakpoints: {
       values: {
-        xs: 0,
-        sm: 600,
-        md: 960,
-        lg: 1280,
+        xs: 0, //1
+        sm: 600, //2
+        md: 960, //2, show sidebar
+        lg: 1050, //4, show sidebar
+        // lg: 1280,
         xl: 1920,
       },
     },

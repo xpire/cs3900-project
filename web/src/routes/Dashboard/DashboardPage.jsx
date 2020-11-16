@@ -98,7 +98,7 @@ const Dashboard = () => {
     () =>
       setStatCards(
         statCells.map((cell, index) => (
-          <Grid key={index} item md={3} sm={6} xs={12}>
+          <Grid key={index} item lg={3} md={6} sm={6} xs={12}>
             <StatCard name={cell.label} value={format(stats[cell.id])} />
           </Grid>
         ))
@@ -108,12 +108,14 @@ const Dashboard = () => {
 
   // Card data
   const [tabValue, setValue] = useState(0);
-  const isLoading = useSelector((state) => state.user.isLoading);
+  const isUserLoading = useSelector((state) => state.user.is_loading);
+  const isStocksLoading = useSelector((state) => state.stocks.is_loading);
+  const isLoading = (isUserLoading ?? true) || (isStocksLoading ?? true);
   const { long, short } = useSelector(getPortfolioRealTimeData);
   const watchlist = useSelector(getWatchlistRealTimeData);
 
-  const longData = isLoading ? makeSkeleton(12) : short;
-  const shortData = isLoading ? makeSkeleton(12) : long;
+  const longData = isLoading ? makeSkeleton(12) : long;
+  const shortData = isLoading ? makeSkeleton(12) : short;
   const watchData = isLoading ? makeSkeleton(12) : watchlist;
 
   // Networth graph

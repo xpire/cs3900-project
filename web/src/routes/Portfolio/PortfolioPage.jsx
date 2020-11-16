@@ -27,20 +27,24 @@ const columns = (negative = false) => [
   {
     field: "price",
     title: <RenderItem title="Price" subtitle="Chg/Chg%" />,
-    render: (rowData) => (
-      <RenderItem
-        title={rowData.price}
-        titleType={tableTypes.CURRENCY}
-        subtitle={rowData.day_profit}
-        subtitleColor={true}
-        subtitleType={tableTypes.CURRENCY}
-        subsubtitle={rowData.day_return}
-        subtitleNegative={negative}
-        subsubtitleType={tableTypes.PERCENTAGE}
-        subsubtitleColor={true}
-        subsubtitleNegative={negative}
-      />
-    ),
+    render: (rowData) => {
+      const change = rowData.price - rowData.previous_price;
+      const percentChange = (change / rowData.previous_price) * 100;
+      return (
+        <RenderItem
+          title={rowData.price}
+          titleType={tableTypes.CURRENCY}
+          subtitle={change}
+          subtitleColor={true}
+          subtitleType={tableTypes.CURRENCY}
+          subtitleNegative={negative}
+          subsubtitle={percentChange}
+          subsubtitleType={tableTypes.PERCENTAGE}
+          subsubtitleColor={true}
+          subsubtitleNegative={negative}
+        />
+      );
+    },
     align: "right",
   },
   {
@@ -58,6 +62,21 @@ const columns = (negative = false) => [
         subsubtitleType={tableTypes.PERCENTAGE}
         subsubtitleColor={true}
         subsubtitleNegative={negative}
+      />
+    ),
+    align: "right",
+  },
+  {
+    field: "day_profit",
+    title: <RenderItem title="Daily Profit" subtitle="Daily Return" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.day_profit}
+        titleType={tableTypes.CURRENCY}
+        subtitle={rowData.day_return}
+        subtitleColor={true}
+        subtitleType={tableTypes.PERCENTAGE}
+        subtitleNegative={negative}
       />
     ),
     align: "right",

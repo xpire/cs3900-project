@@ -35,10 +35,6 @@ const CardsSpaceDiv = styled.div`
   min-height: 100vh;
 `;
 
-// const StyledColorText = styled(ColoredText)`
-//   display: inline;
-// `;
-
 const StatCard = ({
   label,
   value,

@@ -22,7 +22,6 @@ class SimulatedProvider(RepeatedUpdateProvider):
     def get_data_by_days(self, days):
         now = dt.datetime.now()
 
-        # TODO: specify timezone?
         msg = {}
         for s in self.simulators:
             msg[s.symbol] = s.make_request_by_days(now, days)

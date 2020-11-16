@@ -24,9 +24,3 @@ def db() -> Generator:
         print("Cool...")
     else:
         print("Missing testing db...")
-
-
-# @pytest.fixture(scope="session")
-# def client() -> Generator:
-#     with TestClient(app) as c:
-#         yield c

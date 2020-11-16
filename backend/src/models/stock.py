@@ -19,5 +19,5 @@ class Stock(BaseModel):
         backref="stock",
         cascade="save-update, merge",
         lazy="dynamic",
-        order_by="TimeSeries.date",  # BUG .desc() does not work
+        order_by="TimeSeries.date",
     )

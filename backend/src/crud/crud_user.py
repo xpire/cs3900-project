@@ -321,7 +321,6 @@ class CRUDUser(CRUDBase[User]):
 
         self.commit_and_refresh(db, user)
 
-    # @fail_save
     @return_result()
     def add_notification(self, *, msg, user: User, db: Session) -> Result:
         """Adds a notification to the history of the user's past notifications

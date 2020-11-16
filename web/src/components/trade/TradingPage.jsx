@@ -23,8 +23,6 @@ import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
 import { useLocation, useHistory } from "react-router-dom";
 import { useDebounce } from "react-use";
 import NumberFormat from "react-number-format";
-// import { DateTimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
-// import DateFnsUtils from "@date-io/date-fns";
 
 import Page from "../../components/page/Page";
 import useApi from "../../hooks/useApi";
@@ -46,6 +44,10 @@ function NumberFormatCustom(props) {
       getInputRef={inputRef}
       onValueChange={(values) => {
         onChange(values.value);
+      }}
+      isAllowed={(values) => {
+        console.log({ values });
+        return values.floatValue !== 0;
       }}
       thousandSeparator
       isNumericString
@@ -160,9 +162,13 @@ const Trading = ({ symbol }) => {
       const actualPriceConst =
         state.orderType === "limit" ? state.limitOrderPrice : closePrice; // for use inside this useeffect (as useState does not run until next rerender)
       setActualPrice(actualPriceConst);
+      let maxValueConst = 0;
+      const setMaxValueConst = (val) => {
+        maxValueConst = val;
+      };
       switch (state.tradeType) {
         case "buy":
-          setMaxValue(
+          setMaxValueConst(
             Math.floor(
               state.purchaseBy === "quantity"
                 ? portfolioStats.balance / (actualPriceConst * commissionConst) // take into account commission
@@ -175,12 +181,12 @@ const Trading = ({ symbol }) => {
             (elem) => elem.symbol === symbol
           );
           longData?.owned
-            ? setMaxValue(
+            ? setMaxValueConst(
                 state.purchaseBy === "quantity"
                   ? longData.owned
                   : longData.owned * actualPriceConst
               )
-            : setMaxValue(0);
+            : setMaxValueConst(0);
 
           break;
         case "short":
@@ -200,29 +206,33 @@ const Trading = ({ symbol }) => {
             (elem) => elem.symbol === symbol
           );
           shortData?.owned
-            ? setMaxValue(
+            ? setMaxValueConst(
                 state.purchaseBy === "quantity"
                   ? shortData.owned
                   : shortData.owned * actualPriceConst
               )
-            : setMaxValue(0);
+            : setMaxValueConst(0);
 
           break;
         default:
       }
-      setFinalQuantity(
-        Math.floor(
-          state.purchaseBy === "quantity"
-            ? state.quantity
-            : state.quantity / actualPriceConst
-        )
+      setMaxValue(maxValueConst);
+
+      const finalQuantityConst = Math.floor(
+        state.purchaseBy === "quantity"
+          ? Math.min(Math.floor(state.quantity))
+          : state.quantity / actualPriceConst
       );
+      // use limit quantity to maxValueConst
+      setFinalQuantity(Math.min(finalQuantityConst, maxValueConst));
+      setPrice(actualPriceConst);
     }
   }, [loading, state, update]);
   useEffect(() => setPrice(actualPrice * finalQuantity * commission), [
     actualPrice,
     finalQuantity,
     commission,
+    state,
   ]);
   // debounced portfolio allocation
   const [] = useDebounce(

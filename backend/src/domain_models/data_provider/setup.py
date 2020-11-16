@@ -60,7 +60,7 @@ def cached_get_data_provider():
 
         db = SessionLocal()
 
-        real_stocks = crud.stock.get_all_stocks(db=db, simulated=False)[:1]
+        real_stocks = crud.stock.get_all_stocks(db=db, simulated=False)[:50]
         sim_stocks = crud.stock.get_all_stocks(db=db, simulated=True)
 
         def make_symbol_to_exchange(stocks):

@@ -85,7 +85,6 @@ export default function PageContainer() {
       />
 
       {/* Main panel in the centre */}
-      {/* <main className={classes.content}> */}
       <ScrollToTop history={history}>
         <StyledScrollbars
           className={classes.content}
@@ -106,7 +105,6 @@ export default function PageContainer() {
           </Switch>
         </StyledScrollbars>
       </ScrollToTop>
-      {/* </main> */}
 
       {/* Side panel on the right */}
       {user && (

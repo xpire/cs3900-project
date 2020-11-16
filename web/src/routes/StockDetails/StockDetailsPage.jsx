@@ -243,12 +243,10 @@ const CandleStickWithState = ({ timeSeries }) => {
             height: "100%",
           }}
         >
-          {/* <ApexCandlestick data={parsedApexData} /> */}
           {timeSeries === null ? (
             <CircularProgress color="primary" size={50} />
           ) : (
             <Candlestick data={timeSeries} type="hybrid" {...state} />
-            // <Candlestick data={timeSeries} type="hybrid" />
           )}
         </div>
       </CardContent>

@@ -1,6 +1,7 @@
 import { combineReducers } from "redux";
 import axios from "../utils/api";
 import { createSelector } from "reselect";
+import { auth } from "../utils/authentication";
 
 export const UPDATE = "UPDATE";
 export const UPDATE_USER = "UPDATE_USER";
@@ -12,6 +13,7 @@ export const REMOVE_FROM_WATCHLIST = "REMOVE_FROM_WATCHLIST";
 export const START_LOADING_WATCHLIST_SYMBOL = "START_LOADING_WATCHLIST_SYMBOL";
 export const FINISH_LOADING_WATCHLIST_SYMBOL =
   "FINISH_LOADING_WATCHLIST_SYMBOL";
+export const RESET = "RESET";
 
 const initialState = {
   user: {
@@ -97,6 +99,8 @@ const user = (state = initialState.user, action) => {
         (stock) => stock.symbol !== action.symbol
       );
       return { ...state, watchlist: watchlist_removed };
+    case RESET:
+      return initialState.user;
     default:
       return state;
   }
@@ -111,6 +115,8 @@ const stocks = (state = initialState.stocks, action) => {
         return acc;
       }, {});
       return { data, dict, is_loading: false };
+    case RESET:
+      return initialState.stocks;
     default:
       return state;
   }
@@ -129,6 +135,8 @@ const is_loading = (state = initialState.is_loading, action) => {
         ...state,
         user: { ...state.user, watchlist: watchlist_removed },
       };
+    case RESET:
+      return initialState.is_loading;
     default:
       return state;
   }
@@ -198,6 +206,7 @@ function makeActionCreator(type, ...argNames) {
 }
 
 export const initState = makeActionCreator(UPDATE);
+export const resetState = makeActionCreator(RESET);
 const updateUser = makeActionCreator(UPDATE_USER, "user");
 const updateStocks = makeActionCreator(UPDATE_STOCKS, "stocks");
 const updateWatchlist = makeActionCreator(UPDATE_WATCHLIST, "watchlist");
@@ -220,13 +229,17 @@ const finishLoadingWatchlistSymbol = makeActionCreator(
   ACTIONS
 */
 function reloadFromAPI(endpoint, updateFn) {
-  return () =>
-    function(dispatch) {
-      axios.get(endpoint).then(
+  return function(dispatch) {
+    axios
+      .get(endpoint)
+      .then(
         (response) => dispatch(updateFn(response.data)),
         (error) => console.log("ERROR reloading from " + endpoint)
-      );
-    };
+      )
+      .finally(() => {
+        !auth.currentUser && dispatch(resetState());
+      });
+  };
 }
 
 export const reloadUser = reloadFromAPI("/user/detail", updateUser);
@@ -250,7 +263,11 @@ export function addToWatchlistWithSnack(symbol, handleSnack) {
         dispatch(updateWatchlist(response.data));
       })
       .catch((error) => console.log(error))
-      .finally(() => dispatch(finishLoadingWatchlistSymbol(symbol)));
+      .finally(() =>
+        auth.currentUser
+          ? dispatch(finishLoadingWatchlistSymbol(symbol))
+          : dispatch(resetState())
+      );
   };
 }
 
@@ -261,7 +278,11 @@ export function removeFromWatchlistWithSnack(symbol, handleSnack) {
     handleSnack(`/watchlist?symbol=${symbol}`, "delete")
       .then((response) => dispatch(updateWatchlist(response.data)))
       .catch((error) => console.log(error))
-      .finally(() => dispatch(finishLoadingWatchlistSymbol(symbol)));
+      .finally(() =>
+        auth.currentUser
+          ? dispatch(finishLoadingWatchlistSymbol(symbol))
+          : dispatch(resetState())
+      );
   };
 }
 
@@ -269,6 +290,9 @@ export function removeFromOrdersWithSnack(id, handleSnack) {
   return function(dispatch) {
     handleSnack(`/orders?id=${id}`, "delete")
       .then((response) => dispatch(updateOrders(response.data)))
-      .catch((error) => console.log(error));
+      .catch((error) => console.log(error))
+      .finally(() => {
+        !auth.currentUser && dispatch(resetState());
+      });
   };
 }

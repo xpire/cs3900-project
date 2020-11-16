@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Switch, useLocation, Route } from "react-router-dom";
 import { Toolbar, CssBaseline } from "@material-ui/core";
 import { Scrollbars } from "react-custom-scrollbars";
@@ -14,10 +14,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import Hidden from "@material-ui/core/Hidden";
 import SidePanel from "../sidepanel/SidePanel";
 import { useDispatch } from "react-redux";
-import { reloadUser, reloadStocks } from "../../reducers";
+import { reloadUser, reloadStocks, reloadAll } from "../../reducers";
 import { PANELS, DEFAULT_PANEL_NAME } from "../sidepanel/Panels";
 import { DATA_UPDATE_INTERVAL } from "../../constants/Layout";
-
+import { auth, AuthContext } from "../../utils/authentication";
+import { useAuthState } from "react-firebase-hooks/auth";
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
@@ -41,17 +42,17 @@ export default function PageContainer() {
   const [isOpen, setOpen] = useState(false);
   const toggleDrawer = () => setOpen(!isOpen);
 
+  const { user } = useContext(AuthContext);
+
   // for redux data management
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(reloadUser());
-    dispatch(reloadStocks());
+    user && dispatch(reloadAll);
     const interval = setInterval(() => {
-      dispatch(reloadUser());
-      dispatch(reloadStocks());
+      user && dispatch(reloadAll);
     }, DATA_UPDATE_INTERVAL);
     return () => clearInterval(interval);
-  }, []);
+  }, [user]);
 
   // for sidepanel control
   const [sidePanel, setSidePanel] = useState(DEFAULT_PANEL_NAME);
@@ -101,9 +102,11 @@ export default function PageContainer() {
       {/* </main> */}
 
       {/* Side panel on the right */}
-      <Hidden smDown>
-        <SidePanel classes={classes} panel={panel} />
-      </Hidden>
+      {user && (
+        <Hidden smDown>
+          <SidePanel classes={classes} panel={panel} />
+        </Hidden>
+      )}
     </div>
   );
 }

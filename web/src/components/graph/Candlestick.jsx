@@ -240,15 +240,6 @@ class CandleStickStockScaleChart extends React.Component {
             />
           )}
 
-          {/* {rightYAxis && (
-            <YAxis
-              axisAt="right" //"left"
-              orient="right" //"left"
-              ticks={5}
-              tickStroke="#FFFFFF"
-              stroke="#FFFFFF"
-            />
-          )} */}
           {rightEdge && (
             <EdgeIndicator
               itemType="last"

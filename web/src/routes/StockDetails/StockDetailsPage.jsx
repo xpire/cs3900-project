@@ -48,18 +48,16 @@ import { removeFromOrdersWithSnack } from "../../reducers/index";
 const columns = [
   {
     field: "symbol",
-    title: (
-      <RenderItem title="Symbol" subtitle="Status" alignItems="flex-start" />
-    ),
+    title: <RenderItem title="Symbol" subtitle="Timestamp" />,
     render: (rowData) => (
       <RenderItem
         title={rowData.symbol}
         titleType={tableTypes.TEXT}
-        subtitle={rowData.is_cancelled}
-        subtitleType={tableTypes.TEXT}
-        alignItems="flex-start"
+        subtitle={rowData.timestamp}
+        subtitleType={tableTypes.DATE}
       />
     ),
+    align: "right",
   },
   {
     field: "trade_type",
@@ -69,24 +67,11 @@ const columns = [
         title={rowData.trade_type}
         titleType={tableTypes.TEXT}
         subtitle={rowData.qty}
-        subtitleType={tableTypes.NUMBER}
+        subtitleType={tableTypes.SHARES}
       />
     ),
     align: "right",
   },
-  // {
-  //   field: "price",
-  //   title: <RenderItem title="Price" subtitle="Value" />,
-  //   render: (rowData) => (
-  //     <RenderItem
-  //       title={rowData.price}
-  //       titleType={tableTypes.CURRENCY}
-  //       subtitle={rowData.value}
-  //       subtitleType={tableTypes.CURRENCY}
-  //     />
-  //   ),
-  //   align: "right",
-  // },
 ];
 
 const orderColumns = [
@@ -108,17 +93,21 @@ const orderColumns = [
   },
 ];
 
-const transactionColumns = [
+const transactionsColumns = [
   ...columns,
   {
     field: "price",
     title: <RenderItem title="Price" subtitle="Value" />,
     render: (rowData) => (
       <RenderItem
-        title={rowData.price}
-        titleType={tableTypes.CURRENCY}
-        subtitle={rowData.value}
-        subtitleType={tableTypes.CURRENCY}
+        title={rowData.is_cancelled === true ? "Cancelled" : rowData.price}
+        titleType={
+          rowData.is_cancelled === true ? tableTypes.TEXT : tableTypes.CURRENCY
+        }
+        subtitle={rowData.is_cancelled === true ? undefined : rowData.value}
+        subtitleType={
+          rowData.is_cancelled === true ? undefined : tableTypes.CURRENCY
+        }
       />
     ),
     align: "right",
@@ -427,7 +416,7 @@ const StockDetails = () => {
               </Grid>
               {tab === 0 ? (
                 <SortableStockTable
-                  title="History"
+                  title="Transactions"
                   columns={orderColumns}
                   data={transHist}
                   handleDelete={({ id }) =>
@@ -437,8 +426,9 @@ const StockDetails = () => {
               ) : (
                 <SortableStockTable
                   title="Orders"
-                  columns={transactionColumns}
+                  columns={transactionsColumns}
                   data={ordersHist}
+                  buttons={false}
                 />
               )}
             </BasicCard>

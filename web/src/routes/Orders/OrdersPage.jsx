@@ -135,6 +135,7 @@ const Orders = () => {
           <SortableStockTable
             columns={transactionsColumns}
             data={transactionData}
+            handleDelete={false}
           />
         )}
       </Card>

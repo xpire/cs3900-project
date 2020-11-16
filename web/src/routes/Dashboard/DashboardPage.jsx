@@ -1,5 +1,12 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Typography, Tab, Tabs, Grid, CardContent } from "@material-ui/core";
+import {
+  Typography,
+  Tab,
+  Tabs,
+  Grid,
+  CardContent,
+  IconButton,
+} from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import styled from "styled-components";
 
@@ -273,8 +280,11 @@ const Dashboard = () => {
 
   // Networth graph
   const [graphUpdate, setGraphUpdate] = useState(0);
-  const [graph, graphLoading] = useApi("/portfolio/history", [], [], (data) =>
-    data.map((e) => [new Date(e.timestamp), e.net_worth])
+  const [graph, graphLoading] = useApi(
+    "/portfolio/history",
+    [graphUpdate],
+    [],
+    (data) => data.map((e) => [new Date(e.timestamp), e.net_worth])
   );
 
   return (
@@ -295,9 +305,9 @@ const Dashboard = () => {
                 </Grid>
 
                 <Grid item>
-                  <InteractiveRefresh
-                    onClick={() => setGraphUpdate(graphUpdate + 1)}
-                  />
+                  <IconButton onClick={() => setGraphUpdate(graphUpdate + 1)}>
+                    <InteractiveRefresh />
+                  </IconButton>
                 </Grid>
               </Grid>
               {!graphLoading ? (

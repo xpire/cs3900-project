@@ -64,6 +64,7 @@ const orderColumns = [
         alignItems="flex-start"
       />
     ),
+    align: "right",
   },
   {
     field: "trade_type",
@@ -133,10 +134,14 @@ const transactionColumns = [
     title: <RenderItem title="Execution Price" subtitle="Value" />,
     render: (rowData) => (
       <RenderItem
-        title={rowData.price}
-        titleType={tableTypes.CURRENCY}
-        subtitle={rowData.value}
-        subtitleType={tableTypes.CURRENCY}
+        title={rowData.is_cancelled === true ? "Cancelled" : rowData.price}
+        titleType={
+          rowData.is_cancelled === true ? tableTypes.TEXT : tableTypes.CURRENCY
+        }
+        subtitle={rowData.is_cancelled === true ? undefined : rowData.value}
+        subtitleType={
+          rowData.is_cancelled === true ? undefined : tableTypes.CURRENCY
+        }
       />
     ),
     align: "right",
@@ -363,7 +368,7 @@ const StockDetails = () => {
                     </Grid>
                   </Grid>
                   <Grid item md={12} sm={6}>
-                    <Grid item container direction="row-reverse">
+                    <Grid item container direction="row" justify="flex-end">
                       <Grid item>
                         <ColoredText
                           color={dayGain > 0 ? "green" : "red"}
@@ -375,8 +380,8 @@ const StockDetails = () => {
                         </ColoredText>
                       </Grid>
                     </Grid>
-                    <Grid item container direction="row-reverse">
-                      <Grid item xs>
+                    <Grid item container direction="row" justify="flex-end">
+                      <Grid item>
                         <ColoredText
                           color={dayGain > 0 ? "green" : "red"}
                           variant="h3"

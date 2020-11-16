@@ -1,10 +1,8 @@
 import React, { useEffect } from "react";
-import { useHistory } from "react-router-dom";
 import { Button } from "@material-ui/core";
 
 import { AuthProvider } from "./utils/authentication";
 import { SnackbarProvider } from "notistack";
-import ScrollToTop from "./utils/scrollToTop";
 
 import { Provider } from "react-redux";
 import thunk from "redux-thunk";
@@ -16,8 +14,6 @@ const middleware = [thunk];
 const store = createStore(reducer, applyMiddleware(...middleware));
 
 function App() {
-  const history = useHistory();
-
   const notistackRef = React.createRef();
   const onClickDismiss = (key) => () => {
     notistackRef.current.closeSnackbar(key);
@@ -34,11 +30,9 @@ function App() {
         ref={notistackRef}
         action={(key) => <Button onClick={onClickDismiss(key)}>OK</Button>}
       >
-        <ScrollToTop history={history}>
-          <AuthProvider>
-            <PageContainer />
-          </AuthProvider>
-        </ScrollToTop>
+        <AuthProvider>
+          <PageContainer />
+        </AuthProvider>
       </SnackbarProvider>
     </Provider>
   );

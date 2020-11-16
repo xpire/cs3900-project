@@ -21,16 +21,50 @@ import {
   getPortfolioRealTimeData,
   getWatchlistRealTimeData,
 } from "../../reducers";
+import { makeSkeleton } from "../../utils/skeleton";
 
 const CardsSpaceDiv = styled.div`
   // min-height: 75vh;
   min-height: 100vh;
 `;
 
-const StatCard = ({ name, value, stat, today }) => {
-  const [delta] = useColoredText(stat);
+// const StyledColorText = styled(ColoredText)`
+//   display: inline;
+// `;
+
+const StatCard = ({
+  label,
+  value,
+  percentageValue = undefined,
+
+  subLabel = undefined,
+  subValue = undefined,
+  subPercentageValue = undefined,
+  subNegative = undefined,
+
+  subsubLabel = undefined,
+  subsubValue = undefined,
+  subsubPercentageValue = undefined,
+  subsubNegative = undefined,
+}) => {
+  const [valueDelta] = useColoredText(value);
+  const [subValueDelta] = useColoredText(subValue);
+  const [subsubValueDelta] = useColoredText(subsubValue);
+
+  console.log({
+    label,
+    value,
+    percentageValue,
+    subLabel,
+    subValue,
+    subPercentageValue,
+    subsubLabel,
+    subsubValue,
+    subsubPercentageValue,
+  });
+
   return (
-    <StandardCard style={{ minHeight: "130px" }}>
+    <StandardCard style={{ minHeight: "130px", height: "90%" }}>
       <CardContent>
         <Grid
           container
@@ -38,56 +72,161 @@ const StatCard = ({ name, value, stat, today }) => {
           justify="flex-start"
           alignItems="flex-start"
         >
-          <Grid item xs={12} container>
-            <Typography variant="button">{name}</Typography>
+          <Grid item xs={12}>
+            <Typography variant="button">{label}</Typography>
           </Grid>
-          <Grid item container alignItems="flex-end" spacing={1}>
-            <Grid item xs={12}>
-              <Typography variant="h4">
-                {value ? value : <Skeleton />}
-              </Typography>
-            </Grid>
-            {/* TODO: implement these extra statistics when backend is ready */}
-            {stat && (
+          <Grid item xs={12} container justify="flex-start" spacing={0}>
+            {value !== undefined && (
               <Grid item>
-                <ColoredText color={stat > 0 ? "green" : "red"} variant="h5">
-                  ({stat})
+                <ColoredText delta={valueDelta} variant="h4">
+                  ${format(value)}
+                </ColoredText>
+              </Grid>
+            )}
+            {percentageValue !== undefined && (
+              <Grid item>
+                <ColoredText delta={valueDelta} variant="body2">
+                  {format(100 * percentageValue)}
                 </ColoredText>
               </Grid>
             )}
           </Grid>
-          {today && (
-            <>
+          <Grid
+            item
+            xs={
+              subsubValue !== undefined ||
+              subsubPercentageValue !== undefined ||
+              subsubLabel !== undefined
+                ? 6
+                : 12
+            }
+            container
+            justify="flex-start"
+            direction="column"
+            spacing={0}
+          >
+            {subLabel !== undefined && (
               <Grid item xs={12}>
-                <Typography variant="caption">Today:</Typography>
+                <Typography delta={subValueDelta} variant="button">
+                  {subLabel}
+                </Typography>
               </Grid>
-              <Grid item xs={12}>
+            )}
+            {subValue !== undefined && (
+              <Grid item>
                 <ColoredText
-                  variant="subtitle2"
-                  color={stat > 0 ? "green" : "red"}
-                  delta={delta}
+                  delta={
+                    subNegative !== undefined && subNegative
+                      ? -subValueDelta
+                      : subValueDelta
+                  }
+                  variant="body2"
                 >
-                  {today}
+                  ${format(subValue)}
                 </ColoredText>
               </Grid>
-            </>
-          )}
+            )}
+            {subPercentageValue !== undefined && (
+              <Grid item>
+                <ColoredText
+                  delta={
+                    subNegative !== undefined && subNegative
+                      ? -subValueDelta
+                      : subValueDelta
+                  }
+                  color={
+                    (subPercentageValue > 0 && !subNegative) ||
+                    (subPercentageValue <= 0 && !!subNegative)
+                      ? "green"
+                      : "red"
+                  }
+                  variant="body2"
+                >
+                  ({format(100 * subPercentageValue)}%)
+                </ColoredText>
+              </Grid>
+            )}
+          </Grid>
+          <Grid
+            item
+            container
+            justify="flex-start"
+            direction="column"
+            xs={6}
+            spacing={0}
+          >
+            {subsubLabel !== undefined && (
+              <Grid item xs={12}>
+                <Typography variant="button">{subsubLabel}</Typography>
+              </Grid>
+            )}
+            {subsubValue !== undefined && (
+              <Grid item>
+                <ColoredText
+                  delta={
+                    subsubNegative !== undefined && subsubNegative
+                      ? -subsubValueDelta
+                      : subsubValueDelta
+                  }
+                  variant="body2"
+                >
+                  ${format(subsubValue)}
+                </ColoredText>
+              </Grid>
+            )}
+            {subsubPercentageValue !== undefined && (
+              <Grid item>
+                <ColoredText
+                  delta={
+                    subsubNegative !== undefined && subsubNegative
+                      ? -subsubValueDelta
+                      : subsubValueDelta
+                  }
+                  variant="body2"
+                  color={
+                    (subsubPercentageValue > 0 && !subsubNegative) ||
+                    (subsubPercentageValue <= 0 && !!subsubNegative)
+                      ? "green"
+                      : "red"
+                  }
+                >
+                  ({format(subsubPercentageValue)}%)
+                </ColoredText>
+              </Grid>
+            )}
+          </Grid>
         </Grid>
       </CardContent>
     </StandardCard>
   );
 };
 
-const makeSkeleton = (n) =>
-  [...Array(n)].map((_) => {
-    return { skeleton: true };
-  });
-
 const statCells = [
-  { label: "Net Worth", id: "total_value" },
-  { label: "Balance", id: "balance" },
-  { label: "Portfolio Value", id: "total_portfolio_value" },
-  { label: "Profit", id: "total_portfolio_profit" },
+  { label: "Net Worth", key: "total_value" },
+  {
+    label: "Balance",
+    key: "balance",
+    subLabel: "Short Balance",
+    subKey: "short_balance",
+  },
+  {
+    label: "Portfolio Value",
+    key: "total_portfolio_value",
+    percentageKey: "total_return",
+    subLabel: "Longs",
+    subKey: "total_long_value",
+    subPercentageKey: "total_long_return",
+    subsubLabel: "Shorts",
+    subsubKey: "total_short_value",
+    subsubPercentageKey: "total_short_return",
+  },
+  {
+    label: "Profit",
+    key: "total_portfolio_profit",
+    subLabel: "Daily",
+    subKey: "daily_portfolio_profit",
+    subPercentageKey: "daily_portfolio_return",
+  },
 ];
 
 const Dashboard = () => {
@@ -97,11 +236,25 @@ const Dashboard = () => {
   useEffect(
     () =>
       setStatCards(
-        statCells.map((cell, index) => (
-          <Grid key={index} item lg={3} md={6} sm={6} xs={12}>
-            <StatCard name={cell.label} value={format(stats[cell.id])} />
-          </Grid>
-        ))
+        <Grid container>
+          {statCells.map((cell, index) => (
+            <Grid key={index} item lg={3} md={6} sm={6} xs={12}>
+              <StatCard
+                label={cell.label}
+                value={stats[cell.key]}
+                percentageValue={stats[cell.percentageKey]}
+                subLabel={cell.subLabel}
+                subValue={stats[cell.subKey]}
+                subPercentageValue={stats[cell.subPercentageKey]}
+                subNegative={cell.subNegative ?? false}
+                subsubLabel={cell.subsubLabel}
+                subsubValue={stats[cell.subsubKey]}
+                subsubPercentageValue={stats[cell.subsubPercentageKey]}
+                subsubNegative={cell.subsubNegative ?? false}
+              />
+            </Grid>
+          ))}
+        </Grid>
       ),
     [stats]
   );

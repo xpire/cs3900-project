@@ -8,6 +8,7 @@ import { useDelta } from "react-delta";
 
 const StyledColoredText = materialStyled(Typography)({
   color: (props) => props.color,
+  display: "inline",
 });
 
 export const green = {

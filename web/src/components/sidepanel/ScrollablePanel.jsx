@@ -27,10 +27,8 @@ function ScrollPanel({ title, content, addPadding = true }) {
     <div>
       {title}
       <StyledScrollbars style={{ height: "100vh" }}>
-        {/* <div className={classes.scrollableContainer}> */}
         {content}
         {addPadding ? <div style={{ height: "80vh" }}></div> : <></>}
-        {/* </div> */}
       </StyledScrollbars>
     </div>
   );

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, List
 
 import yaml
+
 from firebase_admin import auth, credentials, initialize_app
 from pydantic import AnyHttpUrl, BaseSettings
 
@@ -37,7 +38,7 @@ class LocalSettings(BaseSettings):
 
 
 env_settings = LocalSettings()
-settings = None  # Not changing the name, its used everywhere
+settings = None
 yaml_field = None
 
 # Configure the firebase credentials

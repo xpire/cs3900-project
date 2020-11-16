@@ -15,8 +15,6 @@ import PortfolioPage from "../routes/Portfolio/PortfolioPage";
 import PortfolioIcon from "@material-ui/icons/TrackChanges";
 import WatchlistPage from "../routes/Watchlist/WatchlistPage";
 import WatchlistIcon from "@material-ui/icons/ViewList";
-// import WatchlistIcon2 from "@material-ui/icons/AddToQueue";
-// import WatchlistIcon3 from "@material-ui/icons/Book";
 import MarketPage from "../routes/Market/MarketPage";
 import MarketIcon from "@material-ui/icons/TrendingUp";
 import OrderPage from "../routes/Orders/OrdersPage";

@@ -31,7 +31,7 @@ class TDProvider(RepeatedUpdateProvider):
         request = self.td.time_series(
             symbol=self.symbols_and_exchanges,
             interval="1day",
-            timezone=settings.TIMEZONE,  # TODO consider setting defaultdatetime timezone using https://stackoverflow.com/questions/1301493/setting-timezone-in-python
+            timezone=settings.TIMEZONE,
             outputsize=365,
             start_date=start_date,
         )
@@ -43,7 +43,7 @@ class TDProvider(RepeatedUpdateProvider):
             symbol=self.symbols_and_exchanges,
             interval="1day",
             outputsize=2,
-            timezone=settings.TIMEZONE,  # output all timestamps in Sydney's timezone TODO verify if this is desirable
+            timezone=settings.TIMEZONE,  # output all timestamps in Sydney's timezone
         )
         return self.make_request(request)
 

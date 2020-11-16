@@ -40,9 +40,7 @@ def position_to_dict(p):
     entry["total_paid"] = p.avg * p.qty
     entry["value"] = entry["price"] * p.qty
     entry["profit"] = entry["value"] - entry["total_paid"]
-    entry["day_profit"] = (
-        entry["price"] - entry["previous_price"]
-    ) * p.qty  # BUG: fix, returns daily profit, but not for the portfolio
+    entry["day_profit"] = (entry["price"] - entry["previous_price"]) * p.qty
     entry["day_return"] = entry["day_profit"] / entry["total_paid"]
     entry["total_return"] = entry["profit"] / entry["total_paid"]
     return entry

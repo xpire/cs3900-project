@@ -39,8 +39,8 @@ import Trade from "../../components/trade/TradingPage";
 import { BasicCard } from "../../components/common/styled";
 import PortfolioPolar from "../../components/graph/PortfolioPolar";
 import StockDisplayTable from "../../components/common/StockDisplayTable";
-import { tableTypes } from "../../components/common/SortableTable";
 import SortableStockTable, {
+  tableTypes,
   RenderItem,
 } from "../../components/common/SortableStockTable";
 import {

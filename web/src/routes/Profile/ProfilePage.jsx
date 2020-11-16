@@ -19,10 +19,8 @@ import Page from "../../components/page/Page";
 import { StandardCard, BasicCard } from "../../components/common/styled";
 import useApi from "../../hooks/useApi";
 import { format } from "../../utils/formatter";
-import SortableTable, {
-  tableTypes,
-} from "../../components/common/SortableTable";
 import SortableStockTable, {
+  tableTypes,
   RenderItem,
 } from "../../components/common/SortableStockTable";
 import { useSelector } from "react-redux";

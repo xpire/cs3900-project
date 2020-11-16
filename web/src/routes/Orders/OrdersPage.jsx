@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Card, Tabs, Tab } from "@material-ui/core";
 
 import Page from "../../components/page/Page";
-import { tableTypes } from "../../components/common/SortableTable";
 import SortableStockTable, {
+  tableTypes,
   RenderItem,
 } from "../../components/common/SortableStockTable";
 import useApi from "../../hooks/useApi";

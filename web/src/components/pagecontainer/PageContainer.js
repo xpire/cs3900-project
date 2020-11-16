@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Switch, useLocation, Route } from "react-router-dom";
 import { Toolbar, CssBaseline } from "@material-ui/core";
+import { Scrollbars } from "react-custom-scrollbars";
+import styled from "styled-components";
 // import Hidden from "@material-ui/core/Hidden";
 
 import Header from "../header/Header";
@@ -12,7 +14,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Hidden from "@material-ui/core/Hidden";
 import SidePanel from "../sidepanel/SidePanel";
 import { useDispatch } from "react-redux";
-import { reloadUser, reloadStocks, initState } from "../../reducers";
+import { reloadUser, reloadStocks } from "../../reducers";
 import { PANELS, DEFAULT_PANEL_NAME } from "../sidepanel/Panels";
 import { DATA_UPDATE_INTERVAL } from "../../constants/Layout";
 
@@ -25,6 +27,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const StyledScrollbars = styled(Scrollbars)`
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 100vh;
+`;
+
 export default function PageContainer() {
   const classes = useStyles();
   const location = useLocation();
@@ -36,7 +44,6 @@ export default function PageContainer() {
   // for redux data management
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(initState());
     dispatch(reloadUser());
     dispatch(reloadStocks());
     const interval = setInterval(() => {
@@ -75,7 +82,8 @@ export default function PageContainer() {
       />
 
       {/* Main panel in the centre */}
-      <main className={classes.content}>
+      {/* <main className={classes.content}> */}
+      <StyledScrollbars className={classes.content} style={{ height: "100vh" }}>
         <Toolbar />
         <Switch location={location} key={location.key}>
           <Route path="/auth" component={AuthPage} />
@@ -89,7 +97,8 @@ export default function PageContainer() {
             />
           ))}
         </Switch>
-      </main>
+      </StyledScrollbars>
+      {/* </main> */}
 
       {/* Side panel on the right */}
       <Hidden smDown>

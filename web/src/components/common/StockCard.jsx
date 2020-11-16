@@ -10,6 +10,7 @@ import {
   Chip,
   Grid,
   styled,
+  Tooltip,
 } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import { Link } from "react-router-dom";
@@ -80,7 +81,21 @@ const StockCard = ({
             ) : (
               <>
                 <Grid item xs={12} spacing={1} container>
-                  <Grid item>{name && <Chip size="small" label={name} />}</Grid>
+                  <Grid item>
+                    {name && (
+                      <Tooltip
+                        title={name}
+                        disableHoverListener={name.length <= 12}
+                      >
+                        <Chip
+                          size="small"
+                          label={`${name.substring(0, 12)}${
+                            name.length > 12 ? "..." : ""
+                          }`}
+                        />
+                      </Tooltip>
+                    )}
+                  </Grid>
                   <Grid item>
                     <Chip size="small" label={category} />
                   </Grid>
@@ -107,6 +122,7 @@ const StockCard = ({
                       variant="h3"
                       align="right"
                       delta={deltaColor}
+                      style={{ fontSize: "42px" }}
                     >
                       {`$${price}`}
                     </ColoredText>

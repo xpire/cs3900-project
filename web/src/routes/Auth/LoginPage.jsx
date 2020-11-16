@@ -9,7 +9,10 @@ import {
 import app from "../../utils/firebase";
 import Page from "../../components/page/Page";
 import Login from "../../components/login/LoginComponent";
-import Alert, { useAlert } from "../../components/common/Alert";
+import Alert, {
+  useAlert,
+  ValidationError,
+} from "../../components/common/Alert";
 
 const LoginPage = () => {
   let history = useHistory();
@@ -21,13 +24,18 @@ const LoginPage = () => {
     setLoading(true);
     const { email, password } = event.target.elements;
     try {
-      await app.auth().signInWithEmailAndPassword(email.value, password.value)
-      .then(authUser => {
-        if(!authUser.user.emailVerified) {
-          app.auth().signOut()
-          throw new Error("Please verify your email !!!")
-        }
-      });
+      await app
+        .auth()
+        .signInWithEmailAndPassword(email.value, password.value)
+        .then((authUser) => {
+          if (!authUser.user.emailVerified) {
+            app.auth().signOut();
+            throw new ValidationError(
+              "Email not Verified",
+              "Please check your email and click the email verification link to continue using this application."
+            );
+          }
+        });
       history.push("/home");
     } catch (error) {
       createAlert(error);

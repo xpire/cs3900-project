@@ -10,7 +10,10 @@ import app, { ActionCodeSettings } from "../../utils/firebase";
 import axios from "../../utils/api";
 import Page from "../../components/page/Page";
 import Login from "../../components/login/LoginComponent";
-import Alert, { useAlert } from "../../components/common/Alert";
+import Alert, {
+  useAlert,
+  ValidationError,
+} from "../../components/common/Alert";
 
 const SignUpPage = () => {
   const [showAlert, alertDetails, createAlert, closeAlert] = useAlert();
@@ -23,18 +26,18 @@ const SignUpPage = () => {
     try {
       setLoading(true);
       if (repeatPassword.value !== password.value) {
-        throw {
-          code: "Passwords don't match!",
-          message: "Please check that the password were entered in correctly.",
-        };
+        throw new ValidationError(
+          "Passwords don't match!",
+          "Please check that the password were entered in correctly."
+        );
       }
       await app
         .auth()
         .createUserWithEmailAndPassword(email.value, password.value);
       await app.auth().currentUser.sendEmailVerification(ActionCodeSettings);
-      app.auth().signOut()
-      
       await axios.post(`/user?email=${email.value}&username=${username.value}`); //
+      app.auth().signOut();
+
       // history.push("/dashboard");
       setFinished(true);
     } catch (error) {

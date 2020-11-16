@@ -98,7 +98,7 @@ const Dashboard = () => {
     () =>
       setStatCards(
         statCells.map((cell, index) => (
-          <Grid key={index} item md={3} sm={6} xs={12}>
+          <Grid key={index} item lg={3} md={6} sm={6} xs={12}>
             <StatCard name={cell.label} value={format(stats[cell.id])} />
           </Grid>
         ))

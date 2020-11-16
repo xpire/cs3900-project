@@ -129,12 +129,12 @@ export const RenderItem = ({
   titleType = tableTypes.TEXT,
   titleColor = false,
 
-  subtitle,
+  subtitle = undefined,
   subtitleType = tableTypes.TEXT,
   subtitleColor = false,
   subtitleNegative = false,
 
-  subsubtitle = "",
+  subsubtitle = undefined,
   subsubtitleType = tableTypes.TEXT,
   subsubtitleColor = false,
   subsubtitleNegative = false,
@@ -153,18 +153,20 @@ export const RenderItem = ({
         />
       </Grid>
       <Grid item container spacing={1} direction="row" justify={alignItems}>
-        <Grid item>
-          <ConditionalColorText
-            initialValue={subtitle}
-            formatType={subtitleType}
-            color={subtitleColor}
-            align={alignItems === "flex-end" ? "right" : "left"}
-            secondary={true}
-            negative={subtitleNegative}
-            variant={`button`}
-          />
-        </Grid>
-        {subsubtitle && (
+        {subtitle !== undefined && (
+          <Grid item>
+            <ConditionalColorText
+              initialValue={subtitle}
+              formatType={subtitleType}
+              color={subtitleColor}
+              align={alignItems === "flex-end" ? "right" : "left"}
+              secondary={true}
+              negative={subtitleNegative}
+              variant={`button`}
+            />
+          </Grid>
+        )}
+        {subtitle !== undefined && (
           <Grid item>
             <ConditionalColorText
               initialValue={subsubtitle}

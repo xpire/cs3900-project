@@ -34,7 +34,7 @@ const CardGrid = ({ data, watchButton }) => {
           }
 
           return (
-            <Grid item md={4} sm={6} xs={12} key={index}>
+            <Grid item lg={4} md={6} sm={6} xs={12} key={index}>
               <StockCard
                 symbol={symbol}
                 name={name}

@@ -30,8 +30,12 @@ const Market = () => {
   useEffect(() => {
     setFilteredData(
       search !== ""
-        ? stockData.filter(({ symbol }) =>
-            symbol.toLowerCase().includes(search.toLowerCase())
+        ? stockData.filter(({ symbol, exchange, name }) =>
+            symbol
+              .concat(exchange)
+              .concat(name)
+              .toLowerCase()
+              .includes(search.toLowerCase())
           )
         : stockData
     );

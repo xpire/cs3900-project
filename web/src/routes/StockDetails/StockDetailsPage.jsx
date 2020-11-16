@@ -182,7 +182,7 @@ const CandleStickWithState = ({ timeSeries }) => {
         onClose={handleClose}
       >
         {options.map(({ name, key, level }) => {
-          const disabled = !!userLevel && userLevel <= level;
+          const disabled = !!userLevel && userLevel < level;
           return (
             <LockedTooltip userLevel={userLevel} lockedLevel={level}>
               <StyledMenuItem onClick={!disabled && handleToggle(key)}>
@@ -335,7 +335,7 @@ const StockDetails = () => {
     <Page>
       {!error ? (
         <Grid container direction="row" alignItems="stretch">
-          <Grid item md={3} sm={12} xs={12}>
+          <Grid item lg={3} md={4} sm={12} xs={12}>
             <StandardCard style={{ position: "relative" }}>
               <CardContent>
                 <Grid
@@ -390,7 +390,7 @@ const StockDetails = () => {
               </CardContent>
             </StandardCard>
           </Grid>
-          <Grid item md={9} sm={12} xs={12}>
+          <Grid item lg={9} md={8} sm={12} xs={12}>
             <CandleStickWithState timeSeries={timeSeries} />
           </Grid>
           <Grid item md={6} sm={12} xs={12}>

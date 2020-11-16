@@ -7,11 +7,14 @@ import styled from "styled-components";
 import useWindowSize from "react-use/lib/useWindowSize";
 import Confetti from "react-confetti";
 import Logo from "../logo.svg";
+import { useDispatch } from "react-redux";
 
 import axios from "./api";
 import { CenteredMotionDiv } from "../components/common/styled";
 import useSockets from "../hooks/useSockets";
 import useHandleSocketSnack from "../hooks/useHandleSocketSnack";
+import { initState } from "../reducers";
+
 const StyledCenteredMotionDiv = styled(CenteredMotionDiv)({
   background: (props) => props.theme.palette.background.default || "#303030",
 });
@@ -26,6 +29,12 @@ export const AuthContext = React.createContext();
 export const AuthProvider = ({ children }) => {
   const [user, loading] = useAuthState(auth);
   const theme = useTheme();
+
+  // for redux data management
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(initState());
+  }, []);
 
   useEffect(() => {
     user &&

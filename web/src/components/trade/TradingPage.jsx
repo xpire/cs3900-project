@@ -190,13 +190,15 @@ const Trading = ({ symbol }) => {
 
           break;
         case "short":
-          setMaxValueConst(
-            Math.floor(
-              state.purchaseBy === "quantity"
-                ? portfolioStats.short_balance /
-                    (actualPriceConst * commissionConst) // take into account commission
-                : portfolioStats.short_balance
-            )
+          setMaxValue(
+            portfolioStats.short_balance <= 0
+              ? 0
+              : Math.floor(
+                  state.purchaseBy === "quantity"
+                    ? portfolioStats.short_balance /
+                        (actualPriceConst * commissionConst) // take into account commission
+                    : portfolioStats.short_balance
+                )
           );
           break;
         case "cover":

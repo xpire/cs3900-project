@@ -14,7 +14,13 @@ import DashboardIcon from "@material-ui/icons/Dashboard";
 import PortfolioPage from "../routes/Portfolio/PortfolioPage";
 import PortfolioIcon from "@material-ui/icons/TrackChanges";
 import WatchlistPage from "../routes/Watchlist/WatchlistPage";
+<<<<<<< HEAD
 import WatchlistIcon from "@material-ui/icons/ViewList";
+=======
+import WatchlistIcon from "@material-ui/icons/Visibility";
+// import WatchlistIcon2 from "@material-ui/icons/AddToQueue";
+// import WatchlistIcon3 from "@material-ui/icons/Book";
+>>>>>>> 8f8747d08e7f62a56313e069cb5d8209b44355c1
 import MarketPage from "../routes/Market/MarketPage";
 import MarketIcon from "@material-ui/icons/TrendingUp";
 import OrderPage from "../routes/Orders/OrdersPage";

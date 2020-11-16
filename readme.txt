@@ -39,7 +39,7 @@ Folder structure
 ============================================================================
 # CONTEXT Below provide an overview of the folder structure of this project
 ----------------------------------------------------------------------------
-. --> root of the project
+. --> root of the project (referred to as proj_root)
 ├── README.md --> more general version of execution details.
 ├── general_readme.pdf --> pdf version of README.md
 ├── backend --> Backend source code
@@ -104,6 +104,11 @@ Folder structure
     - NOTE: Only required to be executed once at the start. 
     - All "EXECUTION" tags assumes that the current directory is set at root
     of the project.
+    - "project_root/README.md", "project_root/backend/README.md", and 
+    "project_root/web/README.md" contains more detailed commands that are 
+    provided by the dev ops scripts. ".md" file can either viewd on the 
+    github repository or an equivalent pdf version of it can be found in the
+     same directory. 
 ============================================================================
 # CONTEXT To run the python-based backend and reactjs based frontend, it is 
 required to build both dependencies so that project can run. For python, we 
@@ -135,7 +140,7 @@ environment that has been set up. For npm, we run the required command.
 
 ============================================================================
 (Build) First time setup
-    - NOTE: Only required to be executed once at the start. 
+    - NOTE: Only required to be executed once when setting the project. 
 ============================================================================
 # CONTEXT: 
     - The backend requires 2 pieces of authentication secret files in 
@@ -154,6 +159,10 @@ environment that has been set up. For npm, we run the required command.
 
 ============================================================================
 (Execution) Running the application
+    - npm install and build is known to have warnings that do not impact
+    execution during the installation process which halts the installation 
+    process. If such instances happen please force installation by 
+    running the command again.  
 ============================================================================
 # CONTEXT: 
     - Please run the backend and the frontend in different shells 
@@ -168,27 +177,7 @@ environment that has been set up. For npm, we run the required command.
 # EXECUTION - frontend
 ----------------------------------------------------------------------------
 > cd web 
-> npm build
+> npm run build
 > npm run serve
 ----------------------------------------------------------------------------
 ============================================================================
-
-
-============================================================================
-(Extra Notes) execution and more 
-============================================================================
-# CONTEXT: 
-    - "project_root/README.md", "project_root/backend/README.md", and 
-    "project_root/web/README.md" contains more detailed commands and 
-    execution that is provided by the dev ops scripts. ".md" file can 
-    either viewd on the github repository or an equivalent pdf version of it 
-    can be found in the same directory. 
-    - npm install is known to have warnings that do not impact execution 
-    during the installation process which halts the installation 
-    process. If such instances happen please force installation by 
-    repeating the command npm install.  
-----------------------------------------------------------------------------
-
-============================================================================
- 
- 

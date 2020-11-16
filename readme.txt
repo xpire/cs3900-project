@@ -168,7 +168,8 @@ environment that has been set up. For npm, we run the required command.
 # EXECUTION - frontend
 ----------------------------------------------------------------------------
 > cd web 
-> npm start
+> npm build
+> npm run serve
 ----------------------------------------------------------------------------
 ============================================================================
 
@@ -182,7 +183,6 @@ environment that has been set up. For npm, we run the required command.
     execution that is provided by the dev ops scripts. ".md" file can 
     either viewd on the github repository or an equivalent pdf version of it 
     can be found in the same directory. 
-    - 
     - npm install is known to have warnings that do not impact execution 
     during the installation process which halts the installation 
     process. If such instances happen please force installation by 

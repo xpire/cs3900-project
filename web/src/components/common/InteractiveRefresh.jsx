@@ -14,7 +14,7 @@ const InteractiveRefresh = ({ onClick }) => {
     //     // whileTap={{ rotate: 180 }}
     //     style={{ height: "24px" }}
     //   >
-    <RefreshIcon />
+    <RefreshIcon {...onClick} />
     //     </motion.div>
     //   </IconButton>
     // </Tooltip>

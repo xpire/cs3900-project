@@ -176,7 +176,7 @@ that has been set up. For npm however, we simple run the required command.
     in the corresponding shell.
 ----------------------------------------------------------------------------
 > cd backend
-> bash start.sh initial-populate path/to/env.yaml path/to/ecksdee-firebase.json
+> bash start.sh run
 ----------------------------------------------------------------------------
 # EXECUTION - frontend
 ----------------------------------------------------------------------------

@@ -60,3 +60,11 @@ Many small visual fixes and bug fixes such as trade's order price not updating c
 Fixed bug where sometimes authenticated requests are rejected as id token has expired
 Implemented novel feature where live updated data is visually highlighted
 Implemented cumulative graph for dashboard and user page.   
+
+Week 9
+
+Major front end changes were required this week, in an effort to improve frontend user experience and gamification.
+Completely revamped tables to have a more compact layout with up to 3 pieces of data per table cell.
+Fixed a myriad of small and minor bugs everywhere, from an issue with the appbar not working as intended to trade page allowing $0 limit Orders 
+Revamped Dashboard Stat Cards with ColorText and fixed the calculation of statistics.
+Cleaned up all the code for submission.

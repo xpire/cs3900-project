@@ -22,7 +22,7 @@ import Cumulative from "../../components/graph/Cumulative";
 import axios from "../../utils/api";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";
 import useApi from "../../hooks/useApi";
-import { format } from "../../utils/formatter";
+import { format, formatToCurrency } from "../../utils/formatter";
 import { useSelector } from "react-redux";
 import {
   getPortfolioRealTimeData,
@@ -86,7 +86,7 @@ const StatCard = ({
             {value !== undefined && (
               <Grid item>
                 <ColoredText delta={valueDelta} variant="h4">
-                  ${format(value)}
+                  {formatToCurrency(value)}
                 </ColoredText>
               </Grid>
             )}

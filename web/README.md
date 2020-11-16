@@ -16,8 +16,16 @@ npm install
 To build and serve the production application, you can use:
 
 ```bash
-npm build
+npm run build
 npm run serve
+```
+
+This runs the React Application in port 5000, and will be accessible at [http://localhost:5000/](http://localhost:5000/).
+
+If you would like to use another port (say, 3001), you can run:
+
+```bash
+PORT=3001 npm run serve
 ```
 
 ## Running the app development server

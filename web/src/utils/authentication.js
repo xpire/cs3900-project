@@ -20,17 +20,12 @@ const StyledCenteredMotionDiv = styled(CenteredMotionDiv)({
   background: (props) => props.theme.palette.background.default || "#303030",
 });
 
-const interceptorId = rax.attach();
-export const auth = app.auth();
-auth.onAuthStateChanged(function(user) {
-  if (user) {
-    console.log("SIGNED IN!");
-    updateAxiosUserToken(user);
-  } else {
-    console.log("SIGNED OUT!");
-  }
-});
+axios.defaults.raxConfig = {
+  instance: axios,
+};
+const interceptorId = rax.attach(axios);
 
+export const auth = app.auth();
 export const AuthContext = React.createContext();
 
 const updateAxiosUserToken = (user) => {
@@ -57,7 +52,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     updateAxiosUserToken(user);
     axios.defaults.raxConfig = {
-      statusCodesToRetry: [401],
+      statusCodesToRetry: [[400, 402]],
       onRetryAttempt: (err) => {
         const cfg = rax.getConfig(err);
         console.log(`Retry attempt #${cfg.currentRetryAttempt}`);

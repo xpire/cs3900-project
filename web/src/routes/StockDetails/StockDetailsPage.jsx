@@ -18,7 +18,7 @@ import {
   Tabs,
   Tab,
 } from "@material-ui/core";
-import { MoreVert } from "@material-ui/icons";
+import { FormatListNumberedOutlined, MoreVert } from "@material-ui/icons";
 import { Link, useParams } from "react-router-dom";
 import List from "@material-ui/core/List";
 import { useSelector, useDispatch } from "react-redux";
@@ -39,11 +39,62 @@ import Trade from "../../components/trade/TradingPage";
 import { BasicCard } from "../../components/common/styled";
 import PortfolioPolar from "../../components/graph/PortfolioPolar";
 import StockDisplayTable from "../../components/common/StockDisplayTable";
-import { tableTypes } from "../../components/common/SortableTable";
 import SortableStockTable, {
+  tableTypes,
   RenderItem,
 } from "../../components/common/SortableStockTable";
-import { removeFromOrdersWithSnack } from "../../reducers/index";
+import {
+  getOrdersForSymbol,
+  getTransactionsForSymbol,
+  removeFromOrdersWithSnack,
+} from "../../reducers/index";
+
+const orderColumns = [
+  {
+    field: "symbol",
+    title: (
+      <RenderItem title="Symbol" subtitle="Timestamp" alignItems="flex-start" />
+    ),
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.symbol}
+        titleType={tableTypes.TEXT}
+        subtitle={rowData.timestamp}
+        subtitleType={tableTypes.DATE}
+        alignItems="flex-start"
+      />
+    ),
+    align: "right",
+  },
+  {
+    field: "trade_type",
+    title: <RenderItem title="Trade Type" subtitle="Quantity" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.trade_type}
+        titleType={tableTypes.TEXT}
+        subtitle={rowData.qty}
+        subtitleType={tableTypes.SHARES}
+      />
+    ),
+    align: "right",
+  },
+  {
+    field: "order_type",
+    title: <RenderItem title="Order Type" subtitle="(Limit Price)" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.order_type}
+        titleType={tableTypes.TEXT}
+        subtitle={rowData.order_type === "LIMIT" ? rowData.limit_price : ""}
+        subtitleType={
+          rowData.order_type === "LIMIT" ? tableTypes.CURRENCY : tableTypes.TEXT
+        }
+      />
+    ),
+    align: "right",
+  },
+];
 
 const columns = [
   {
@@ -55,7 +106,7 @@ const columns = [
       <RenderItem
         title={rowData.symbol}
         titleType={tableTypes.TEXT}
-        subtitle={rowData.is_cancelled}
+        subtitle={rowData.is_cancelled ? "Cancelled" : "Executed"}
         subtitleType={tableTypes.TEXT}
         alignItems="flex-start"
       />
@@ -74,51 +125,23 @@ const columns = [
     ),
     align: "right",
   },
-  // {
-  //   field: "price",
-  //   title: <RenderItem title="Price" subtitle="Value" />,
-  //   render: (rowData) => (
-  //     <RenderItem
-  //       title={rowData.price}
-  //       titleType={tableTypes.CURRENCY}
-  //       subtitle={rowData.value}
-  //       subtitleType={tableTypes.CURRENCY}
-  //     />
-  //   ),
-  //   align: "right",
-  // },
-];
-
-const orderColumns = [
-  ...columns,
-  {
-    field: "order_type",
-    title: <RenderItem title="Order Type" subtitle="(Limit Price)" />,
-    render: (rowData) => (
-      <RenderItem
-        title={rowData.order_type}
-        titleType={tableTypes.TEXT}
-        subtitle={rowData.order_type === "LIMIT" ? rowData.limit_price : ""}
-        subtitleType={
-          rowData.order_type === "LIMIT" ? tableTypes.CURRENCY : tableTypes.TEXT
-        }
-      />
-    ),
-    align: "right",
-  },
 ];
 
 const transactionColumns = [
   ...columns,
   {
     field: "price",
-    title: <RenderItem title="Price" subtitle="Value" />,
+    title: <RenderItem title="Execution Price" subtitle="Value" />,
     render: (rowData) => (
       <RenderItem
-        title={rowData.price}
-        titleType={tableTypes.CURRENCY}
-        subtitle={rowData.value}
-        subtitleType={tableTypes.CURRENCY}
+        title={rowData.is_cancelled === true ? "Cancelled" : rowData.price}
+        titleType={
+          rowData.is_cancelled === true ? tableTypes.TEXT : tableTypes.CURRENCY
+        }
+        subtitle={rowData.is_cancelled === true ? undefined : rowData.value}
+        subtitleType={
+          rowData.is_cancelled === true ? undefined : tableTypes.CURRENCY
+        }
       />
     ),
     align: "right",
@@ -161,6 +184,7 @@ const CandleStickWithState = ({ timeSeries }) => {
   };
 
   const userLevel = useSelector((state) => state.user.basic.level);
+
   return (
     <StandardCard>
       <Grid container direction="row-reverse">
@@ -184,14 +208,16 @@ const CandleStickWithState = ({ timeSeries }) => {
         {options.map(({ name, key, level }) => {
           const disabled = !!userLevel && userLevel < level;
           return (
-            <LockedTooltip userLevel={userLevel} lockedLevel={level}>
-              <StyledMenuItem onClick={!disabled && handleToggle(key)}>
+            <LockedTooltip userLevel={userLevel} lockedLevel={level} key={key}>
+              <StyledMenuItem
+                onClick={!disabled ? handleToggle(key) : undefined}
+              >
                 <ListItemText color="textSecondary">{name}</ListItemText>
                 <ListItemSecondaryAction>
                   <Switch
                     edge="end"
                     checked={state[key]}
-                    onChange={!disabled && handleToggle(key)}
+                    onChange={!disabled ? handleToggle(key) : undefined}
                     disabled={disabled}
                   />
                 </ListItemSecondaryAction>
@@ -276,7 +302,6 @@ const StockDetails = () => {
             };
           })
           .reverse();
-
         setTimeSeries(data);
       })
       .catch((err) => setError(true));
@@ -302,40 +327,22 @@ const StockDetails = () => {
   const truncatedName =
     stock.name.substring(0, MAX_NAME_LENGTH) + (truncateName ? "..." : "");
 
-  // PORTFOLIO DATA
-  const { long, short } = useSelector((state) => state.user.portfolio);
-
-  const positionsToData = (positions) => {
-    return positions.map((item) => [
-      `${item.symbol}: ${item.owned}`,
-      Number(item.total_paid.toFixed(2)),
-    ]);
-  };
-  const longData = positionsToData(long);
-  const shortData = positionsToData(short);
-
   // TAB
   const [tab, setTab] = useState(0);
 
   const dispatch = useDispatch();
   const handleSnack = useHandleSnack();
 
-  const transHist = useSelector((state) => state.user.transactions);
-  const ordersHist = useSelector((state) => state.user.orders);
+  const transHist = useSelector(getTransactionsForSymbol(symbol));
+  const ordersHist = useSelector(getOrdersForSymbol(symbol));
   const [delta] = useColoredText(latestPrice);
-  const [left, setLeft] = useState(true);
-  const [margin, setMargin] = useState({
-    left: 70,
-    right: 70,
-    top: 20,
-    bottom: 30,
-  });
 
   return (
     <Page>
       {!error ? (
         <Grid container direction="row" alignItems="stretch">
           <Grid item lg={3} md={4} sm={12} xs={12}>
+            {/* STOCK BASIC DETAILS */}
             <StandardCard style={{ position: "relative" }}>
               <CardContent>
                 <Grid
@@ -361,7 +368,7 @@ const StockDetails = () => {
                     </Grid>
                   </Grid>
                   <Grid item md={12} sm={6}>
-                    <Grid item container direction="row-reverse">
+                    <Grid item container direction="row" justify="flex-end">
                       <Grid item>
                         <ColoredText
                           color={dayGain > 0 ? "green" : "red"}
@@ -373,8 +380,8 @@ const StockDetails = () => {
                         </ColoredText>
                       </Grid>
                     </Grid>
-                    <Grid item container direction="row-reverse">
-                      <Grid item xs>
+                    <Grid item container direction="row" justify="flex-end">
+                      <Grid item>
                         <ColoredText
                           color={dayGain > 0 ? "green" : "red"}
                           variant="h3"
@@ -390,27 +397,13 @@ const StockDetails = () => {
               </CardContent>
             </StandardCard>
           </Grid>
+          {/* STOCK CANDLE STICK GRAPH */}
           <Grid item lg={9} md={8} sm={12} xs={12}>
             <CandleStickWithState timeSeries={timeSeries} />
           </Grid>
+          {/* ORDERS AND RANSACTION HISTORY */}
           <Grid item md={6} sm={12} xs={12}>
-            <BasicCard sty>
-              <CardContent>
-                <Grid item container direction="row">
-                  <Grid item xs={12} sm={6}>
-                    <Typography variant="h5">Long</Typography>
-                    <PortfolioPolar data={longData} />
-                  </Grid>
-
-                  <Grid item xs={12} sm={6}>
-                    <Typography variant="h5">Short</Typography>
-                    <PortfolioPolar data={shortData} />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography variant="h5">Transaction History</Typography>
-                  </Grid>
-                </Grid>
-              </CardContent>
+            <BasicCard>
               <Grid item xs={12}>
                 <Tabs
                   value={tab}
@@ -421,35 +414,41 @@ const StockDetails = () => {
                   textColor="primary"
                   variant="fullWidth"
                 >
-                  <Tab label="Transaction History" />
                   <Tab label="Orders" />
+                  <Tab label="Transaction History" />
                 </Tabs>
               </Grid>
               {tab === 0 ? (
                 <SortableStockTable
-                  title="History"
+                  title="Orders"
                   columns={orderColumns}
-                  data={transHist}
+                  data={ordersHist}
                   handleDelete={({ id }) =>
                     dispatch(removeFromOrdersWithSnack(id, handleSnack))
                   }
+                  buttons={false}
+                  key={"SortableStockTable-Orders"}
                 />
               ) : (
                 <SortableStockTable
-                  title="Orders"
+                  title="History"
                   columns={transactionColumns}
-                  data={ordersHist}
+                  data={transHist}
+                  buttons={false}
+                  key={"SortableStockTable-History"}
                 />
               )}
             </BasicCard>
           </Grid>
 
+          {/* STOCK TRADE PANEL */}
           <Grid item md={6} sm={12} xs={12}>
             <Trade symbol={symbol} />
           </Grid>
         </Grid>
       ) : (
         <CenteredCard>
+          {/* STOCK NOT FOUND*/}
           <CardContent>
             <Typography variant="h2">
               Sorry, we can't find this stock's information...
@@ -477,38 +476,3 @@ const StockDetails = () => {
 };
 
 export default StockDetails;
-
-// const getHistTrans = async () => {
-//   await axios.get("/transactions").then((response) => {
-//     const data = response.data;
-//     setTransHist(
-//       data
-//         .filter((elem) => elem.symbol === symbol)
-//         .map(
-//           ({
-//             is_cancelled,
-//             name,
-//             order_type,
-//             price,
-//             qty,
-//             symbol,
-//             timestamp,
-//             trade_type,
-//             value,
-//           }) => {
-//             return {
-//               is_cancelled: is_cancelled ? "cancelled" : "active",
-//               order_type: order_type,
-//               price: price.toFixed(2),
-//               qty: qty,
-//               symbol: symbol,
-//               timestamp: timestamp,
-//               trade_type: trade_type,
-//               value: value,
-//             };
-//           }
-//         )
-//         ?.reverse()
-//     );
-//   });
-// };

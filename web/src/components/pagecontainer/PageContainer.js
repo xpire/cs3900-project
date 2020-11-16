@@ -3,6 +3,8 @@ import { Switch, useLocation, Route } from "react-router-dom";
 import { Toolbar, CssBaseline } from "@material-ui/core";
 import { Scrollbars } from "react-custom-scrollbars";
 import styled from "styled-components";
+import { useHistory } from "react-router-dom";
+import ScrollToTop from "../../utils/scrollToTop";
 // import Hidden from "@material-ui/core/Hidden";
 
 import Header from "../header/Header";
@@ -35,14 +37,14 @@ const StyledScrollbars = styled(Scrollbars)`
 `;
 
 export default function PageContainer() {
+  const { user } = useContext(AuthContext);
   const classes = useStyles();
   const location = useLocation();
+  const history = useHistory();
 
   // for navigation drawer
   const [isOpen, setOpen] = useState(false);
   const toggleDrawer = () => setOpen(!isOpen);
-
-  const { user } = useContext(AuthContext);
 
   // for redux data management
   const dispatch = useDispatch();
@@ -84,21 +86,26 @@ export default function PageContainer() {
 
       {/* Main panel in the centre */}
       {/* <main className={classes.content}> */}
-      <StyledScrollbars className={classes.content} style={{ height: "100vh" }}>
-        <Toolbar />
-        <Switch location={location} key={location.key}>
-          <Route path="/auth" component={AuthPage} />
-          {Routes.map(({ exact, path, isPublic, component }) => (
-            <PrivateRoute
-              exact={exact}
-              path={path}
-              isPublic={isPublic}
-              component={component}
-              key={path}
-            />
-          ))}
-        </Switch>
-      </StyledScrollbars>
+      <ScrollToTop history={history}>
+        <StyledScrollbars
+          className={classes.content}
+          style={{ height: "100vh" }}
+        >
+          <Toolbar />
+          <Switch location={location} key={location.key}>
+            <Route path="/auth" component={AuthPage} />
+            {Routes.map(({ exact, path, isPublic, component }) => (
+              <PrivateRoute
+                exact={exact}
+                path={path}
+                isPublic={isPublic}
+                component={component}
+                key={path}
+              />
+            ))}
+          </Switch>
+        </StyledScrollbars>
+      </ScrollToTop>
       {/* </main> */}
 
       {/* Side panel on the right */}

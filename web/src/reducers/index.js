@@ -150,7 +150,8 @@ export default combineReducers({ user, stocks, is_loading });
 const getPortfolio = (state) => state.user.portfolio;
 const getWatchlist = (state) => state.user.watchlist;
 const getStocks = (state) => state.stocks;
-
+export const getStockBySymbol = (symbol) => (state) =>
+  state.stocks.dict[symbol];
 export const isSymbolInWatchlist = (symbol) => (state) =>
   getWatchlist(state).findIndex((x) => x.symbol === symbol) !== -1;
 
@@ -170,11 +171,21 @@ export const getTransactions = createSelector(
   (revTransactions) => [...revTransactions].reverse()
 );
 
+export const getTransactionsForSymbol = (symbol) =>
+  createSelector([getTransactionsReversed], (revTransactions) =>
+    revTransactions.filter((t) => t.symbol === symbol).reverse()
+  );
+
 const getOrdersReversed = (state) => state.user.orders;
 
 export const getOrders = createSelector([getOrdersReversed], (revOrders) => {
   return [...revOrders].reverse();
 });
+
+export const getOrdersForSymbol = (symbol) =>
+  createSelector([getOrdersReversed], (revOrders) =>
+    revOrders.filter((t) => t.symbol === symbol).reverse()
+  );
 
 export const getPortfolioRealTimeData = createSelector(
   [getPortfolio, getStocks],

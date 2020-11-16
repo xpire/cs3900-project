@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Card, Tabs, Tab } from "@material-ui/core";
+import { Typography, Grid } from "@material-ui/core";
 
-import { tableTypes } from "../../components/common/SortableTable";
 import SortableStockTable, {
+  tableTypes,
   RenderItem,
 } from "../../components/common/SortableStockTable";
 import Page from "../../components/page/Page";
 import axios from "../../utils/api";
+import PortfolioPolar from "../../components/graph/PortfolioPolar";
+import { useSelector, useDispatch } from "react-redux";
 
 const columns = (negative = false) => [
   {
@@ -97,34 +100,43 @@ const columns = (negative = false) => [
 ];
 
 const Portfolio = () => {
-  const [long, setLong] = useState([]);
-  const [short, setShort] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [tab, setTab] = useState(0);
 
-  const refreshTable = () => {
-    setIsLoading(true);
-    axios
-      .get("/portfolio")
-      .then((response) => {
-        setLong(response.data.long);
-        setShort(response.data.short);
-        setIsLoading(false);
-      })
-      .catch((err) => console.log(err));
-  };
+  // PORTFOLIO DATA
+  const { long, short } = useSelector((state) => state.user.portfolio);
 
-  useEffect(() => {
-    refreshTable();
-  }, []);
-
-  const handleRefresh = () => {
-    refreshTable();
+  const positionsToData = (positions) => {
+    return positions.map((item) => [
+      `${item.symbol}: ${item.owned}`,
+      Number(item.total_paid.toFixed(2)),
+    ]);
   };
+  const longData = positionsToData(long);
+  const shortData = positionsToData(short);
 
   return (
     <Page>
       <Card>
+        <Grid item container direction="row">
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h4" style={{ padding: "10px" }}>
+              Long
+            </Typography>
+            <Grid container style={{ maxHeight: "300px", padding: "10px" }}>
+              <PortfolioPolar data={longData} />
+            </Grid>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h4" style={{ padding: "10px" }}>
+              Short
+            </Typography>
+            <Grid container style={{ maxHeight: "300px", padding: "10px" }}>
+              <PortfolioPolar data={shortData} />
+            </Grid>
+          </Grid>
+        </Grid>
         <Tabs
           value={tab}
           onChange={(_event, newValue) => {
@@ -142,25 +154,7 @@ const Portfolio = () => {
           columns={columns(tab === 1)}
           data={tab === 0 ? long : short}
           isLoading={isLoading}
-          handleRefresh={handleRefresh}
         />
-        {/* {tab === 0 ? (
-          <SortableStockTable
-            title="Portfolio"
-            columns={columns}
-            data={long}
-            isLoading={isLoading}
-            handleRefresh={handleRefresh}
-          />
-        ) : (
-          <SortableStockTable
-            title="Portfolio"
-            columns={columns}
-            data={short}
-            isLoading={isLoading}
-            handleRefresh={handleRefresh}
-          />
-        )} */}
       </Card>
     </Page>
   );

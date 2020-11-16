@@ -67,7 +67,11 @@ function WatchlistPanel() {
   const title = (
     <>
       <Typography variant="h6">Watchlist</Typography>
-      <PanelListHeader label1="Symbol" label2="Price" sublabel2="CHG%/CHG" />
+      <PanelListHeader
+        label1="Symbol"
+        label2="Market Price"
+        sublabel2="CHG%/CHG"
+      />
     </>
   );
   const content = (

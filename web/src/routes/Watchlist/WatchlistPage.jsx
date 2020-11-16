@@ -2,10 +2,8 @@ import React from "react";
 import { Card } from "@material-ui/core";
 
 import Page from "../../components/page/Page";
-import SortableTable, {
-  tableTypes,
-} from "../../components/common/SortableTable";
 import SortableStockTable, {
+  tableTypes,
   RenderItem,
 } from "../../components/common/SortableStockTable";
 import useRealTimeStockData from "../../hooks/useRealTimeStockData";

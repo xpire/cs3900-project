@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@material-ui/core";
 
-import { tableTypes } from "../../components/common/SortableTable";
 import SortableStockTable, {
+  tableTypes,
   RenderItem,
 } from "../../components/common/SortableStockTable";
 import Page from "../../components/page/Page";

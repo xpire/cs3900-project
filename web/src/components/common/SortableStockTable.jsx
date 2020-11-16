@@ -1,12 +1,11 @@
 import React, { useEffect, useState, forwardRef } from "react";
 import MaterialTable from "material-table";
-import { tableTypes } from "./SortableTable";
 import { Grid, Typography, Tooltip } from "@material-ui/core";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 
 import ColoredText from "./ColoredText";
-import { format } from "../../utils/formatter";
+import { format, formatToCurrency } from "../../utils/formatter";
 import InteractiveRefresh from "../common/InteractiveRefresh";
 
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
@@ -27,6 +26,17 @@ import Remove from "@material-ui/icons/Remove";
 import SaveAlt from "@material-ui/icons/SaveAlt";
 import Search from "@material-ui/icons/Search";
 import ViewColumn from "@material-ui/icons/ViewColumn";
+
+export const tableTypes = {
+  TEXT: "text",
+  NUMBER: "number",
+  CURRENCY: "currency",
+  DATE: "date",
+  FLOAT: "float",
+  ID: "id",
+  PERCENTAGE: "percentage",
+  SHARES: "shares",
+};
 
 const tableIcons = {
   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -52,7 +62,7 @@ const tableIcons = {
   ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
 };
 
-const ConditionalColorText = ({
+export const ConditionalColorText = ({
   initialValue,
   formatType,
   color = false,
@@ -115,9 +125,17 @@ const ConditionalColorText = ({
           {...otherProps}
           color={secondary ? "textSecondary" : "textPrimary"}
         >
-          {formatType === "currency" && "$"}
-          {value}
-          {formatType === "percentage" && "%"}
+          {formatType === "currency" ? (
+            <>
+              {(value < 0 ? "-" : "") + "$"}
+              {Math.abs(value)}
+            </>
+          ) : (
+            <>
+              {value}
+              {formatType === "percentage" && "%"}
+            </>
+          )}
         </Typography>
       )}
     </>

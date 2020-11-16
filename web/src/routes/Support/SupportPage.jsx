@@ -21,15 +21,19 @@ import useApi from "../../hooks/useApi";
 import Alert, { useAlert } from "../../components/common/Alert";
 import useHandleSnack from "../../hooks/useHandleSnack";
 import TutorialDialog, { tutorials } from "../../tutorial/TutorialDialog";
+import { useDispatch, useSelector } from "react-redux";
+import { reloadAll } from "../../reducers";
 
 const Support = () => {
   const { user } = useContext(AuthContext);
-  const [data] = useApi("/user");
   const [forgotAlert, setForgotAlert] = useState(false);
   const [restartAlert, setRestartAlert] = useState(false);
   const [showAlert, alertDetails, createAlert, closeAlert] = useAlert();
   const { enqueueSnackbar } = useSnackbar();
   const handleSnack = useHandleSnack();
+
+  const data = useSelector((state) => state.user.basic);
+  const dispatch = useDispatch();
 
   const handleForgotPassword = async () => {
     try {
@@ -53,6 +57,7 @@ const Support = () => {
   const handleRestartGame = () => {
     handleSnack(`/user/reset`, "get").then(() => {
       setRestartAlert(false);
+      dispatch(reloadAll);
     });
   };
 

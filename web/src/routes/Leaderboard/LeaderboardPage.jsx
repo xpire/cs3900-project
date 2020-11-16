@@ -7,6 +7,7 @@ import SortableStockTable, {
 } from "../../components/common/SortableStockTable";
 import Page from "../../components/page/Page";
 import axios from "../../utils/api";
+import { useSelector } from "react-redux";
 
 const columns = [
   {
@@ -44,32 +45,12 @@ const columns = [
 ];
 
 const Leaderboard = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const isLoading = useSelector((state) => state.user.is_loading);
+  const { rankings, user_ranking } = useSelector(
+    (state) => state.user.leaderboard
+  );
 
-  const refreshTable = () => {
-    setLoading(true);
-    axios
-      .get("/leaderboard")
-      .then((response) => {
-        setData(
-          response.data.rankings.map((elem, index) => {
-            return { ...elem, rank: index + 1 };
-          })
-        );
-        setLoading(false);
-      })
-      .catch((err) => console.log(err));
-  };
-
-  useEffect(() => {
-    refreshTable();
-  }, []);
-
-  const handleRefresh = () => {
-    refreshTable();
-  };
-
+  const data = rankings.map((elem, index) => ({ ...elem, rank: index + 1 }));
   return (
     <Page>
       <Card>
@@ -77,9 +58,8 @@ const Leaderboard = () => {
           title="Leaderboard"
           columns={columns}
           data={data}
-          isLoading={loading}
+          isLoading={isLoading}
           buttons={false}
-          handleRefresh={handleRefresh}
         />
       </Card>
     </Page>

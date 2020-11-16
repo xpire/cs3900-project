@@ -102,7 +102,7 @@ const columns = [
       <RenderItem
         title={rowData.symbol}
         titleType={tableTypes.TEXT}
-        subtitle={rowData.is_cancelled}
+        subtitle={rowData.is_cancelled ? "Cancelled" : "Executed"}
         subtitleType={tableTypes.TEXT}
         alignItems="flex-start"
       />
@@ -176,6 +176,7 @@ const CandleStickWithState = ({ timeSeries }) => {
   };
 
   const userLevel = useSelector((state) => state.user.basic.level);
+
   return (
     <StandardCard>
       <Grid container direction="row-reverse">
@@ -199,14 +200,14 @@ const CandleStickWithState = ({ timeSeries }) => {
         {options.map(({ name, key, level }) => {
           const disabled = !!userLevel && userLevel < level;
           return (
-            <LockedTooltip userLevel={userLevel} lockedLevel={level}>
-              <StyledMenuItem onClick={!disabled && handleToggle(key)}>
+            <LockedTooltip userLevel={userLevel} lockedLevel={level} key={key}>
+              <StyledMenuItem onClick={!disabled ? handleToggle(key) : undefined}>
                 <ListItemText color="textSecondary">{name}</ListItemText>
                 <ListItemSecondaryAction>
                   <Switch
                     edge="end"
                     checked={state[key]}
-                    onChange={!disabled && handleToggle(key)}
+                    onChange={!disabled ? handleToggle(key) : undefined}
                     disabled={disabled}
                   />
                 </ListItemSecondaryAction>
@@ -317,18 +318,6 @@ const StockDetails = () => {
   const truncatedName =
     stock.name.substring(0, MAX_NAME_LENGTH) + (truncateName ? "..." : "");
 
-  // PORTFOLIO DATA
-  const { long, short } = useSelector((state) => state.user.portfolio);
-
-  const positionsToData = (positions) => {
-    return positions.map((item) => [
-      `${item.symbol}: ${item.owned}`,
-      Number(item.total_paid.toFixed(2)),
-    ]);
-  };
-  const longData = positionsToData(long);
-  const shortData = positionsToData(short);
-
   // TAB
   const [tab, setTab] = useState(0);
 
@@ -409,7 +398,7 @@ const StockDetails = () => {
             <CandleStickWithState timeSeries={timeSeries} />
           </Grid>
           <Grid item md={6} sm={12} xs={12}>
-            <BasicCard sty>
+            <BasicCard>
               <Grid item xs={12}>
                 <Tabs
                   value={tab}

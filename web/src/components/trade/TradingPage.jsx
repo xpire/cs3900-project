@@ -34,6 +34,8 @@ import { format } from "../../utils/formatter";
 import { BasicCard, StandardCard } from "../../components/common/styled";
 import useHandleSnack from "../../hooks/useHandleSnack";
 import TradingHoursIndicator from "../../components/common/TradingHoursIndicator";
+import { useDispatch, useSelector } from "react-redux";
+import { getStockBySymbol, reloadAll, reloadUser } from "../../reducers";
 
 function NumberFormatCustom(props) {
   const { inputRef, onChange, maxValue, ...other } = props;
@@ -54,6 +56,20 @@ function NumberFormatCustom(props) {
     />
   );
 }
+
+const EMPTY_STOCK = {
+  symbol: "",
+  name: "",
+  exchange: "",
+  industry: "",
+  currency: "",
+  type: "",
+  curr_day_close: 0.0,
+  curr_day_open: 0.0,
+  prev_day_close: 0.0,
+  commission: 0.0005,
+  is_trading: false,
+};
 
 const Trading = ({ symbol }) => {
   let history = useHistory();
@@ -106,34 +122,19 @@ const Trading = ({ symbol }) => {
   const [portfolioStats, portfolioStatsLoading] = useApi(`/portfolio/stats`, [
     update,
   ]); // check overall stats
-  const [rawCommission, rawCommissionLoading] = useApi(
-    `/stocks/real_time?symbols=${symbol}`,
-    [
-      //check current close price for stock
-      symbol,
-      update,
-    ],
-    0.005,
-    (data) => data[0].commission
-  );
-  const [closePrice, closePriceLoading] = useApi(
-    `/stocks/real_time?symbols=${symbol}`,
-    [
-      //check current close price for stock
-      symbol,
-    ],
-    100,
-    (data) => data[0].curr_day_close
-  );
-  const [online, onlineLoading] = useApi(
-    `/stocks/real_time?symbols=${symbol}`,
-    [
-      //check current close price for stock
-      symbol,
-    ],
-    false,
-    (data) => data[0].is_trading
-  );
+
+  const isUserLoading = useSelector((state) => state.user.is_loading);
+  const isStockLoading = useSelector((state) => state.stocks.is_loading);
+  const isLoading = (isUserLoading ?? true) || (isStockLoading ?? true);
+
+  let stock = useSelector(getStockBySymbol(symbol));
+  stock = isLoading ? EMPTY_STOCK : stock;
+
+  const {
+    commission: rawCommission,
+    curr_day_close: closePrice,
+    is_trading: online,
+  } = stock;
 
   // state inaccessible to user
   const [maxValue, setMaxValue] = useState(0);
@@ -145,12 +146,7 @@ const Trading = ({ symbol }) => {
   const [actualPrice, setActualPrice] = useState(100);
 
   const loading =
-    lockedLoading ||
-    portfolioLoading ||
-    portfolioStatsLoading ||
-    rawCommissionLoading ||
-    closePriceLoading ||
-    onlineLoading;
+    lockedLoading || portfolioLoading || portfolioStatsLoading || isLoading;
 
   // update state for user input
   useEffect(() => {
@@ -239,6 +235,7 @@ const Trading = ({ symbol }) => {
   // handle submit
   const handleSnack = useHandleSnack();
 
+  const dispatch = useDispatch();
   const handleSubmit = () => {
     setSubmitLoading(true);
     handleSnack(
@@ -252,6 +249,7 @@ const Trading = ({ symbol }) => {
       setSubmitLoading(false);
       setUpdate(update + 1);
       setState(defaultState);
+      dispatch(reloadAll);
     });
   };
 

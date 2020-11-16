@@ -43,7 +43,11 @@ import { tableTypes } from "../../components/common/SortableTable";
 import SortableStockTable, {
   RenderItem,
 } from "../../components/common/SortableStockTable";
-import { removeFromOrdersWithSnack } from "../../reducers/index";
+import {
+  getOrdersForSymbol,
+  getTransactionsForSymbol,
+  removeFromOrdersWithSnack,
+} from "../../reducers/index";
 
 const orderColumns = [
   {
@@ -91,7 +95,6 @@ const orderColumns = [
   },
 ];
 
-
 const columns = [
   {
     field: "symbol",
@@ -127,7 +130,7 @@ const transactionColumns = [
   ...columns,
   {
     field: "price",
-    title: <RenderItem title="Price" subtitle="Value" />,
+    title: <RenderItem title="Execution Price" subtitle="Value" />,
     render: (rowData) => (
       <RenderItem
         title={rowData.price}
@@ -201,7 +204,9 @@ const CandleStickWithState = ({ timeSeries }) => {
           const disabled = !!userLevel && userLevel < level;
           return (
             <LockedTooltip userLevel={userLevel} lockedLevel={level} key={key}>
-              <StyledMenuItem onClick={!disabled ? handleToggle(key) : undefined}>
+              <StyledMenuItem
+                onClick={!disabled ? handleToggle(key) : undefined}
+              >
                 <ListItemText color="textSecondary">{name}</ListItemText>
                 <ListItemSecondaryAction>
                   <Switch
@@ -292,7 +297,6 @@ const StockDetails = () => {
             };
           })
           .reverse();
-
         setTimeSeries(data);
       })
       .catch((err) => setError(true));
@@ -324,22 +328,16 @@ const StockDetails = () => {
   const dispatch = useDispatch();
   const handleSnack = useHandleSnack();
 
-  const transHist = useSelector((state) => state.user.transactions);
-  const ordersHist = useSelector((state) => state.user.orders);
+  const transHist = useSelector(getTransactionsForSymbol(symbol));
+  const ordersHist = useSelector(getOrdersForSymbol(symbol));
   const [delta] = useColoredText(latestPrice);
-  const [left, setLeft] = useState(true);
-  const [margin, setMargin] = useState({
-    left: 70,
-    right: 70,
-    top: 20,
-    bottom: 30,
-  });
 
   return (
     <Page>
       {!error ? (
         <Grid container direction="row" alignItems="stretch">
           <Grid item lg={3} md={4} sm={12} xs={12}>
+            {/* STOCK BASIC DETAILS */}
             <StandardCard style={{ position: "relative" }}>
               <CardContent>
                 <Grid
@@ -394,9 +392,11 @@ const StockDetails = () => {
               </CardContent>
             </StandardCard>
           </Grid>
+          {/* STOCK CANDLE STICK GRAPH */}
           <Grid item lg={9} md={8} sm={12} xs={12}>
             <CandleStickWithState timeSeries={timeSeries} />
           </Grid>
+          {/* ORDERS AND RANSACTION HISTORY */}
           <Grid item md={6} sm={12} xs={12}>
             <BasicCard>
               <Grid item xs={12}>
@@ -409,36 +409,41 @@ const StockDetails = () => {
                   textColor="primary"
                   variant="fullWidth"
                 >
-                  <Tab label="Transaction History" />
                   <Tab label="Orders" />
+                  <Tab label="Transaction History" />
                 </Tabs>
               </Grid>
               {tab === 0 ? (
-                <SortableStockTable
-                  title="History"
-                  columns={transactionColumns}
-                  data={transHist}
-                  buttons={false}
-                />
-              ) : (
                 <SortableStockTable
                   title="Orders"
                   columns={orderColumns}
                   data={ordersHist}
                   handleDelete={({ id }) =>
-                  dispatch(removeFromOrdersWithSnack(id, handleSnack))
-                }
+                    dispatch(removeFromOrdersWithSnack(id, handleSnack))
+                  }
+                  buttons={false}
+                  key={"SortableStockTable-Orders"}
+                />
+              ) : (
+                <SortableStockTable
+                  title="History"
+                  columns={transactionColumns}
+                  data={transHist}
+                  buttons={false}
+                  key={"SortableStockTable-History"}
                 />
               )}
             </BasicCard>
           </Grid>
 
+          {/* STOCK TRADE PANEL */}
           <Grid item md={6} sm={12} xs={12}>
             <Trade symbol={symbol} />
           </Grid>
         </Grid>
       ) : (
         <CenteredCard>
+          {/* STOCK NOT FOUND*/}
           <CardContent>
             <Typography variant="h2">
               Sorry, we can't find this stock's information...
@@ -466,38 +471,3 @@ const StockDetails = () => {
 };
 
 export default StockDetails;
-
-// const getHistTrans = async () => {
-//   await axios.get("/transactions").then((response) => {
-//     const data = response.data;
-//     setTransHist(
-//       data
-//         .filter((elem) => elem.symbol === symbol)
-//         .map(
-//           ({
-//             is_cancelled,
-//             name,
-//             order_type,
-//             price,
-//             qty,
-//             symbol,
-//             timestamp,
-//             trade_type,
-//             value,
-//           }) => {
-//             return {
-//               is_cancelled: is_cancelled ? "cancelled" : "active",
-//               order_type: order_type,
-//               price: price.toFixed(2),
-//               qty: qty,
-//               symbol: symbol,
-//               timestamp: timestamp,
-//               trade_type: trade_type,
-//               value: value,
-//             };
-//           }
-//         )
-//         ?.reverse()
-//     );
-//   });
-// };

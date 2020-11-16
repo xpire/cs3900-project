@@ -15,7 +15,6 @@ import {
   removeFromOrdersWithSnack,
 } from "../../reducers";
 
-
 const columns = [
   {
     field: "timestamp",
@@ -83,7 +82,7 @@ const transactionsColumns = [
   ...columns,
   {
     field: "price",
-    title: <RenderItem title="Price" subtitle="Value" />,
+    title: <RenderItem title="Execution Price" subtitle="Value" />,
     render: (rowData) => (
       <RenderItem
         title={rowData.is_cancelled === true ? "Cancelled" : rowData.price}
@@ -128,6 +127,7 @@ const Orders = () => {
           <SortableStockTable
             columns={orderColumns}
             data={ordersData}
+            key={"SortableStockTable-Orders"}
             handleDelete={({ id }) =>
               dispatch(removeFromOrdersWithSnack(id, handleSnack))
             }
@@ -136,6 +136,7 @@ const Orders = () => {
           <SortableStockTable
             columns={transactionsColumns}
             data={transactionData}
+            key={"SortableStockTable-History"}
           />
         )}
       </Card>

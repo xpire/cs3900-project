@@ -35,14 +35,13 @@ const StyledScrollbars = styled(Scrollbars)`
 `;
 
 export default function PageContainer() {
+  const { user } = useContext(AuthContext);
   const classes = useStyles();
   const location = useLocation();
 
   // for navigation drawer
   const [isOpen, setOpen] = useState(false);
   const toggleDrawer = () => setOpen(!isOpen);
-
-  const { user } = useContext(AuthContext);
 
   // for redux data management
   const dispatch = useDispatch();

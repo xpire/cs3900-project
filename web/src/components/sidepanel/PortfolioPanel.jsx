@@ -98,7 +98,7 @@ function PortfolioPanel() {
   const labels = {
     label1: "Symbol",
     sublabel1: "Shares",
-    label2: "Price",
+    label2: "Market Price",
     sublabel2: "CHG%/CHG",
   };
 

@@ -14,14 +14,32 @@ import { CenteredMotionDiv } from "../components/common/styled";
 import useSockets from "../hooks/useSockets";
 import useHandleSocketSnack from "../hooks/useHandleSocketSnack";
 import { initState } from "../reducers";
+import * as rax from "retry-axios";
 
 const StyledCenteredMotionDiv = styled(CenteredMotionDiv)({
   background: (props) => props.theme.palette.background.default || "#303030",
 });
 
-const auth = app.auth();
+const interceptorId = rax.attach();
+export const auth = app.auth();
+auth.onAuthStateChanged(function(user) {
+  if (user) {
+    console.log("SIGNED IN!");
+    updateAxiosUserToken(user);
+  } else {
+    console.log("SIGNED OUT!");
+  }
+});
 
 export const AuthContext = React.createContext();
+
+const updateAxiosUserToken = (user) => {
+  user &&
+    user
+      .getIdToken()
+      .then((token) => (axios.defaults.headers.common["id-token"] = token))
+      .catch((e) => {});
+};
 
 /**
  * A Component which wraps the Application, and provides a visualisation for authentication
@@ -37,13 +55,16 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    user &&
-      user
-        .getIdToken()
-        .then((token) => (axios.defaults.headers.common["id-token"] = token))
-        .catch((e) => {
-          // console.log(`delete axios.defaults.headers.common["id-token"];`);
-        });
+    updateAxiosUserToken(user);
+    axios.defaults.raxConfig = {
+      statusCodesToRetry: [401],
+      onRetryAttempt: (err) => {
+        const cfg = rax.getConfig(err);
+        console.log(`Retry attempt #${cfg.currentRetryAttempt}`);
+        console.log("REFRESH TOKEN!");
+        return updateAxiosUserToken(user);
+      },
+    };
   }, [user, loading]);
 
   const [celebration, setCelebration] = useState(false);

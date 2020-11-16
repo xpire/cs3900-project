@@ -1,8 +1,10 @@
 from typing import List
 
+from firebase_admin import auth
 from src import crud
 from src import domain_models as dm
 from src import schemas
+from src.core.utilities import log_msg
 from src.domain_models.trading_hours import trading_hours_manager
 from src.domain_models.user_dm import UserDM
 
@@ -74,7 +76,7 @@ def get_leaderboard(user) -> schemas.LeaderboardAPIout:
             uid=u.uid, username=u.username, email=u.email, level=u.level, net_worth=net_worth
         )
 
-    rankings = [to_schema(u) for u in crud.user.get_all_users(db)]
+    rankings = [to_schema(u) for u in crud.user.get_all_users(db) if (auth.get_user(u.uid).email_verified)] 
     rankings.sort(key=lambda u: u.net_worth, reverse=True)
 
     return schemas.LeaderboardAPIout(rankings=rankings[:10], user_ranking=get_rank(rankings, user.model.uid))

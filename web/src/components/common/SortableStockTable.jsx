@@ -52,7 +52,7 @@ const tableIcons = {
   ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
 };
 
-const ConditionalColorText = ({
+export const ConditionalColorText = ({
   initialValue,
   formatType,
   color = false,

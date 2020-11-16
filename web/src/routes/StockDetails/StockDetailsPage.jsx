@@ -60,6 +60,7 @@ const orderColumns = [
         alignItems="flex-start"
       />
     ),
+    align: "right",
   },
   {
     field: "trade_type",
@@ -90,7 +91,6 @@ const orderColumns = [
     align: "right",
   },
 ];
-
 
 const columns = [
   {
@@ -130,10 +130,14 @@ const transactionColumns = [
     title: <RenderItem title="Price" subtitle="Value" />,
     render: (rowData) => (
       <RenderItem
-        title={rowData.price}
-        titleType={tableTypes.CURRENCY}
-        subtitle={rowData.value}
-        subtitleType={tableTypes.CURRENCY}
+        title={rowData.is_cancelled === true ? "Cancelled" : rowData.price}
+        titleType={
+          rowData.is_cancelled === true ? tableTypes.TEXT : tableTypes.CURRENCY
+        }
+        subtitle={rowData.is_cancelled === true ? undefined : rowData.value}
+        subtitleType={
+          rowData.is_cancelled === true ? undefined : tableTypes.CURRENCY
+        }
       />
     ),
     align: "right",
@@ -201,7 +205,9 @@ const CandleStickWithState = ({ timeSeries }) => {
           const disabled = !!userLevel && userLevel < level;
           return (
             <LockedTooltip userLevel={userLevel} lockedLevel={level} key={key}>
-              <StyledMenuItem onClick={!disabled ? handleToggle(key) : undefined}>
+              <StyledMenuItem
+                onClick={!disabled ? handleToggle(key) : undefined}
+              >
                 <ListItemText color="textSecondary">{name}</ListItemText>
                 <ListItemSecondaryAction>
                   <Switch
@@ -365,7 +371,7 @@ const StockDetails = () => {
                     </Grid>
                   </Grid>
                   <Grid item md={12} sm={6}>
-                    <Grid item container direction="row-reverse">
+                    <Grid item container direction="row" justify="flex-end">
                       <Grid item>
                         <ColoredText
                           color={dayGain > 0 ? "green" : "red"}
@@ -377,8 +383,8 @@ const StockDetails = () => {
                         </ColoredText>
                       </Grid>
                     </Grid>
-                    <Grid item container direction="row-reverse">
-                      <Grid item xs>
+                    <Grid item container direction="row" justify="flex-end">
+                      <Grid item>
                         <ColoredText
                           color={dayGain > 0 ? "green" : "red"}
                           variant="h3"
@@ -426,8 +432,8 @@ const StockDetails = () => {
                   columns={orderColumns}
                   data={ordersHist}
                   handleDelete={({ id }) =>
-                  dispatch(removeFromOrdersWithSnack(id, handleSnack))
-                }
+                    dispatch(removeFromOrdersWithSnack(id, handleSnack))
+                  }
                 />
               )}
             </BasicCard>

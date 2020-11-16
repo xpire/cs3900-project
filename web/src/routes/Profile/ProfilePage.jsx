@@ -9,7 +9,7 @@ import {
   Button,
   Chip,
 } from "@material-ui/core";
-// import { Skeleton } from "@material-ui/lab";
+import { Skeleton } from "@material-ui/lab";
 import { Link } from "react-router-dom";
 
 import InteractiveRefresh from "../../components/common/InteractiveRefresh";
@@ -26,6 +26,7 @@ import SortableStockTable, {
   RenderItem,
 } from "../../components/common/SortableStockTable";
 import { useSelector } from "react-redux";
+import { makeSkeleton } from "../../utils/skeleton";
 
 const Profile = () => {
   const { user } = useContext(AuthContext);
@@ -55,7 +56,7 @@ const Profile = () => {
     data.map((e) => [new Date(e.timestamp), e.net_worth])
   );
 
-  const [achievementsData] = useApi("/user/achievements");
+  const [achievementsData] = useApi("/user/achievements", [], makeSkeleton(21));
 
   return (
     <Page>
@@ -122,20 +123,22 @@ const Profile = () => {
         </Grid>
         <Grid container direction="row">
           {achievementsData.map(
-            ({ id, name, description, is_unlocked, exp }) => {
+            ({ id, name, description, is_unlocked, exp, skeleton }) => {
               return (
                 <Grid item xs={12} sm={6} md={4} key={id}>
                   <StandardCard>
-                    <CardActionArea disabled={!is_unlocked}>
+                    <CardActionArea disabled={!is_unlocked || skeleton}>
                       <CardContent>
                         <Typography
                           variant="h4"
                           color={is_unlocked ? "primary" : "textPrimary"}
                         >
-                          {name}
+                          {skeleton ? <Skeleton /> : name}
                         </Typography>
-                        <Chip label={`${exp} xp`} size="small" />
-                        <Typography>{description}</Typography>
+                        {!skeleton && <Chip label={`${exp} xp`} size="small" />}
+                        <Typography>
+                          {skeleton ? <Skeleton /> : description}
+                        </Typography>
                       </CardContent>
                     </CardActionArea>
                   </StandardCard>

@@ -18,7 +18,7 @@ import {
   Tabs,
   Tab,
 } from "@material-ui/core";
-import { MoreVert } from "@material-ui/icons";
+import { FormatListNumberedOutlined, MoreVert } from "@material-ui/icons";
 import { Link, useParams } from "react-router-dom";
 import List from "@material-ui/core/List";
 import { useSelector, useDispatch } from "react-redux";
@@ -45,6 +45,53 @@ import SortableStockTable, {
 } from "../../components/common/SortableStockTable";
 import { removeFromOrdersWithSnack } from "../../reducers/index";
 
+const orderColumns = [
+  {
+    field: "symbol",
+    title: (
+      <RenderItem title="Symbol" subtitle="Timestamp" alignItems="flex-start" />
+    ),
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.symbol}
+        titleType={tableTypes.TEXT}
+        subtitle={rowData.timestamp}
+        subtitleType={tableTypes.DATE}
+        alignItems="flex-start"
+      />
+    ),
+  },
+  {
+    field: "trade_type",
+    title: <RenderItem title="Trade Type" subtitle="Quantity" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.trade_type}
+        titleType={tableTypes.TEXT}
+        subtitle={rowData.qty}
+        subtitleType={tableTypes.SHARES}
+      />
+    ),
+    align: "right",
+  },
+  {
+    field: "order_type",
+    title: <RenderItem title="Order Type" subtitle="(Limit Price)" />,
+    render: (rowData) => (
+      <RenderItem
+        title={rowData.order_type}
+        titleType={tableTypes.TEXT}
+        subtitle={rowData.order_type === "LIMIT" ? rowData.limit_price : ""}
+        subtitleType={
+          rowData.order_type === "LIMIT" ? tableTypes.CURRENCY : tableTypes.TEXT
+        }
+      />
+    ),
+    align: "right",
+  },
+];
+
+
 const columns = [
   {
     field: "symbol",
@@ -70,38 +117,6 @@ const columns = [
         titleType={tableTypes.TEXT}
         subtitle={rowData.qty}
         subtitleType={tableTypes.NUMBER}
-      />
-    ),
-    align: "right",
-  },
-  // {
-  //   field: "price",
-  //   title: <RenderItem title="Price" subtitle="Value" />,
-  //   render: (rowData) => (
-  //     <RenderItem
-  //       title={rowData.price}
-  //       titleType={tableTypes.CURRENCY}
-  //       subtitle={rowData.value}
-  //       subtitleType={tableTypes.CURRENCY}
-  //     />
-  //   ),
-  //   align: "right",
-  // },
-];
-
-const orderColumns = [
-  ...columns,
-  {
-    field: "order_type",
-    title: <RenderItem title="Order Type" subtitle="(Limit Price)" />,
-    render: (rowData) => (
-      <RenderItem
-        title={rowData.order_type}
-        titleType={tableTypes.TEXT}
-        subtitle={rowData.order_type === "LIMIT" ? rowData.limit_price : ""}
-        subtitleType={
-          rowData.order_type === "LIMIT" ? tableTypes.CURRENCY : tableTypes.TEXT
-        }
       />
     ),
     align: "right",
@@ -395,22 +410,6 @@ const StockDetails = () => {
           </Grid>
           <Grid item md={6} sm={12} xs={12}>
             <BasicCard sty>
-              <CardContent>
-                <Grid item container direction="row">
-                  <Grid item xs={12} sm={6}>
-                    <Typography variant="h5">Long</Typography>
-                    <PortfolioPolar data={longData} />
-                  </Grid>
-
-                  <Grid item xs={12} sm={6}>
-                    <Typography variant="h5">Short</Typography>
-                    <PortfolioPolar data={shortData} />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography variant="h5">Transaction History</Typography>
-                  </Grid>
-                </Grid>
-              </CardContent>
               <Grid item xs={12}>
                 <Tabs
                   value={tab}
@@ -428,17 +427,18 @@ const StockDetails = () => {
               {tab === 0 ? (
                 <SortableStockTable
                   title="History"
-                  columns={orderColumns}
+                  columns={transactionColumns}
                   data={transHist}
-                  handleDelete={({ id }) =>
-                    dispatch(removeFromOrdersWithSnack(id, handleSnack))
-                  }
+                  buttons={false}
                 />
               ) : (
                 <SortableStockTable
                   title="Orders"
-                  columns={transactionColumns}
+                  columns={orderColumns}
                   data={ordersHist}
+                  handleDelete={({ id }) =>
+                  dispatch(removeFromOrdersWithSnack(id, handleSnack))
+                }
                 />
               )}
             </BasicCard>

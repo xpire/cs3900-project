@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   AppBar,
   Toolbar,
@@ -13,6 +13,7 @@ import { locationToRoutes } from "../../utils/routes";
 import Logo from "../../logo.svg";
 import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
 import { withStyles } from "@material-ui/core/styles";
+import { AuthContext } from "../../utils/authentication";
 
 const HeaderButton = styled(Button)`
   // color: white;
@@ -46,6 +47,7 @@ const MyHeader = ({
   panels,
   sidePanelState: [sidePanel, setSidePanel],
 }) => {
+  const { user } = useContext(AuthContext);
   let location = useLocation();
   const [headerTitle, setHeaderTitle] = useState("Investment Simulator");
 
@@ -59,19 +61,6 @@ const MyHeader = ({
   };
 
   useEffect(() => setHeaderTitle(getTitle(location.pathname)), [location]);
-  // const { user } = useContext(AuthContext);
-  // let history = useHistory();
-
-  // const handleLogout = () => {
-  //   app.auth().signOut();
-  //   delete axios.defaults.headers.common["id-token"];
-  //   console.log("header now:", axios.defaults.headers.common["id-token"]);
-  //   history.push("/");
-  // };
-
-  // const handleLogin = () => {
-  //   history.push("/signin");
-  // };
 
   return (
     <Box zIndex={1201}>
@@ -88,31 +77,13 @@ const MyHeader = ({
             exclusive
             onChange={(event, selected) => setSidePanel(selected)}
           >
-            {panels.map(({ name, icon }) => (
-              <ToggleButton value={name} key={name}>
-                {icon}
-              </ToggleButton>
-            ))}
+            {user &&
+              panels.map(({ name, icon }) => (
+                <ToggleButton value={name} key={name}>
+                  {icon}
+                </ToggleButton>
+              ))}
           </StyledToggleButtonGroup>
-
-          {/* LOGOUT */}
-          {/* {user ? (
-            <HeaderButton
-              variant="contained"
-              color="primary"
-              onClick={handleLogout}
-            >
-              Sign Out
-            </HeaderButton>
-          ) : (
-            <HeaderButton
-              variant="contained"
-              color="primary"
-              onClick={handleLogin}
-            >
-              Sign In
-            </HeaderButton>
-          )} */}
         </Toolbar>
       </AppBar>
     </Box>

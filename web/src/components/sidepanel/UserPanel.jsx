@@ -11,6 +11,7 @@ import { format } from "../../utils/formatter";
 import { useSelector } from "react-redux";
 import { HalfGridItem, Spacing } from "./Common";
 import ScrollPanel from "./ScrollablePanel";
+import { auth } from "../../utils/authentication";
 
 function UserPanel() {
   /* CAN BE MADE INTO FLOATING, BY USING AN INTERNAL CARD*/

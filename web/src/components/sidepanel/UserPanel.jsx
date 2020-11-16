@@ -75,7 +75,7 @@ function UserPanel() {
       <Divider />
       <Grid container>
         {items.map(({ id, label }) =>
-          HalfGridItem({ label: label, value: stats[id] })
+          HalfGridItem({ label: label, value: Math.abs(stats[id]) })
         )}
       </Grid>
     </div>

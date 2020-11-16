@@ -77,7 +77,10 @@ function WatchlistPanel() {
         const open = stocks[symbol].curr_day_open;
         const [change, changePercentage] = ComputeChanges(price, open);
         return (
-          <WatchlistItem {...{ symbol, price, change, changePercentage }} />
+          <WatchlistItem
+            key={symbol}
+            {...{ symbol, price, change, changePercentage }}
+          />
         );
       })}
     </List>

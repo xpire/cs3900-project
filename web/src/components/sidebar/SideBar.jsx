@@ -21,6 +21,8 @@ import { Routes } from "../../utils/routes";
 import { AuthContext } from "../../utils/authentication";
 import app from "../../utils/firebase";
 import Logo from "../../logo.svg";
+import { RESET, resetState } from "../../reducers";
+import { useDispatch } from "react-redux";
 
 const PaddedButton = styled(Button)`
   margin: 10px 0px;
@@ -37,11 +39,14 @@ const SideBar = ({ isOpen, handleChange, variant }) => {
   const { user } = useContext(AuthContext);
   let history = useHistory();
 
+  const dispatch = useDispatch();
+
   const handleLogout = () => {
     app.auth().signOut();
     delete axios.defaults.headers.common["id-token"];
     console.log("header now:", axios.defaults.headers.common["id-token"]);
     history.push("/");
+    dispatch(resetState());
   };
 
   const handleLogin = () => {

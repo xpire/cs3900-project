@@ -1,4 +1,15 @@
-# Xecute the Deal - `/web`
+<p align="center">
+   <img src="https://raw.githubusercontent.com/unsw-cse-capstone-project/capstone-project-comp3900-f13a-ecksdee/master/web/public/logo512.png?token=AHIETN6MXPXP6Y7BCS5JIP27XKCW6" width="70" height="70" padding="35" align="center"> 
+   <img width="70">
+   <img src="https://www.unsw.edu.au/sites/all/themes/mobileunswcorporate/logo.png" width="165" height="70" align="center">
+ </p>
+<!-- <div style="display:flex; justify-content: justify-around;">
+<img src="https://raw.githubusercontent.com/unsw-cse-capstone-project/capstone-project-comp3900-f13a-ecksdee/master/web/public/logo512.png?token=AHJHQ44J3VAZHXHPHB7F2227VU7DY" width="70" height="70" align="center"> 
+<img src="https://www.unsw.edu.au/sites/all/themes/mobileunswcorporate/logo.png" width="165" height="70" align="center">
+</div> -->
+
+
+<h2 align="center"> 🤣 COMP3900 Group project - Xecute the Deal 🤣 </h2> 
 
 This folder holds the frontend implementation for our application.
 

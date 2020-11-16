@@ -13,24 +13,21 @@ const PrivateRoute = ({ component: RouteComponent, isPublic, ...rest }) => {
   //   history.push("/signin")
   // }
 
-  if ((!! user && user.emailVerified) || isPublic) {
+  if ((!!user && user.emailVerified) || isPublic) {
     return (
       <Route
-      {...rest}
-      render={(routeProps) => <RouteComponent {...routeProps} />}
+        {...rest}
+        render={(routeProps) => <RouteComponent {...routeProps} />}
       />
-    )
+    );
   } else {
-    if (!! user){ 
-      app.auth().signOut()
-      return (
-        <Route
-          {...rest}
-          render= {(routeProps) => (<Redirect to="/signin" />)}
-        />
-      )
+    if (!!user) {
+      return app
+        .auth()
+        .signOut()
+        .finally(() => <Redirect to={"/signin"} />);
     } else {
-      
+      return <Redirect to={"/signin"} />;
     }
   }
 

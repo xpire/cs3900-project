@@ -102,8 +102,8 @@ const Profile = () => {
                   />
                 </Grid>
               </Grid>
-              {!graphLoading && <Cumulative data={graph} />}
             </CardContent>
+            {!graphLoading && <Cumulative data={graph} />}
           </StandardCard>
         </Grid>
         <Grid item xs={12}>

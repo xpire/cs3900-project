@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { Button } from "@material-ui/core";
 
@@ -22,6 +22,7 @@ function App() {
   const onClickDismiss = (key) => () => {
     notistackRef.current.closeSnackbar(key);
   };
+
   return (
     <Provider store={store}>
       <SnackbarProvider

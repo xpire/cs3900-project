@@ -36,6 +36,7 @@ const useSockets = () => {
     console.log({ readyState, user });
     if (readyState === ReadyState.OPEN) {
       user &&
+        user.emailVerified &&
         user
           .getIdToken()
           .then((token) => {

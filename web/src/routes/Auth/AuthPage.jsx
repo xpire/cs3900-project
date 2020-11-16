@@ -12,7 +12,10 @@ import {
 import app, { useFirebaseAuth } from "../../utils/firebase";
 import Page from "../../components/page/Page";
 import Login from "../../components/login/LoginComponent";
-import Alert, { useAlert } from "../../components/common/Alert";
+import Alert, {
+  useAlert,
+  ValidationError,
+} from "../../components/common/Alert";
 
 export const CardBody = styled(Typography)`
   padding-bottom: 20px;
@@ -46,7 +49,10 @@ const ResetPasswordPage = () => {
           });
         break;
       default:
-        throw { code: "Invalid URL" };
+        throw new ValidationError(
+          "Invalid URL",
+          "The URL you tried to reach is invalid, please try again."
+        );
       // Error: invalid mode.
     }
   } catch (error) {

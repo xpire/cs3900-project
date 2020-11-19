@@ -107,7 +107,7 @@ export default function PageContainer() {
       </ScrollToTop>
 
       {/* Side panel on the right */}
-      {user && (
+      {!!user && user.emailVerified && (
         <Hidden smDown>
           <SidePanel classes={classes} panel={panel} />
         </Hidden>

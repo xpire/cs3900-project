@@ -62,5 +62,13 @@ Worked with group to prepare demonstration + retrospective
 
 Week 9
 Finished documentation for backend
-Working on report
-Will be working on testing for account statistics
+Added 2 new tutorials for Leveling up/Experience and Understanding Stock Graphs
+    - the former explains how exp works, and the various unlocks at each level
+    - the latter explains how to interpret the various graphs we provide traders
+Performed alpha testing on our application
+    Found multiple bugs and UX issues across the code base and worked with group members to fix these
+    Includes redesigning the portfolio statistics and dashboard cards being displayed
+Divided roles for the final demonstration, and allocated these to each member
+    Also listed key points for the demonstration and rough time allocations
+Completed all User Manuals for the final submission using Figma
+Proofread final report

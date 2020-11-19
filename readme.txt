@@ -108,13 +108,20 @@ Folder structure
     "project_root/web/README.md" contains more detailed commands that are 
     provided by the dev ops scripts. ".md" file can either viewd on the 
     github repository or an equivalent pdf version of it can be found in the
-     same directory. 
+    same directory. 
+    - npm install and build is known to have warnings and/or errors that 
+    do not impact execution during the installation process which might halt
+    the installation process. If such instances happen please ignore the 
+    errors force and running the command again.  
+    - Often times, npm install on Vlab is know to have issues such as 
+    exceeding heap memory size. In that case please also execute the command
+    again. 
 ============================================================================
 # CONTEXT To run the python-based backend and reactjs based frontend, it is 
-required to build both dependencies so that project can run. For python, we 
-start a virtual environment and install the dependency. Note that whenever 
-we want to execute the backend, it is required to activate the virtual 
-environment that has been set up. For npm, we run the required command.
+required to build dependencies for both first. For python, we start a virtual 
+environment and install the dependencies. Note that whenever we want to 
+execute the backend, it is required to activate the virtual environment 
+that has been set up. For npm however, we simple run the required command.
 ----------------------------------------------------------------------------
 # EXECUTION - Python
 ----------------------------------------------------------------------------
@@ -128,6 +135,7 @@ environment that has been set up. For npm, we run the required command.
 ----------------------------------------------------------------------------
 > cd web
 > npm install
+> npm run build
 ----------------------------------------------------------------------------
 # EXECUTION - start python venv
 ----------------------------------------------------------------------------
@@ -140,14 +148,14 @@ environment that has been set up. For npm, we run the required command.
 
 ============================================================================
 (Build) First time setup
-    - NOTE: Only required to be executed once when setting the project. 
+    - NOTE: Only required to be executed once when setting up the project. 
 ============================================================================
 # CONTEXT: 
-    - The backend requires 2 pieces of authentication secret files in 
-    order to run, those are named "env.yaml" (API keys and environment 
-    variables) and "ecksdee-firebase.json" (for firebase authentication 
-    token). Despite those, the project also requires a PYTHONPATH variable 
-    to be set for python modules.
+    - To execute the backend, itrequires 2 pieces of authentication/key 
+    files, those are "env.yaml" (forAPI keys and environment variables) and 
+    "ecksdee-firebase.json" (for firebase authentication token). Despite 
+    those, the project also requires a PYTHONPATH variable to be set and 
+    database to be set up.
 ----------------------------------------------------------------------------
 # EXECUTION
 ----------------------------------------------------------------------------
@@ -159,10 +167,6 @@ environment that has been set up. For npm, we run the required command.
 
 ============================================================================
 (Execution) Running the application
-    - npm install and build is known to have warnings that do not impact
-    execution during the installation process which halts the installation 
-    process. If such instances happen please force installation by 
-    running the command again.  
 ============================================================================
 # CONTEXT: 
     - Please run the backend and the frontend in different shells 
@@ -172,12 +176,11 @@ environment that has been set up. For npm, we run the required command.
     in the corresponding shell.
 ----------------------------------------------------------------------------
 > cd backend
-> bash start.sh initial-populate path/to/env.yaml path/to/ecksdee-firebase.json
+> bash start.sh run
 ----------------------------------------------------------------------------
 # EXECUTION - frontend
 ----------------------------------------------------------------------------
 > cd web 
-> npm run build
 > npm run serve
 ----------------------------------------------------------------------------
 ============================================================================

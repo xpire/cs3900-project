@@ -26,13 +26,14 @@ class TDProvider(RepeatedUpdateProvider):
 
     def get_init_data(self):
         now = dt.datetime.now()
-        start_date = (now - dt.timedelta(days=365)).strftime("%Y-%m-%d %H:%M:%S")
+        num_days = 365 * 5
+        start_date = (now - dt.timedelta(days=num_days)).strftime("%Y-%m-%d %H:%M:%S")
 
         request = self.td.time_series(
             symbol=self.symbols_and_exchanges,
             interval="1day",
             timezone=settings.TIMEZONE,
-            outputsize=365,
+            outputsize=num_days,
             start_date=start_date,
         )
         return self.make_request(request)

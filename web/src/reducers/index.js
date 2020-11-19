@@ -299,9 +299,12 @@ export function removeFromWatchlistWithSnack(symbol, handleSnack) {
 
 export function removeFromOrdersWithSnack(id, handleSnack) {
   return function(dispatch) {
-    handleSnack(`/orders?id=${id}`, "delete")
-      .then((response) => dispatch(updateOrders(response.data)))
-      .catch((error) => console.log(error))
+    axios
+      .delete(`/orders?id=${id}`)
+      .then(
+        (response) => dispatch(updateOrders(response.data)),
+        (error) => console.log("ERROR deleting")
+      )
       .finally(() => {
         !auth.currentUser && dispatch(resetState());
       });

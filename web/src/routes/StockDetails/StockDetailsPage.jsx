@@ -64,7 +64,7 @@ const orderColumns = [
         alignItems="flex-start"
       />
     ),
-    align: "right",
+    // align: "right",
   },
   {
     field: "trade_type",

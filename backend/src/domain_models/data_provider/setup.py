@@ -26,13 +26,18 @@ patterns = [
 stock_patterns = {}
 exchange_info = {}
 
-for i in range(24):
+for j in range(4):
+
+    i = j * 5
     symbol = f"sim{i:02.0f}"
     exchange = f"XD{i:02.0f}"
     stock_patterns[symbol + "a"] = patterns[0]
     stock_patterns[symbol + "b"] = patterns[1]
+
+    open = timedelta(hours=23, minutes=10) + timedelta(minutes=i)
+    close = open + timedelta(minutes=5)
     exchange_info[exchange] = Exchange(
-        name=exchange, open=delta(i), close=delta(i + 1), timezone=settings.TIMEZONE, simulated=True
+        name=exchange, open=open, close=close, timezone=settings.TIMEZONE, simulated=True
     )
 
 

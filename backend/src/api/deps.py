@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 from src import crud
 from src import domain_models as dm
 from src import models
-from src.db.session import SessionLocal
 from src.core.utilities import HTTP400
+from src.db.session import SessionLocal
 
 
 def get_db() -> Generator:
@@ -117,4 +117,6 @@ def check_uid_email(email: str, uid: str):
         HTTPException: 400 user ID does not match provided email
     """
     if not auth.get_user(uid).email == email:
+        print(auth.get_user(uid))
+        print(auth.get_user(uid).email)
         raise HTTP400("The uid does not match with the provided email.")

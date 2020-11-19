@@ -64,6 +64,7 @@ export default function PageContainer() {
     }
   };
   const panel = PANELS.find((p) => p.name === sidePanel)?.panel;
+  const show_panel = !!user && user.emailVerified;
 
   return (
     <div className={classes.root}>
@@ -71,7 +72,7 @@ export default function PageContainer() {
       {/* Header */}
       <Header
         toggleMenu={toggleDrawer}
-        panels={PANELS}
+        panels={show_panel ? PANELS : []}
         sidePanelState={[sidePanel, selectSidePanel]}
       />
 
@@ -107,7 +108,7 @@ export default function PageContainer() {
       </ScrollToTop>
 
       {/* Side panel on the right */}
-      {!!user && user.emailVerified && (
+      {show_panel && (
         <Hidden smDown>
           <SidePanel classes={classes} panel={panel} />
         </Hidden>

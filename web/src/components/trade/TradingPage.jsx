@@ -225,14 +225,13 @@ const Trading = ({ symbol }) => {
       );
       // use limit quantity to maxValueConst
       setFinalQuantity(Math.min(finalQuantityConst, maxValueConst));
-      setPrice(actualPriceConst);
+      // console.log({ finalQuantityConst, actualPriceConst, maxValueConst });
     }
   }, [loading, state, update]);
   useEffect(() => setPrice(actualPrice * finalQuantity * commission), [
     actualPrice,
     finalQuantity,
     commission,
-    state,
   ]);
   // debounced portfolio allocation
   const [] = useDebounce(

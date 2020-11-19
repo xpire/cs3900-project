@@ -26,7 +26,7 @@ patterns = [
 stock_patterns = {}
 exchange_info = {}
 
-for j in range(4):
+for j in range(5):
 
     i = j * 5
     symbol = f"sim{i:02.0f}"

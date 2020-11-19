@@ -190,7 +190,7 @@ const Trading = ({ symbol }) => {
 
           break;
         case "short":
-          setMaxValue(
+          setMaxValueConst(
             portfolioStats.short_balance <= 0
               ? 0
               : Math.floor(

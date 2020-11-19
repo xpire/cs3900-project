@@ -34,7 +34,7 @@ for j in range(4):
     stock_patterns[symbol + "a"] = patterns[0]
     stock_patterns[symbol + "b"] = patterns[1]
 
-    open = timedelta(hours=23, minutes=10) + timedelta(minutes=i)
+    open = timedelta(hours=0, minutes=6) + timedelta(minutes=i)
     close = open + timedelta(minutes=5)
     exchange_info[exchange] = Exchange(
         name=exchange, open=open, close=close, timezone=settings.TIMEZONE, simulated=True

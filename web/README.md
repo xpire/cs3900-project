@@ -1,5 +1,5 @@
 <p align="center">
-   <img src="https://raw.githubusercontent.com/unsw-cse-capstone-project/capstone-project-comp3900-f13a-ecksdee/master/web/public/logo512.png?token=AHIETN6MXPXP6Y7BCS5JIP27XKCW6" width="70" height="70" padding="35" align="center"> 
+   <img src="https://raw.githubusercontent.com/ispark25/cs3900-demo/master/web/public/logo512.png?token=AHJHQ4ZCFCGHCLGVQBRZJA3BBERJK" width="70" height="70" padding="35" align="center"> 
    <img width="70">
    <img src="https://www.unsw.edu.au/sites/all/themes/mobileunswcorporate/logo.png" width="165" height="70" align="center">
  </p>

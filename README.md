@@ -1,5 +1,5 @@
 <p align="center">
-   <img src="https://raw.githubusercontent.com/ispark25/cs3900-demo/master/web/public/logo512.png?token=AHJHQ4ZCFCGHCLGVQBRZJA3BBERJK" width="70" height="70" padding="35" align="center"> 
+   <img src="https://raw.githubusercontent.com/xpire/cs3900-project/master/web/public/logo512.png" width="70" height="70" padding="35" align="center"> 
    <img width="70">
    <img src="https://www.unsw.edu.au/sites/all/themes/mobileunswcorporate/logo.png" width="165" height="70" align="center">
  </p>
